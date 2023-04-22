@@ -17,9 +17,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	wc.lpfnWndProc = WindowProc;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
-	ATOM class = RegisterClassExW(&wc);
 
-	if (class == 0)
+	ATOM windowClass = RegisterClassExW(&wc);
+
+	if (windowClass == 0)
 	{
 		OutputDebugStringW(L"Window class creation failed");
 		return -1;
@@ -61,21 +62,21 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 		case WM_DESTROY:
+		{
 			PostQuitMessage(0);
 			return 0;
-
+		}
 		case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
 
-			HBRUSH brush = CreateSolidBrush(RGB(255, 0, 0));
 			FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_MENUHILIGHT));
 
 			EndPaint(hwnd, &ps);
-		}
 			return 0;
+		}
 	}
 
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
 }

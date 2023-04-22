@@ -44,3 +44,6 @@
 **/CMakeScripts
 **/compile_commands.json
 
+# Directories
+.idea
+

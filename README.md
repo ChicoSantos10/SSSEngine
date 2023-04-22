@@ -1,2 +1,2 @@
 # SSSEngine
-An engine with no external libraries for learning purposes
+A game engine with no external libraries for learning purposes

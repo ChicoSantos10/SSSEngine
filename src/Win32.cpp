@@ -4,11 +4,16 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <iostream>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void InitConsole();
+void CloseConsole();
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
+	InitConsole();
+
 	const WCHAR CLASS_NAME[] = L"SSS Engine";
 
 	WNDCLASSEXW wc = { 0 };
@@ -44,7 +49,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		return -1;
 	}
 
-	OutputDebugStringW(L"Window created");
+	std::cout << "Hello World!" << std::endl;
+
 	ShowWindow(hwnd, nShowCmd);
 
 	MSG msg = { 0 };
@@ -54,6 +60,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		DispatchMessage(&msg);
 	}
 
+	CloseConsole();
 	return 0;
 }
 
@@ -79,4 +86,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+}
+
+void InitConsole()
+{
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+	freopen("CONOUT$", "w", stderr);
+	freopen("CONIN$", "r", stdin);
+}
+
+void CloseConsole()
+{
+	FreeConsole();
 }

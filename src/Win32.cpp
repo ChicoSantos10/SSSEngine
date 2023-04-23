@@ -5,8 +5,11 @@
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
+#include <windowsx.h>
+#include <xinput.h>
+#include <math.h>
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void InitConsole();
 void CloseConsole();
 
@@ -18,14 +21,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	WNDCLASSEXW wc = { 0 };
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WindowProc;
+	wc.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc = WindowMessageCallback;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
 
-	ATOM windowClass = RegisterClassExW(&wc);
-
-	if (windowClass == 0)
+	if (RegisterClassExW(&wc) == 0)
 	{
 		OutputDebugStringW(L"Window class creation failed");
 		return -1;
@@ -37,13 +38,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		L"SSS Engine",
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-		NULL,
-		NULL,
+		nullptr,
+		nullptr,
 		hInstance,
-		NULL
+		nullptr
 	);
 
-	if (hwnd == NULL)
+	if (hwnd == nullptr)
 	{
 		OutputDebugStringW(L"Window creation failed");
 		return -1;
@@ -52,21 +53,90 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	std::cout << "Hello World!" << std::endl;
 
 	ShowWindow(hwnd, nShowCmd);
-
-	MSG msg = { 0 };
-	while (GetMessage(&msg, NULL, 0, 0) > 0)
+	bool isRunning = true;
+	while (isRunning)
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		MSG msg = { 0 };
+		while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				isRunning = false;
+				break;
+			}
+
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+		}
+
+		// Gamepad
+		DWORD dwResult;
+		for (int i = 0; i < XUSER_MAX_COUNT; ++i)
+		{
+			XINPUT_STATE state;
+			ZeroMemory(&state, sizeof(XINPUT_STATE));
+
+			dwResult = XInputGetState(i, &state);
+			if (dwResult == ERROR_SUCCESS)
+			{
+				// Controller is connected
+				XINPUT_GAMEPAD gamepad = state.Gamepad;
+
+				if (gamepad.wButtons & XINPUT_GAMEPAD_A)
+				{
+					// Vibrations
+					XINPUT_VIBRATION vibration;
+					ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+					vibration.wLeftMotorSpeed = 1000;
+					vibration.wRightMotorSpeed = 2000;
+					XInputSetState(i, &vibration);
+				}
+				else
+				{
+					// Stop vibrations
+					XINPUT_VIBRATION vibration;
+					ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
+					XInputSetState(i, &vibration);
+				}
+
+				float leftThumbX = gamepad.sThumbLX;
+				float leftThumbY = gamepad.sThumbLY;
+
+				float magnitude = sqrt(leftThumbX * leftThumbX + leftThumbY * leftThumbY);
+				float normalizedLX = leftThumbX / magnitude;
+				float normalizedLY = leftThumbY / magnitude;
+
+				float normalizedMagnitude = 0;
+				if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+				{
+					//clip the magnitude at its expected maximum value
+					if (magnitude > 32767)
+						magnitude = 32767;
+
+					magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
+
+					normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
+				}
+				else
+				{
+					magnitude = 0.0;
+					normalizedMagnitude = 0.0;
+				}
+			}
+			else
+			{
+				// Controller is not connected
+			}
+		}
 	}
 
 	CloseConsole();
 	return 0;
 }
 
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	switch (uMsg)
+	switch (msg)
 	{
 		case WM_DESTROY:
 		{
@@ -83,9 +153,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			EndPaint(hwnd, &ps);
 			return 0;
 		}
+		case WM_LBUTTONDOWN:
+		{
+			std::cout << "Left mouse button pressed" << std::endl;
+			return 0;
+		}
 	}
 
-	return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+	return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
 
 void InitConsole()

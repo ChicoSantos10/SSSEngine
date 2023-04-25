@@ -1,6 +1,10 @@
 add_executable(SSSEngine WIN32 Win32.cpp)
 
-set_target_properties(SSSEngine PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Make a bin directory
+set(BUILD_DIR ${CMAKE_BINARY_DIR}/bin)
+file(MAKE_DIRECTORY ${BUILD_DIR})
+
+set_target_properties(SSSEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR})
 
 target_include_directories(SSSEngine PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
@@ -40,7 +44,7 @@ set(XAudio2_9_DLL ${CMAKE_SOURCE_DIR}/libs/XAudioRedist/xaudio2_9redist.dll)
 if (EXISTS ${XAudio2_9_DLL})
     message(STATUS "Found XAudio2.dll: ${XAudio2_9_DLL}")
     # move the dll to the build directory
-    add_custom_command(TARGET SSSEngine POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${XAudio2_9_DLL} ${CMAKE_BINARY_DIR}/src)
+    add_custom_command(TARGET SSSEngine POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${XAudio2_9_DLL} ${BUILD_DIR})
 else ()
     message(FATAL_ERROR "Could not find XAudio2_9.dll at ${XAudio2_9_DLL}")
 endif ()

@@ -6,12 +6,16 @@ file(MAKE_DIRECTORY ${BUILD_DIR})
 
 set_target_properties(SSSEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR})
 
-target_include_directories(SSSEngine PUBLIC ${CMAKE_SOURCE_DIR}/include)
+set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(SSSEngine PUBLIC ${INCLUDE_DIR})
+target_include_directories(SSSEngine PUBLIC ${INCLUDE_DIR}/directx)
 
 if (MINGW)
     target_link_options(SSSEngine PRIVATE -municode)
     target_link_libraries(SSSEngine PRIVATE libksuser.a)
 endif ()
+target_link_libraries(SSSEngine PRIVATE DXGI.lib)
+target_link_libraries(SSSEngine PRIVATE D3D12.lib)
 
 find_library(XAUDIO_REDIST XAudio2_9redist.lib PATHS ${CMAKE_SOURCE_DIR}/libs/XAudioRedist)
 if (XAUDIO_REDIST)
@@ -48,3 +52,5 @@ if (EXISTS ${XAudio2_9_DLL})
 else ()
     message(FATAL_ERROR "Could not find XAudio2_9.dll at ${XAudio2_9_DLL}")
 endif ()
+
+add_compile_definitions(DEBUG)

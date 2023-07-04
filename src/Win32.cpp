@@ -12,18 +12,13 @@
 #include "XAudioRedist/xaudio2fx.h"
 #include "XAudioRedist/xapofx.h"
 #include "XAudioRedist/xapo.h"
+#include "Renderer/Directx.cpp"
 
-#include "d3d12.h"
-#include "d3dx12.h"
-#include "dxgi1_6.h"
-#include "d3dcompiler.h"
-#include "DirectXMath.h"
 
 LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void InitConsole();
 void CloseConsole();
 void GamepadInput();
-void InitializeDirectx12();
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
@@ -62,7 +57,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		return -1;
 	}
 
-	InitializeDirectx12();
+	Renderer::DirectX::InitializeDirectx12(hwnd);
 
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -345,237 +340,4 @@ void InitConsole()
 void CloseConsole()
 {
 	FreeConsole();
-}
-
-void InitializeDirectx12()
-{
-#if DEBUG
-	// Enable the D3D12 debug layer.
-	{
-		Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-		{
-			debugController->EnableDebugLayer();
-		}
-	}
-#endif
-
-	// Query adapter
-	Microsoft::WRL::ComPtr<IDXGIFactory4> factory;
-	UINT factoryFlags = 0;
-
-#if DEBUG
-	factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-#endif
-
-	if (!SUCCEEDED(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory))))
-	{
-		// Throw error
-		throw std::runtime_error("Failed to create DXGI factory");
-	}
-
-	Microsoft::WRL::ComPtr<IDXGIAdapter1> hardwareAdapter1;
-	Microsoft::WRL::ComPtr<IDXGIAdapter4> hardwareAdapter4;
-
-	if (bool useWarp = false)
-	{
-		if (!SUCCEEDED(factory->EnumWarpAdapter(IID_PPV_ARGS(&hardwareAdapter1))))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to create warp adapter");
-		}
-		if (!SUCCEEDED(hardwareAdapter1.As(&hardwareAdapter4)))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to create warp adapter");
-		}
-	}
-	else
-	{
-		SIZE_T maxDedicatedVideoMemory = 0;
-		for (UINT i = 0; factory->EnumAdapters1(i, &hardwareAdapter1) != DXGI_ERROR_NOT_FOUND; ++i)
-		{
-			DXGI_ADAPTER_DESC1 desc;
-			hardwareAdapter1->GetDesc1(&desc);
-
-			if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-			{
-				// Don't select the Basic Render Driver adapter.
-				continue;
-			}
-
-			if (desc.DedicatedVideoMemory > maxDedicatedVideoMemory)
-			{
-				maxDedicatedVideoMemory = desc.DedicatedVideoMemory;
-				if (!SUCCEEDED(hardwareAdapter1.As(&hardwareAdapter4)))
-				{
-					// Throw error
-					throw std::runtime_error("Failed to create hardware adapter");
-				}
-			}
-		}
-	}
-
-	// Create device
-	Microsoft::WRL::ComPtr<ID3D12Device> device;
-	if (!SUCCEEDED(D3D12CreateDevice(hardwareAdapter4.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device))))
-	{
-		// Throw error
-		throw std::runtime_error("Failed to create device");
-	}
-
-	// Enable debug messages
-#if DEBUG
-	Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue;
-
-	if (SUCCEEDED(device.As(&infoQueue)))
-	{
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-
-		D3D12_MESSAGE_SEVERITY severities[] =
-		{
-			D3D12_MESSAGE_SEVERITY_INFO
-		};
-
-		D3D12_MESSAGE_ID denyIds[] =
-		{
-			D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,
-			D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,
-			D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE
-		};
-
-		D3D12_INFO_QUEUE_FILTER newFilter = {};
-		newFilter.DenyList.NumSeverities = _countof(severities);
-		newFilter.DenyList.pSeverityList = severities;
-		newFilter.DenyList.NumIDs = _countof(denyIds);
-		newFilter.DenyList.pIDList = denyIds;
-
-		infoQueue->PushStorageFilter(&newFilter);
-	}
-#endif
-
-	// Create command queue
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue;
-	{
-		D3D12_COMMAND_QUEUE_DESC desc = {};
-		desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-		desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
-		desc.NodeMask = 0;
-
-		if (!SUCCEEDED(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue))))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to create command queue");
-		}
-	}
-
-	// Create swap chain
-	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain4;
-	Microsoft::WRL::ComPtr<IDXGIFactory7> factory7;
-
-	UINT swapChainFlags = 0;
-#if DEBUG
-	swapChainFlags |= DXGI_CREATE_FACTORY_DEBUG;
-#endif
-
-	if (SUCCEEDED(CreateDXGIFactory2(swapChainFlags, IID_PPV_ARGS(&factory7))))
-	{
-		DXGI_SWAP_CHAIN_DESC1 desc = {};
-		desc.Width = 1920;
-		desc.Height = 1080;
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		desc.Stereo = false;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.BufferCount = 2;
-		desc.Scaling = DXGI_SCALING_STRETCH;
-		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-		desc.Flags = 0; // TODO: Check appropriate flags like allow tearing etc.
-
-		// TODO: Should pass the handle instead
-		HWND hwnd = GetActiveWindow();
-
-		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
-		if (!SUCCEEDED(factory7->CreateSwapChainForHwnd(commandQueue.Get(), hwnd, &desc, nullptr, nullptr, &swapChain1)))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to create swap chain");
-		}
-
-		if (!SUCCEEDED(swapChain1.As(&swapChain4)))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to create swap chain");
-		}
-	}
-
-	// Create descriptor heap
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap;
-	{
-		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		desc.NumDescriptors = 2;
-		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		desc.NodeMask = 0;
-
-		if (!SUCCEEDED(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&descriptorHeap))))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to create descriptor heap");
-		}
-	}
-
-	// Create the render target view
-	Microsoft::WRL::ComPtr<ID3D12Resource> buffers[2]; // TODO: This should be outside the scope of the function. Also the capacity should be determined somewhere else
-	UINT rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	{
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle;
-		descriptorHeap->GetCPUDescriptorHandleForHeapStart(&rtvHandle);
-
-		for (UINT i = 0; i < 2; ++i)
-		{
-			Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
-			if (!SUCCEEDED(swapChain4->GetBuffer(i, IID_PPV_ARGS(&backBuffer))))
-			{
-				// Throw error
-				throw std::runtime_error("Failed to get swap chain buffer");
-			}
-
-			device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
-			buffers[i] = backBuffer;
-			rtvHandle.ptr += rtvDescriptorSize;
-		}
-	}
-
-	// Create command allocator
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator;
-	if (!SUCCEEDED(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator))))
-	{
-		// Throw error
-		throw std::runtime_error("Failed to create command allocator");
-	}
-
-	// Create command list
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList;
-	if (!SUCCEEDED(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList))))
-	{
-		// Throw error
-		throw std::runtime_error("Failed to create command list");
-	}
-
-	// Create fence
-	Microsoft::WRL::ComPtr<ID3D12Fence> fence;
-	UINT64 fenceValue = 0;
-	{
-		if (!SUCCEEDED(device->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence))))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to create fence");
-		}
-	}
 }

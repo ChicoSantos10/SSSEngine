@@ -257,6 +257,35 @@ LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 			std::cout << "Left mouse button pressed" << std::endl;
 			return 0;
 		}
+        // Keyboard
+        case WM_KEYDOWN:
+		case WM_KEYUP:
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
+        {
+            switch (wParam)
+            {
+                case VK_ESCAPE:
+                {
+                    PostQuitMessage(0);
+                    return 0;
+                }
+                case VK_SPACE:
+                {
+                    std::cout << "Spacebar pressed" << std::endl;
+                    return 0;
+                }
+				case VK_UP:
+				{
+					std::cout << "Up arrow pressed" << std::endl;
+					return 0;
+				}
+                default:
+                {
+                    return DefWindowProcW(hwnd, msg, wParam, lParam);
+                }
+            }
+        }
 		default:
 			return DefWindowProcW(hwnd, msg, wParam, lParam);
 	}
@@ -328,9 +357,10 @@ void GamepadInput() {
 void InitConsole()
 {
 	AllocConsole();
-	freopen("CONOUT$", "w", stdout);
-	freopen("CONOUT$", "w", stderr);
-	freopen("CONIN$", "r", stdin);
+    FILE *stream;
+	freopen_s(&stream, "CONOUT$", "w", stdout);
+	freopen_s(&stream, "CONOUT$", "w", stderr);
+	freopen_s(&stream, "CONIN$", "r", stdin);
 }
 
 void CloseConsole()

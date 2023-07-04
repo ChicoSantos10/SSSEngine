@@ -10,6 +10,16 @@
 #include "d3dcompiler.h"
 #include "DirectXMath.h"
 
+#include <chrono>
+
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
+
 namespace Renderer::DirectX
 {
 	const uint8_t backBuffersNumber = 3;
@@ -286,6 +296,13 @@ namespace Renderer::DirectX
 			ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
 			WaitForSingleObject(fenceEvent, static_cast<DWORD>(duration.count()));
 		}
+	}
+
+	void Flush(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue, Microsoft::WRL::ComPtr<ID3D12Fence> fence, uint64_t& fenceValue, HANDLE fenceEvent )
+	{
+		Signal();
+		uint64_t fenceValueForSignal = fenceValue;
+		WaitForFenceValue(fence, fenceValueForSignal, fenceEvent);
 	}
 
 	void Render()

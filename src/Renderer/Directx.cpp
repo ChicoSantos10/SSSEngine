@@ -12,6 +12,7 @@
 #include "DirectXMath.h"
 
 #include <chrono>
+#include <utility>
 
 #ifdef max
 #undef max
@@ -267,10 +268,13 @@ namespace Renderer::DirectX
 		}
 
 		// Create command allocator
-		if (!SUCCEEDED(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators[0]))))
+		for (int i = 0; i < backBuffersNumber; ++i)
 		{
-			// Throw error
-			throw std::runtime_error("Failed to create command allocator");
+			if (!SUCCEEDED(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocators[i]))))
+			{
+				// Throw error
+				throw std::runtime_error("Failed to create command allocator");
+			}
 		}
 
 		// Create command list
@@ -279,6 +283,8 @@ namespace Renderer::DirectX
 			// Throw error
 			throw std::runtime_error("Failed to create command list");
 		}
+
+		commandList->Close();
 
 		// Create fence
 		{
@@ -321,7 +327,7 @@ namespace Renderer::DirectX
 	{
 		Signal();
 		uint64_t fenceValueForSignal = fenceValue;
-		WaitForFenceValue(fence, fenceValueForSignal, fenceEvent);
+		WaitForFenceValue(std::move(fence), fenceValueForSignal, fenceEvent);
 	}
 
 	void Render()
@@ -329,7 +335,7 @@ namespace Renderer::DirectX
 		auto commandAllocator = commandAllocators[currentBackBufferIndex];
 		auto backBuffer = backBuffers[currentBackBufferIndex];
 
-		commandAllocator->Reset();
+		ThrowIfFailed(commandAllocator->Reset());
 		commandList->Reset(commandAllocator.Get(), nullptr);
 
 		// Clear the render target

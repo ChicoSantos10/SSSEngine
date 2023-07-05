@@ -203,13 +203,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		return -1;
 	}
 
-	hr = pSourceVoice->Start(0);
+	/*hr = pSourceVoice->Start(0);
 	if (FAILED(hr))
 	{
 		OutputDebugStringW(L"XAudio2 source voice start failed");
 		return -1;
 	}
-	pSourceVoice->SetVolume(1);
+	pSourceVoice->SetVolume(1);*/
 
 	ShowWindow(hwnd, nShowCmd);
 	bool isRunning = true;
@@ -230,6 +230,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		// Gamepad
 		GamepadInput();
+
+		try {
+			Renderer::DirectX::Render();
+		}
+		catch (const std::exception& e) {
+			std::cout << e.what() << std::endl;
+		}
 	}
 
 	CloseConsole();

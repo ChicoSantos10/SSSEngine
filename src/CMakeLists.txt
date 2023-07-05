@@ -58,4 +58,4 @@ else ()
     message(FATAL_ERROR "Could not find XAudio2_9.dll at ${XAudio2_9_DLL}")
 endif ()
 
-add_compile_definitions(DEBUG)
+#add_compile_definitions(DEBUG)

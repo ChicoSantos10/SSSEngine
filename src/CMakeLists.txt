@@ -10,6 +10,11 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(SSSEngine PUBLIC ${INCLUDE_DIR})
 target_include_directories(SSSEngine PUBLIC ${INCLUDE_DIR}/directx)
 
+add_library(DIRECTX_GUIDs_LIB STATIC dxguids.cpp)
+target_include_directories(DIRECTX_GUIDs_LIB PUBLIC ${INCLUDE_DIR})
+target_include_directories(DIRECTX_GUIDs_LIB PUBLIC ${INCLUDE_DIR}/directx)
+target_link_libraries(SSSEngine PRIVATE DIRECTX_GUIDs_LIB)
+
 if (MINGW)
     target_link_options(SSSEngine PRIVATE -municode)
     target_link_libraries(SSSEngine PRIVATE libksuser.a)

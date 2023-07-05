@@ -1,7 +1,6 @@
 //
 // Created by Francisco Santos on 22/04/2023.
 //
-
 #include <windows.h>
 #include <cstdio>
 #include <iostream>

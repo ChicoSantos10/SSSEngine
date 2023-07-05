@@ -4,8 +4,9 @@
 
 #include <windows.h>
 #include <iostream>
-#include "d3d12.h"
-#include "d3dx12.h"
+#include "directx/d3d12.h"
+#include "directx/d3dx12.h"
+#include "directx/dxguids/dxguids.h"
 #include "dxgi1_6.h"
 #include "d3dcompiler.h"
 #include "DirectXMath.h"
@@ -51,6 +52,17 @@ namespace Renderer::DirectX
 		}
 	}
 
+    D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle()
+    {
+#if defined(_MSC_VER) || !defined(_WIN32)
+        return rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+#else
+        D3D12_CPU_DESCRIPTOR_HANDLE handle;
+        rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(&handle);
+        return handle;
+#endif
+    }
+
 	void InitializeDirectx12(HWND window)
 	{
 #if DEBUG
@@ -65,25 +77,32 @@ namespace Renderer::DirectX
 #endif
 
 		// Query adapter
-		Microsoft::WRL::ComPtr<IDXGIFactory4> factory;
+		Microsoft::WRL::ComPtr<IDXGIFactory2> factory2;
+		Microsoft::WRL::ComPtr<IDXGIFactory4> factory4;
 		UINT factoryFlags = 0;
 
 #if DEBUG
 		factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-		if (!SUCCEEDED(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory))))
+		if (!SUCCEEDED(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory2))))
 		{
 			// Throw error
 			throw std::runtime_error("Failed to create DXGI factory");
 		}
+
+        if (!SUCCEEDED(factory2.As(&factory4)))
+        {
+            // Throw error
+            throw std::runtime_error("Failed to cast DXGI factory");
+        }
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter1> hardwareAdapter1;
 		Microsoft::WRL::ComPtr<IDXGIAdapter4> hardwareAdapter4;
 
 		if (useWarp)
 		{
-			if (!SUCCEEDED(factory->EnumWarpAdapter(IID_PPV_ARGS(&hardwareAdapter1))))
+			if (!SUCCEEDED(factory4->EnumWarpAdapter(IID_PPV_ARGS(&hardwareAdapter1))))
 			{
 				// Throw error
 				throw std::runtime_error("Failed to create warp adapter");
@@ -97,7 +116,7 @@ namespace Renderer::DirectX
 		else
 		{
 			SIZE_T maxDedicatedVideoMemory = 0;
-			for (UINT i = 0; factory->EnumAdapters1(i, &hardwareAdapter1) != DXGI_ERROR_NOT_FOUND; ++i)
+			for (UINT i = 0; factory4->EnumAdapters1(i, &hardwareAdapter1) != DXGI_ERROR_NOT_FOUND; ++i)
 			{
 				DXGI_ADAPTER_DESC1 desc;
 				hardwareAdapter1->GetDesc1(&desc);
@@ -192,7 +211,7 @@ namespace Renderer::DirectX
 			desc.SampleDesc.Count = 1;
 			desc.SampleDesc.Quality = 0;
 			desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc.BufferCount = 2;
+			desc.BufferCount = backBuffersNumber;
 			desc.Scaling = DXGI_SCALING_STRETCH;
 			desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 			desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -216,7 +235,7 @@ namespace Renderer::DirectX
 		{
 			D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 			desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			desc.NumDescriptors = 2;
+			desc.NumDescriptors = backBuffersNumber;
 			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 			desc.NodeMask = 0;
 
@@ -230,7 +249,7 @@ namespace Renderer::DirectX
 		// Create the render target view
 		rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetDescriptorHandle();
 
 			for (UINT i = 0; i < backBuffersNumber; ++i)
 			{
@@ -320,7 +339,7 @@ namespace Renderer::DirectX
 		}
 
 		float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), currentBackBufferIndex, rtvDescriptorSize);
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(GetDescriptorHandle(), currentBackBufferIndex, rtvDescriptorSize);
 		commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 
 		// Present

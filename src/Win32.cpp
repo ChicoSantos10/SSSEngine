@@ -23,6 +23,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 {
 	InitConsole();
 
+    SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
 	const WCHAR CLASS_NAME[] = L"SSS Engine";
 
 	WNDCLASSEXW wc = { 0 };
@@ -230,13 +232,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 		// Gamepad
 		GamepadInput();
-
-		try {
-			Renderer::DirectX::Render();
-		}
-		catch (const std::exception& e) {
-			std::cout << e.what() << std::endl;
-		}
 	}
 
 	CloseConsole();
@@ -254,17 +249,25 @@ LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 		}
 		case WM_PAINT:
 		{
-			PAINTSTRUCT ps;
+			try {
+				Renderer::DirectX::Render();
+			}
+			catch (const std::exception& e) {
+				std::cout << e.what() << std::endl;
+				system("pause");
+			}
+			/*PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
 
 			FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_MENUHILIGHT));
 
-			EndPaint(hwnd, &ps);
+			EndPaint(hwnd, &ps);*/
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
 			std::cout << "Left mouse button pressed" << std::endl;
+            Renderer::DirectX::SetBorderless(!Renderer::DirectX::isBorderless);
 			return 0;
 		}
 		default:

@@ -10,6 +10,7 @@
 #include "dxgi1_6.h"
 #include "d3dcompiler.h"
 #include "DirectXMath.h"
+#include "comdef.h"
 
 #include <chrono>
 #include <utility>
@@ -31,6 +32,9 @@ namespace Renderer::DirectX
 	bool isInitialized = false;
 
 	RECT windowRect;
+    HWND windowHandle;
+    bool isBorderless;
+
 	Microsoft::WRL::ComPtr<ID3D12Device2> device;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain;
@@ -45,11 +49,43 @@ namespace Renderer::DirectX
 	uint64_t frameFenceValues[backBuffersNumber] = {};
 	HANDLE fenceEvent;
 
+	char* GetErrorMessage(HRESULT hr, char* message)
+	{
+		LPWSTR messageBuffer = nullptr;
+
+		LCID langId;
+		GetLocaleInfoEx(L"en-US", LOCALE_RETURN_NUMBER | LOCALE_ILANGUAGE, reinterpret_cast<LPWSTR>(&langId), sizeof(langId));
+
+		FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		               nullptr, hr, langId, (LPWSTR)&messageBuffer, 0, nullptr);
+
+		//Copy the error message into a std::string.
+		sprintf(message, "%ls", messageBuffer);
+
+		//Free the Win32's string's buffer.
+		LocalFree(messageBuffer);
+
+		return message;
+	}
+
 	void ThrowIfFailed(HRESULT hr)
 	{
 		if (FAILED(hr))
 		{
-			throw std::exception();
+			/*_com_error err(hr);
+			throw std::exception(err.ErrorMessage());*/
+
+			char message[1024];
+
+			HRESULT deviceRemovedReason = device->GetDeviceRemovedReason();
+            if (FAILED(deviceRemovedReason))
+			    GetErrorMessage(deviceRemovedReason, message);
+
+			std::cout << message << std::endl;
+
+			GetErrorMessage(hr, message);
+
+			throw std::exception(message);
 		}
 	}
 
@@ -64,6 +100,12 @@ namespace Renderer::DirectX
 #endif
     }
 
+    void DebugMessageCallback(D3D12_MESSAGE_CATEGORY cat, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, const char* description, void* context)
+    {
+        std::cout << "Directx " << cat << "ID: " << id << " ---> " << description << std::endl;
+        system("pause");
+    }
+
 	void InitializeDirectx12(HWND window)
 	{
 #if DEBUG
@@ -76,6 +118,8 @@ namespace Renderer::DirectX
 			}
 		}
 #endif
+
+        windowHandle = window;
 
 		// Query adapter
 		Microsoft::WRL::ComPtr<IDXGIFactory2> factory2;
@@ -149,7 +193,7 @@ namespace Renderer::DirectX
 
 		// Enable debug messages
 #if DEBUG
-		Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue;
+		Microsoft::WRL::ComPtr<ID3D12InfoQueue1> infoQueue;
 
 		if (SUCCEEDED(device.As(&infoQueue)))
 		{
@@ -176,6 +220,13 @@ namespace Renderer::DirectX
 			newFilter.DenyList.pIDList = denyIds;
 
 			infoQueue->PushStorageFilter(&newFilter);
+
+			DWORD messageCallbackCookie;
+			ThrowIfFailed(infoQueue->RegisterMessageCallback(
+					DebugMessageCallback,
+					D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS,
+					nullptr,
+					&messageCallbackCookie));
 		}
 #endif
 
@@ -361,14 +412,100 @@ namespace Renderer::DirectX
 		commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 		// Present the frame
-		if (!SUCCEEDED(swapChain->Present(1, 0)))
-		{
-			// Throw error
-			throw std::runtime_error("Failed to present frame");
-		}
+		ThrowIfFailed(swapChain->Present(1, 0));
 
 		Signal();
 		frameFenceValues[currentBackBufferIndex] = fenceValue;
+
+        currentBackBufferIndex = swapChain->GetCurrentBackBufferIndex();
+        WaitForFenceValue(fence, frameFenceValues[currentBackBufferIndex], fenceEvent);
 	}
+
+    void Resize(uint32_t new_width, uint32_t new_height)
+    {
+        if(new_width == 0 || new_height == 0)
+        {
+            return;
+        }
+        if(width == new_width && height == new_height)
+        {
+            return;
+        }
+
+        Flush(commandQueue, fence, fenceValue, fenceEvent);
+
+        width = new_width;
+        height = new_height;
+
+        // Release the resources holding references to the swap chain (requirement of IDXGISwapChain::ResizeBuffers) and reset the frame fence values to the current fence value.
+        for (uint32_t i = 0; i < backBuffersNumber; ++i)
+        {
+            backBuffers[i].Reset();
+            frameFenceValues[i] = fenceValue;
+        }
+
+        // Resize the swap chain to the desired dimensions.
+        DXGI_SWAP_CHAIN_DESC desc = { 0 };
+        ThrowIfFailed(swapChain->GetDesc(&desc));
+        ThrowIfFailed(swapChain->ResizeBuffers(backBuffersNumber, width, height, desc.BufferDesc.Format, desc.Flags));
+
+        currentBackBufferIndex = swapChain->GetCurrentBackBufferIndex();
+
+        // Update Render Target Views TODO: Make it a method
+
+        // Update the handle to the current back buffer view.
+        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(GetDescriptorHandle(), currentBackBufferIndex, rtvDescriptorSize);
+
+        // Create a RTV for each frame.
+        for (uint32_t i = 0; i < backBuffersNumber; ++i)
+        {
+            if (!SUCCEEDED(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffers[i]))))
+            {
+                // Throw error
+                throw std::runtime_error("Failed to get swap chain buffer");
+            }
+            device->CreateRenderTargetView(backBuffers[i].Get(), nullptr, rtvHandle);
+            rtvHandle.Offset(rtvDescriptorSize);
+        }
+    }
+
+    void SetBorderless(bool borderless)
+    {
+        if(isBorderless == borderless)
+        {
+            return;
+        }
+
+        isBorderless = borderless;
+
+        if(borderless)
+        {
+            // Get the current window info
+            RECT rect;
+            GetWindowRect(windowHandle, &rect);
+            windowRect = rect;
+
+            //UINT windowStyle = WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX);
+            LONG windowStyle = WS_OVERLAPPED;
+
+            SetWindowLongPtr(windowHandle, GWL_STYLE, windowStyle);
+            // This gets the monitor that the window is currently on (in case the user has more than one monitor) (https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-monitorfromwindow)
+            HMONITOR monitor = MonitorFromWindow(windowHandle, MONITOR_DEFAULTTONEAREST);
+            MONITORINFOEX monitorInfo = { 0 };
+            monitorInfo.cbSize = sizeof(MONITORINFOEX);
+            GetMonitorInfo(monitor, &monitorInfo);
+            UINT flags = SWP_FRAMECHANGED | SWP_NOACTIVATE;
+            SetWindowPos(windowHandle, HWND_TOP, monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.top, monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top, flags);
+            ShowWindow(windowHandle, SW_MAXIMIZE);
+        }
+        else
+        {
+            // Set the window style
+            SetWindowLongPtr(windowHandle, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+            // Set the window position
+            SetWindowPos(windowHandle, HWND_TOP, windowRect.left, windowRect.top, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_FRAMECHANGED);
+            ShowWindow(windowHandle, SW_NORMAL);
+        }
+    }
 }
 

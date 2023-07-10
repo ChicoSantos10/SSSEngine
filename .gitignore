@@ -31,9 +31,11 @@
 *.out
 *.app
 
-# CMake
-**/build-debug
-**/build-release
+# CMake and build directories
+**/build*/
+**/.build/
+**/build-debug/
+**/build-release/
 **/build-debug-msvc/
 **/CMakeCache.txt
 **/cmake_install.cmake

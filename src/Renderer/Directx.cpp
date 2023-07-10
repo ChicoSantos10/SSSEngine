@@ -16,6 +16,7 @@
 #include <utility>
 
 // TODO: Consider something like #pragma comment(lib, "d3d12.lib") instead of linking statically through cmake
+// Probably better to dynamically link to the dlls instead of statically linking to the libs
 
 #ifdef max
 #undef max

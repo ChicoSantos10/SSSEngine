@@ -15,6 +15,8 @@
 #include <chrono>
 #include <utility>
 
+// TODO: Consider something like #pragma comment(lib, "d3d12.lib") instead of linking statically through cmake
+
 #ifdef max
 #undef max
 #endif
@@ -370,7 +372,8 @@ namespace Renderer::DirectX
 		if (fence->GetCompletedValue() < fenceValue)
 		{
 			ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
-			WaitForSingleObject(fenceEvent, static_cast<DWORD>(duration.count()));
+			//WaitForSingleObject(fenceEvent, static_cast<DWORD>(duration.count()));
+			WaitForSingleObject(fenceEvent, INFINITE);
 		}
 	}
 

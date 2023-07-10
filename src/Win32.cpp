@@ -58,6 +58,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		return -1;
 	}
 
+	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
+
 	Renderer::DirectX::InitializeDirectx12(hwnd);
 
 	// COM initialization
@@ -234,6 +236,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		GamepadInput();
 	}
 
+	{
+		using namespace Renderer::DirectX;
+		Flush(commandQueue, fence, fenceValue, fenceEvent);
+		CloseHandle(fenceEvent);
+	}
+
 	CloseConsole();
 	return 0;
 }
@@ -264,10 +272,18 @@ LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 			EndPaint(hwnd, &ps);*/
 			return 0;
 		}
+		case WM_SIZE:
+		{
+			RECT rect;
+			GetClientRect(hwnd, &rect); // Client rect starts at [0, 0] so right and bottom are the width and height respectively
+
+			Renderer::DirectX::Resize(rect.right, rect.bottom);
+			return 0;
+		}
+		// Mouse
 		case WM_LBUTTONDOWN:
 		{
 			std::cout << "Left mouse button pressed" << std::endl;
-            Renderer::DirectX::SetBorderless(!Renderer::DirectX::isBorderless);
 			return 0;
 		}
         // Keyboard
@@ -299,6 +315,11 @@ LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARA
                 }
             }
         }
+		case WM_SYSCHAR: // Alt + Enter
+		{
+			Renderer::DirectX::SetBorderless(!Renderer::DirectX::isBorderless);
+			return 0;
+		}
 		default:
 			return DefWindowProcW(hwnd, msg, wParam, lParam);
 	}

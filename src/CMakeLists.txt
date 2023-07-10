@@ -1,10 +1,10 @@
 add_executable(SSSEngine WIN32 Win32.cpp)
 
 # Make a bin directory
-set(BUILD_DIR ${CMAKE_BINARY_DIR}/bin)
-file(MAKE_DIRECTORY ${BUILD_DIR})
+set(BIN_DIR ${CMAKE_BINARY_DIR}/bin)
+file(MAKE_DIRECTORY ${BIN_DIR})
 
-set_target_properties(SSSEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR})
+set_target_properties(SSSEngine PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
 
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(SSSEngine PUBLIC ${INCLUDE_DIR})

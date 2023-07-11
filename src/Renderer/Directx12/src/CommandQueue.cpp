@@ -5,6 +5,9 @@
 #include "CommandQueue.h"
 
 #include <utility>
+#ifdef __GNUC__
+#include <cassert>
+#endif
 #include "Win32Utils.h"
 
 // TODO: Create macro for not implemented exception and a new exception class

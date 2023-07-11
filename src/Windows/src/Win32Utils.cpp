@@ -13,11 +13,10 @@ void Win32::ThrowIfFailed(HRESULT hr)
 	{
 		char message[1024];
 
+		GetErrorMessage(hr, message);
 		std::cout << message << std::endl;
 
-		GetErrorMessage(hr, message);
-
-		throw std::exception(message);
+		throw std::exception();
 	}
 }
 

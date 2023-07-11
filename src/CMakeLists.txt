@@ -56,7 +56,7 @@ set(XAudio2_9_DLL ${CMAKE_SOURCE_DIR}/libs/XAudioRedist/xaudio2_9redist.dll)
 if (EXISTS ${XAudio2_9_DLL})
     message(STATUS "Found XAudio2.dll: ${XAudio2_9_DLL}")
     # move the dll to the build directory
-    add_custom_command(TARGET SSSEngine POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${XAudio2_9_DLL} ${BUILD_DIR})
+    add_custom_command(TARGET SSSEngine POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${XAudio2_9_DLL} ${BIN_DIR})
 else ()
     message(FATAL_ERROR "Could not find XAudio2_9.dll at ${XAudio2_9_DLL}")
 endif ()

@@ -33,6 +33,7 @@
 
 # CMake and build directories
 **/build*/
+**/*build*/
 **/.build/
 **/build-debug/
 **/build-release/

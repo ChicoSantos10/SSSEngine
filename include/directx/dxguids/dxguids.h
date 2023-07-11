@@ -31,7 +31,7 @@ template <typename T> GUID uuidof(T&) { return uuidof<T>(); }
 // along with the interface declaration using compiler intrinsics (__declspec(uuid(...)); the IID can then be retrieved 
 // using __uuidof. These intrinsics are not supported with all toolchains, so these helpers redefine IID values that can be 
 // used with the various adapter COM helpers (ComPtr, IID_PPV_ARGS, etc.) for Linux. IIDs are stable and cannot change, but as 
-// a precaution we statically assert the values are as expected when compiling for Windows.
+// a precaution we statically assert the values are as expected when compiling for Win32.
 #if defined(_MSC_VER)
 #define _DXGUIDS_SUPPORT_STATIC_ASSERT_IID
 #elif defined(__CRT_UUID_DECL)

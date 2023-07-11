@@ -59,18 +59,18 @@
 // Ignore the rest of this header if only the GUID definitions were requested
 #ifndef GUID_DEFS_ONLY
 
-#include <objbase.h>           // Windows COM declarations
+#include <objbase.h>           // Win32 COM declarations
 #include <sal.h>               // Markers for documenting API semantics
 #include <mmreg.h>             // Basic data types and constants for audio work
 #include <AudioSessionTypes.h> // For AUDIO_STREAM_CATEGORY
 
-// The Windows 7 version of audiosessiontypes.h does not define AUDIO_STREAM_CATEGORY, so if we are targeting
-// Windows 7 we might have to define it here, depending on which SDK is used.
+// The Win32 7 version of audiosessiontypes.h does not define AUDIO_STREAM_CATEGORY, so if we are targeting
+// Win32 7 we might have to define it here, depending on which SDK is used.
 #if _WIN32_WINNT < _WIN32_WINNT_WIN8
 
-// If we are compiling for Windows 7, we might be using the Windows 7 Platform SDK, which does not have AUDIO_STREAM_CATEGORY.
+// If we are compiling for Win32 7, we might be using the Win32 7 Platform SDK, which does not have AUDIO_STREAM_CATEGORY.
 // But we might be using a newer SDK (such as the Win8 Platform SDK), which has AUDIO_STREAM_CATEGORY.
-// Determine if we are using the Windows 7 Platform SDK by checking if WAVE_FORMAT_WM9_SPECTRUM_ANALYZER is defined.
+// Determine if we are using the Win32 7 Platform SDK by checking if WAVE_FORMAT_WM9_SPECTRUM_ANALYZER is defined.
 #ifndef WAVE_FORMAT_WM9_SPECTRUM_ANALYZER
 typedef enum _AUDIO_STREAM_CATEGORY
 {
@@ -151,7 +151,7 @@ typedef enum _AUDIO_STREAM_CATEGORY
 // Internal XAudio2 constants
 // The audio frame quantum can be calculated by reducing the fraction:
 //     SamplesPerAudioFrame / SamplesPerSecond
-#define XAUDIO2_QUANTUM_NUMERATOR   1                 // On Windows, XAudio2 processes audio
+#define XAUDIO2_QUANTUM_NUMERATOR   1                 // On Win32, XAudio2 processes audio
 #define XAUDIO2_QUANTUM_DENOMINATOR 100               //  in 10ms chunks (= 1/100 seconds)
 #define XAUDIO2_QUANTUM_MS (1000.0f * XAUDIO2_QUANTUM_NUMERATOR / XAUDIO2_QUANTUM_DENOMINATOR)
 
@@ -1261,7 +1261,7 @@ __inline float XAudio2CutoffFrequencyToOnePoleCoefficient(float CutoffFrequency,
  *  Flags - Flags specifying the XAudio2 object's behavior.
  *
  *  XAudio2Processor - An XAUDIO2_PROCESSOR value that specifies the
- *          hardware threads (Xbox) or processors (Windows) that XAudio2
+ *          hardware threads (Xbox) or processors (Win32) that XAudio2
  *          will use.  Note that XAudio2 supports concurrent processing on
  *          multiple threads, using any combination of XAUDIO2_PROCESSOR
  *          flags.  The values are platform-specific; platform-independent

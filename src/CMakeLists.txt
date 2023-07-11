@@ -1,4 +1,7 @@
-add_executable(SSSEngine WIN32 Win32.cpp)
+add_executable(SSSEngine WIN32 Win32.cpp Renderer/Directx12/src/CommandQueue.cpp Windows/src/Win32Utils.cpp)
+
+add_subdirectory(Renderer/Directx12) # TODO: Add renderer first then there add the directx12
+add_subdirectory(Windows)
 
 # Make a bin directory
 set(BIN_DIR ${CMAKE_BINARY_DIR}/bin)

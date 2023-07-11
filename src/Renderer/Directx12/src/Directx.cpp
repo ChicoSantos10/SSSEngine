@@ -2,7 +2,7 @@
 // Created by Francisco Santos on 04/07/2023.
 //
 
-#include <windows.h>
+#include <Windows.h>
 #include <iostream>
 #include "directx/d3d12.h"
 #include "directx/d3dx12.h"
@@ -11,6 +11,7 @@
 #include "d3dcompiler.h"
 #include "DirectXMath.h"
 #include "comdef.h"
+#include "Win32Utils.h"
 
 #include <chrono>
 #include <utility>
@@ -52,45 +53,7 @@ namespace Renderer::DirectX
 	uint64_t frameFenceValues[backBuffersNumber] = {};
 	HANDLE fenceEvent;
 
-	char* GetErrorMessage(HRESULT hr, char* message)
-	{
-		LPWSTR messageBuffer = nullptr;
 
-		LCID langId;
-		GetLocaleInfoEx(L"en-US", LOCALE_RETURN_NUMBER | LOCALE_ILANGUAGE, reinterpret_cast<LPWSTR>(&langId), sizeof(langId));
-
-		FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		               nullptr, hr, langId, (LPWSTR)&messageBuffer, 0, nullptr);
-
-		//Copy the error message into a std::string.
-		sprintf(message, "%ls", messageBuffer);
-
-		//Free the Win32's string's buffer.
-		LocalFree(messageBuffer);
-
-		return message;
-	}
-
-	void ThrowIfFailed(HRESULT hr)
-	{
-		if (FAILED(hr))
-		{
-			/*_com_error err(hr);
-			throw std::exception(err.ErrorMessage());*/
-
-			char message[1024];
-
-			HRESULT deviceRemovedReason = device->GetDeviceRemovedReason();
-            if (FAILED(deviceRemovedReason))
-			    GetErrorMessage(deviceRemovedReason, message);
-
-			std::cout << message << std::endl;
-
-			GetErrorMessage(hr, message);
-
-			throw std::exception(message);
-		}
-	}
 
     D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle()
     {
@@ -225,7 +188,7 @@ namespace Renderer::DirectX
 			infoQueue->PushStorageFilter(&newFilter);
 
 			DWORD messageCallbackCookie;
-			ThrowIfFailed(infoQueue->RegisterMessageCallback(
+			Win32::ThrowIfFailed(infoQueue->RegisterMessageCallback(
 					DebugMessageCallback,
 					D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS,
 					nullptr,
@@ -372,7 +335,7 @@ namespace Renderer::DirectX
 	{
 		if (fence->GetCompletedValue() < fenceValue)
 		{
-			ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
+			Win32::ThrowIfFailed(fence->SetEventOnCompletion(fenceValue, fenceEvent));
 			//WaitForSingleObject(fenceEvent, static_cast<DWORD>(duration.count()));
 			WaitForSingleObject(fenceEvent, INFINITE);
 		}
@@ -390,7 +353,7 @@ namespace Renderer::DirectX
 		auto commandAllocator = commandAllocators[currentBackBufferIndex];
 		auto backBuffer = backBuffers[currentBackBufferIndex];
 
-		ThrowIfFailed(commandAllocator->Reset());
+		Win32::ThrowIfFailed(commandAllocator->Reset());
 		commandList->Reset(commandAllocator.Get(), nullptr);
 
 		// Clear the render target
@@ -416,7 +379,7 @@ namespace Renderer::DirectX
 		commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 		// Present the frame
-		ThrowIfFailed(swapChain->Present(1, 0));
+		Win32::ThrowIfFailed(swapChain->Present(1, 0));
 
 		Signal();
 		frameFenceValues[currentBackBufferIndex] = fenceValue;
@@ -450,8 +413,8 @@ namespace Renderer::DirectX
 
         // Resize the swap chain to the desired dimensions.
         DXGI_SWAP_CHAIN_DESC desc = { 0 };
-        ThrowIfFailed(swapChain->GetDesc(&desc));
-        ThrowIfFailed(swapChain->ResizeBuffers(backBuffersNumber, width, height, desc.BufferDesc.Format, desc.Flags));
+        Win32::ThrowIfFailed(swapChain->GetDesc(&desc));
+        Win32::ThrowIfFailed(swapChain->ResizeBuffers(backBuffersNumber, width, height, desc.BufferDesc.Format, desc.Flags));
 
         currentBackBufferIndex = swapChain->GetCurrentBackBufferIndex();
 

@@ -32,7 +32,7 @@ DEFINE_GUID(CLSID_AudioReverb,          0xC2633B16, 0x471B, 0x4498, 0xB8, 0xC5, 
 // Ignore the rest of this header if only the GUID definitions were requested
 #ifndef GUID_DEFS_ONLY
 
-#include <objbase.h>    // Windows COM declarations
+#include <objbase.h>    // Win32 COM declarations
 #include <math.h>           // For log10()
 
 

@@ -25773,7 +25773,7 @@ HRESULT WINAPI D3D12GetDebugInterface( _In_ REFIID riid, _COM_Outptr_opt_ void**
 // singleton device for a process.  Removing the devices when configuration changes prevents
 // mismatched expectations of how a device is supposed to work after it has been created from the app's point of view.
 //
-// The call returns E_NOINTERFACE if an unrecognized feature is passed in or Windows Developer mode is not on.
+// The call returns E_NOINTERFACE if an unrecognized feature is passed in or Win32 Developer mode is not on.
 // The call returns E_INVALIDARG if the configuration of a feature is incorrect, the set of features passed
 // in are known to be incompatible with each other, or other errors.
 // Returns S_OK otherwise.

@@ -11,7 +11,8 @@
 #include "XAudioRedist/xaudio2fx.h"
 #include "XAudioRedist/xapofx.h"
 #include "XAudioRedist/xapo.h"
-#include "Renderer/Directx.cpp"
+#include "Renderer/Directx12/src/Directx.cpp"
+#include "CommandQueue.h"
 
 
 LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

@@ -2,9 +2,6 @@
 // Created by Francisco Santos on 13/07/2023.
 //
 
-#include <cassert>
-#include <iostream>
-
 #include "Win32Window.h"
 #include "commctrl.h"
 #include "atlBase.h"
@@ -18,6 +15,9 @@ namespace Win32
 	{
 		CA2W windowTitle(m_Title.c_str());
 
+		HMENU menu = CreateMenu();
+		AppendMenu(menu, MF_STRING, 1, L"File");
+
 		m_Handle = CreateWindowEx(
 				0,
 				windowClass.lpszClassName,
@@ -26,15 +26,15 @@ namespace Win32
 				CW_USEDEFAULT, CW_USEDEFAULT,
 				width, height,
 				parent,
-				nullptr,
+				menu,
 				windowClass.hInstance,
 				nullptr
 		);
 
 		assert(m_Handle && "Failed to create window.");
 
-		if (SetWindowSubclass(m_Handle, &Win32Window::WindowProcedure, 0, reinterpret_cast<DWORD_PTR>(this)))
-			std::cout << "Window subclassed." << std::endl;
+		if (!SetWindowSubclass(m_Handle, &Win32Window::WindowProcedure, 0, reinterpret_cast<DWORD_PTR>(this)))
+			std::cout << "Window subclassed failed!" << std::endl;
 
 		ShowWindow(m_Handle, SW_SHOW);
 	}

@@ -35,6 +35,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	wc.lpfnWndProc = WindowMessageCallback;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
+	wc.lpszMenuName = RT_MENU;
 
 	if (RegisterClassExW(&wc) == 0)
 	{
@@ -44,7 +45,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	Win32::Win32Window window(1280, 720, "SSS Engine", wc, nullptr);
 	HWND hwnd = window.GetHandle();
-	Win32::Win32Window subWindow(640, 360, "Sub Window", wc, hwnd);
+	//Win32::Win32Window subWindow(640, 360, "Sub Window", wc, hwnd);
 
 	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
 

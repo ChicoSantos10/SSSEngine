@@ -1,7 +1,8 @@
-add_executable(SSSEngine WIN32 Win32.cpp Renderer/Directx12/src/CommandQueue.cpp Win32/src/Win32Utils.cpp Common/src/Window.cpp)
+add_executable(SSSEngine WIN32 Win32.cpp Renderer/Directx12/src/CommandQueue.cpp Win32/src/Win32Utils.cpp Common/src/Window.cpp Win32/src/Win32Window.cpp)
 
 add_subdirectory(Renderer/Directx12) # TODO: Add renderer first then there add the directx12
 add_subdirectory(Win32)
+add_subdirectory(Common)
 
 # Make a bin directory
 set(BIN_DIR ${CMAKE_BINARY_DIR}/bin)
@@ -21,9 +22,12 @@ target_link_libraries(SSSEngine PRIVATE DIRECTX_GUIDs_LIB)
 if (MINGW)
     target_link_options(SSSEngine PRIVATE -municode)
     target_link_libraries(SSSEngine PRIVATE libksuser.a)
+elseif (MSVC)
+    add_compile_definitions(UNICODE _UNICODE)
 endif ()
 target_link_libraries(SSSEngine PRIVATE DXGI.lib)
 target_link_libraries(SSSEngine PRIVATE D3D12.lib)
+target_link_libraries(SSSEngine PRIVATE Comctl32.lib) # Windows subclasses
 
 find_library(XAUDIO_REDIST XAudio2_9redist.lib PATHS ${CMAKE_SOURCE_DIR}/libs/XAudioRedist)
 if (XAUDIO_REDIST)

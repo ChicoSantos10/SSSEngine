@@ -13,6 +13,7 @@
 #include "XAudioRedist/xapo.h"
 #include "Renderer/Directx12/src/Directx.cpp"
 #include "CommandQueue.h"
+#include "Win32Window.h"
 
 
 LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -41,27 +42,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		return -1;
 	}
 
-	HWND hwnd = CreateWindowExW(
-		0,
-		CLASS_NAME,
-		L"SSS Engine",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-		nullptr,
-		nullptr,
-		hInstance,
-		nullptr
-	);
-
-	if (hwnd == nullptr)
-	{
-		OutputDebugStringW(L"Window creation failed");
-		return -1;
-	}
+	Win32::Win32Window window(1280, 720, "SSS Engine", wc, nullptr);
+	HWND hwnd = window.GetHandle();
+	Win32::Win32Window subWindow(640, 360, "Sub Window", wc, hwnd);
 
 	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
 
-	Renderer::DirectX::InitializeDirectx12(hwnd);
+	//Renderer::DirectX::InitializeDirectx12(hwnd);
 
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -216,7 +203,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	}
 	pSourceVoice->SetVolume(1);*/
 
-	ShowWindow(hwnd, nShowCmd);
+	//ShowWindow(hwnd, nShowCmd);
 	bool isRunning = true;
 	while (isRunning)
 	{
@@ -237,11 +224,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		GamepadInput();
 	}
 
-	{
+	/*{
 		using namespace Renderer::DirectX;
 		Flush(commandQueue, fence, fenceValue, fenceEvent);
 		CloseHandle(fenceEvent);
-	}
+	}*/
 
 	CloseConsole();
 	return 0;
@@ -258,29 +245,31 @@ LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 		}
 		case WM_PAINT:
 		{
-			try {
+			/*try
+			{
 				Renderer::DirectX::Render();
 			}
-			catch (const std::exception& e) {
+			catch (const std::exception& e)
+			{
 				std::cout << e.what() << std::endl;
 				system("pause");
-			}
-			/*PAINTSTRUCT ps;
+			}*/
+			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hwnd, &ps);
 
 			FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_MENUHILIGHT));
 
-			EndPaint(hwnd, &ps);*/
+			EndPaint(hwnd, &ps);
 			return 0;
 		}
-		case WM_SIZE:
+		/*case WM_SIZE:
 		{
 			RECT rect;
 			GetClientRect(hwnd, &rect); // Client rect starts at [0, 0] so right and bottom are the width and height respectively
 
 			Renderer::DirectX::Resize(rect.right, rect.bottom);
 			return 0;
-		}
+		}*/
 		// Mouse
 		case WM_LBUTTONDOWN:
 		{

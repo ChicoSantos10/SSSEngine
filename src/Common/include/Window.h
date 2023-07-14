@@ -14,8 +14,7 @@ namespace SSSEngine
 	public:
 		using windowSize = uint16_t;
 
-		Window() = delete;
-		Window(windowSize width, windowSize height, std::string_view title);
+		Window(windowSize width, windowSize height, std::string title);
 		~Window() = default;
 
 		[[nodiscard]] inline windowSize GetWidth() const { return m_Width; }
@@ -23,6 +22,13 @@ namespace SSSEngine
 		[[nodiscard]] inline std::string_view GetTitle() const { return m_Title; }
 
 		virtual void ChangeWindowTitle(std::string_view title) = 0;
+		/* TODO:
+		 *  - Add a method to change the window size
+		 *  - Add a method to change the window position
+		 *  - Add a method to change the window icon
+		 *  - Add a method to change the window cursor
+		 *  - Add a method to minimize the window
+		 */
 	protected:
 		windowSize m_Width{};
 		windowSize m_Height{};

@@ -1,12 +1,13 @@
 //
 // Created by Francisco Santos on 22/04/2023.
 //
-#include <windows.h>
+#include "../src/ssspch.h" // TODO: Add this to the CMakeLists.txt include directories
+
 #include <cstdio>
-#include <iostream>
 #include <xinput.h>
 #include <cmath>
 #include <wrl\client.h>
+#include "Application.h"
 #include "XAudioRedist/xaudio2.h"
 #include "XAudioRedist/xaudio2fx.h"
 #include "XAudioRedist/xapofx.h"
@@ -15,26 +16,28 @@
 #include "CommandQueue.h"
 #include "Win32Window.h"
 
-
-LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void InitConsole();
 void CloseConsole();
 void GamepadInput();
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
+int WINAPI SSSENGINE_ENTRY_POINT
 {
 	InitConsole();
 
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+	/*SSSEngine::Application app;
+	app.Run();*/
 
 	const WCHAR CLASS_NAME[] = L"SSS Engine";
 
 	WNDCLASSEXW wc = { 0 };
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = WindowMessageCallback;
+	wc.lpfnWndProc = Win32::Win32Window::MainWindowProcedure;
 	wc.hInstance = hInstance;
 	wc.lpszClassName = CLASS_NAME;
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.lpszMenuName = RT_MENU;
 
 	if (RegisterClassExW(&wc) == 0)
@@ -209,7 +212,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	while (isRunning)
 	{
 		MSG msg = { };
-		while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT)
 			{
@@ -218,7 +221,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			}
 
 			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
+			DispatchMessage(&msg);
 		}
 
 		// Gamepad
@@ -235,88 +238,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	return 0;
 }
 
-LRESULT CALLBACK WindowMessageCallback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+void GamepadInput()
 {
-	switch (msg)
-	{
-		case WM_DESTROY:
-		{
-			PostQuitMessage(0);
-			return 0;
-		}
-		case WM_PAINT:
-		{
-			/*try
-			{
-				Renderer::DirectX::Render();
-			}
-			catch (const std::exception& e)
-			{
-				std::cout << e.what() << std::endl;
-				system("pause");
-			}*/
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hwnd, &ps);
-
-			FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_MENUHILIGHT));
-
-			EndPaint(hwnd, &ps);
-			return 0;
-		}
-		/*case WM_SIZE:
-		{
-			RECT rect;
-			GetClientRect(hwnd, &rect); // Client rect starts at [0, 0] so right and bottom are the width and height respectively
-
-			Renderer::DirectX::Resize(rect.right, rect.bottom);
-			return 0;
-		}*/
-		// Mouse
-		case WM_LBUTTONDOWN:
-		{
-			std::cout << "Left mouse button pressed" << std::endl;
-			return 0;
-		}
-        // Keyboard
-        case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-        {
-            switch (wParam)
-            {
-                case VK_ESCAPE:
-                {
-                    PostQuitMessage(0);
-                    return 0;
-                }
-                case VK_SPACE:
-                {
-                    std::cout << "Spacebar pressed" << std::endl;
-                    return 0;
-                }
-				case VK_UP:
-				{
-					std::cout << "Up arrow pressed" << std::endl;
-					return 0;
-				}
-                default:
-                {
-                    return DefWindowProcW(hwnd, msg, wParam, lParam);
-                }
-            }
-        }
-		case WM_SYSCHAR: // Alt + Enter
-		{
-			Renderer::DirectX::SetBorderless(!Renderer::DirectX::isBorderless);
-			return 0;
-		}
-		default:
-			return DefWindowProcW(hwnd, msg, wParam, lParam);
-	}
-}
-
-void GamepadInput() {
 	DWORD dwResult;
 	for (int i = 0; i < XUSER_MAX_COUNT; ++i)
 	{

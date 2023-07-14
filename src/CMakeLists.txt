@@ -1,4 +1,4 @@
-add_executable(SSSEngine WIN32 Win32.cpp Renderer/Directx12/src/CommandQueue.cpp Win32/src/Win32Utils.cpp Common/src/Window.cpp Win32/src/Win32Window.cpp)
+add_executable(SSSEngine WIN32 Win32.cpp Renderer/Directx12/src/CommandQueue.cpp Win32/src/Win32Utils.cpp Common/src/Window.cpp Win32/src/Win32Window.cpp Common/src/Application.cpp)
 
 add_subdirectory(Renderer/Directx12) # TODO: Add renderer first then there add the directx12
 add_subdirectory(Win32)

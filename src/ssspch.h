@@ -22,4 +22,5 @@
 //  - Create a preprocessor directive for each platform
 #if defined(_WIN32) || defined(_WIN64)
 	#include <windows.h>
+	#define SSSENGINE_ENTRY_POINT wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 #endif

@@ -21,7 +21,7 @@ namespace SSSEngine
 		[[nodiscard]] inline windowSize GetHeight() const { return m_Height; }
 		[[nodiscard]] inline std::string_view GetTitle() const { return m_Title; }
 
-		virtual void ChangeWindowTitle(std::string_view title) = 0;
+		virtual void ChangeWindowTitle(std::string title) = 0;
 		/* TODO:
 		 *  - Add a method to change the window size
 		 *  - Add a method to change the window position

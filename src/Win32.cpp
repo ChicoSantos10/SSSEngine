@@ -48,7 +48,8 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 	Win32::Win32Window window(1280, 720, "SSS Engine", wc, nullptr);
 	HWND hwnd = window.GetHandle();
-	//Win32::Win32Window subWindow(640, 360, "Sub Window", wc, hwnd);
+	//Win32::Win32Window subWindow(640, 360, "Sub Window 1", wc, hwnd);
+	//Win32::Win32Window subWindow2(640, 360, "Sub Window 2", wc, hwnd);
 
 	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
 

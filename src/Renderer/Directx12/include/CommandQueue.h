@@ -13,13 +13,16 @@
 #include "DirectXMath.h"
 #include "comdef.h"
 
-namespace Renderer::Directx {
+namespace Renderer::Directx
+{
 	using namespace Microsoft::WRL;
-	class CommandQueue {
+
+	class CommandQueue
+	{
 	public:
 		CommandQueue(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type);
 		virtual ~CommandQueue();
-		[[nodiscard]] ComPtr <ID3D12CommandQueue> GetCommandQueue() const;
+		[[nodiscard]] ComPtr<ID3D12CommandQueue> GetCommandQueue() const;
 		ComPtr<ID3D12GraphicsCommandList2> GetCommandList();
 		uint64_t ExecuteCommandList(const ComPtr<ID3D12GraphicsCommandList2>& commandList);
 		uint64_t Signal();

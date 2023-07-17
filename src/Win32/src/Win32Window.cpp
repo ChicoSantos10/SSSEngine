@@ -18,7 +18,8 @@ namespace Win32
 		HMENU menu = CreateMenu();
 		AppendMenu(menu, MF_STRING, 1, L"File");
 
-		int style = parent ? WS_CHILD | WS_BORDER | WS_CAPTION : WS_OVERLAPPEDWINDOW;
+		int childStyle = WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+		int style = parent ? WS_CHILD | childStyle : WS_OVERLAPPEDWINDOW;
 		std::cout << "Style: " << style << std::endl;
 
 		m_Handle = CreateWindowEx(
@@ -151,7 +152,7 @@ namespace Win32
 		}
 	}
 
-	void Win32Window::ChangeWindowTitle(std::string_view title)
+	void Win32Window::ChangeWindowTitle(std::string title)
 	{
 		CA2W newTitle(title.data());
 		SetWindowText(m_Handle, newTitle);

@@ -19,7 +19,7 @@ namespace Win32
 		[[nodiscard]] HWND GetHandle() const
 		{ return m_Handle; }
 
-		void ChangeWindowTitle(std::string_view title) override;
+		void ChangeWindowTitle(std::string title) override;
 
 		static LRESULT CALLBACK MainWindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	private:

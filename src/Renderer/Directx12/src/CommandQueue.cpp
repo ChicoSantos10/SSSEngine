@@ -16,7 +16,7 @@ namespace Renderer::Directx
 {
 #pragma region Constructors
 
-	CommandQueue::CommandQueue(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type) : m_device(std::move(device)), m_commandListType(type), m_fenceValue(0)
+	CommandQueue::CommandQueue(ComPtr<ID3D12Device2> device, D3D12_COMMAND_LIST_TYPE type) : m_Device(std::move(device)), m_CommandListType(type), m_FenceValue(0)
 	{
 		D3D12_COMMAND_QUEUE_DESC desc = {};
 		desc.Type = type;
@@ -24,11 +24,11 @@ namespace Renderer::Directx
 		desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 		desc.NodeMask = 0;
 
-		Win32::ThrowIfFailed(m_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_commandQueue)));
-		Win32::ThrowIfFailed(m_device->CreateFence(m_fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+		Win32::ThrowIfFailed(m_Device->CreateCommandQueue(&desc, IID_PPV_ARGS(&m_CommandQueue)));
+		Win32::ThrowIfFailed(m_Device->CreateFence(m_FenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_Fence)));
 
-		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-		assert(m_fenceEvent && "Failed to create fence event handle.");
+		m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		assert(m_FenceEvent && "Failed to create fence event handle.");
 	}
 
 	CommandQueue::~CommandQueue() = default;
@@ -39,7 +39,7 @@ namespace Renderer::Directx
 
 	ComPtr<ID3D12CommandQueue> CommandQueue::GetCommandQueue() const
 	{
-		return m_commandQueue;
+		return m_CommandQueue;
 	}
 
 	ComPtr<ID3D12GraphicsCommandList2> CommandQueue::GetCommandList()
@@ -47,20 +47,20 @@ namespace Renderer::Directx
 		ComPtr<ID3D12CommandAllocator> commandAllocator;
 		ComPtr<ID3D12GraphicsCommandList2> commandList;
 
-		if (!m_commandAllocators.empty() && IsFenceComplete(m_commandAllocators.front().fenceValue))
+		if (!m_CommandAllocators.empty() && IsFenceComplete(m_CommandAllocators.front().fenceValue))
 		{
-			commandAllocator = m_commandAllocators.front().commandAllocator;
-			m_commandAllocators.pop();
+			commandAllocator = m_CommandAllocators.front().commandAllocator;
+			m_CommandAllocators.pop();
 		}
 		else
 		{
 			commandAllocator = CreateCommandAllocator();
 		}
 
-		if (!m_commandLists.empty())
+		if (!m_CommandLists.empty())
 		{
-			commandList = m_commandLists.front();
-			m_commandLists.pop();
+			commandList = m_CommandLists.front();
+			m_CommandLists.pop();
 
 			Win32::ThrowIfFailed(commandList->Reset(commandAllocator.Get(), nullptr));
 		}
@@ -86,12 +86,12 @@ namespace Renderer::Directx
 			commandList.Get()
 		};
 
-		m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+		m_CommandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 		uint64_t fenceValue = Signal();
-		m_commandAllocators.emplace(CommandAllocatorEntry{ fenceValue, commandAllocator });
+		m_CommandAllocators.emplace(CommandAllocatorEntry{fenceValue, commandAllocator });
 
-		m_commandLists.push(commandList);
+		m_CommandLists.push(commandList);
 
 		commandAllocator->Release();
 
@@ -100,8 +100,8 @@ namespace Renderer::Directx
 
 	uint64_t CommandQueue::Signal()
 	{
-		uint64_t fenceValueForSignal = ++m_fenceValue;
-		Win32::ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), fenceValueForSignal));
+		uint64_t fenceValueForSignal = ++m_FenceValue;
+		Win32::ThrowIfFailed(m_CommandQueue->Signal(m_Fence.Get(), fenceValueForSignal));
 
 		return fenceValueForSignal;
 	}
@@ -114,15 +114,15 @@ namespace Renderer::Directx
 
 	bool CommandQueue::IsFenceComplete(uint64_t fenceValue)
 	{
-		return m_fence->GetCompletedValue() >= fenceValue;
+		return m_Fence->GetCompletedValue() >= fenceValue;
 	}
 
 	void CommandQueue::WaitForFenceValue(uint64_t fenceValue)
 	{
 		if (!IsFenceComplete(fenceValue))
 		{
-			Win32::ThrowIfFailed(m_fence->SetEventOnCompletion(fenceValue, m_fenceEvent));
-			WaitForSingleObject(m_fenceEvent, INFINITE);
+			Win32::ThrowIfFailed(m_Fence->SetEventOnCompletion(fenceValue, m_FenceEvent));
+			WaitForSingleObject(m_FenceEvent, INFINITE);
 		}
 	}
 
@@ -133,7 +133,7 @@ namespace Renderer::Directx
 	ComPtr<ID3D12CommandAllocator> CommandQueue::CreateCommandAllocator()
 	{
 		ComPtr<ID3D12CommandAllocator> commandAllocator;
-		Win32::ThrowIfFailed(m_device->CreateCommandAllocator(m_commandListType, IID_PPV_ARGS(&commandAllocator)));
+		Win32::ThrowIfFailed(m_Device->CreateCommandAllocator(m_CommandListType, IID_PPV_ARGS(&commandAllocator)));
 
 		return commandAllocator;
 	}
@@ -141,7 +141,7 @@ namespace Renderer::Directx
 	ComPtr<ID3D12GraphicsCommandList2> CommandQueue::CreateCommandList(const ComPtr<ID3D12CommandAllocator>& allocator)
 	{
 		ComPtr<ID3D12GraphicsCommandList2> commandList;
-		Win32::ThrowIfFailed(m_device->CreateCommandList(0, m_commandListType, allocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
+		Win32::ThrowIfFailed(m_Device->CreateCommandList(0, m_CommandListType, allocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
 
 		return commandList;
 	}

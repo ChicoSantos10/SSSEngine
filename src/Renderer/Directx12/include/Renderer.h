@@ -21,13 +21,17 @@ namespace Renderer::Directx
 		void CreateDescriptorHeaps();
 		void CreateRenderTargetViews();
 
-		void Render();
-		void AttachWindow(HWND window);
+		void SetClearColor(float r, float g, float b, float a, ID3D12GraphicsCommandList* commandList) const;
 	private:
+		static const uint16_t m_BackBuffersAmount = 3;
 		Device m_Device;
 		CommandQueue m_CommandQueue;
-		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain;
-		uint16_t m_BackBuffers = 3;
+		Microsoft::WRL::ComPtr<IDXGISwapChain4> m_SwapChain; // TODO: Create classes for each of these possibly
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_RtvDescriptorHeap;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_BackBuffers[m_BackBuffersAmount];
+		UINT m_RtvDescriptorSize;
+
+		[[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle() const;
 	};
 
 } // Directx

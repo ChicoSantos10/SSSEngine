@@ -39,13 +39,13 @@ namespace Renderer::Directx
 			ComPtr<ID3D12CommandAllocator> commandAllocator;
 		};
 
-		ComPtr<ID3D12Device2> m_device;
-		ComPtr<ID3D12CommandQueue> m_commandQueue;
-		ComPtr<ID3D12Fence> m_fence;
-		std::queue<ComPtr<ID3D12GraphicsCommandList2>> m_commandLists;
-		std::queue<CommandAllocatorEntry> m_commandAllocators;
-		uint64_t m_fenceValue;
-		D3D12_COMMAND_LIST_TYPE m_commandListType;
-		HANDLE m_fenceEvent;
+		ComPtr<ID3D12Device2> m_Device;
+		ComPtr<ID3D12CommandQueue> m_CommandQueue;
+		ComPtr<ID3D12Fence> m_Fence;
+		std::queue<ComPtr<ID3D12GraphicsCommandList2>> m_CommandLists;
+		std::queue<CommandAllocatorEntry> m_CommandAllocators;
+		uint64_t m_FenceValue;
+		D3D12_COMMAND_LIST_TYPE m_CommandListType;
+		HANDLE m_FenceEvent;
 	};
 }

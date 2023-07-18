@@ -65,5 +65,5 @@ else ()
     message(FATAL_ERROR "Could not find XAudio2_9.dll at ${XAudio2_9_DLL}")
 endif ()
 
-add_compile_definitions(DEBUG) # TODO: Change Debug to SSS_DEBUG
+add_compile_definitions($<$<CONFIG:Debug>:SSSENGINE_DEBUG> $<$<CONFIG:Release>:SSSENGINE_RELEASE>)
 target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)

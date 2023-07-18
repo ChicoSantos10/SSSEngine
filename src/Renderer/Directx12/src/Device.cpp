@@ -18,7 +18,7 @@ namespace Renderer::Directx
 		factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
-		Win32::ThrowIfFailed(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory2));
+		Win32::ThrowIfFailed(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory2)));
 		Win32::ThrowIfFailed(factory2.As(&factory4));
 
 		Microsoft::WRL::ComPtr<IDXGIAdapter1> hardwareAdapter1;
@@ -53,6 +53,6 @@ namespace Renderer::Directx
 		}
 
 		// Create device
-		Win32::ThrowIfFailed(D3D12CreateDevice(hardwareAdapter4.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_Device)));
+		Win32::ThrowIfFailed(D3D12CreateDevice(hardwareAdapter4.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_Device)));
 	}
 } // Directx

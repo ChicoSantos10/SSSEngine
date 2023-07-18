@@ -9,11 +9,13 @@
 
 namespace Renderer::Directx
 {
-	void
-	DebugMessageCallback(D3D12_MESSAGE_CATEGORY cat, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, const char* description, void* context)
+	void DebugMessageCallback(D3D12_MESSAGE_CATEGORY cat, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, const char* description,
+	                          void* context)
 	{
+#ifdef SSSENGINE_DEBUG
 		std::cout << "Directx " << cat << "ID: " << id << " ---> " << description << std::endl;
 		system("pause");
+#endif
 	}
 
 	bool Renderer::EnableDebugLayer()
@@ -98,7 +100,7 @@ namespace Renderer::Directx
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		desc.BufferCount = m_BackBuffers;
+		desc.BufferCount = m_BackBuffersAmount;
 		desc.Scaling = DXGI_SCALING_STRETCH;
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -112,21 +114,48 @@ namespace Renderer::Directx
 
 	void Renderer::CreateDescriptorHeaps()
 	{
-		assert(false && "Not implemented");
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		desc.NumDescriptors = m_BackBuffersAmount;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		desc.NodeMask = 0;
+
+		Win32::ThrowIfFailed(m_Device.GetDevice()->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&m_RtvDescriptorHeap)));
 	}
 
 	void Renderer::CreateRenderTargetViews()
 	{
-		assert(false && "Not implemented");
+		m_RtvDescriptorSize = m_Device.GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetDescriptorHandle();
+
+			for (UINT i = 0; i < m_BackBuffersAmount; ++i)
+			{
+				Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
+				Win32::ThrowIfFailed(m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
+
+				m_Device.GetDevice()->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
+				m_BackBuffers[i] = backBuffer;
+				rtvHandle.ptr += m_RtvDescriptorSize;
+			}
+		}
 	}
 
-	void Renderer::Render()
+	void Renderer::SetClearColor(float r, float g, float b, float a, ID3D12GraphicsCommandList* commandList) const
 	{
-		assert(false && "Not implemented");
+		float clearColor[] = {r, g, b, a};
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(GetDescriptorHandle(), m_SwapChain->GetCurrentBackBufferIndex(), m_RtvDescriptorSize);
+		commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 	}
 
-	void Renderer::AttachWindow(HWND window)
+	D3D12_CPU_DESCRIPTOR_HANDLE Renderer::GetDescriptorHandle() const
 	{
-		assert(false && "Not implemented");
+#if defined(_MSC_VER) || !defined(_WIN32)
+		return m_RtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+#else
+		D3D12_CPU_DESCRIPTOR_HANDLE handle;
+		m_RtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(&handle);
+		return handle;
+#endif
 	}
 } // Directx

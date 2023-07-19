@@ -7,6 +7,7 @@
 #include <xinput.h>
 #include <cmath>
 #include <wrl\client.h>
+#include "Renderer.h"
 #include "Application.h"
 #include "XAudioRedist/xaudio2.h"
 #include "XAudioRedist/xaudio2fx.h"
@@ -24,14 +25,14 @@ int WINAPI SSSENGINE_ENTRY_POINT
 {
 	InitConsole();
 
-    SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 	/*SSSEngine::Application app;
 	app.Run();*/
 
 	const WCHAR CLASS_NAME[] = L"SSS Engine";
 
-	WNDCLASSEXW wc = { 0 };
+	WNDCLASSEXW wc = {0};
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = Win32::Win32Window::MainWindowProcedure;
@@ -52,8 +53,9 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	//Win32::Win32Window subWindow2(640, 360, "Sub Window 2", wc, hwnd);
 
 	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
-
 	//Renderer::DirectX::InitializeDirectx12(hwnd);
+	Renderer::Directx::Renderer renderer;
+	renderer.Initialize(hwnd);
 
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -80,7 +82,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 		return -1;
 	}
 
-	WAVEFORMATEXTENSIBLE wave = { };
+	WAVEFORMATEXTENSIBLE wave = {};
 	wave.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
 	wave.Format.nChannels = 2;
 	wave.Format.nSamplesPerSec = 48000;
@@ -92,7 +94,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	wave.dwChannelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT;
 	wave.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
 
-	XAUDIO2_BUFFER buffer = { };
+	XAUDIO2_BUFFER buffer = {};
 	buffer.AudioBytes = wave.Format.nSamplesPerSec * wave.Format.nChannels * (wave.Format.wBitsPerSample / 8);
 	buffer.pAudioData = new BYTE[buffer.AudioBytes];
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
@@ -101,12 +103,12 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	// Populate the audio buffer with some simple sine wave data at 440 Hz.
 	for (DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i)
 	{
-		float t = i / (float)wave.Format.nSamplesPerSec;
+		float t = i / (float) wave.Format.nSamplesPerSec;
 		constexpr float TwoPi = 2.0f * 3.14159265358979323846264338327950288419716939937510f;
 
 		// Write the sample to the buffer
-		((short*)buffer.pAudioData)[i * 2 + 0] = (short)(sinf(t*TwoPi*440.0f) * 30000.0f); // Left channel
-		((short*)buffer.pAudioData)[i * 2 + 1] = (short)(sinf(t*TwoPi*440.0f) * 30000.0f); // Right channel
+		((short*) buffer.pAudioData)[i * 2 + 0] = (short) (sinf(t * TwoPi * 440.0f) * 30000.0f); // Left channel
+		((short*) buffer.pAudioData)[i * 2 + 1] = (short) (sinf(t * TwoPi * 440.0f) * 30000.0f); // Right channel
 	}
 
 	IXAudio2SubmixVoice* pSubMixVoice;
@@ -117,18 +119,18 @@ int WINAPI SSSENGINE_ENTRY_POINT
 		return -1;
 	}
 
-	XAUDIO2_SEND_DESCRIPTOR sendDescriptors = { 0, pSubMixVoice };
-	XAUDIO2_VOICE_SENDS sendList = { 1, &sendDescriptors };
+	XAUDIO2_SEND_DESCRIPTOR sendDescriptors = {0, pSubMixVoice};
+	XAUDIO2_VOICE_SENDS sendList = {1, &sendDescriptors};
 
-	IUnknown *reverbFx;
+	IUnknown* reverbFx;
 	if (FAILED(hr = XAudio2CreateReverb(&reverbFx)))
 	{
 		OutputDebugStringW(L"XAudio2 reverb initialization failed");
 		return -1;
 	}
 
-	XAUDIO2_EFFECT_DESCRIPTOR descriptor = {reverbFx, true, 1 };
-	XAUDIO2_EFFECT_CHAIN effectChain = { 1, &descriptor };
+	XAUDIO2_EFFECT_DESCRIPTOR descriptor = {reverbFx, true, 1};
+	XAUDIO2_EFFECT_CHAIN effectChain = {1, &descriptor};
 	XAUDIO2FX_REVERB_PARAMETERS reverbParameters;
 	reverbParameters.ReflectionsDelay = XAUDIO2FX_REVERB_DEFAULT_REFLECTIONS_DELAY;
 	reverbParameters.ReverbDelay = XAUDIO2FX_REVERB_DEFAULT_REVERB_DELAY;
@@ -153,25 +155,25 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	reverbParameters.RoomSize = XAUDIO2FX_REVERB_DEFAULT_ROOM_SIZE;
 	reverbParameters.WetDryMix = XAUDIO2FX_REVERB_DEFAULT_WET_DRY_MIX;
 
-	IUnknown *echoFx;
+	IUnknown* echoFx;
 	CreateFX(CLSID_FXEcho, &echoFx);
-	XAUDIO2_EFFECT_DESCRIPTOR echoDescriptor = { echoFx, true, 1 };
-	XAUDIO2_EFFECT_CHAIN echoChain = { 1, &echoDescriptor };
+	XAUDIO2_EFFECT_DESCRIPTOR echoDescriptor = {echoFx, true, 1};
+	XAUDIO2_EFFECT_CHAIN echoChain = {1, &echoDescriptor};
 	FXECHO_PARAMETERS echoParameters;
 	echoParameters.WetDryMix = FXECHO_DEFAULT_WETDRYMIX * 2;
 	echoParameters.Feedback = FXECHO_DEFAULT_FEEDBACK * 2;
 	echoParameters.Delay = FXECHO_DEFAULT_DELAY * 2;
 
-	IUnknown *EQFx;
+	IUnknown* EQFx;
 	CreateFX(CLSID_FXEQ, &EQFx);
-	XAUDIO2_EFFECT_DESCRIPTOR EQDescriptor = { EQFx, true, 1 };
-	XAUDIO2_EFFECT_CHAIN EQChain = { 1, &EQDescriptor };
+	XAUDIO2_EFFECT_DESCRIPTOR EQDescriptor = {EQFx, true, 1};
+	XAUDIO2_EFFECT_CHAIN EQChain = {1, &EQDescriptor};
 	FXEQ_PARAMETERS EQParameters;
 	EQParameters.Gain0 = FXEQ_MIN_GAIN;
 	EQParameters.FrequencyCenter0 = FXEQ_MIN_FREQUENCY_CENTER;
 
 	IXAudio2SourceVoice* pSourceVoice;
-	hr = xAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wave, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr, &sendList, nullptr);
+	hr = xAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*) &wave, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr, &sendList, nullptr);
 	if (FAILED(hr))
 	{
 		OutputDebugStringW(L"XAudio2 source voice initialization failed");
@@ -212,7 +214,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	bool isRunning = true;
 	while (isRunning)
 	{
-		MSG msg = { };
+		MSG msg = {};
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			if (msg.message == WM_QUIT)
@@ -227,6 +229,14 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 		// Gamepad
 		GamepadInput();
+
+		// Render
+		{
+			using namespace Renderer::Directx;
+			CommandQueue commandQueue = renderer.GetCommandQueue();
+			auto commandList = commandQueue.GetCommandList();
+			renderer.SetClearColor(0.5f, 0.2f, 0.5f, 0.5f, commandList.Get());
+		}
 	}
 
 	/*{
@@ -306,7 +316,7 @@ void GamepadInput()
 void InitConsole()
 {
 	AllocConsole();
-    FILE *stream;
+	FILE* stream;
 	freopen_s(&stream, "CONOUT$", "w", stdout);
 	freopen_s(&stream, "CONOUT$", "w", stderr);
 	freopen_s(&stream, "CONIN$", "r", stdin);

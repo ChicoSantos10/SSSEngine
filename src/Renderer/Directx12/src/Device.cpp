@@ -14,7 +14,7 @@ namespace Renderer::Directx
 		Microsoft::WRL::ComPtr<IDXGIFactory4> factory4;
 		UINT factoryFlags = 0;
 
-#if DEBUG
+#if SSSENGINE_DEBUG
 		factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 

@@ -14,7 +14,7 @@ namespace Renderer::Directx
 		public:
 			Device();
 			[[nodiscard]] Microsoft::WRL::ComPtr<ID3D12Device2> GetDevice() const { return m_Device; }
-			explicit operator Microsoft::WRL::ComPtr<ID3D12Device2>() const { return m_Device; }
+			explicit(false) operator Microsoft::WRL::ComPtr<ID3D12Device2>() const { return m_Device; } // NOLINT
 		private:
 			Microsoft::WRL::ComPtr<ID3D12Device2> m_Device;
 		};

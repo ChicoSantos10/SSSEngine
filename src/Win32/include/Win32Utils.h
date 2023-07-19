@@ -14,5 +14,5 @@ namespace Win32
 
 	void ThrowIfFailed(HRESULT hr);
 	void GetErrorMessage(HRESULT hr, char* message);
-	void GetDeviceRemovedReason(const ComPtr<ID3D12Device>&, HRESULT hr, char* message);
+	void GetDeviceRemovedReason(const ComPtr<ID3D12Device>&, char* message);
 }

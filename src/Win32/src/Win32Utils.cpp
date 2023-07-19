@@ -37,7 +37,7 @@ void Win32::GetErrorMessage(HRESULT hr, char* message)
 	LocalFree(messageBuffer);
 }
 
-void Win32::GetDeviceRemovedReason(const ComPtr<ID3D12Device>& device, HRESULT hr, char *message)
+void Win32::GetDeviceRemovedReason(const ComPtr<ID3D12Device>& device, char *message)
 {
 	HRESULT deviceRemovedReason = device->GetDeviceRemovedReason();
 	if (FAILED(deviceRemovedReason))

@@ -51,6 +51,8 @@ namespace Renderer::Directx
 		{
 			commandAllocator = m_CommandAllocators.front().commandAllocator;
 			m_CommandAllocators.pop();
+
+			Win32::ThrowIfFailed(commandAllocator->Reset());
 		}
 		else
 		{

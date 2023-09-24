@@ -17,6 +17,8 @@
 #include "CommandQueue.h"
 #include "Win32Window.h"
 
+#include "Renderer/Renderer.cpp"
+
 void InitConsole();
 void CloseConsole();
 void GamepadInput();
@@ -49,13 +51,6 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 	Win32::Win32Window window(1280, 720, "SSS Engine", wc, nullptr);
 	HWND hwnd = window.GetHandle();
-	//Win32::Win32Window subWindow(640, 360, "Sub Window 1", wc, hwnd);
-	//Win32::Win32Window subWindow2(640, 360, "Sub Window 2", wc, hwnd);
-
-	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
-	//Renderer::DirectX::InitializeDirectx12(hwnd);
-	Renderer::Directx::Renderer renderer;
-	renderer.Initialize(hwnd);
 
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -64,6 +59,18 @@ int WINAPI SSSENGINE_ENTRY_POINT
 		OutputDebugStringW(L"COM initialization failed");
 		return -1;
 	}
+
+	//Win32::Win32Window subWindow(640, 360, "Sub Window 1", wc, hwnd);
+	//Win32::Win32Window subWindow2(640, 360, "Sub Window 2", wc, hwnd);
+
+	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
+	//Renderer::DirectX::InitializeDirectx12(hwnd);
+	Renderer::LoadDirectx();
+	Renderer::createSwapChain(hwnd);
+	Renderer::createRtv();
+
+	//Renderer::Directx::Renderer renderer;
+	//renderer.Initialize(hwnd);
 
 	// XAudio2
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
@@ -232,10 +239,13 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 		// Render
 		{
-			using namespace Renderer::Directx;
-			CommandQueue commandQueue = renderer.GetCommandQueue();
-			auto commandList = commandQueue.GetCommandList();
-			renderer.SetClearColor(0.5f, 0.2f, 0.5f, 0.5f, commandList.Get());
+//			using namespace Renderer::Directx;
+//			CommandQueue commandQueue = renderer.GetCommandQueue();
+//			auto commandList = commandQueue.GetCommandList();
+//			renderer.SetClearColor(1.0f, 0.2f, 0.5f, 0.5f, commandList.Get());
+//			renderer.ExecuteCommandList(commandList);
+
+			Renderer::render();
 		}
 	}
 
@@ -244,6 +254,8 @@ int WINAPI SSSENGINE_ENTRY_POINT
 		Flush(commandQueue, fence, fenceValue, fenceEvent);
 		CloseHandle(fenceEvent);
 	}*/
+
+	Renderer::Unload();
 
 	CloseConsole();
 	return 0;

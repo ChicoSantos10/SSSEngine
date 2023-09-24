@@ -68,20 +68,19 @@ namespace Renderer::Directx
 
 			DWORD messageCallbackCookie;
 			Win32::ThrowIfFailed(infoQueue->RegisterMessageCallback(
-					DebugMessageCallback,
+						DebugMessageCallback,
 					D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS,
 					nullptr,
 					&messageCallbackCookie));
 		}
 	}
 
-	Renderer::Renderer()
-	{
-	}
+	Renderer::Renderer() : m_fenceValues{0}
+	{  }
 
 	void Renderer::Initialize(HWND window)
 	{
-		EnableDebugLayer(); // FIXME: Fix this: This removes the device so we need to create again
+		EnableDebugLayer(); // FIXME: This removes the device so we need to create again
 		CreateDevice();
 		CreateInfoQueue();
 		CreateCommandQueue();
@@ -130,7 +129,7 @@ namespace Renderer::Directx
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
 
 		try
-		{ ;
+		{
 			Win32::ThrowIfFailed(
 					factory->CreateSwapChainForHwnd(m_CommandQueue->GetCommandQueue().Get(), window, &desc, nullptr, nullptr, &swapChain1));
 		}
@@ -162,18 +161,16 @@ namespace Renderer::Directx
 	void Renderer::CreateRenderTargetViews()
 	{
 		m_RtvDescriptorSize = m_Device->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetDescriptorHandle();
+
+		for (UINT i = 0; i < m_BackBuffersAmount; ++i)
 		{
-			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetDescriptorHandle();
+			Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
+			Win32::ThrowIfFailed(m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
 
-			for (UINT i = 0; i < m_BackBuffersAmount; ++i)
-			{
-				Microsoft::WRL::ComPtr<ID3D12Resource> backBuffer;
-				Win32::ThrowIfFailed(m_SwapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffer)));
-
-				m_Device->GetDevice()->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
-				m_BackBuffers[i] = backBuffer;
-				rtvHandle.ptr += m_RtvDescriptorSize;
-			}
+			m_Device->GetDevice()->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
+			m_BackBuffers[i] = backBuffer;
+			rtvHandle.ptr += m_RtvDescriptorSize;
 		}
 	}
 
@@ -199,5 +196,12 @@ namespace Renderer::Directx
 		m_RtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(&handle);
 		return handle;
 #endif
+	}
+
+	void Renderer::ExecuteCommandList(const ComPtr<ID3D12GraphicsCommandList2>& commandList)
+	{
+		m_fenceValues[m_SwapChain->GetCurrentBackBufferIndex()] = m_CommandQueue->ExecuteCommandList(commandList);
+		m_SwapChain->Present(1, 0);
+		//m_CommandQueue->WaitForFenceValue(m_fenceValues[m_SwapChain->GetCurrentBackBufferIndex()]);
 	}
 } // Directx

@@ -7,14 +7,11 @@
 #include <xinput.h>
 #include <cmath>
 #include <wrl\client.h>
-#include "Renderer.h"
 #include "Application.h"
 #include "XAudioRedist/xaudio2.h"
 #include "XAudioRedist/xaudio2fx.h"
 #include "XAudioRedist/xapofx.h"
 #include "XAudioRedist/xapo.h"
-#include "Renderer/Directx12/src/Directx.cpp"
-#include "CommandQueue.h"
 #include "Win32Window.h"
 
 #include "Renderer/Renderer.cpp"
@@ -22,6 +19,10 @@
 void InitConsole();
 void CloseConsole();
 void GamepadInput();
+
+// NOTE: For some reason this needs to be on main
+extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 610; }
+extern "C" { __declspec(dllexport) extern const char8_t* D3D12SDKPath = u8".\\Directx12\\D3D12\\"; }
 
 int WINAPI SSSENGINE_ENTRY_POINT
 {
@@ -63,7 +64,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	//Win32::Win32Window subWindow(640, 360, "Sub Window 1", wc, hwnd);
 	//Win32::Win32Window subWindow2(640, 360, "Sub Window 2", wc, hwnd);
 
-	GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
+	//GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
 	//Renderer::DirectX::InitializeDirectx12(hwnd);
 	Renderer::LoadDirectx();
 	Renderer::createSwapChain(hwnd);

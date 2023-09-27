@@ -6,7 +6,7 @@
 
 #include <windows.h>
 #include <wrl/client.h>
-#include "directx/d3d12.h"
+//#include "directx/d3d12.h"
 
 namespace Win32
 {
@@ -14,5 +14,5 @@ namespace Win32
 
 	void ThrowIfFailed(HRESULT hr);
 	void GetErrorMessage(HRESULT hr, char* message);
-	void GetDeviceRemovedReason(const ComPtr<ID3D12Device>&, char* message);
+	//void GetDeviceRemovedReason(const ComPtr<ID3D12Device>&, char* message);
 }

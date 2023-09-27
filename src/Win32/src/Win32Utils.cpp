@@ -37,9 +37,10 @@ void Win32::GetErrorMessage(HRESULT hr, char* message)
 	LocalFree(messageBuffer);
 }
 
-void Win32::GetDeviceRemovedReason(const ComPtr<ID3D12Device>& device, char *message)
-{
-	HRESULT deviceRemovedReason = device->GetDeviceRemovedReason();
-	if (FAILED(deviceRemovedReason))
-		GetErrorMessage(deviceRemovedReason, message);
-}
+// TODO: This in directx dll
+//void Win32::GetDeviceRemovedReason(const ComPtr<ID3D12Device>& device, char *message)
+//{
+//	HRESULT deviceRemovedReason = device->GetDeviceRemovedReason();
+//	if (FAILED(deviceRemovedReason))
+//		GetErrorMessage(deviceRemovedReason, message);
+//}

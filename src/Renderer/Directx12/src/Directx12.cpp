@@ -4,22 +4,21 @@
 
 #include <windows.h>
 #include "Exceptions.h"
-#include "directx/d3d12.h"
-#include "directx/d3dx12/d3dx12.h"
-#include "dxguids/dxguids.h"
-#include "dxgi1_6.h"
+#include "d3d12.h"
+#include "d3dx12.h"
+#include "dxguids.h"
 #include "d3dcompiler.h"
 #include "DirectXMath.h"
 #include "comdef.h"
+#include "dxgi1_6.h"
 #include "Win32Utils.h"
 
 #include <iostream> // REMOVE: Don't use this and instead create a function that receives a callback function?
 
+//extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 610; }
+//extern "C" { __declspec(dllexport) extern const char8_t* D3D12SDKPath = u8".\\D3D12\\"; }
+
 #define SSSENGINE_DLL_EXPORT extern "C" __declspec(dllexport)
-
-extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 711; }
-
-extern "C" { __declspec(dllexport) extern const char8_t* D3D12SDKPath = u8".\\D3D12\\"; }
 
 namespace Directx12
 {
@@ -33,7 +32,7 @@ namespace Directx12
 		uint64_t frameFenceValues[BackBuffersAmount];
 
 		ComPtr<IDXGIFactory6> factory;
-		ComPtr<ID3D12Device8> device;
+		ComPtr<ID3D12Device9> device;
 		ComPtr<ID3D12CommandQueue> commandQueue;
 		ComPtr<ID3D12GraphicsCommandList> commandList;
 		ComPtr<IDXGISwapChain4> swapChain;
@@ -132,12 +131,10 @@ namespace Directx12
 			ThrowIfFailed(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&device)));
 		}
 
-#if 1
+#if 0 // TODO: Implement info queue
 		// Create Info Queue
 		{
-			ComPtr<ID3D12InfoQueue> tmp;
-			ThrowIfFailed(device->QueryInterface(IID_PPV_ARGS(&tmp)));
-			ThrowIfFailed(tmp.As(&infoQueue));
+			ThrowIfFailed(device->QueryInterface(IID_PPV_ARGS(&infoQueue)));
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);

@@ -230,6 +230,11 @@ int WINAPI SSSENGINE_ENTRY_POINT
 				isRunning = false;
 				break;
 			}
+			else if(msg.message == WM_DESTROY)
+			{
+				// TODO: Window closing must release its swap chain first
+				Renderer::Unload();
+			}
 
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -256,7 +261,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 		CloseHandle(fenceEvent);
 	}*/
 
-	Renderer::Unload();
+	//Renderer::Unload();
 
 	CloseConsole();
 	return 0;

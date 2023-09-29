@@ -32,7 +32,7 @@ namespace Directx12
 		uint64_t frameFenceValues[BackBuffersAmount];
 
 		ComPtr<IDXGIFactory6> factory;
-		ComPtr<ID3D12Device9> device;
+		ComPtr<ID3D12Device10> device;
 		ComPtr<ID3D12CommandQueue> commandQueue;
 		ComPtr<ID3D12GraphicsCommandList> commandList;
 		ComPtr<IDXGISwapChain4> swapChain;
@@ -42,7 +42,7 @@ namespace Directx12
 		ComPtr<ID3D12Fence> fence;
 		HANDLE fenceEvent;
 
-		ComPtr<ID3D12InfoQueue1> infoQueue;
+		ComPtr<ID3D12InfoQueue> infoQueue;
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle()
@@ -105,7 +105,7 @@ namespace Directx12
 
 		// Enabling debug
 		{
-#if SSSENGINE_DEBUG_GRAPHICS
+#ifdef SSSENGINE_DEBUG_GRAPHICS
 			ComPtr<ID3D12Debug> debugInterface;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface))))
 			{
@@ -119,7 +119,7 @@ namespace Directx12
 			ComPtr<IDXGIFactory2> factory2;
 			UINT factoryFlags = 0;
 
-#if SSSENGINE_DEBUG_GRAPHICS
+#ifdef SSSENGINE_DEBUG_GRAPHICS
 			factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
 
@@ -131,15 +131,13 @@ namespace Directx12
 			ThrowIfFailed(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&device)));
 		}
 
-#if 0 // TODO: Implement info queue
+#ifdef SSSENGINE_DEBUG_GRAPHICS
 		// Create Info Queue
 		{
 			ThrowIfFailed(device->QueryInterface(IID_PPV_ARGS(&infoQueue)));
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-
-			std::cout << "Creating Info Queue" << std::endl;
 
 			D3D12_MESSAGE_SEVERITY severities[] =
 					{
@@ -167,22 +165,24 @@ namespace Directx12
 
 			infoQueue->PushStorageFilter(&newFilter);
 
-			DWORD messageCallbackCookie;
-			auto messageCallback =
-					[](D3D12_MESSAGE_CATEGORY cat, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, const char* description,
-					   void* context)
-					{
-						std::cout << "Directx " << cat << "ID: " << id << " ---> " << description << std::endl;
-						system("pause");
-					};
-			ThrowIfFailed(infoQueue->RegisterMessageCallback(
-					messageCallback,
-					D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS,
-					nullptr,
-					&messageCallbackCookie
-			));
+			// TODO: Info Queue callback. Needs Info queue 1
+//			DWORD messageCallbackCookie;
+//			auto messageCallback =
+//					[](D3D12_MESSAGE_CATEGORY cat, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, const char* description,
+//					   void* context)
+//					{
+//						std::cout << "Directx " << cat << "ID: " << id << " ---> " << description << std::endl;
+//						system("pause");
+//					};
+//			ThrowIfFailed(infoQueue->RegisterMessageCallback(
+//					messageCallback,
+//					D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS,
+//					nullptr,
+//					&messageCallbackCookie
+//			));
 		}
 #endif
+
 
 		// Command Queue
 		{
@@ -230,6 +230,9 @@ namespace Directx12
 
 	SSSENGINE_DLL_EXPORT void CreateSwapChain(HWND window)
 	{
+		BOOL allowTearing = false;
+		ThrowIfFailed(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing)));
+
 		DXGI_SWAP_CHAIN_DESC1 desc = {};
 		desc.Width = 1920;
 		desc.Height = 1080;
@@ -242,7 +245,7 @@ namespace Directx12
 		desc.Scaling = DXGI_SCALING_STRETCH;
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-		desc.Flags = 0; // TODO: Check appropriate flags like allow tearing etc.
+		desc.Flags = allowTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
 		ComPtr<IDXGISwapChain1> chain;
 		ThrowIfFailed(factory->CreateSwapChainForHwnd(commandQueue.Get(), window, &desc, nullptr, nullptr, &chain));
@@ -304,44 +307,5 @@ namespace Directx12
 	{
 		Flush();
 		CloseHandle(fenceEvent);
-
-		//factory->Release();
-		//device->Release();
-		//commandQueue->Release();
-		//commandList->Release();
-		swapChain->Release(); // TODO: Figure out why this needs to be manually released. May have to do with the backing buffers keeping a reference
-		//descriptorHeap->Release();
-		//fence->Release();
 	}
-}
-
-BOOL WINAPI DllMain(HMODULE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
-{
-	using namespace Directx12;
-
-	switch (fdwReason)
-	{
-		case DLL_PROCESS_ATTACH: break;
-
-		case DLL_THREAD_ATTACH:
-			// Do thread-specific initialization.
-			break;
-
-		case DLL_THREAD_DETACH:
-			// Do thread-specific cleanup.
-			break;
-
-		case DLL_PROCESS_DETACH:
-
-			if (lpvReserved != nullptr)
-			{
-				break; // do not do cleanup if process termination scenario
-			}
-
-			// Perform any necessary cleanup.
-			break;
-		default: break;
-	}
-
-	return true;
 }

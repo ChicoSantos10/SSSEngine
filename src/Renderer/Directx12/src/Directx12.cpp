@@ -18,7 +18,7 @@
 //extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 610; }
 //extern "C" { __declspec(dllexport) extern const char8_t* D3D12SDKPath = u8".\\D3D12\\"; }
 
-#define SSSENGINE_DLL_EXPORT extern "C" __declspec(dllexport)
+#define SSSENGINE_DLL_EXPORT extern "C" [[maybe_unused]] __declspec(dllexport)
 
 namespace Directx12
 {
@@ -40,9 +40,16 @@ namespace Directx12
 		ComPtr<ID3D12Resource> backBuffers[BackBuffersAmount];
 		ComPtr<ID3D12CommandAllocator> commandAllocators[BackBuffersAmount];
 		ComPtr<ID3D12Fence> fence;
+		ComPtr<ID3D12RootSignature> rootSignature;
+		ComPtr<ID3D12PipelineState> pipelineState;
+		ComPtr<ID3D12InfoQueue> infoQueue;
 		HANDLE fenceEvent;
 
-		ComPtr<ID3D12InfoQueue> infoQueue;
+		ComPtr<ID3D12Resource> vertexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+
+		D3D12_VIEWPORT viewport;
+		D3D12_RECT scissorRect;
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle()
@@ -164,25 +171,8 @@ namespace Directx12
 			newFilter.DenyList.pIDList = denyIds;
 
 			infoQueue->PushStorageFilter(&newFilter);
-
-			// TODO: Info Queue callback. Needs Info queue 1
-//			DWORD messageCallbackCookie;
-//			auto messageCallback =
-//					[](D3D12_MESSAGE_CATEGORY cat, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID id, const char* description,
-//					   void* context)
-//					{
-//						std::cout << "Directx " << cat << "ID: " << id << " ---> " << description << std::endl;
-//						system("pause");
-//					};
-//			ThrowIfFailed(infoQueue->RegisterMessageCallback(
-//					messageCallback,
-//					D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS,
-//					nullptr,
-//					&messageCallbackCookie
-//			));
 		}
 #endif
-
 
 		// Command Queue
 		{
@@ -214,14 +204,6 @@ namespace Directx12
 			}
 		}
 
-		// Create Command List
-		{
-			ThrowIfFailed(
-					device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[0].Get(), nullptr, IID_PPV_ARGS(&commandList)));
-
-			ThrowIfFailed(commandList->Close());
-		}
-
 		// Create fence
 		{
 			ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
@@ -234,8 +216,8 @@ namespace Directx12
 		ThrowIfFailed(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing)));
 
 		DXGI_SWAP_CHAIN_DESC1 desc = {};
-		desc.Width = 1920;
-		desc.Height = 1080;
+		desc.Width = 0;  // Note: Passing 0 means use window height and width
+		desc.Height = 0;
 		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.Stereo = false;
 		desc.SampleDesc.Count = 1;
@@ -250,13 +232,27 @@ namespace Directx12
 		ComPtr<IDXGISwapChain1> chain;
 		ThrowIfFailed(factory->CreateSwapChainForHwnd(commandQueue.Get(), window, &desc, nullptr, nullptr, &chain));
 		ThrowIfFailed(chain.As(&swapChain));
+
+		RECT rect;
+		GetWindowRect(window, &rect);
+		LONG width = rect.right - rect.left;
+		LONG height = rect.bottom - rect.top;
+		viewport.TopLeftX = 0;
+		viewport.TopLeftY = 0;
+		viewport.Width = static_cast<FLOAT>(width);
+		viewport.Height = static_cast<FLOAT>(height);
+
+		scissorRect.top = 0;
+		scissorRect.left = 0;
+		scissorRect.right = width;
+		scissorRect.bottom = height;
 	}
 
 	SSSENGINE_DLL_EXPORT void CreateRTV()
 	{
 		descriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetDescriptorHandle();
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle());
 
 		for (UINT i = 0; i < BackBuffersAmount; ++i)
 		{
@@ -265,7 +261,7 @@ namespace Directx12
 
 			device->CreateRenderTargetView(backBuffer.Get(), nullptr, rtvHandle);
 			backBuffers[i] = backBuffer;
-			rtvHandle.ptr += descriptorSize;
+			rtvHandle.Offset(1, descriptorSize);
 		}
 	}
 
@@ -278,7 +274,12 @@ namespace Directx12
 		// Populate command list
 		{
 			ThrowIfFailed(commandAllocator->Reset());
-			ThrowIfFailed(commandList->Reset(commandAllocator.Get(), nullptr));
+			ThrowIfFailed(commandList->Reset(commandAllocator.Get(), pipelineState.Get()));
+
+//			commandList->SetPipelineState(pipelineState.Get());
+			commandList->SetGraphicsRootSignature(rootSignature.Get());
+			commandList->RSSetViewports(1, &viewport);
+			commandList->RSSetScissorRects(1, &scissorRect);
 
 			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			commandList->ResourceBarrier(1, &barrier);
@@ -288,6 +289,9 @@ namespace Directx12
 
 			constexpr float clearColor[]{0.5f, 0.5f, 0.75f, 1.0f};
 			commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
+			commandList->DrawInstanced(3, 1, 0, 0);
 
 			barrier = CD3DX12_RESOURCE_BARRIER::Transition(backBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 			commandList->ResourceBarrier(1, &barrier);
@@ -295,10 +299,145 @@ namespace Directx12
 			ThrowIfFailed(commandList->Close());
 		}
 
-		ID3D12CommandList* commandLists[] = {commandList.Get()};
+		ID3D12CommandList* commandLists[] = { commandList.Get() };
 		commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
-		swapChain->Present(1, 0);
+		ThrowIfFailed(swapChain->Present(1, 0));
+
+		Flush();
+	}
+
+	SSSENGINE_DLL_EXPORT void ResizeSwapChain(const ComPtr<IDXGISwapChain4>& chain, uint32_t width, uint32_t height)
+	{
+		assert(width > 0 && height > 0 && "Must pass appropriate values for width and height");
+
+		DXGI_SWAP_CHAIN_DESC1 desc;
+		chain->GetDesc1(&desc);
+		if (desc.Width == width && desc.Height == height)
+			return;
+
+		// TODO: Needs to be specific to this swap chain
+		Flush();
+		for (int i = 0; i < BackBuffersAmount; ++i)
+		{
+			backBuffers[i].Reset();
+			frameFenceValues[i] = frameFenceValues[chain->GetCurrentBackBufferIndex()];
+		}
+
+		ThrowIfFailed(chain->ResizeBuffers(BackBuffersAmount, width, height, desc.Format, desc.Flags));
+
+		CreateRTV();
+	}
+
+	SSSENGINE_DLL_EXPORT void LoadAssetsTest()
+	{
+		// Root signature
+		{
+			CD3DX12_ROOT_SIGNATURE_DESC rootSig;
+			rootSig.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+			ComPtr<ID3DBlob> signature;
+			ComPtr<ID3DBlob> error;
+
+			ThrowIfFailed(D3D12SerializeRootSignature(&rootSig, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+			ThrowIfFailed(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
+			                                          IID_PPV_ARGS(&rootSignature)));
+		}
+
+		// PSO
+		{
+			ComPtr<ID3DBlob> vertexShader;
+			ComPtr<ID3DBlob> fragmentShader;
+			ComPtr<ID3DBlob> errorMsgs;
+			UINT compilerFlags = 0;
+
+#ifdef SSSENGINE_DEBUG_GRAPHICS
+			compilerFlags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
+#endif
+
+			auto DebugCompilation = [&](HRESULT hr)
+			{
+				if (FAILED(hr))
+				{
+					auto msg = reinterpret_cast<const char*>(errorMsgs->GetBufferPointer());
+					std::cout << msg << std::endl;
+				}
+			};
+
+			constexpr LPCWSTR filePath = LR"(N:\C++Projects\SSSEngine\src\Renderer\Shaders\TestShader.hlsl)";
+			DebugCompilation(D3DCompileFromFile(filePath, nullptr, nullptr, "vertex", "vs_5_0", compilerFlags, 0, &vertexShader, &errorMsgs));
+			DebugCompilation(D3DCompileFromFile(filePath, nullptr, nullptr, "fragment", "ps_5_0", compilerFlags, 0, &fragmentShader, &errorMsgs));
+
+			D3D12_INPUT_ELEMENT_DESC inputDesc[]
+			{
+					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+					{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+			};
+
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+			psoDesc.InputLayout = { inputDesc, _countof(inputDesc)};
+			psoDesc.pRootSignature = rootSignature.Get();
+			psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
+			psoDesc.PS = CD3DX12_SHADER_BYTECODE(fragmentShader.Get());
+			psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+			psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+			psoDesc.DepthStencilState.DepthEnable = false;
+			psoDesc.DepthStencilState.StencilEnable = false;
+			psoDesc.SampleMask = UINT_MAX;
+			psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			psoDesc.NumRenderTargets = 1;
+			psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+			psoDesc.SampleDesc.Count = 1;
+
+			ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+		}
+
+		// Create Command List
+		{
+			ThrowIfFailed(
+					device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[0].Get(), pipelineState.Get(), IID_PPV_ARGS(&commandList)));
+
+			ThrowIfFailed(commandList->Close());
+		}
+
+		// Vertex Buffer
+		{
+			struct Vertex
+			{
+				DirectX::XMFLOAT3 position;
+				DirectX::XMFLOAT4 color;
+			};
+
+			Vertex vertices[]
+			{
+				{ {0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f} },
+				{ {0.25f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f} },
+				{ {-0.25f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f} }
+			};
+
+			constexpr UINT vertexBufferSize = sizeof(vertices);
+			CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
+			auto desc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+
+			ThrowIfFailed(device->CreateCommittedResource(
+					&heapProperties,
+					D3D12_HEAP_FLAG_NONE,
+					&desc,
+					D3D12_RESOURCE_STATE_GENERIC_READ,
+					nullptr,
+					IID_PPV_ARGS(&vertexBuffer))
+					);
+
+			UINT8* begin;
+			CD3DX12_RANGE readRange(0, 0);
+			ThrowIfFailed(vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&begin)));
+			memcpy(begin, vertices, vertexBufferSize);
+			vertexBuffer->Unmap(0, nullptr);
+
+			vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
+			vertexBufferView.StrideInBytes = sizeof(Vertex);
+			vertexBufferView.SizeInBytes = vertexBufferSize;
+		}
 
 		Flush();
 	}

@@ -12,16 +12,17 @@ namespace SSSEngine
 	class Window
 	{
 	public:
-		using windowSize = uint16_t;
+		using WindowSize = uint16_t;
 
-		Window(windowSize width, windowSize height, std::string title);
+		Window(WindowSize width, WindowSize height, std::string title);
 		~Window() = default;
 
-		[[nodiscard]] inline windowSize GetWidth() const { return m_Width; }
-		[[nodiscard]] inline windowSize GetHeight() const { return m_Height; }
+		[[nodiscard]] inline WindowSize GetWidth() const { return m_Width; }
+		[[nodiscard]] inline WindowSize GetHeight() const { return m_Height; }
 		[[nodiscard]] inline std::string_view GetTitle() const { return m_Title; }
 
 		virtual void ChangeWindowTitle(std::string title) = 0;
+		virtual void SetBorderlessFullscreen(bool fullscreen) = 0;
 		/* TODO:
 		 *  - Add a method to change the window size
 		 *  - Add a method to change the window position
@@ -30,8 +31,8 @@ namespace SSSEngine
 		 *  - Add a method to minimize the window
 		 */
 	protected:
-		windowSize m_Width{};
-		windowSize m_Height{};
+		WindowSize m_Width{};
+		WindowSize m_Height{};
 
 		const std::string m_Title;
 	};

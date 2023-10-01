@@ -9,9 +9,9 @@
 
 namespace Win32
 {
-	Win32Window::Win32Window(SSSEngine::Window::windowSize width, SSSEngine::Window::windowSize height,
+	Win32Window::Win32Window(WindowSize width, WindowSize height,
 	                         const std::string& title, WNDCLASSEX windowClass, HWND parent)
-		: SSSEngine::Window(width, height, title)
+			: Window(width, height, title)
 	{
 		CA2W windowTitle(m_Title.c_str());
 
@@ -20,7 +20,6 @@ namespace Win32
 
 		int childStyle = WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
 		int style = parent ? WS_CHILD | childStyle : WS_OVERLAPPEDWINDOW;
-		std::cout << "Style: " << style << std::endl;
 
 		m_Handle = CreateWindowEx(
 				0,
@@ -36,9 +35,7 @@ namespace Win32
 		);
 
 		assert(m_Handle && "Failed to create window.");
-
-		if (!SetWindowSubclass(m_Handle, &Win32Window::WindowProcedure, 0, reinterpret_cast<DWORD_PTR>(this)))
-			std::cout << "Window subclassed failed!" << std::endl;
+		assert(SetWindowSubclass(m_Handle, &Win32Window::WindowProcedure, 0, reinterpret_cast<DWORD_PTR>(this)) && "Window subclassed failed!");
 
 		ShowWindow(m_Handle, SW_SHOW);
 	}
@@ -71,44 +68,25 @@ namespace Win32
 			}
 			case WM_CLOSE:
 			{
-				if(MessageBox(hwnd, L"Are you sure you want to quit?", L"SSSEngine", MB_YESNO) == IDYES)
-					DestroyWindow(hwnd);
+				if (MessageBox(hwnd, L"Are you sure you want to quit?", L"SSSEngine", MB_YESNO) == IDYES)
+					DestroyWindow(hwnd); // TODO: Window destroy event. Cleanup and removal of corresponding swap chain
 				return 0;
 			}
-			case WM_PAINT:
+			case WM_SIZE:
 			{
-				/*try
-				{
-					Renderer::DirectX::Render();
-				}
-				catch (const std::exception& e)
-				{
-					std::cout << e.what() << std::endl;
-					system("pause");
-				}*/
-				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(hwnd, &ps);
+				RECT rect;
+				GetClientRect(hwnd, &rect); // Client rect starts at [0, 0] so right and bottom are the width and height respectively
 
-				FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_MENUHILIGHT));
-
-				EndPaint(hwnd, &ps);
+				// TODO: Window resize event: Needs to resize corresponding swap chain
 				return 0;
 			}
-			/*case WM_SIZE:
-				{
-					RECT rect;
-					GetClientRect(hwnd, &rect); // Client rect starts at [0, 0] so right and bottom are the width and height respectively
-
-					Renderer::DirectX::Resize(rect.right, rect.bottom);
-					return 0;
-				}*/
-			// Mouse
+				// Mouse
 			case WM_LBUTTONDOWN:
 			{
 				std::cout << "Left mouse button pressed" << std::endl;
 				return 0;
 			}
-			// Keyboard
+				// Keyboard
 			case WM_KEYDOWN:
 			case WM_KEYUP:
 			case WM_SYSKEYDOWN:
@@ -141,7 +119,7 @@ namespace Win32
 			{
 				return 0;
 			}
-			// Cursor
+				// Cursor
 			case WM_SETCURSOR:
 			{
 				SetCursor(LoadCursor(nullptr, IDC_ARROW));
@@ -156,5 +134,56 @@ namespace Win32
 	{
 		CA2W newTitle(title.data());
 		SetWindowText(m_Handle, newTitle);
+	}
+
+	void Win32Window::SetBorderlessFullscreen(bool fullscreen)
+	{
+		auto styles = GetWindowLong(m_Handle, GWL_STYLE);
+
+		constexpr auto borderlessStyle = WS_OVERLAPPED;
+
+		bool isBorderless = (styles == borderlessStyle);
+		if (isBorderless && fullscreen)
+			return;
+
+		if (fullscreen)
+		{
+			GetWindowRect(m_Handle, &prevValues.Rect);
+
+			prevValues.Style = GetWindowLongPtr(m_Handle, GWL_STYLE);
+			SetWindowLongPtr(m_Handle, GWL_STYLE, borderlessStyle);
+			HMONITOR monitor = MonitorFromWindow(m_Handle, MONITOR_DEFAULTTONEAREST);
+
+			MONITORINFOEX monitorInfo{};
+			monitorInfo.cbSize = sizeof(MONITORINFOEX);
+			GetMonitorInfo(monitor, &monitorInfo);
+			auto flags = SWP_FRAMECHANGED | SWP_NOACTIVATE;
+			auto monitorRect = monitorInfo.rcMonitor;
+			SetWindowPos(m_Handle,
+						 HWND_TOP,
+						 monitorRect.left,
+						 monitorRect.top,
+						 monitorRect.right - monitorRect.left,
+			             monitorRect.bottom - monitorRect.top,
+						 flags);
+
+			ShowWindow(m_Handle, SW_MAXIMIZE);
+		}
+		else
+		{
+			SetWindowLongPtr(m_Handle, GWL_STYLE, prevValues.Style);
+
+			RECT windowRect = prevValues.Rect;
+			SetWindowPos(m_Handle, HWND_TOP,
+						 windowRect.left,
+						 windowRect.top,
+						 windowRect.right - windowRect.left,
+						 windowRect.bottom - windowRect.top,
+						 SWP_FRAMECHANGED);
+
+			ShowWindow(m_Handle, SW_NORMAL);
+
+			//ZeroMemory(&prevValues, sizeof(OldValues));
+		}
 	}
 } // Win32

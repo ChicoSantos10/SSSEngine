@@ -11,27 +11,40 @@ namespace Renderer
 		typedef void (* CreateRTV)();
 		typedef void (* Render)();
 		typedef void (* Terminate)();
+		typedef void (* LoadAssetsTest)();
 
 		HMODULE module;
 		CreateSwapChain createSwapChain;
 		CreateRTV createRtv;
 		Render render;
 		Terminate terminate;
+		LoadAssetsTest loadAssetsTest;
+	}
+
+	void Unload()
+	{
+		terminate();
+		FreeLibrary(module);
+		module = nullptr;
 	}
 
 	void LoadDirectx()
 	{
+		if (module)
+			Unload();
+
 		// TODO: Relative Path
 		module = LoadLibraryEx(L"N:\\C++Projects\\SSSEngine\\build-debug-msvc\\bin\\Directx12\\Directx12.dll", nullptr, 0);
 
 		if (!module)
 			throw std::exception();
 
-		Init init = (Init) GetProcAddress(module, "Initialize");
-		if (init)
-		{
-			init();
-		}
+		auto init = (Init) GetProcAddress(module, "Initialize");
+		assert(init);
+		init();
+
+		loadAssetsTest = (LoadAssetsTest) GetProcAddress(module, "LoadAssetsTest");
+		assert(loadAssetsTest);
 
 		createSwapChain = (CreateSwapChain) GetProcAddress(module, "CreateSwapChain");
 		assert(createSwapChain && "Could not load Create Swap Chain");
@@ -44,12 +57,5 @@ namespace Renderer
 
 		terminate = (Terminate) GetProcAddress(module, "Terminate");
 		assert(terminate && "Could not load Create Render");
-	}
-
-	void Unload()
-	{
-		terminate();
-		FreeLibrary(module);
-		module = nullptr;
 	}
 }

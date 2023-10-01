@@ -50,7 +50,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 		return -1;
 	}
 
-	Win32::Win32Window window(1280, 720, "SSS Engine", wc, nullptr);
+	Win32::Win32Window window(1260, 720, "SSS Engine", wc, nullptr);
 	HWND hwnd = window.GetHandle();
 
 	// COM initialization
@@ -69,6 +69,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	Renderer::LoadDirectx();
 	Renderer::createSwapChain(hwnd);
 	Renderer::createRtv();
+	Renderer::loadAssetsTest();
 
 	//Renderer::Directx::Renderer renderer;
 	//renderer.Initialize(hwnd);

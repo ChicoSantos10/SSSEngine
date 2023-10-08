@@ -70,6 +70,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	Renderer::createSwapChain(hwnd);
 	Renderer::createRtv();
 	Renderer::loadAssetsTest();
+	Renderer::createDepthStencilBuffer(1260, 720);
 
 	//Renderer::Directx::Renderer renderer;
 	//renderer.Initialize(hwnd);

@@ -12,6 +12,7 @@ namespace Renderer
 		typedef void (* Render)();
 		typedef void (* Terminate)();
 		typedef void (* LoadAssetsTest)();
+		typedef void (* CreateDepthStencilBuffer)(uint32_t width, uint32_t height);
 
 		HMODULE module;
 		CreateSwapChain createSwapChain;
@@ -19,6 +20,7 @@ namespace Renderer
 		Render render;
 		Terminate terminate;
 		LoadAssetsTest loadAssetsTest;
+		CreateDepthStencilBuffer createDepthStencilBuffer;
 	}
 
 	void Unload()
@@ -26,6 +28,13 @@ namespace Renderer
 		terminate();
 		FreeLibrary(module);
 		module = nullptr;
+	}
+
+	template<typename T>
+	void LoadFunction(T& type, const char* name)
+	{
+		type = (T) GetProcAddress(module, name);
+		assert(type);
 	}
 
 	void LoadDirectx()
@@ -39,23 +48,36 @@ namespace Renderer
 		if (!module)
 			throw std::exception();
 
-		auto init = (Init) GetProcAddress(module, "Initialize");
-		assert(init);
+//		auto init = (Init) GetProcAddress(module, "Initialize");
+//		assert(init);
+//		init();
+
+		Init init;
+		LoadFunction(init, "Initialize");
 		init();
+		LoadFunction(loadAssetsTest, "LoadAssetsTest");
+		LoadFunction(createDepthStencilBuffer, "CreateDepthStencilBuffer");
+		LoadFunction(createSwapChain, "CreateSwapChain");
+		LoadFunction(createRtv, "CreateRTV");
+		LoadFunction(render, "Render");
+		LoadFunction(terminate, "Terminate");
 
-		loadAssetsTest = (LoadAssetsTest) GetProcAddress(module, "LoadAssetsTest");
-		assert(loadAssetsTest);
-
-		createSwapChain = (CreateSwapChain) GetProcAddress(module, "CreateSwapChain");
-		assert(createSwapChain && "Could not load Create Swap Chain");
-
-		createRtv = (CreateRTV) GetProcAddress(module, "CreateRTV");
-		assert(createRtv && "Could not load Create RTV");
-
-		render = (Render) GetProcAddress(module, "Render");
-		assert(render && "Could not load Create Render");
-
-		terminate = (Terminate) GetProcAddress(module, "Terminate");
-		assert(terminate && "Could not load Create Render");
+//		loadAssetsTest = (LoadAssetsTest) GetProcAddress(module, "LoadAssetsTest");
+//		assert(loadAssetsTest);
+//
+//		createDepthStencilBuffer = (CreateDepthStencilBuffer) GetProcAddress(module, "CreateDepthStencilBuffer");
+//		assert(createDepthStencilBuffer);
+//
+//		createSwapChain = (CreateSwapChain) GetProcAddress(module, "CreateSwapChain");
+//		assert(createSwapChain && "Could not load Create Swap Chain");
+//
+//		createRtv = (CreateRTV) GetProcAddress(module, "CreateRTV");
+//		assert(createRtv && "Could not load Create RTV");
+//
+//		render = (Render) GetProcAddress(module, "Render");
+//		assert(render && "Could not load Create Render");
+//
+//		terminate = (Terminate) GetProcAddress(module, "Terminate");
+//		assert(terminate && "Could not load Create Render");
 	}
 }

@@ -41,6 +41,8 @@ namespace Directx12
 		ComPtr<ID3D12RootSignature> rootSignature;
 		ComPtr<ID3D12PipelineState> pipelineState;
 		ComPtr<ID3D12InfoQueue> infoQueue;
+		ComPtr<ID3D12Resource> depthStencilBuffer;
+		ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap;
 		HANDLE fenceEvent;
 
 		ComPtr<ID3D12Resource> vertexBuffer;
@@ -287,6 +289,8 @@ namespace Directx12
 
 			constexpr float clearColor[]{0.5f, 0.5f, 0.75f, 1.0f};
 			commandList->ClearRenderTargetView(handle, clearColor, 0, nullptr);
+			commandList->ClearDepthStencilView(dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+			                                   D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
 			commandList->DrawInstanced(3, 1, 0, 0);
@@ -297,12 +301,44 @@ namespace Directx12
 			ThrowIfFailed(commandList->Close());
 		}
 
-		ID3D12CommandList* commandLists[] = { commandList.Get() };
+		ID3D12CommandList* commandLists[] = {commandList.Get()};
 		commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
 		ThrowIfFailed(swapChain->Present(1, 0));
 
 		Flush();
+	}
+
+	SSSENGINE_DLL_EXPORT void CreateDepthStencilBuffer(uint32_t width, uint32_t height)
+	{
+		assert(width > 0 && height > 0);
+
+		Flush();
+
+		D3D12_CLEAR_VALUE clearValue;
+		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		clearValue.DepthStencil = {1.0f, 0};
+
+		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
+		auto resourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
+		ThrowIfFailed(device->CreateCommittedResource(
+				              &heapProperties,
+				              D3D12_HEAP_FLAG_NONE,
+				              &resourceDesc,
+				              D3D12_RESOURCE_STATE_DEPTH_WRITE,
+				              &clearValue,
+				              IID_PPV_ARGS(depthStencilBuffer.ReleaseAndGetAddressOf())
+		              )
+		);
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
+		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+		depthStencilDesc.Texture2D.MipSlice = 0;
+		depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+
+		device->CreateDepthStencilView(depthStencilBuffer.Get(), &depthStencilDesc, dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
 	}
 
 	SSSENGINE_DLL_EXPORT void ResizeSwapChain(const ComPtr<IDXGISwapChain4>& chain, uint32_t width, uint32_t height)
@@ -323,6 +359,7 @@ namespace Directx12
 		}
 
 		ThrowIfFailed(chain->ResizeBuffers(BackBuffersAmount, width, height, desc.Format, desc.Flags));
+		CreateDepthStencilBuffer(width, height);
 
 		CreateRTV();
 	}
@@ -331,13 +368,31 @@ namespace Directx12
 	{
 		// Root signature
 		{
-			CD3DX12_ROOT_SIGNATURE_DESC rootSig;
-			rootSig.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+			// Create a root signature.
+			D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{D3D_ROOT_SIGNATURE_VERSION_1_1};
+			if (FAILED(device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+			{
+				featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+			}
+
+			// Allow input layout and deny unnecessary access to certain pipeline stages.
+			constexpr D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+					D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+					D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+					D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+					D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+					D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+			CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+			rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) * 0.25, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig;
+			rootSig.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
 
 			ComPtr<ID3DBlob> signature;
 			ComPtr<ID3DBlob> error;
 
-			ThrowIfFailed(D3D12SerializeRootSignature(&rootSig, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+			ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSig, featureData.HighestVersion, &signature, &error));
 			ThrowIfFailed(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
 			                                          IID_PPV_ARGS(&rootSignature)));
 		}
@@ -355,26 +410,26 @@ namespace Directx12
 			compilerUtils->CreateDefaultIncludeHandler(&includeHandler);
 
 			LPCWSTR commandArgsVs[] =
-			{
-				L"TestShader.hlsl", // Optional shader source file
-				L"-E", L"vertex",
-				L"-T", L"vs_6_6",
-				L"-Zs",
-				L"-Qstrip_reflect",
-				L"-Fo", L"TestShader.bin",
-				L"-Fd", L"TestShader.pdb",
-			};
+					{
+							L"TestShader.hlsl", // Optional shader source file
+							L"-E", L"vertex",
+							L"-T", L"vs_6_6",
+							L"-Zs",
+							L"-Qstrip_reflect",
+							L"-Fo", L"TestShader.bin",
+							L"-Fd", L"TestShader.pdb",
+					};
 
 			LPCWSTR commandArgsPs[] =
-			{
-				L"TestShader.hlsl", // Optional shader source file
-				L"-E", L"fragment",
-				L"-T", L"ps_6_6",
-				L"-Zs",
-				L"-Qstrip_reflect",
-				L"-Fo", L"TestShader.bin",
-				L"-Fd", L"TestShader.pdb",
-			};
+					{
+							L"TestShader.hlsl", // Optional shader source file
+							L"-E", L"fragment",
+							L"-T", L"ps_6_6",
+							L"-Zs",
+							L"-Qstrip_reflect",
+							L"-Fo", L"TestShader.bin",
+							L"-Fd", L"TestShader.pdb",
+					};
 
 			ComPtr<IDxcBlobEncoding> encoder;
 			compilerUtils->LoadFile(filePath, nullptr, &encoder);
@@ -439,13 +494,13 @@ namespace Directx12
 #endif
 
 			D3D12_INPUT_ELEMENT_DESC inputDesc[]
-			{
-					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-					{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-			};
+					{
+							{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 0,  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+							{"COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+					};
 
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
-			psoDesc.InputLayout = { inputDesc, _countof(inputDesc)};
+			psoDesc.InputLayout = {inputDesc, _countof(inputDesc)};
 			psoDesc.pRootSignature = rootSignature.Get();
 			psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
 			psoDesc.PS = CD3DX12_SHADER_BYTECODE(fragmentShader.Get());
@@ -465,7 +520,8 @@ namespace Directx12
 		// Create Command List
 		{
 			ThrowIfFailed(
-					device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[0].Get(), pipelineState.Get(), IID_PPV_ARGS(&commandList)));
+					device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[0].Get(), pipelineState.Get(),
+					                          IID_PPV_ARGS(&commandList)));
 
 			ThrowIfFailed(commandList->Close());
 		}
@@ -479,11 +535,11 @@ namespace Directx12
 			};
 
 			Vertex vertices[]
-			{
-				{ {0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f} },
-				{ {0.25f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f} },
-				{ {-0.25f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f} }
-			};
+					{
+							{{0.0f,   0.5f,  0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},
+							{{0.25f,  -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},
+							{{-0.25f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}
+					};
 
 			constexpr UINT vertexBufferSize = sizeof(vertices);
 			CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
@@ -496,7 +552,7 @@ namespace Directx12
 					D3D12_RESOURCE_STATE_GENERIC_READ,
 					nullptr,
 					IID_PPV_ARGS(&vertexBuffer))
-					);
+			);
 
 			UINT8* begin;
 			CD3DX12_RANGE readRange(0, 0);
@@ -507,6 +563,16 @@ namespace Directx12
 			vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
 			vertexBufferView.StrideInBytes = sizeof(Vertex);
 			vertexBufferView.SizeInBytes = vertexBufferSize;
+		}
+
+		// Depth Stencil Heap Descriptor
+		{
+			D3D12_DESCRIPTOR_HEAP_DESC dsvDesc{};
+			dsvDesc.NumDescriptors = 1;
+			dsvDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+			dsvDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+
+			ThrowIfFailed(device->CreateDescriptorHeap(&dsvDesc, IID_PPV_ARGS(&dsvDescriptorHeap)));
 		}
 
 		Flush();

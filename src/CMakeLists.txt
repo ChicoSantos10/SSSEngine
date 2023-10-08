@@ -7,10 +7,6 @@ add_executable(SSSEngine WIN32 Win32.cpp
         Common/include/Exceptions.h
 )
 
-add_subdirectory(Renderer/Directx12) # TODO: Add renderer first then there add the directx12
-add_subdirectory(Win32)
-add_subdirectory(Common)
-
 # Make a bin directory
 set(BIN_DIR ${CMAKE_BINARY_DIR}/bin CACHE INTERNAL "")
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -81,6 +77,9 @@ else ()
     message(FATAL_ERROR "Could not find D3D12Core path at ${D3D12_CORE_PATH}")
 endif ()
 
+add_subdirectory(Renderer/Directx12) # TODO: Add renderer first then there add the directx12
+add_subdirectory(Win32)
+add_subdirectory(Common)
 
 add_compile_definitions($<$<CONFIG:Debug>:SSSENGINE_DEBUG> $<$<CONFIG:Release>:SSSENGINE_RELEASE>)
 target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)

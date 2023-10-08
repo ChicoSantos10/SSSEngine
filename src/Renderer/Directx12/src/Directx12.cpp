@@ -6,12 +6,10 @@
 #include "Exceptions.h"
 #include "d3d12.h"
 #include "d3dx12.h"
-#include "dxguids.h"
-#include "d3dcompiler.h"
 #include "DirectXMath.h"
-#include "comdef.h"
 #include "dxgi1_6.h"
 #include "Win32Utils.h"
+#include "dxcapi.h"
 
 #include <iostream> // REMOVE: Don't use this and instead create a function that receives a callback function?
 
@@ -346,10 +344,81 @@ namespace Directx12
 
 		// PSO
 		{
+			constexpr LPCWSTR filePath = LR"(N:\C++Projects\SSSEngine\src\Renderer\Shaders\TestShader.hlsl)";
+
+			ComPtr<IDxcUtils> compilerUtils;
+			ComPtr<IDxcCompiler3> shaderCompiler;
+			DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&compilerUtils));
+			DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&shaderCompiler));
+
+			ComPtr<IDxcIncludeHandler> includeHandler;
+			compilerUtils->CreateDefaultIncludeHandler(&includeHandler);
+
+			LPCWSTR commandArgsVs[] =
+			{
+				L"TestShader.hlsl", // Optional shader source file
+				L"-E", L"vertex",
+				L"-T", L"vs_6_6",
+				L"-Zs",
+				L"-Qstrip_reflect",
+				L"-Fo", L"TestShader.bin",
+				L"-Fd", L"TestShader.pdb",
+			};
+
+			LPCWSTR commandArgsPs[] =
+			{
+				L"TestShader.hlsl", // Optional shader source file
+				L"-E", L"fragment",
+				L"-T", L"ps_6_6",
+				L"-Zs",
+				L"-Qstrip_reflect",
+				L"-Fo", L"TestShader.bin",
+				L"-Fd", L"TestShader.pdb",
+			};
+
+			ComPtr<IDxcBlobEncoding> encoder;
+			compilerUtils->LoadFile(filePath, nullptr, &encoder);
+
+			DxcBuffer buffer{};
+			buffer.Ptr = encoder->GetBufferPointer();
+			buffer.Size = encoder->GetBufferSize();
+			buffer.Encoding = DXC_CP_ACP;
+
+			auto Debug = [](const ComPtr<IDxcResult>& result)
+			{
+				ComPtr<IDxcBlobUtf8> errors;
+				result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
+				if (errors && errors->GetStringLength() > 0)
+				{
+					std::cout << errors->GetStringPointer() << std::endl;
+				}
+
+				HRESULT hr;
+				result->GetStatus(&hr);
+				if (FAILED(hr))
+				{
+					std::cout << "Failed vertex shader compilation" << std::endl;
+				}
+			};
+
+			ComPtr<IDxcResult> vsResult;
+			ComPtr<IDxcResult> psResult;
+
+			shaderCompiler->Compile(&buffer, commandArgsVs, _countof(commandArgsVs), includeHandler.Get(), IID_PPV_ARGS(&vsResult));
+			shaderCompiler->Compile(&buffer, commandArgsPs, _countof(commandArgsPs), includeHandler.Get(), IID_PPV_ARGS(&psResult));
+
+			Debug(vsResult);
+			Debug(psResult);
+
 			ComPtr<ID3DBlob> vertexShader;
 			ComPtr<ID3DBlob> fragmentShader;
-			ComPtr<ID3DBlob> errorMsgs;
+
+			vsResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&vertexShader), nullptr);
+			psResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&fragmentShader), nullptr);
+
+#ifdef SSSENGINE_FXC
 			UINT compilerFlags = 0;
+			ComPtr<ID3DBlob> errorMsgs;
 
 #ifdef SSSENGINE_DEBUG_GRAPHICS
 			compilerFlags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
@@ -364,9 +433,10 @@ namespace Directx12
 				}
 			};
 
-			constexpr LPCWSTR filePath = LR"(N:\C++Projects\SSSEngine\src\Renderer\Shaders\TestShader.hlsl)";
+
 			DebugCompilation(D3DCompileFromFile(filePath, nullptr, nullptr, "vertex", "vs_5_0", compilerFlags, 0, &vertexShader, &errorMsgs));
 			DebugCompilation(D3DCompileFromFile(filePath, nullptr, nullptr, "fragment", "ps_5_0", compilerFlags, 0, &fragmentShader, &errorMsgs));
+#endif
 
 			D3D12_INPUT_ELEMENT_DESC inputDesc[]
 			{

@@ -43,7 +43,7 @@ namespace Renderer
 			Unload();
 
 		// TODO: Relative Path
-		module = LoadLibraryEx(L"N:\\C++Projects\\SSSEngine\\build-debug-msvc\\bin\\Directx12\\Directx12.dll", nullptr, 0);
+		module = LoadLibraryEx(LR"(N:\C++Projects\SSSEngine\build-debug-msvc\bin\Directx12\Directx12.dll)", nullptr, 0);
 
 		if (!module)
 			throw std::exception();

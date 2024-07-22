@@ -110,16 +110,16 @@ namespace Directx12
 	{
 		using namespace Win32;
 
+#ifdef SSSENGINE_DEBUG_GRAPHICS
 		// Enabling debug
 		{
-#ifdef SSSENGINE_DEBUG_GRAPHICS
 			ComPtr<ID3D12Debug> debugInterface;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface))))
 			{
 				debugInterface->EnableDebugLayer();
 			}
-#endif
 		}
+#endif
 
 		// Creating Device
 		{
@@ -276,7 +276,7 @@ namespace Directx12
 			ThrowIfFailed(commandAllocator->Reset());
 			ThrowIfFailed(commandList->Reset(commandAllocator.Get(), pipelineState.Get()));
 
-//			commandList->SetPipelineState(pipelineState.Get());
+			commandList->SetPipelineState(pipelineState.Get());
 			commandList->SetGraphicsRootSignature(rootSignature.Get());
 			commandList->RSSetViewports(1, &viewport);
 			commandList->RSSetScissorRects(1, &scissorRect);

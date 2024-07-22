@@ -18,7 +18,7 @@ namespace Win32
 		HMENU menu = CreateMenu();
 		AppendMenu(menu, MF_STRING, 1, L"File");
 
-		int childStyle = WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+		constexpr int childStyle = WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
 		int style = parent ? WS_CHILD | childStyle : WS_OVERLAPPEDWINDOW;
 
 		m_Handle = CreateWindowEx(
@@ -122,8 +122,9 @@ namespace Win32
 				// Cursor
 			case WM_SETCURSOR:
 			{
-				SetCursor(LoadCursor(nullptr, IDC_ARROW));
-				return true;
+//				SetCursor(LoadCursor(nullptr, IDC_ARROW));
+//				return true;
+				return DefWindowProcW(hwnd, msg, wParam, lParam);
 			}
 			default:
 				return DefWindowProcW(hwnd, msg, wParam, lParam);

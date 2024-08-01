@@ -117,15 +117,15 @@ typedef enum DxcDiagnosticSeverity
 // Options to control the display of diagnostics.
 typedef enum DxcDiagnosticDisplayOptions
 {
-  // Display the source-location information where the diagnostic was located.
+  // Display the src-location information where the diagnostic was located.
   DxcDiagnostic_DisplaySourceLocation = 0x01,
 
-  // If displaying the source-location information of the diagnostic,
+  // If displaying the src-location information of the diagnostic,
   // also include the column number.
   DxcDiagnostic_DisplayColumn = 0x02,
 
-  // If displaying the source-location information of the diagnostic,
-  // also include information about source ranges in a machine-parsable format.
+  // If displaying the src-location information of the diagnostic,
+  // also include information about src ranges in a machine-parsable format.
   DxcDiagnostic_DisplaySourceRanges = 0x04,
 
   // Display the option name associated with this diagnostic, if any.
@@ -158,7 +158,7 @@ typedef enum DxcTranslationUnitFlags
   DxcTranslationUnitFlags_PrecompiledPreamble = 0x04,
 
   // Used to indicate that the translation unit should cache some
-  // code-completion results with each reparse of the source file.
+  // code-completion results with each reparse of the src file.
   DxcTranslationUnitFlags_CacheCompletionResults = 0x08,
 
   // Used to indicate that the translation unit will be serialized with

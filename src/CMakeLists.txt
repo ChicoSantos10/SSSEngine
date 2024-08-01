@@ -4,7 +4,8 @@ add_executable(SSSEngine WIN32 Win32.cpp
         Win32/src/Win32Window.cpp
         Common/src/Application.cpp
         Common/src/Exceptions.cpp
-        Common/include/Exceptions.h
+        Common/src/Exceptions.cpp
+        Renderer/src/Renderer.cpp
 )
 
 # Make a bin directory
@@ -77,7 +78,7 @@ else ()
     message(FATAL_ERROR "Could not find D3D12Core path at ${D3D12_CORE_PATH}")
 endif ()
 
-add_subdirectory(Renderer/Directx12) # TODO: Add renderer first then there add the directx12
+add_subdirectory(Renderer)
 add_subdirectory(Win32)
 add_subdirectory(Common)
 

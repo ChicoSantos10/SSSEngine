@@ -13,8 +13,7 @@
 #include "XAudioRedist/xapofx.h"
 #include "XAudioRedist/xapo.h"
 #include "Win32Window.h"
-
-#include "Renderer/Renderer.cpp"
+#include "Renderer.h"
 
 void InitConsole();
 void CloseConsole();
@@ -44,8 +43,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.lpszMenuName = RT_MENU;
 
-	if (RegisterClassExW(&wc) == 0)
-	{
+	if (RegisterClassExW(&wc) == 0) {
 		OutputDebugStringW(L"Window class creation failed");
 		return -1;
 	}
@@ -55,8 +53,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	if (FAILED(hr))
-	{
+	if (FAILED(hr)) {
 		OutputDebugStringW(L"COM initialization failed");
 		return -1;
 	}
@@ -67,10 +64,10 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	//GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
 	//Renderer::DirectX::InitializeDirectx12(hwnd);
 	Renderer::LoadDirectx();
-	Renderer::createSwapChain(hwnd);
-	Renderer::createRtv();
-	Renderer::loadAssetsTest();
-	Renderer::createDepthStencilBuffer(1260, 720);
+	Renderer::CreateSwapChain(hwnd);
+	Renderer::CreateRtv();
+	Renderer::LoadAssetsTest();
+	Renderer::CreateDepthStencilBuffer(1260, 720);
 
 	//Renderer::Directx::Renderer renderer;
 	//renderer.Initialize(hwnd);
@@ -78,16 +75,14 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	// XAudio2
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
 	hr = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-	if (FAILED(hr))
-	{
+	if (FAILED(hr)) {
 		OutputDebugStringW(L"XAudio2 initialization failed");
 		return -1;
 	}
 
 	IXAudio2MasteringVoice* pMasteringVoice;
 	hr = xAudio2->CreateMasteringVoice(&pMasteringVoice);
-	if (FAILED(hr))
-	{
+	if (FAILED(hr)) {
 		OutputDebugStringW(L"XAudio2 mastering voice initialization failed");
 		return -1;
 	}
@@ -111,20 +106,18 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
 
 	// Populate the audio buffer with some simple sine wave data at 440 Hz.
-	for (DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i)
-	{
+	for (DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i) {
 		float t = i / (float) wave.Format.nSamplesPerSec;
 		constexpr float TwoPi = 2.0f * 3.14159265358979323846264338327950288419716939937510f;
 
 		// Write the sample to the buffer
-		((short*) buffer.pAudioData)[i * 2 + 0] = (short) (sinf(t * TwoPi * 440.0f) * 30000.0f); // Left channel
-		((short*) buffer.pAudioData)[i * 2 + 1] = (short) (sinf(t * TwoPi * 440.0f) * 30000.0f); // Right channel
+		((BYTE*) buffer.pAudioData)[i * 2 + 0] = (BYTE) (sinf(t * TwoPi * 440.0f) * 30000.0f); // Left channel
+		((BYTE*) buffer.pAudioData)[i * 2 + 1] = (BYTE) (sinf(t * TwoPi * 440.0f) * 30000.0f); // Right channel
 	}
 
 	IXAudio2SubmixVoice* pSubMixVoice;
 	hr = xAudio2->CreateSubmixVoice(&pSubMixVoice, 2, wave.Format.nSamplesPerSec, 0, 0, nullptr, nullptr);
-	if (FAILED(hr))
-	{
+	if (FAILED(hr)) {
 		OutputDebugStringW(L"XAudio2 submix voice initialization failed");
 		return -1;
 	}
@@ -133,8 +126,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	XAUDIO2_VOICE_SENDS sendList = {1, &sendDescriptors};
 
 	IUnknown* reverbFx;
-	if (FAILED(hr = XAudio2CreateReverb(&reverbFx)))
-	{
+	if (FAILED(hr = XAudio2CreateReverb(&reverbFx))) {
 		OutputDebugStringW(L"XAudio2 reverb initialization failed");
 		return -1;
 	}
@@ -183,10 +175,10 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	EQParameters.FrequencyCenter0 = FXEQ_MIN_FREQUENCY_CENTER;
 
 	IXAudio2SourceVoice* pSourceVoice;
-	hr = xAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*) &wave, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr, &sendList, nullptr);
-	if (FAILED(hr))
-	{
-		OutputDebugStringW(L"XAudio2 source voice initialization failed");
+	hr = xAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*) &wave, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr,
+	                                &sendList, nullptr);
+	if (FAILED(hr)) {
+		OutputDebugStringW(L"XAudio2 src voice initialization failed");
 		return -1;
 	}
 
@@ -206,34 +198,28 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	pSourceVoice->EnableEffect(2);
 
 	hr = pSourceVoice->SubmitSourceBuffer(&buffer);
-	if (FAILED(hr))
-	{
-		OutputDebugStringW(L"XAudio2 source buffer initialization failed");
+	if (FAILED(hr)) {
+		OutputDebugStringW(L"XAudio2 src buffer initialization failed");
 		return -1;
 	}
 
 	/*hr = pSourceVoice->Start(0);
 	if (FAILED(hr))
 	{
-		OutputDebugStringW(L"XAudio2 source voice start failed");
+		OutputDebugStringW(L"XAudio2 src voice start failed");
 		return -1;
 	}
 	pSourceVoice->SetVolume(1);*/
 
 	//ShowWindow(hwnd, nShowCmd);
 	bool isRunning = true;
-	while (isRunning)
-	{
+	while (isRunning) {
 		MSG msg = {};
-		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT)
-			{
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+			if (msg.message == WM_QUIT) {
 				isRunning = false;
 				break;
-			}
-			else if(msg.message == WM_DESTROY)
-			{
+			} else if (msg.message == WM_DESTROY) {
 				// TODO: Window closing must release its swap chain first
 				Renderer::Unload();
 			}
@@ -253,7 +239,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 //			renderer.SetClearColor(1.0f, 0.2f, 0.5f, 0.5f, commandList.Get());
 //			renderer.ExecuteCommandList(commandList);
 
-			Renderer::render();
+			Renderer::Render();
 		}
 	}
 
@@ -272,28 +258,23 @@ int WINAPI SSSENGINE_ENTRY_POINT
 void GamepadInput()
 {
 	DWORD dwResult;
-	for (int i = 0; i < XUSER_MAX_COUNT; ++i)
-	{
+	for (int i = 0; i < XUSER_MAX_COUNT; ++i) {
 		XINPUT_STATE state;
 		ZeroMemory(&state, sizeof(XINPUT_STATE));
 
 		dwResult = XInputGetState(i, &state);
-		if (dwResult == ERROR_SUCCESS)
-		{
+		if (dwResult == ERROR_SUCCESS) {
 			// Controller is connected
 			XINPUT_GAMEPAD gamepad = state.Gamepad;
 
-			if (gamepad.wButtons & XINPUT_GAMEPAD_A)
-			{
+			if (gamepad.wButtons & XINPUT_GAMEPAD_A) {
 				// Vibrations
 				XINPUT_VIBRATION vibration;
 				ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 				vibration.wLeftMotorSpeed = 1000;
 				vibration.wRightMotorSpeed = 2000;
 				XInputSetState(i, &vibration);
-			}
-			else
-			{
+			} else {
 				// Stop vibrations
 				XINPUT_VIBRATION vibration;
 				ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
@@ -310,8 +291,7 @@ void GamepadInput()
 			float normalizedLY = leftThumbY / magnitude;
 
 			float normalizedMagnitude = 0;
-			if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-			{
+			if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
 				//clip the magnitude at its expected maximum value
 				if (magnitude > 32767)
 					magnitude = 32767;
@@ -319,15 +299,11 @@ void GamepadInput()
 				magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
 
 				normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-			}
-			else
-			{
+			} else {
 				magnitude = 0.0;
 				normalizedMagnitude = 0.0;
 			}
-		}
-		else
-		{
+		} else {
 			// Controller is not connected
 		}
 	}

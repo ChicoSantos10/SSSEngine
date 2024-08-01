@@ -5,7 +5,7 @@
 #pragma once
 
 #ifndef SSSENGINE_ENTRY_POINT
-	#error "You must define a entry point for the application!"
+	#error "You must define an entry point for the application!"
 #endif
 
 #include "Window.h"

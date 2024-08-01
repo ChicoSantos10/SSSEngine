@@ -3,6 +3,7 @@
 //
 
 #include <windows.h>
+#include <thread>
 #include "Exceptions.h"
 #include "d3d12.h"
 #include "d3dx12.h"
@@ -11,7 +12,7 @@
 #include "Win32Utils.h"
 #include "dxcapi.h"
 
-#include <iostream> // REMOVE: Don't use this and instead create a function that receives a callback function?
+#include <iostream> // TODO: [REMOVE] Don't use this and instead create a function that receives a callback function?
 
 //extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 610; }
 //extern "C" { __declspec(dllexport) extern const char8_t* D3D12SDKPath = u8".\\D3D12\\"; }
@@ -120,6 +121,7 @@ namespace Directx12
 			}
 		}
 #endif
+		std::cout << std::this_thread::get_id() << std::endl;
 
 		// Creating Device
 		{
@@ -411,7 +413,7 @@ namespace Directx12
 
 			LPCWSTR commandArgsVs[] =
 					{
-							L"TestShader.hlsl", // Optional shader source file
+							L"TestShader.hlsl", // Optional shader src file
 							L"-E", L"vertex",
 							L"-T", L"vs_6_6",
 							L"-Zs",
@@ -422,7 +424,7 @@ namespace Directx12
 
 			LPCWSTR commandArgsPs[] =
 					{
-							L"TestShader.hlsl", // Optional shader source file
+							L"TestShader.hlsl", // Optional shader src file
 							L"-E", L"fragment",
 							L"-T", L"ps_6_6",
 							L"-Zs",
@@ -584,3 +586,4 @@ namespace Directx12
 		CloseHandle(fenceEvent);
 	}
 }
+

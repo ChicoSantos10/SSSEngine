@@ -107,7 +107,7 @@
 #define X3DAUDIO_CALCULATE_EMITTER_ANGLE   0x00000040 // enable emitter-to-listener interior angle calculation
 
 #define X3DAUDIO_CALCULATE_ZEROCENTER      0x00010000 // do not position to front center speaker, signal positioned to remaining speakers instead, front center destination channel will be zero in returned matrix coefficient table, valid only for matrix calculations with final mix formats that have a front center channel
-#define X3DAUDIO_CALCULATE_REDIRECT_TO_LFE 0x00020000 // apply equal mix of all source channels to LFE destination channel, valid only for matrix calculations with sources that have no LFE channel and final mix formats that have an LFE channel
+#define X3DAUDIO_CALCULATE_REDIRECT_TO_LFE 0x00020000 // apply equal mix of all src channels to LFE destination channel, valid only for matrix calculations with sources that have no LFE channel and final mix formats that have an LFE channel
 
 
 //--------------<D-A-T-A---T-Y-P-E-S>---------------------------------------//
@@ -192,7 +192,7 @@ typedef struct X3DAUDIO_LISTENER
 } X3DAUDIO_LISTENER, *LPX3DAUDIO_LISTENER;
 
 // Emitter:
-// Defines a 3D audio source, divided into two classifications:
+// Defines a 3D audio src, divided into two classifications:
 //
 // Single-point -- For use with single-channel sounds.
 //                 Positioned at the emitter base, i.e. the channel radius
@@ -256,9 +256,9 @@ typedef struct X3DAUDIO_EMITTER
 // delay time array, and initializing the channel counts when used.
 typedef struct X3DAUDIO_DSP_SETTINGS
 {
-    FLOAT32* pMatrixCoefficients; // [inout] matrix coefficient table, receives an array representing the volume level used to send from source channel S to destination channel D, stored as pMatrixCoefficients[SrcChannelCount * D + S], must have at least SrcChannelCount*DstChannelCount elements
+    FLOAT32* pMatrixCoefficients; // [inout] matrix coefficient table, receives an array representing the volume level used to send from src channel S to destination channel D, stored as pMatrixCoefficients[SrcChannelCount * D + S], must have at least SrcChannelCount*DstChannelCount elements
     FLOAT32* pDelayTimes;         // [inout] delay time array, receives delays for each destination channel in milliseconds, must have at least DstChannelCount elements (stereo final mix only)
-    UINT32 SrcChannelCount;       // [in] number of source channels, must equal number of channels in respective emitter
+    UINT32 SrcChannelCount;       // [in] number of src channels, must equal number of channels in respective emitter
     UINT32 DstChannelCount;       // [in] number of destination channels, must equal number of channels of the final mix
 
     FLOAT32 LPFDirectCoefficient; // [out] LPF direct-path coefficient

@@ -100,7 +100,7 @@ typedef enum _AUDIO_STREAM_CATEGORY
  **************************************************************************/
 
 // Numeric boundary values
-#define XAUDIO2_MAX_BUFFER_BYTES        0x80000000    // Maximum bytes allowed in a source buffer
+#define XAUDIO2_MAX_BUFFER_BYTES        0x80000000    // Maximum bytes allowed in a src buffer
 #define XAUDIO2_MAX_QUEUED_BUFFERS      64            // Maximum buffers allowed in a voice queue
 #define XAUDIO2_MAX_BUFFERS_SYSTEM      2             // Maximum buffers allowed for system threads (Xbox 360 only)
 #define XAUDIO2_MAX_AUDIO_CHANNELS      64            // Maximum channels in an audio stream
@@ -139,7 +139,7 @@ typedef enum _AUDIO_STREAM_CATEGORY
 #define XAUDIO2_END_OF_STREAM                 0x0040    // Used in XAUDIO2_BUFFER.Flags
 #define XAUDIO2_SEND_USEFILTER                0x0080    // Used in XAUDIO2_SEND_DESCRIPTOR.Flags
 #define XAUDIO2_VOICE_NOSAMPLESPLAYED         0x0100    // Used in IXAudio2SourceVoice::GetState
-#define XAUDIO2_STOP_ENGINE_WHEN_IDLE         0x2000    // Used in XAudio2Create to force the engine to Stop when no source voices are Started, and Start when a voice is Started
+#define XAUDIO2_STOP_ENGINE_WHEN_IDLE         0x2000    // Used in XAudio2Create to force the engine to Stop when no src voices are Started, and Start when a voice is Started
 #define XAUDIO2_1024_QUANTUM                  0x8000    // Used in XAudio2Create to specify nondefault processing quantum of 21.33 ms (1024 samples at 48KHz)
 #define XAUDIO2_NO_VIRTUAL_AUDIO_CLIENT       0x10000   // Used in CreateMasteringVoice to create a virtual audio client
 
@@ -362,7 +362,7 @@ typedef struct XAUDIO2_PERFORMANCE_DATA
 
     // Audio latency and glitching information
     UINT32 CurrentLatencyInSamples;     // Minimum delay from when a sample is read from a
-                                        //  source buffer to when it reaches the speakers.
+                                        //  src buffer to when it reaches the speakers.
     UINT32 GlitchesSinceEngineStarted;  // Audio dropouts since the engine was started.
 
     // Data about XAudio2's current workload
@@ -374,7 +374,7 @@ typedef struct XAUDIO2_PERFORMANCE_DATA
     UINT32 ActiveMatrixMixCount;        // MatrixMix xAPOs currently active.
 
     // Usage of the hardware XMA decoder (Xbox 360 only)
-    UINT32 ActiveXmaSourceVoices;       // Number of source voices decoding XMA data.
+    UINT32 ActiveXmaSourceVoices;       // Number of src voices decoding XMA data.
     UINT32 ActiveXmaStreams;            // A voice can use more than one XMA stream.
 } XAUDIO2_PERFORMANCE_DATA;
 
@@ -384,7 +384,7 @@ typedef struct XAUDIO2_DEBUG_CONFIGURATION
     UINT32 TraceMask;                   // Bitmap of enabled debug message types.
     UINT32 BreakMask;                   // Message types that will break into the debugger.
     BOOL LogThreadID;                   // Whether to log the thread ID with each message.
-    BOOL LogFileline;                   // Whether to log the source file and line number.
+    BOOL LogFileline;                   // Whether to log the src file and line number.
     BOOL LogFunctionName;               // Whether to log the function name.
     BOOL LogTiming;                     // Whether to log message timestamps.
 } XAUDIO2_DEBUG_CONFIGURATION;
@@ -466,12 +466,12 @@ DECLARE_INTERFACE_(IXAudio2, IUnknown)
     STDMETHOD_(void, UnregisterForCallbacks) (THIS_ _In_ IXAudio2EngineCallback* pCallback) PURE;
 
     // NAME: IXAudio2::CreateSourceVoice
-    // DESCRIPTION: Creates and configures a source voice.
+    // DESCRIPTION: Creates and configures a src voice.
     //
     // ARGUMENTS:
     //  ppSourceVoice - Returns the new object's IXAudio2SourceVoice interface.
     //  pSourceFormat - Format of the audio that will be fed to the voice.
-    //  Flags - XAUDIO2_VOICE flags specifying the source voice's behavior.
+    //  Flags - XAUDIO2_VOICE flags specifying the src voice's behavior.
     //  MaxFrequencyRatio - Maximum SetFrequencyRatio argument to be allowed.
     //  pCallback - Optional pointer to a client-provided callback interface.
     //  pSendList - Optional list of voices this voice should send audio to.
@@ -795,7 +795,7 @@ DECLARE_INTERFACE(IXAudio2Voice)
     //   (the number of channels produced by the last effect in the chain).
     //  DestinationChannels - Confirms the destination voice's input channels.
     //  pLevelMatrix - Array of [SourceChannels * DestinationChannels] send
-    //   levels.  The level used to send from source channel S to destination
+    //   levels.  The level used to send from src channel S to destination
     //   channel D should be in pLevelMatrix[S + SourceChannels * D].
     //  OperationSet - Used to identify this call as part of a deferred batch.
     */\
@@ -905,7 +905,7 @@ DECLARE_INTERFACE_(IXAudio2SourceVoice, IXAudio2Voice)
     // DESCRIPTION: Sets this voice's frequency adjustment, i.e. its pitch.
     //
     // ARGUMENTS:
-    //  Ratio - Frequency change, expressed as source frequency / target frequency.
+    //  Ratio - Frequency change, expressed as src frequency / target frequency.
     //  OperationSet - Used to identify this call as part of a deferred batch.
     //
     STDMETHOD(SetFrequencyRatio) (THIS_ float Ratio,
@@ -920,12 +920,12 @@ DECLARE_INTERFACE_(IXAudio2SourceVoice, IXAudio2Voice)
     STDMETHOD_(void, GetFrequencyRatio) (THIS_ _Out_ float* pRatio) PURE;
 
     // NAME: IXAudio2SourceVoice::SetSourceSampleRate
-    // DESCRIPTION: Reconfigures this voice to treat its source data as being
+    // DESCRIPTION: Reconfigures this voice to treat its src data as being
     //              at a different sample rate than the original one specified
     //              in CreateSourceVoice's pSourceFormat argument.
     //
     // ARGUMENTS:
-    //  UINT32 - The intended sample rate of further submitted source data.
+    //  UINT32 - The intended sample rate of further submitted src data.
     //
     STDMETHOD(SetSourceSampleRate) (THIS_ UINT32 NewSourceSampleRate) PURE;
 };

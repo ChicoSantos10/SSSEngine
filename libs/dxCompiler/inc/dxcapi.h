@@ -107,7 +107,7 @@ DXC_API_IMPORT HRESULT __stdcall DxcCreateInstance2(
 #define DXC_CP_WIDE DXC_CP_UTF32
 #endif
 
-/// Indicates that the shader hash was computed taking into account source
+/// Indicates that the shader hash was computed taking into account src
 /// information (-Zss).
 #define DXC_HASHFLAG_INCLUDES_SOURCE 1
 
@@ -241,11 +241,11 @@ CROSS_PLATFORM_UUIDOF(IDxcIncludeHandler, "7f61fc7d-950d-467f-b3e3-3c02fb49187c"
 /// implementation that reads include files from the filesystem.
 ///
 struct IDxcIncludeHandler : public IUnknown {
-  /// \brief Load a source file to be included by the compiler.
+  /// \brief Load a src file to be included by the compiler.
   ///
   /// \param pFilename Candidate filename.
   ///
-  /// \param ppIncludeSource Resultant source object for included file, nullptr
+  /// \param ppIncludeSource Resultant src object for included file, nullptr
   /// if not found.
   virtual HRESULT STDMETHODCALLTYPE LoadSource(
       _In_z_ LPCWSTR pFilename,
@@ -415,7 +415,7 @@ struct IDxcCompiler : public IUnknown {
     _COM_Outptr_ IDxcOperationResult **ppResult   // Compiler output status, buffer, and errors.
   ) = 0;
 
-  /// \brief Preprocess source text.
+  /// \brief Preprocess src text.
   ///
   /// \deprecated Please use IDxcCompiler3::Compile() with the "-P" argument instead.
   virtual HRESULT STDMETHODCALLTYPE Preprocess(
@@ -663,7 +663,7 @@ struct IDxcUtils : public IUnknown {
   /// \brief Create reflection interface from serialized DXIL container or the
   /// DXC_OUT_REFLECTION blob contents.
   ///
-  /// \param pData The source data.
+  /// \param pData The src data.
   ///
   /// \param iid The interface ID of the reflection interface to create.
   ///
@@ -710,7 +710,7 @@ typedef enum DXC_OUT_KIND {
   DXC_OUT_OBJECT = 1,         ///< IDxcBlob - Shader or library object.
   DXC_OUT_ERRORS = 2,         ///< IDxcBlobUtf8 or IDxcBlobWide.
   DXC_OUT_PDB = 3,            ///< IDxcBlob.
-  DXC_OUT_SHADER_HASH = 4,    ///< IDxcBlob - DxcShaderHash of shader or shader with source info (-Zsb/-Zss).
+  DXC_OUT_SHADER_HASH = 4,    ///< IDxcBlob - DxcShaderHash of shader or shader with src info (-Zsb/-Zss).
   DXC_OUT_DISASSEMBLY = 5,    ///< IDxcBlobUtf8 or IDxcBlobWide - from Disassemble.
   DXC_OUT_HLSL = 6,           ///< IDxcBlobUtf8 or IDxcBlobWide - from Preprocessor or Rewriter.
   DXC_OUT_TEXT = 7,           ///< IDxcBlobUtf8 or IDxcBlobWide - other text, such as -ast-dump or -Odump.
@@ -818,7 +818,7 @@ struct IDxcCompiler3 : public IUnknown {
   /// * Compile a single entry point to the target shader model, 
   /// * Compile a library to a library target (-T lib_*)
   /// * Compile a root signature (-T rootsig_*),
-  /// * Preprocess HLSL source (-P).
+  /// * Preprocess HLSL src (-P).
   virtual HRESULT STDMETHODCALLTYPE Compile(
     _In_ const DxcBuffer *pSource,                ///< Source text to compile.
     _In_opt_count_(argCount) LPCWSTR *pArguments, ///< Array of pointers to arguments.
@@ -881,7 +881,7 @@ struct IDxcContainerBuilder : public IUnknown {
   ///
   /// \param fourCC The part identifier (eg DXC_PART_PDB).
   ///
-  /// \param pSource The source blob.
+  /// \param pSource The src blob.
   virtual HRESULT STDMETHODCALLTYPE AddPart(_In_ UINT32 fourCC, _In_ IDxcBlob *pSource) = 0;
 
   /// \brief Remove a part from the container.

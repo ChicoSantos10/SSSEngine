@@ -126,7 +126,7 @@ protected:
       ////
       // DESCRIPTION:
       //  This method may be called by an IXAPO::Process implementation
-      //  for thru processing.  It copies/mixes data from source to
+      //  for thru processing.  It copies/mixes data from src to
       //  destination, making as few changes as possible to the audio data.
       //
       // REMARKS:

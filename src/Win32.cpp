@@ -65,9 +65,7 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	//Renderer::DirectX::InitializeDirectx12(hwnd);
 	Renderer::LoadDirectx();
 	Renderer::CreateSwapChain(hwnd);
-	Renderer::CreateRtv();
 	Renderer::LoadAssetsTest();
-	Renderer::CreateDepthStencilBuffer(1260, 720);
 
 	//Renderer::Directx::Renderer renderer;
 	//renderer.Initialize(hwnd);

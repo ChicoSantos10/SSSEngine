@@ -41,9 +41,8 @@ namespace Renderer
 		LoadFunction(init, "Initialize");
 		init();
 		LoadFunction(LoadAssetsTest, "LoadAssetsTest");
-		LoadFunction(CreateDepthStencilBuffer, "CreateDepthStencilBuffer");
 		LoadFunction(CreateSwapChain, "CreateSwapChain");
-		LoadFunction(CreateRtv, "CreateRTV");
+		LoadFunction(ResizeSwapChain, "ResizeSwapChain");
 		LoadFunction(Render, "Render");
 		LoadFunction(Terminate, "Terminate");
 	}

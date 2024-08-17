@@ -5,9 +5,11 @@ include(ExternalProject)
 project(SSSEngine)
 set(CMAKE_CXX_STANDARD 23)
 
+# TODO: Add address sanitizer
+
 if (MSVC)
     add_compile_options(/Wall)
-elseif(MINGW)
+elseif (MINGW)
     add_compile_options(-Wall)
 endif ()
 

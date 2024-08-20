@@ -1,8 +1,9 @@
 //
 // Created by Francisco Santos on 22/04/2023.
 //
-#include "../src/ssspch.h" // TODO: Add this to the CMakeLists.txt include directories
+//#include "../src/ssspch.h" // TODO: Add this to the CMakeLists.txt include directories
 
+#include "windows.h"
 #include <cstdio>
 #include <xinput.h>
 #include <cmath>
@@ -23,7 +24,7 @@ void GamepadInput();
 extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 610; }
 extern "C" { __declspec(dllexport) extern const char8_t* D3D12SDKPath = u8".\\Directx12\\D3D12\\"; }
 
-int WINAPI SSSENGINE_ENTRY_POINT
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
 	InitConsole();
 
@@ -32,28 +33,28 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	/*SSSEngine::Application app;
 	app.Run();*/
 
-	const WCHAR CLASS_NAME[] = L"SSS Engine";
+	constexpr WCHAR CLASS_NAME[] = L"SSS Engine";
 
-	WNDCLASSEXW wc = {0};
-	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = Win32::Win32Window::MainWindowProcedure;
-	wc.hInstance = hInstance;
-	wc.lpszClassName = CLASS_NAME;
-	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wc.lpszMenuName = RT_MENU;
+	Win32::WindowClass.cbSize = sizeof(WNDCLASSEX);
+	Win32::WindowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	Win32::WindowClass.lpfnWndProc = Win32::MainWindowProcedure;
+	Win32::WindowClass.hInstance = hInstance;
+	Win32::WindowClass.lpszClassName = CLASS_NAME;
+	Win32::WindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	Win32::WindowClass.lpszMenuName = RT_MENU;
 
-	if (RegisterClassExW(&wc) == 0) {
+	if (RegisterClassExW(&Win32::WindowClass) == 0)
+	{
 		OutputDebugStringW(L"Window class creation failed");
 		return -1;
 	}
 
-	Win32::Win32Window window(1260, 720, "SSS Engine", wc, nullptr);
-	HWND hwnd = window.GetHandle();
+	SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, L"SSS Engine");
 
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	if (FAILED(hr)) {
+	if (FAILED(hr))
+	{
 		OutputDebugStringW(L"COM initialization failed");
 		return -1;
 	}
@@ -61,26 +62,28 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	//Win32::Win32Window subWindow(640, 360, "Sub Window 1", wc, hwnd);
 	//Win32::Win32Window subWindow2(640, 360, "Sub Window 2", wc, hwnd);
 
-	//GetWindowRect(hwnd, &Renderer::DirectX::windowRect);
-	//Renderer::DirectX::InitializeDirectx12(hwnd);
-	Renderer::LoadDirectx();
-	Renderer::CreateSwapChain(hwnd);
-	Renderer::LoadAssetsTest();
+	//GetWindowRect(hwnd, &SSSEngineRenderer::DirectX::windowRect);
+	//SSSEngineRenderer::DirectX::InitializeDirectx12(hwnd);
+	SSSEngineRenderer::LoadDirectx();
+	SSSEngineRenderer::CreateSwapChain(window);
+	SSSEngineRenderer::LoadAssetsTest();
 
-	//Renderer::Directx::Renderer renderer;
+	//SSSEngineRenderer::Directx::SSSEngineRenderer renderer;
 	//renderer.Initialize(hwnd);
 
 	// XAudio2
 	Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
 	hr = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-	if (FAILED(hr)) {
+	if (FAILED(hr))
+	{
 		OutputDebugStringW(L"XAudio2 initialization failed");
 		return -1;
 	}
 
 	IXAudio2MasteringVoice* pMasteringVoice;
 	hr = xAudio2->CreateMasteringVoice(&pMasteringVoice);
-	if (FAILED(hr)) {
+	if (FAILED(hr))
+	{
 		OutputDebugStringW(L"XAudio2 mastering voice initialization failed");
 		return -1;
 	}
@@ -104,7 +107,8 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
 
 	// Populate the audio buffer with some simple sine wave data at 440 Hz.
-	for (DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i) {
+	for (DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i)
+	{
 		float t = i / (float) wave.Format.nSamplesPerSec;
 		constexpr float TwoPi = 2.0f * 3.14159265358979323846264338327950288419716939937510f;
 
@@ -115,7 +119,8 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 	IXAudio2SubmixVoice* pSubMixVoice;
 	hr = xAudio2->CreateSubmixVoice(&pSubMixVoice, 2, wave.Format.nSamplesPerSec, 0, 0, nullptr, nullptr);
-	if (FAILED(hr)) {
+	if (FAILED(hr))
+	{
 		OutputDebugStringW(L"XAudio2 submix voice initialization failed");
 		return -1;
 	}
@@ -124,7 +129,8 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	XAUDIO2_VOICE_SENDS sendList = {1, &sendDescriptors};
 
 	IUnknown* reverbFx;
-	if (FAILED(hr = XAudio2CreateReverb(&reverbFx))) {
+	if (FAILED(hr = XAudio2CreateReverb(&reverbFx)))
+	{
 		OutputDebugStringW(L"XAudio2 reverb initialization failed");
 		return -1;
 	}
@@ -175,7 +181,8 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	IXAudio2SourceVoice* pSourceVoice;
 	hr = xAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*) &wave, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr,
 	                                &sendList, nullptr);
-	if (FAILED(hr)) {
+	if (FAILED(hr))
+	{
 		OutputDebugStringW(L"XAudio2 src voice initialization failed");
 		return -1;
 	}
@@ -196,7 +203,8 @@ int WINAPI SSSENGINE_ENTRY_POINT
 	pSourceVoice->EnableEffect(2);
 
 	hr = pSourceVoice->SubmitSourceBuffer(&buffer);
-	if (FAILED(hr)) {
+	if (FAILED(hr))
+	{
 		OutputDebugStringW(L"XAudio2 src buffer initialization failed");
 		return -1;
 	}
@@ -211,15 +219,19 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 	//ShowWindow(hwnd, nShowCmd);
 	bool isRunning = true;
-	while (isRunning) {
+	while (isRunning)
+	{
 		MSG msg = {};
-		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-			if (msg.message == WM_QUIT) {
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
 				isRunning = false;
 				break;
-			} else if (msg.message == WM_DESTROY) {
+			} else if (msg.message == WM_DESTROY)
+			{
 				// TODO: Window closing must release its swap chain first
-				Renderer::Unload();
+				SSSEngineRenderer::Unload();
 			}
 
 			TranslateMessage(&msg);
@@ -231,24 +243,25 @@ int WINAPI SSSENGINE_ENTRY_POINT
 
 		// Render
 		{
-//			using namespace Renderer::Directx;
+//			using namespace SSSEngineRenderer::Directx;
 //			CommandQueue commandQueue = renderer.GetCommandQueue();
 //			auto commandList = commandQueue.GetCommandList();
 //			renderer.SetClearColor(1.0f, 0.2f, 0.5f, 0.5f, commandList.Get());
 //			renderer.ExecuteCommandList(commandList);
 
-			Renderer::Render();
+			SSSEngineRenderer::Render();
 		}
 	}
 
 	/*{
-		using namespace Renderer::DirectX;
+		using namespace SSSEngineRenderer::DirectX;
 		Flush(commandQueue, fence, fenceValue, fenceEvent);
 		CloseHandle(fenceEvent);
 	}*/
 
-	//Renderer::Unload();
+	//SSSEngineRenderer::Unload();
 
+	UnregisterClass(CLASS_NAME, hInstance);
 	CloseConsole();
 	return 0;
 }
@@ -256,23 +269,27 @@ int WINAPI SSSENGINE_ENTRY_POINT
 void GamepadInput()
 {
 	DWORD dwResult;
-	for (int i = 0; i < XUSER_MAX_COUNT; ++i) {
+	for (int i = 0; i < XUSER_MAX_COUNT; ++i)
+	{
 		XINPUT_STATE state;
 		ZeroMemory(&state, sizeof(XINPUT_STATE));
 
 		dwResult = XInputGetState(i, &state);
-		if (dwResult == ERROR_SUCCESS) {
+		if (dwResult == ERROR_SUCCESS)
+		{
 			// Controller is connected
 			XINPUT_GAMEPAD gamepad = state.Gamepad;
 
-			if (gamepad.wButtons & XINPUT_GAMEPAD_A) {
+			if (gamepad.wButtons & XINPUT_GAMEPAD_A)
+			{
 				// Vibrations
 				XINPUT_VIBRATION vibration;
 				ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
 				vibration.wLeftMotorSpeed = 1000;
 				vibration.wRightMotorSpeed = 2000;
 				XInputSetState(i, &vibration);
-			} else {
+			} else
+			{
 				// Stop vibrations
 				XINPUT_VIBRATION vibration;
 				ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
@@ -289,7 +306,8 @@ void GamepadInput()
 			float normalizedLY = leftThumbY / magnitude;
 
 			float normalizedMagnitude = 0;
-			if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
+			if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
+			{
 				//clip the magnitude at its expected maximum value
 				if (magnitude > 32767)
 					magnitude = 32767;
@@ -297,11 +315,13 @@ void GamepadInput()
 				magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
 
 				normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-			} else {
+			} else
+			{
 				magnitude = 0.0;
 				normalizedMagnitude = 0.0;
 			}
-		} else {
+		} else
+		{
 			// Controller is not connected
 		}
 	}

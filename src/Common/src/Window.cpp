@@ -8,7 +8,4 @@
 
 namespace SSSEngine
 {
-	Window::Window(Window::WindowSize width, Window::WindowSize height, std::string title)
-			: m_Width(width), m_Height(height), m_Title(std::move(title))
-	{}
 } // SSSEngine

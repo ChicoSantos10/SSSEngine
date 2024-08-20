@@ -3,10 +3,12 @@
 //
 
 #pragma once
-// TODO: This file is windows specific. Need to convert to generic renderer
-namespace Renderer
+
+#include "Window.h"
+
+namespace SSSEngineRenderer
 {
-	typedef void (* CreateSwapChain_t)(HWND window);
+	typedef void (* CreateSwapChain_t)(SSSEngine::Window window);
 	typedef void (* Render_t)();
 	typedef void (* Terminate_t)();
 	typedef void (* LoadAssetsTest_t)();

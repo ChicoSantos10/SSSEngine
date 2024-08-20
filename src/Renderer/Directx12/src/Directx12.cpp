@@ -10,11 +10,9 @@
 #include "dxgi1_6.h"
 #include "Win32Utils.h"
 #include "dxcapi.h"
+#include "Window.h"
 
 #include <iostream> // TODO: [REMOVE] Don't use this and instead create a function that receives a callback function?
-
-//extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 610; }
-//extern "C" { __declspec(dllexport) extern const char8_t* D3D12SDKPath = u8".\\D3D12\\"; }
 
 #define SSSENGINE_DLL_EXPORT extern "C" [[maybe_unused]] __declspec(dllexport)
 
@@ -25,14 +23,21 @@ namespace Directx12
 	{
 		using namespace Win32;
 
+		// TODO: Move constants not dependent of Directx to a common header
+		// Constexpr
 		constexpr int BackBuffersAmount = 3;
 		// TODO: Specify as constexpr all dxgi formats and stuff for each
 		constexpr DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
+		// Descriptors
+		ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap;
+		ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap;
 		UINT rtvDescriptorSize = 0;
 		UINT dsvDescriptorSize = 0;
 		UINT cbvSrvUavDescriptorSize = 0;
 
+		// Fence
+		ComPtr<ID3D12Fence> fence;
 		uint64_t frameFenceValues[BackBuffersAmount];
 		HANDLE fenceEvent;
 
@@ -43,9 +48,6 @@ namespace Directx12
 		ComPtr<ID3D12CommandAllocator> commandAllocators[BackBuffersAmount];
 		ComPtr<ID3D12Resource> backBuffers[BackBuffersAmount];
 		ComPtr<IDXGISwapChain4> swapChain;
-		ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap;
-		ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap;
-		ComPtr<ID3D12Fence> fence;
 		ComPtr<ID3D12RootSignature> rootSignature;
 		ComPtr<ID3D12PipelineState> pipelineState;
 		ComPtr<ID3D12InfoQueue> infoQueue;
@@ -60,7 +62,7 @@ namespace Directx12
 		// AA
 		UINT msaaMaxQualityLevelsSupported = 0;
 
-		// Refresh Rate
+		// Refresh Rate and Variable Refresh Rate support
 		BOOL allowTearing = false;
 	}
 
@@ -74,7 +76,8 @@ namespace Directx12
 	{
 		auto index = swapChain->GetCurrentBackBufferIndex();
 		auto value = frameFenceValues[index];
-		if (fence->GetCompletedValue() < value) {
+		if (fence->GetCompletedValue() < value)
+		{
 			ThrowIfFailed(fence->SetEventOnCompletion(value, fenceEvent));
 			WaitForSingleObject(fenceEvent, INFINITE);
 		}
@@ -101,7 +104,8 @@ namespace Directx12
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle(rtvDescriptorHeap));
 
-		for (UINT i = 0; i < BackBuffersAmount; ++i) {
+		for (UINT i = 0; i < BackBuffersAmount; ++i)
+		{
 			ThrowIfFailed(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffers[i])));
 
 			device->CreateRenderTargetView(backBuffers[i].Get(), nullptr, rtvHandle);
@@ -173,7 +177,8 @@ namespace Directx12
 		// Enabling debug
 		{
 			ComPtr<ID3D12Debug> debugInterface;
-			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface)))) {
+			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface))))
+			{
 				debugInterface->EnableDebugLayer();
 			}
 		}
@@ -237,7 +242,8 @@ namespace Directx12
 		{
 			// Create a root signature.
 			D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{D3D_ROOT_SIGNATURE_VERSION_1_1};
-			if (FAILED(device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData)))) {
+			if (FAILED(device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+			{
 				// TODO: Maybe just log or assert that it passes
 				featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 			}
@@ -311,13 +317,15 @@ namespace Directx12
 			{
 				ComPtr<IDxcBlobUtf8> errors;
 				result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
-				if (errors && errors->GetStringLength() > 0) {
+				if (errors && errors->GetStringLength() > 0)
+				{
 					std::cout << errors->GetStringPointer() << std::endl;
 				}
 
 				HRESULT hr;
 				result->GetStatus(&hr);
-				if (FAILED(hr)) {
+				if (FAILED(hr))
+				{
 					std::cout << "Failed vertex shader compilation" << std::endl;
 				}
 			};
@@ -399,7 +407,8 @@ namespace Directx12
 		// Create Command Allocators
 		// TODO: We need a Command Allocator for each command list + for each thread (backBuffers * threads)
 		{
-			for (auto& commandAllocator: commandAllocators) {
+			for (auto& commandAllocator: commandAllocators)
+			{
 				ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
 				                                             IID_PPV_ARGS(&commandAllocator)));
 			}
@@ -476,13 +485,15 @@ namespace Directx12
 	// TODO: If we create another swap chain for a secondary window we replace the main one.
 	//  Should we return the swap chain? Or store it in a set of HWND,SwapChain?
 	//  Same thing for viewport and scissors rect
-	SSSENGINE_DLL_EXPORT void CreateSwapChain(HWND window)
+	SSSENGINE_DLL_EXPORT void CreateSwapChain(SSSEngine::Window window)
 	{
 		swapChain.Reset();
 
 		ThrowIfFailed(
 				factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing))
 		);
+
+		HWND handle = (HWND) window.GetHandle();
 
 		DXGI_SWAP_CHAIN_DESC1 desc = {};
 		desc.Width = 0;  // Note: Passing 0 means use window height and width
@@ -502,11 +513,11 @@ namespace Directx12
 		desc.Flags = flags;
 
 		ComPtr<IDXGISwapChain1> chain;
-		ThrowIfFailed(factory->CreateSwapChainForHwnd(commandQueue.Get(), window, &desc, nullptr, nullptr, &chain));
+		ThrowIfFailed(factory->CreateSwapChainForHwnd(commandQueue.Get(), handle, &desc, nullptr, nullptr, &chain));
 		ThrowIfFailed(chain.As(&swapChain));
 
 		RECT rect;
-		BOOL success = GetWindowRect(window, &rect);
+		BOOL success = GetWindowRect(handle, &rect);
 		assert(success); // TODO: Should we throw if failed in release versions?
 		LONG width = rect.right - rect.left;
 		LONG height = rect.bottom - rect.top;
@@ -573,6 +584,8 @@ namespace Directx12
 		// INVESTIGATE:
 		//  - Should we use the Present1 function instead?
 		//  - Best Sync Interval
+		// TODO: Also check for windowed mode
+		//  (Currently there is no way to set to exclusive fullscreen mode so not needed for now)
 		if (allowTearing)
 			ThrowIfFailed(swapChain->Present(0, renderFlags));
 		else
@@ -593,7 +606,8 @@ namespace Directx12
 
 		// TODO: Needs to be specific to this swap chain
 		Flush();
-		for (int i = 0; i < BackBuffersAmount; ++i) {
+		for (int i = 0; i < BackBuffersAmount; ++i)
+		{
 			backBuffers[i].Reset();
 			frameFenceValues[i] = frameFenceValues[swapChain->GetCurrentBackBufferIndex()];
 		}
@@ -609,7 +623,8 @@ namespace Directx12
 	{
 		// Vertex Buffer
 		{
-			struct Vertex {
+			struct Vertex
+			{
 				DirectX::XMFLOAT3 position;
 				DirectX::XMFLOAT4 color;
 			};
@@ -654,4 +669,3 @@ namespace Directx12
 		CloseHandle(fenceEvent);
 	}
 }
-

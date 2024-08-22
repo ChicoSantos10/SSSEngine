@@ -1,5 +1,5 @@
 /*  SSS Engine
-    Copyright (C) ${YEAR}  Francisco Santos
+    Copyright (C) 2024  Francisco Santos
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,17 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "windows.h"
+#include "Assertion.h"
 
-namespace SSSEngine
+void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line)
 {
-
-#ifdef SSSENGINE_WIN32
-
-	using WindowHandle = void*;
-	using WindowTitle = const wchar_t*; // TODO: Create definitions for this like UTF8 and stuff
-
-#endif
-
-// TODO: Functions for Engine layer to communicate with platform layer
+    // TODO: Message still needs the file and line as well as it could have the stack trace
+    MessageBox(nullptr, message, L"Assertion Failed", MB_OK | MB_ICONERROR);
 }

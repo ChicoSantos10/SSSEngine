@@ -6,7 +6,10 @@ add_executable(SSSEngine WIN32 Win32.cpp
         Common/src/Exceptions.cpp
         Common/src/Exceptions.cpp
         Renderer/src/Renderer.cpp
+        Win32/src/Win32Assertion.cpp
 )
+
+target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)
 
 # Make a bin directory
 set(BIN_DIR ${CMAKE_BINARY_DIR}/bin CACHE INTERNAL "")
@@ -24,12 +27,13 @@ target_include_directories(SSSEngine PUBLIC ${INCLUDE_DIR}/directx)
 #target_include_directories(DIRECTX_GUIDs_LIB PUBLIC ${INCLUDE_DIR}/directx)
 #target_link_libraries(SSSEngine PRIVATE DIRECTX_GUIDs_LIB)
 
-if (MINGW)
+if (MSVC)
+elseif (MINGW)
     target_link_options(SSSEngine PRIVATE -municode)
     target_link_libraries(SSSEngine PRIVATE libksuser.a)
-elseif (MSVC)
-    add_compile_definitions(UNICODE _UNICODE)
 endif ()
+# INVESTIGATE: Is this the only way to ensure unicode? Is there a better way for each compiler
+add_compile_definitions(UNICODE _UNICODE)
 target_link_libraries(SSSEngine PRIVATE Comctl32.lib) # Windows subclasses
 
 find_library(XAUDIO_REDIST XAudio2_9redist.lib PATHS ${CMAKE_SOURCE_DIR}/libs/XAudioRedist)
@@ -82,5 +86,3 @@ add_subdirectory(Renderer)
 add_subdirectory(Win32)
 add_subdirectory(Common)
 
-add_compile_definitions($<$<CONFIG:Debug>:SSSENGINE_DEBUG> $<$<CONFIG:Release>:SSSENGINE_RELEASE>)
-target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)

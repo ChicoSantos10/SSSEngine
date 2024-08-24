@@ -17,20 +17,14 @@
 
 #pragma once
 
-/* INVESTIGATE: This allows us to write platform specific which isn't allowed here
- *  However this allows us to have a clean window class with whatever handle the OS gives us
- *  The problem being to keep the renderer platform agnostic the create swap chain needs something that holds a HWND for
- *  DX12. For Vulkan this will not be the case
- * */
+#include "Attributes.h"
 #include "Platform.h"
 
 // TODO: Clean this up - Move to respective files
-#include <concepts>
-
-template<class T>
-concept Numeric = std::integral<T> || std::floating_point<T>;
-
-template<Numeric T>
+// TODO: Different implementation of arithmetic -> Must implement all arithmetic operators
+//		 Also implement logical with all logical operators and one that includes both arithmetic and logical
+//		 Also a is number for all integer and floating points
+template <typename T> requires std::is_arithmetic_v<T>
 struct Rect
 {
 	T x;
@@ -47,39 +41,36 @@ namespace SSSEngine
 		using WindowSize = int;
 		using WindowRect = Rect<WindowSize>;
 
-		Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle& title,
-		       Window* parent = nullptr);
+		Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
+		       Window *parent = nullptr);
 		~Window() = default;
 
-		// TODO: Create a macro for [[nodiscard]], const, const noexcept
-		[[nodiscard]] inline WindowHandle GetHandle() const noexcept
+		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowHandle GetHandle() const noexcept
 		{
-			return m_Handle;
+			return m_handle;
 		}
 
-		[[nodiscard]] inline WindowSize GetWidth() const noexcept
+		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowSize GetWidth() const noexcept
 		{
-			return m_WindowPos.width;
+			return GetRect().width;
 		}
 
-		[[nodiscard]] inline WindowSize GetHeight() const noexcept
+		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowSize GetHeight() const noexcept
 		{
-			return m_WindowPos.height;
+			return GetRect().height;
 		}
 
-		[[nodiscard]] inline WindowRect GetRect() const noexcept
-		{
-			return m_WindowPos;
-		}
+		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowRect GetRect() const noexcept;
 
 		// INVESTIGATE: Is it necessary to ever get the title?
-//		[[nodiscard]] inline std::string_view GetTitle() const
-//		{ return m_Title; }
+		//		[[nodiscard]] inline std::string_view GetTitle() const
+		//		{ return m_Title; }
 
-		void SetWindowTitle(const WindowTitle& title);
+		void SetWindowTitle(const WindowTitle &title) const;
 
 		// TODO: Potentially allow other types of fullscreen
 		void SetBorderlessFullscreen(bool fullscreen);
+		void ToggleBorderlessFullscreen();
 
 		/* TODO:
 		 *  - Add a method to change the window size
@@ -90,10 +81,7 @@ namespace SSSEngine
 		 *  - Add a method to minimize the window
 		 */
 	private:
-		// INVESTIGATE: Should we store the position? It would probably be better to just poll the window for it
-		//  and just keep this as a way to potentially restore it. Ideally an alternative to storing would be nicer
-		WindowRect m_WindowPos;
-		WindowHandle m_Handle;
+		WindowHandle m_handle;
 	};
 } // SSSEngine
 

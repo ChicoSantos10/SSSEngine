@@ -34,13 +34,17 @@ void GamepadInput();
 
 // NOTE: For some reason this needs to be on main
 extern "C" {
+// ReSharper disable CppInconsistentNaming
 __declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
 __declspec(dllexport) extern const char8_t *D3D12SDKPath = u8".\\Directx12\\D3D12\\";
+// ReSharper restore CppInconsistentNaming
 }
 
-// TODO: This name should be in Platform file since the name is gonna be the same for other platforms as well
-constexpr WCHAR CLASS_NAME[] = L"SSS Engine";
+constexpr WCHAR WindowClassName[] = L"SSS Engine";
 
+// TODO: Check for cpu attributes to ensure minimum specs
+//  -> SIMD
+//  -> Minimum memory perhaps or just try to allocate and if fails allocate less?
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
 	InitConsole();
@@ -50,21 +54,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	/*SSSEngine::Application app;
 	app.Run();*/
 
-	Win32::WindowClass.cbSize = sizeof(WNDCLASSEX);
-	Win32::WindowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-	Win32::WindowClass.lpfnWndProc = Win32::MainWindowProcedure;
-	Win32::WindowClass.hInstance = hInstance;
-	Win32::WindowClass.lpszClassName = CLASS_NAME;
-	Win32::WindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	Win32::WindowClass.lpszMenuName = RT_MENU;
+	SSSWin32::WindowClass.cbSize = sizeof(WNDCLASSEX);
+	SSSWin32::WindowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	SSSWin32::WindowClass.lpfnWndProc = SSSWin32::MainWindowProcedure;
+	SSSWin32::WindowClass.hInstance = hInstance;
+	SSSWin32::WindowClass.lpszClassName = WindowClassName;
+	SSSWin32::WindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	SSSWin32::WindowClass.lpszMenuName = RT_MENU;
 
-	if (RegisterClassExW(&Win32::WindowClass) == 0)
+	if (RegisterClassExW(&SSSWin32::WindowClass) == 0)
 	{
 		OutputDebugStringW(L"Window class creation failed");
 		return -1;
 	}
 
-	SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, L"SSS Engine");
+	SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, SSSEngine::MainWindowName);
 
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
@@ -79,9 +83,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	//GetWindowRect(hwnd, &SSSEngineRenderer::DirectX::windowRect);
 	//SSSEngineRenderer::DirectX::InitializeDirectx12(hwnd);
-	SSSEngineRenderer::LoadDirectx();
-	SSSEngineRenderer::CreateSwapChain(window);
-	SSSEngineRenderer::LoadAssetsTest();
+	SSSRenderer::LoadDirectx();
+	SSSRenderer::CreateSwapChain(window);
+	SSSRenderer::LoadAssetsTest();
 
 	//SSSEngineRenderer::Directx::SSSEngineRenderer renderer;
 	//renderer.Initialize(hwnd);
@@ -195,7 +199,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	IXAudio2SourceVoice *pSourceVoice;
 	hr = xAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wave, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr,
-	                                &sendList, nullptr);
+	                                &sendList, nullptr
+	);
 	if (FAILED(hr))
 	{
 		OutputDebugStringW(L"XAudio2 src voice initialization failed");
@@ -247,7 +252,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			else if (msg.message == WM_DESTROY)
 			{
 				// TODO: Window closing must release its swap chain first
-				SSSEngineRenderer::Unload();
+				SSSRenderer::Unload();
 			}
 
 			TranslateMessage(&msg);
@@ -265,7 +270,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 			//			renderer.SetClearColor(1.0f, 0.2f, 0.5f, 0.5f, commandList.Get());
 			//			renderer.ExecuteCommandList(commandList);
 
-			SSSEngineRenderer::Render();
+			SSSRenderer::Render();
 		}
 	}
 
@@ -277,7 +282,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	//SSSEngineRenderer::Unload();
 
-	UnregisterClass(CLASS_NAME, hInstance);
+	UnregisterClass(WindowClassName, hInstance);
 	CloseConsole();
 	return 0;
 }

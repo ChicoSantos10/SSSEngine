@@ -19,7 +19,6 @@
 
 namespace SSSEngine
 {
-
 #ifdef SSSENGINE_WIN32
 
 	using WindowHandle = void*;
@@ -27,5 +26,7 @@ namespace SSSEngine
 
 #endif
 
-// TODO: Functions for Engine layer to communicate with platform layer
+	constexpr auto MainWindowName = L"SSS Engine";
+
+	// TODO: Functions for Engine layer to communicate with platform layer
 }

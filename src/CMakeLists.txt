@@ -6,9 +6,8 @@ add_executable(SSSEngine WIN32 Win32.cpp
         Common/src/Exceptions.cpp
         Common/src/Exceptions.cpp
         Renderer/src/Renderer.cpp
-        Win32/src/Win32Assertion.cpp
+        Win32/src/Win32Debug.cpp
 )
-
 target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)
 
 # Make a bin directory

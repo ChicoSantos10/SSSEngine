@@ -1,0 +1,16 @@
+# ninja log v6
+7	1419	7462190932435344	src/CMakeFiles/SSSEngine.dir/cmake_pch.cxx.obj	7afdc6ac32435382
+1433	1487	7462190946692606	src/CMakeFiles/SSSEngine.dir/Common/src/Window.cpp.obj	76e4ba34c5a69a2f
+1487	1545	7462190947231164	src/CMakeFiles/SSSEngine.dir/Common/src/Application.cpp.obj	8b677035270f99e9
+1545	1611	7462190947799648	src/CMakeFiles/SSSEngine.dir/Common/src/Exceptions.cpp.obj	5d3dbbb22bf8d6ad
+1428	1888	7462190946642735	src/CMakeFiles/SSSEngine.dir/Win32/src/Win32Utils.cpp.obj	fa2bde52ce23cc5
+1439	1902	7462190946742470	src/CMakeFiles/SSSEngine.dir/Win32/src/Win32Window.cpp.obj	f7d7f4cbfd5fec52
+1419	1914	7462190946552980	src/CMakeFiles/SSSEngine.dir/Win32.cpp.obj	ec1aaff5e8d2fc15
+1619	2027	7462190948547641	src/CMakeFiles/SSSEngine.dir/Renderer/src/Renderer.cpp.obj	42e41708b3115f84
+1888	2273	7462190951240448	src/CMakeFiles/SSSEngine.dir/Win32/src/Win32Debug.cpp.obj	ab7753d93f219fdf
+2273	2598	7462190955080180	bin/SSSEngine.exe	3cbb9e03ce9417fa
+2598	2665	7462190958919908	src/Renderer/Directx12/Directx12.dir/SSSEngine.pdb	ccf5fa7bc36b5e16
+2598	2665	7462190958919908	N:/C++Projects/SSSEngine/cmake-debug/src/Renderer/Directx12/Directx12.dir/SSSEngine.pdb	ccf5fa7bc36b5e16
+2669	3106	7462190959049566	src/Renderer/Directx12/CMakeFiles/Directx12.dir/__/__/Win32/src/Win32Utils.cpp.obj	f11fff80e52ab1c5
+2665	3690	7462190959009670	src/Renderer/Directx12/CMakeFiles/Directx12.dir/src/Directx12.cpp.obj	f82700f6de13e77c
+3690	3966	7462190969262611	bin/Directx12/Directx12.dll	4a8a7e2b57cf6c2d

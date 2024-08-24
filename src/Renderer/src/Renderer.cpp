@@ -24,38 +24,39 @@
 
 #include "Renderer.h"
 
-namespace SSSEngineRenderer
+namespace SSSRenderer
 {
 	namespace
 	{
-		typedef void (* Init)();
+		typedef void (*Init)();
 
-		HMODULE module;
+		HMODULE Module;
 	}
 
 	void Unload()
 	{
 		Terminate();
-		FreeLibrary(module);
-		module = nullptr;
+		FreeLibrary(Module);
+		Module = nullptr;
 	}
 
-	template<typename T>
-	inline void LoadFunction(T& type, const char* name)
+	template <typename T>
+	inline void LoadFunction(T &type, const char *name)
 	{
-		type = (T) GetProcAddress(module, name);
-		assert(type);
+		type = reinterpret_cast<T>(GetProcAddress(Module, name));
+		SSSENGINE_ASSERT(type);
 	}
 
 	void LoadDirectx()
 	{
-		if (module)
+		if (Module)
 			Unload();
 
 		// TODO: Relative Path
-		module = LoadLibraryEx(LR"(N:\C++Projects\SSSEngine\build-debug-msvc\bin\Directx12\Directx12.dll)", nullptr, 0);
+		Module = LoadLibraryEx(LR"(N:\C++Projects\SSSEngine\build-debug-msvccl\bin\Directx12\Directx12.dll)", nullptr, 0
+		);
 
-		if (!module)
+		if (!Module)
 			throw std::exception();
 
 		Init init;

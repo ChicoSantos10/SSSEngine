@@ -6,7 +6,7 @@
 
 // TODO: Rethink about what should actually be here
 // NOTE: Do not include platform specific includes since those will propagate throughout the code increasing the chance
-//  of mistakes happening. They will be caught at runtime but its cleaner to not be able to do them in the first place
+//  of mistakes happening.
 
 // std includes
 #include <iostream>
@@ -24,4 +24,6 @@
 
 // SSSEngine includes
 #include "Types.h"
-#include "Assertion.h"
+#include "Debug.h"
+#include "Attributes.h"
+#include "Intrinsics.h"

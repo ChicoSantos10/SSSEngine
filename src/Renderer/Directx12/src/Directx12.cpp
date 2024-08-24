@@ -16,7 +16,6 @@ Copyright (C) 2024  Francisco Santos
 */
 
 #include <windows.h>
-#include "Exceptions.h"
 #include "d3d12.h"
 #include "d3dx12.h"
 #include "DirectXMath.h"
@@ -27,14 +26,16 @@ Copyright (C) 2024  Francisco Santos
 
 #include <iostream> // TODO: [REMOVE] Don't use this and instead create a function that receives a callback function?
 
-#define SSSENGINE_DLL_EXPORT extern "C" [[maybe_unused]] __declspec(dllexport)
+#include "Attributes.h"
 
-namespace Directx12
+// TODO: LOG function/Macro for HR results
+
+namespace SSSDirectx12
 {
 	// TODO: Set default values
 	namespace
 	{
-		using namespace Win32;
+		using namespace SSSWin32;
 
 		// TODO: Move constants not dependent of Directx to a common header
 		// Constants
@@ -43,55 +44,55 @@ namespace Directx12
 		constexpr DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 		// Descriptors
-		ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap;
-		ComPtr<ID3D12DescriptorHeap> dsvDescriptorHeap;
-		UINT rtvDescriptorSize = 0;
-		UINT dsvDescriptorSize = 0;
-		UINT cbvSrvUavDescriptorSize = 0;
+		ComPtr<ID3D12DescriptorHeap> RtvDescriptorHeap;
+		ComPtr<ID3D12DescriptorHeap> DsvDescriptorHeap;
+		UINT RtvDescriptorSize = 0;
+		UINT DsvDescriptorSize = 0;
+		UINT CbvSrvUavDescriptorSize = 0;
 
 		// Fence
-		ComPtr<ID3D12Fence> fence;
-		uint64_t frameFenceValues[BackBuffersAmount];
-		HANDLE fenceEvent;
+		ComPtr<ID3D12Fence> Fence;
+		uint64_t FrameFenceValues[BackBuffersAmount];
+		HANDLE FenceEvent;
 
-		ComPtr<IDXGIFactory6> factory;
-		ComPtr<ID3D12Device10> device;
-		ComPtr<ID3D12CommandQueue> commandQueue;
-		ComPtr<ID3D12GraphicsCommandList> commandList;
-		ComPtr<ID3D12CommandAllocator> commandAllocators[BackBuffersAmount];
-		ComPtr<ID3D12Resource> backBuffers[BackBuffersAmount];
-		ComPtr<IDXGISwapChain4> swapChain;
-		ComPtr<ID3D12RootSignature> rootSignature;
-		ComPtr<ID3D12PipelineState> pipelineState;
-		ComPtr<ID3D12InfoQueue> infoQueue;
-		ComPtr<ID3D12Resource> depthStencilBuffer;
+		ComPtr<IDXGIFactory6> Factory;
+		ComPtr<ID3D12Device10> Device;
+		ComPtr<ID3D12CommandQueue> CommandQueue;
+		ComPtr<ID3D12GraphicsCommandList> CommandList;
+		ComPtr<ID3D12CommandAllocator> CommandAllocators[BackBuffersAmount];
+		ComPtr<ID3D12Resource> BackBuffers[BackBuffersAmount];
+		ComPtr<IDXGISwapChain4> SwapChain;
+		ComPtr<ID3D12RootSignature> RootSignature;
+		ComPtr<ID3D12PipelineState> PipelineState;
+		ComPtr<ID3D12InfoQueue> InfoQueue;
+		ComPtr<ID3D12Resource> DepthStencilBuffer;
 
-		ComPtr<ID3D12Resource> vertexBuffer;
-		D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+		ComPtr<ID3D12Resource> VertexBuffer;
+		D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
 
-		D3D12_VIEWPORT viewport;
-		D3D12_RECT scissorRect;
+		D3D12_VIEWPORT Viewport;
+		D3D12_RECT ScissorRect;
 
 		// AA
-		UINT msaaMaxQualityLevelsSupported = 0;
+		UINT MsaaMaxQualityLevelsSupported = 0;
 
 		// Refresh Rate and Variable Refresh Rate support
-		BOOL allowTearing = false;
+		BOOL AllowTearing = false;
 	}
 
 	void Signal()
 	{
-		auto index = swapChain->GetCurrentBackBufferIndex();
-		ThrowIfFailed(commandQueue->Signal(fence.Get(), ++frameFenceValues[index]));
+		const auto index = SwapChain->GetCurrentBackBufferIndex();
+		ThrowIfFailed(CommandQueue->Signal(Fence.Get(), ++FrameFenceValues[index]));
 	}
 
 	void WaitForFenceValue()
 	{
-		const auto index = swapChain->GetCurrentBackBufferIndex();
-		if (const auto value = frameFenceValues[index]; fence->GetCompletedValue() < value)
+		const auto index = SwapChain->GetCurrentBackBufferIndex();
+		if (const auto value = FrameFenceValues[index]; Fence->GetCompletedValue() < value)
 		{
-			ThrowIfFailed(fence->SetEventOnCompletion(value, fenceEvent));
-			WaitForSingleObject(fenceEvent, INFINITE);
+			ThrowIfFailed(Fence->SetEventOnCompletion(value, FenceEvent));
+			WaitForSingleObject(FenceEvent, INFINITE);
 		}
 	}
 
@@ -112,16 +113,16 @@ namespace Directx12
 #endif
 	}
 
-	void CreateRTV()
+	void CreateRtv()
 	{
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle(rtvDescriptorHeap));
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle(RtvDescriptorHeap));
 
 		for (UINT i = 0; i < BackBuffersAmount; ++i)
 		{
-			ThrowIfFailed(swapChain->GetBuffer(i, IID_PPV_ARGS(&backBuffers[i])));
+			ThrowIfFailed(SwapChain->GetBuffer(i, IID_PPV_ARGS(&BackBuffers[i])));
 
-			device->CreateRenderTargetView(backBuffers[i].Get(), nullptr, rtvHandle);
-			rtvHandle.Offset(1, rtvDescriptorSize);
+			Device->CreateRenderTargetView(BackBuffers[i].Get(), nullptr, rtvHandle);
+			rtvHandle.Offset(1, RtvDescriptorSize);
 		}
 	}
 
@@ -137,12 +138,24 @@ namespace Directx12
 
 		// INVESTIGATE: Should we take into consideration the sample count even if we don't use it in the swap chain?
 		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-		auto resourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, width, height, 1, 0, 1, 0,
-		                                                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+		auto resourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT,
+		                                                 width,
+		                                                 height,
+		                                                 1,
+		                                                 0,
+		                                                 1,
+		                                                 0,
+		                                                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
+		);
 
-		ThrowIfFailed(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc,
-		                                              D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
-		                                              IID_PPV_ARGS(depthStencilBuffer.ReleaseAndGetAddressOf())));
+		ThrowIfFailed(Device->CreateCommittedResource(&heapProperties,
+		                                              D3D12_HEAP_FLAG_NONE,
+		                                              &resourceDesc,
+		                                              D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		                                              &clearValue,
+		                                              IID_PPV_ARGS(DepthStencilBuffer.ReleaseAndGetAddressOf())
+			)
+		);
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
 		depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -150,8 +163,10 @@ namespace Directx12
 		depthStencilDesc.Texture2D.MipSlice = 0;
 		depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 
-		device->CreateDepthStencilView(depthStencilBuffer.Get(), &depthStencilDesc,
-		                               dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		Device->CreateDepthStencilView(DepthStencilBuffer.Get(),
+		                               &depthStencilDesc,
+		                               DsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
+		);
 	}
 
 	D3D_FEATURE_LEVEL FindMaxFeatureLevel()
@@ -167,14 +182,14 @@ namespace Directx12
 
 		D3D12_FEATURE_DATA_FEATURE_LEVELS levels{_countof(features), features, features[0]};
 
-		device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &levels, sizeof(levels));
+		Device->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &levels, sizeof(levels));
 
 		return levels.MaxSupportedFeatureLevel;
 	}
 
 	SSSENGINE_DLL_EXPORT void Initialize()
 	{
-		using namespace Win32;
+		using namespace SSSWin32;
 
 #ifdef SSSENGINE_DEBUG_GRAPHICS
 		// Enabling debug
@@ -197,21 +212,23 @@ namespace Directx12
 #endif
 
 			ThrowIfFailed(CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&factory2)));
-			ThrowIfFailed(factory2.As(&factory));
+			ThrowIfFailed(factory2.As(&Factory));
 
 			ComPtr<IDXGIAdapter4> adapter;
-			ThrowIfFailed(factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-			                                                  IID_PPV_ARGS(&adapter)));
-			ThrowIfFailed(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&device)));
+			ThrowIfFailed(
+				Factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter))
+			);
+
+			ThrowIfFailed(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&Device)));
 		}
 
 #ifdef SSSENGINE_DEBUG_GRAPHICS
 		// Create Info Queue
 		{
-			ThrowIfFailed(device->QueryInterface(IID_PPV_ARGS(&infoQueue)));
-			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-			infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+			ThrowIfFailed(Device->QueryInterface(IID_PPV_ARGS(&InfoQueue)));
+			InfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+			InfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+			InfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 
 			D3D12_MESSAGE_SEVERITY severities[] = {
 				D3D12_MESSAGE_SEVERITY_INFO,
@@ -235,7 +252,7 @@ namespace Directx12
 			newFilter.DenyList.NumIDs = _countof(denyIds);
 			newFilter.DenyList.pIDList = denyIds;
 
-			infoQueue->PushStorageFilter(&newFilter);
+			InfoQueue->PushStorageFilter(&newFilter);
 		}
 #endif
 
@@ -243,7 +260,7 @@ namespace Directx12
 		{
 			// Create a root signature.
 			D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData{D3D_ROOT_SIGNATURE_VERSION_1_1};
-			if (FAILED(device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
+			if (FAILED(Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(featureData))))
 			{
 				// TODO: Maybe just log or assert that it passes
 				featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
@@ -258,7 +275,7 @@ namespace Directx12
 				D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
 			CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-			rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) * 0.25, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+			rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) * 0.25f, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
 			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig;
 			rootSig.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
@@ -267,9 +284,14 @@ namespace Directx12
 			ComPtr<ID3DBlob> error;
 
 			ThrowIfFailed(
-				D3DX12SerializeVersionedRootSignature(&rootSig, featureData.HighestVersion, &signature, &error));
-			ThrowIfFailed(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(),
-			                                          IID_PPV_ARGS(&rootSignature)));
+				D3DX12SerializeVersionedRootSignature(&rootSig, featureData.HighestVersion, &signature, &error)
+			);
+			ThrowIfFailed(Device->CreateRootSignature(0,
+			                                          signature->GetBufferPointer(),
+			                                          signature->GetBufferSize(),
+			                                          IID_PPV_ARGS(&RootSignature)
+				)
+			);
 		}
 
 		// PSO
@@ -342,10 +364,18 @@ namespace Directx12
 			ComPtr<IDxcResult> vsResult;
 			ComPtr<IDxcResult> psResult;
 
-			shaderCompiler->Compile(&buffer, commandArgsVs, _countof(commandArgsVs), includeHandler.Get(),
-			                        IID_PPV_ARGS(&vsResult));
-			shaderCompiler->Compile(&buffer, commandArgsPs, _countof(commandArgsPs), includeHandler.Get(),
-			                        IID_PPV_ARGS(&psResult));
+			shaderCompiler->Compile(&buffer,
+			                        commandArgsVs,
+			                        _countof(commandArgsVs),
+			                        includeHandler.Get(),
+			                        IID_PPV_ARGS(&vsResult)
+			);
+			shaderCompiler->Compile(&buffer,
+			                        commandArgsPs,
+			                        _countof(commandArgsPs),
+			                        includeHandler.Get(),
+			                        IID_PPV_ARGS(&psResult)
+			);
 
 			Debug(vsResult);
 			Debug(psResult);
@@ -385,7 +415,7 @@ namespace Directx12
 
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
 			psoDesc.InputLayout = {inputDesc, _countof(inputDesc)};
-			psoDesc.pRootSignature = rootSignature.Get();
+			psoDesc.pRootSignature = RootSignature.Get();
 			psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
 			psoDesc.PS = CD3DX12_SHADER_BYTECODE(fragmentShader.Get());
 			psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -398,7 +428,7 @@ namespace Directx12
 			psoDesc.RTVFormats[0] = BackBufferFormat;
 			psoDesc.SampleDesc.Count = 1;
 
-			ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+			ThrowIfFailed(Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&PipelineState)));
 		}
 
 		// Command Queue
@@ -409,35 +439,41 @@ namespace Directx12
 			desc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 			desc.NodeMask = 0;
 
-			ThrowIfFailed(device->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue)));
+			ThrowIfFailed(Device->CreateCommandQueue(&desc, IID_PPV_ARGS(&CommandQueue)));
 		}
 
 		// Create Command Allocators
 		// TODO: We need a Command Allocator for each command list + for each thread (backBuffers * threads)
 		{
-			for (auto &commandAllocator : commandAllocators)
+			for (auto &commandAllocator : CommandAllocators)
 			{
-				ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
-				                                             IID_PPV_ARGS(&commandAllocator)));
+				ThrowIfFailed(Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
+				                                             IID_PPV_ARGS(&commandAllocator)
+					)
+				);
 			}
 		}
 
 		// Create Command List
 		// TODO: We need a command list for each thread
 		{
-			ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocators[0].Get(),
-			                                        pipelineState.Get(),
-			                                        // TODO: Maybe we can pass nullptr since we can define it on Reset?
-			                                        IID_PPV_ARGS(&commandList)));
+			// TODO: Maybe we can pass nullptr instead of the pipeline since we can define it on Reset?
+			ThrowIfFailed(Device->CreateCommandList(0,
+			                                        D3D12_COMMAND_LIST_TYPE_DIRECT,
+			                                        CommandAllocators[0].Get(),
+			                                        PipelineState.Get(),
+			                                        IID_PPV_ARGS(&CommandList)
+				)
+			);
 
-			ThrowIfFailed(commandList->Close());
+			ThrowIfFailed(CommandList->Close());
 		}
 
 		// Descriptor Sizes
 		{
-			rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-			dsvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-			cbvSrvUavDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			RtvDescriptorSize = Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+			DsvDescriptorSize = Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+			CbvSrvUavDescriptorSize = Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		}
 
 		// Create RTV Descriptor Heap
@@ -448,7 +484,7 @@ namespace Directx12
 			desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 			desc.NodeMask = 0;
 
-			ThrowIfFailed(device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&rtvDescriptorHeap)));
+			ThrowIfFailed(Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&RtvDescriptorHeap)));
 		}
 
 		// Create DSV Descriptor Heap
@@ -458,12 +494,12 @@ namespace Directx12
 			dsvDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 			dsvDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-			ThrowIfFailed(device->CreateDescriptorHeap(&dsvDesc, IID_PPV_ARGS(&dsvDescriptorHeap)));
+			ThrowIfFailed(Device->CreateDescriptorHeap(&dsvDesc, IID_PPV_ARGS(&DsvDescriptorHeap)));
 		}
 
 		// Create Fence
 		{
-			ThrowIfFailed(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+			ThrowIfFailed(Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&Fence)));
 		}
 
 		// Anti Aliasing Support
@@ -478,25 +514,31 @@ namespace Directx12
 				.NumQualityLevels = 0,
 			};
 
-			ThrowIfFailed(device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &qualityLevels,
-			                                          sizeof(qualityLevels)));
+			ThrowIfFailed(Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
+			                                          &qualityLevels,
+			                                          sizeof(qualityLevels)
+				)
+			);
 
-			msaaMaxQualityLevelsSupported = qualityLevels.NumQualityLevels;
-			assert(msaaMaxQualityLevelsSupported > 0);
+			MsaaMaxQualityLevelsSupported = qualityLevels.NumQualityLevels;
+			assert(MsaaMaxQualityLevelsSupported > 0);
 		}
 	}
 
 	// TODO: If we create another swap chain for a secondary window we replace the main one.
 	//  Should we return the swap chain? Or store it in a set of HWND,SwapChain?
 	//  Same thing for viewport and scissors rect
-	SSSENGINE_DLL_EXPORT void CreateSwapChain(SSSEngine::Window window)
+	SSSENGINE_DLL_EXPORT void CreateSwapChain(const SSSEngine::Window &window)
 	{
-		swapChain.Reset();
+		SwapChain.Reset();
 
-		ThrowIfFailed(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing,
-		                                           sizeof(allowTearing)));
+		ThrowIfFailed(Factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING,
+		                                           &AllowTearing,
+		                                           sizeof(AllowTearing)
+			)
+		);
 
-		HWND handle = (HWND)window.GetHandle();
+		HWND handle = static_cast<HWND>(window.GetHandle());
 
 		DXGI_SWAP_CHAIN_DESC1 desc = {};
 		desc.Width = 0; // Note: Passing 0 means use window height and width
@@ -511,87 +553,100 @@ namespace Directx12
 		desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 		UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-		if (allowTearing)
+		if (AllowTearing)
 			flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 		desc.Flags = flags;
 
 		ComPtr<IDXGISwapChain1> chain;
-		ThrowIfFailed(factory->CreateSwapChainForHwnd(commandQueue.Get(), handle, &desc, nullptr, nullptr, &chain));
-		ThrowIfFailed(chain.As(&swapChain));
+		ThrowIfFailed(Factory->CreateSwapChainForHwnd(CommandQueue.Get(), handle, &desc, nullptr, nullptr, &chain));
+		ThrowIfFailed(chain.As(&SwapChain));
+
+		ThrowIfFailed(Factory->MakeWindowAssociation(handle, DXGI_MWA_NO_ALT_ENTER));
 
 		RECT rect;
 		BOOL success = GetWindowRect(handle, &rect);
-		assert(success); // INVESTIGATE: Should we throw if failed in release versions?
+		SSSENGINE_ASSERT(success); // INVESTIGATE: Should we throw if failed in release versions?
 		LONG width = rect.right - rect.left;
 		LONG height = rect.bottom - rect.top;
 		// INVESTIGATE: Should the viewport use 0,0 or the window position?
-		viewport.TopLeftX = static_cast<FLOAT>(rect.left);
-		viewport.TopLeftY = static_cast<FLOAT>(rect.top);
-		viewport.Width = static_cast<FLOAT>(width);
-		viewport.Height = static_cast<FLOAT>(height);
+		Viewport.TopLeftX = static_cast<FLOAT>(rect.left);
+		Viewport.TopLeftY = static_cast<FLOAT>(rect.top);
+		Viewport.Width = static_cast<FLOAT>(width);
+		Viewport.Height = static_cast<FLOAT>(height);
 
-		scissorRect.top = 0;
-		scissorRect.left = 0;
-		scissorRect.right = width;
-		scissorRect.bottom = height;
+		ScissorRect.top = 0;
+		ScissorRect.left = 0;
+		ScissorRect.right = width;
+		ScissorRect.bottom = height;
 
 		CreateDepthStencilBuffer(width, height);
-		CreateRTV();
+		CreateRtv();
 	}
 
 	SSSENGINE_DLL_EXPORT void Render()
 	{
-		auto backBufferIndex = swapChain->GetCurrentBackBufferIndex();
-		auto commandAllocator = commandAllocators[backBufferIndex];
-		auto backBuffer = backBuffers[backBufferIndex]; // TODO: Maybe rename to render targets?
+		auto backBufferIndex = SwapChain->GetCurrentBackBufferIndex();
+		auto commandAllocator = CommandAllocators[backBufferIndex];
+		auto backBuffer = BackBuffers[backBufferIndex]; // TODO: Maybe rename to render targets?
 
 		// Populate command list
 		{
 			ThrowIfFailed(commandAllocator->Reset());
-			ThrowIfFailed(commandList->Reset(commandAllocator.Get(), pipelineState.Get()));
+			ThrowIfFailed(CommandList->Reset(commandAllocator.Get(), PipelineState.Get()));
 
-			commandList->SetPipelineState(pipelineState.Get());
-			commandList->SetGraphicsRootSignature(rootSignature.Get());
-			commandList->RSSetViewports(1, &viewport);
-			commandList->RSSetScissorRects(1, &scissorRect);
+			CommandList->SetPipelineState(PipelineState.Get());
+			CommandList->SetGraphicsRootSignature(RootSignature.Get());
+			CommandList->RSSetViewports(1, &Viewport);
+			CommandList->RSSetScissorRects(1, &ScissorRect);
 
-			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT,
-			                                                    D3D12_RESOURCE_STATE_RENDER_TARGET);
-			commandList->ResourceBarrier(1, &barrier);
+			auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(backBuffer.Get(),
+			                                                    D3D12_RESOURCE_STATE_PRESENT,
+			                                                    D3D12_RESOURCE_STATE_RENDER_TARGET
+			);
+			CommandList->ResourceBarrier(1, &barrier);
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle(rtvDescriptorHeap),
-			                                        static_cast<int>(backBufferIndex), rtvDescriptorSize);
-			CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(GetDescriptorHandle(dsvDescriptorHeap));
-			commandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle(RtvDescriptorHeap),
+			                                        static_cast<int>(backBufferIndex),
+			                                        RtvDescriptorSize
+			);
+			CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(GetDescriptorHandle(DsvDescriptorHeap));
+			CommandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
 
 			constexpr float clearColor[]{0.5f, 0.5f, 0.75f, 1.0f};
-			commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-			commandList->ClearDepthStencilView(dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-			                                   D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
-			commandList->DrawInstanced(3, 1, 0, 0);
+			CommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+			CommandList->ClearDepthStencilView(DsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+			                                   D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
+			                                   1.0f,
+			                                   0,
+			                                   0,
+			                                   nullptr
+			);
+			CommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			CommandList->IASetVertexBuffers(0, 1, &VertexBufferView);
+			CommandList->DrawInstanced(3, 1, 0, 0);
 
-			barrier = CD3DX12_RESOURCE_BARRIER::Transition(backBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
-			                                               D3D12_RESOURCE_STATE_PRESENT);
-			commandList->ResourceBarrier(1, &barrier);
+			barrier = CD3DX12_RESOURCE_BARRIER::Transition(backBuffer.Get(),
+			                                               D3D12_RESOURCE_STATE_RENDER_TARGET,
+			                                               D3D12_RESOURCE_STATE_PRESENT
+			);
+			CommandList->ResourceBarrier(1, &barrier);
 
-			ThrowIfFailed(commandList->Close());
+			ThrowIfFailed(CommandList->Close());
 		}
 
-		ID3D12CommandList *commandLists[] = {commandList.Get()};
-		commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+		ID3D12CommandList *commandLists[] = {CommandList.Get()};
+		CommandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
-		auto renderFlags = allowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		auto renderFlags = AllowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		// INVESTIGATE:
 		//  - Should we use the Present1 function instead?
 		//  - Best Sync Interval
 		// TODO: Also check for windowed mode
 		//  (Currently there is no way to set to exclusive fullscreen mode so not needed for now)
-		if (allowTearing)
-			ThrowIfFailed(swapChain->Present(0, renderFlags));
+		if (AllowTearing)
+			ThrowIfFailed(SwapChain->Present(0, renderFlags));
 		else
-			ThrowIfFailed(swapChain->Present(1, 0));
+			ThrowIfFailed(SwapChain->Present(1, 0));
 
 		Flush();
 	}
@@ -602,7 +657,7 @@ namespace Directx12
 		assert(width > 0 && height > 0 && "Must pass appropriate values for width and height");
 
 		DXGI_SWAP_CHAIN_DESC1 desc;
-		swapChain->GetDesc1(&desc);
+		SwapChain->GetDesc1(&desc);
 		if (desc.Width == width && desc.Height == height)
 			return;
 
@@ -610,17 +665,18 @@ namespace Directx12
 		Flush();
 		for (int i = 0; i < BackBuffersAmount; ++i)
 		{
-			backBuffers[i].Reset();
-			frameFenceValues[i] = frameFenceValues[swapChain->GetCurrentBackBufferIndex()];
+			BackBuffers[i].Reset();
+			FrameFenceValues[i] = FrameFenceValues[SwapChain->GetCurrentBackBufferIndex()];
 		}
 
-		ThrowIfFailed(swapChain->ResizeBuffers(BackBuffersAmount, width, height, desc.Format, desc.Flags));
+		ThrowIfFailed(SwapChain->ResizeBuffers(BackBuffersAmount, width, height, desc.Format, desc.Flags));
 
 		// TODO: Should this be it's own function? Since we usually call this 2 functions together
 		CreateDepthStencilBuffer(width, height);
-		CreateRTV();
+		CreateRtv();
 	}
 
+	// TODO: Remove this eventually
 	SSSENGINE_DLL_EXPORT void LoadAssetsTest()
 	{
 		// Vertex Buffer
@@ -641,19 +697,24 @@ namespace Directx12
 			CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
 			auto desc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
 
-			ThrowIfFailed(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &desc,
-			                                              D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
-			                                              IID_PPV_ARGS(&vertexBuffer)));
+			ThrowIfFailed(Device->CreateCommittedResource(&heapProperties,
+			                                              D3D12_HEAP_FLAG_NONE,
+			                                              &desc,
+			                                              D3D12_RESOURCE_STATE_GENERIC_READ,
+			                                              nullptr,
+			                                              IID_PPV_ARGS(&VertexBuffer)
+				)
+			);
 
 			UINT8 *begin;
 			CD3DX12_RANGE readRange(0, 0);
-			ThrowIfFailed(vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&begin)));
+			ThrowIfFailed(VertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&begin)));
 			memcpy(begin, vertices, vertexBufferSize);
-			vertexBuffer->Unmap(0, nullptr);
+			VertexBuffer->Unmap(0, nullptr);
 
-			vertexBufferView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
-			vertexBufferView.StrideInBytes = sizeof(Vertex);
-			vertexBufferView.SizeInBytes = vertexBufferSize;
+			VertexBufferView.BufferLocation = VertexBuffer->GetGPUVirtualAddress();
+			VertexBufferView.StrideInBytes = sizeof(Vertex);
+			VertexBufferView.SizeInBytes = vertexBufferSize;
 		}
 
 		Flush();
@@ -662,6 +723,6 @@ namespace Directx12
 	SSSENGINE_DLL_EXPORT void Terminate()
 	{
 		Flush();
-		CloseHandle(fenceEvent);
+		CloseHandle(FenceEvent);
 	}
 }

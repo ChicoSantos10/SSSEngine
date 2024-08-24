@@ -8,7 +8,7 @@
 #include <wrl/client.h>
 //#include "directx/d3d12.h"
 
-namespace Win32
+namespace SSSWin32
 {
 	using namespace Microsoft::WRL;
 

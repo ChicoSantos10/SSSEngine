@@ -19,7 +19,7 @@ Copyright (C) 2024  Francisco Santos
 #include <iostream>
 #include "Win32Utils.h"
 
-void Win32::ThrowIfFailed(HRESULT hr)
+void SSSWin32::ThrowIfFailed(HRESULT hr)
 {
 	if (FAILED(hr))
 	{
@@ -32,7 +32,7 @@ void Win32::ThrowIfFailed(HRESULT hr)
 	}
 }
 
-void Win32::GetErrorMessage(HRESULT hr, char *message)
+void SSSWin32::GetErrorMessage(HRESULT hr, char *message)
 {
 	LPWSTR messageBuffer = nullptr;
 

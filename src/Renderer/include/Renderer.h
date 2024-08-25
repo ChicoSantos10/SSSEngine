@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Window.h"
+#include "../../Platform/Common/include/Window.h"
 
 namespace SSSRenderer
 {

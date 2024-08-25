@@ -15,35 +15,26 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-// TODO: Create a platform layer for loading and unloading dlls
-#if SSSENGINE_WIN32
-
-#include "windows.h"
-
-#endif
-
 #include "Renderer.h"
+#include "Library.h"
 
 namespace SSSRenderer
 {
-	namespace
-	{
-		typedef void (*Init)();
+	typedef void (*Init)();
 
-		HMODULE module;
-	}
+	static void *module;
 
 	void Unload()
 	{
 		Terminate();
-		FreeLibrary(module);
+		SSSEngine::PlatformUnloadLibrary(module);
 		module = nullptr;
 	}
 
 	template <typename T>
 	SSSENGINE_FORCE_INLINE void LoadFunction(T &type, const char *name)
 	{
-		type = reinterpret_cast<T>(GetProcAddress(module, name));
+		type = reinterpret_cast<T>(SSSEngine::PlatformGetFunctionAddress(module, name));
 		SSSENGINE_ASSERT(type);
 	}
 
@@ -52,12 +43,10 @@ namespace SSSRenderer
 		if (module)
 			Unload();
 
-		// TODO: Relative Path
-		module = LoadLibraryEx(LR"(N:\C++Projects\SSSEngine\build-debug-msvccl\bin\Directx12\Directx12.dll)",
-		                       nullptr,
-		                       0
-		);
+		constexpr auto relativePath = LR"(Directx12\Directx12.dll)";
+		module = SSSEngine::PlatformLoadLibrary(relativePath, 0);
 
+		// TODO: Proper handling / exception throwing
 		if (!module)
 			throw std::exception();
 

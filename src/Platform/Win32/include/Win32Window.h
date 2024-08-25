@@ -6,7 +6,7 @@
 
 #include <windows.h>
 
-#include "Window.h"
+#include "../../Common/include/Window.h"
 #include "Renderer.h"
 
 namespace SSSWin32

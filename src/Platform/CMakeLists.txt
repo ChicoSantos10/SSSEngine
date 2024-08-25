@@ -3,3 +3,5 @@ if (WIN32)
 elseif (LINUX)
     message(FATAL_ERROR "LINUX not currently supported!")
 endif ()
+
+add_subdirectory(Common)

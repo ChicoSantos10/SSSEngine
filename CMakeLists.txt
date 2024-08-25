@@ -5,6 +5,8 @@ include(ExternalProject)
 project(SSSEngine)
 set(CMAKE_CXX_STANDARD 26)
 
+# TODO: Look at all options from clang-tidy and use the best ones
+
 add_compile_definitions(
         "$<$<CONFIG:Debug>:SSSENGINE_DEBUG;SSSENGINE_ASSERTIONS>"
         "$<$<CONFIG:Internal>:SSSENGINE_INTERNAL;SSSENGINE_ASSERTIONS>"

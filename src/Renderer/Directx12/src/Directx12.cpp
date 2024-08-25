@@ -22,7 +22,7 @@ Copyright (C) 2024  Francisco Santos
 #include "dxgi1_6.h"
 #include "Win32Utils.h"
 #include "dxcapi.h"
-#include "Window.h"
+#include "../../../Platform/Common/include/Window.h"
 #include "Attributes.h"
 #include "Constants.h"
 

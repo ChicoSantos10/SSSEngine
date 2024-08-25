@@ -17,9 +17,8 @@
 
 #pragma once
 
-#include "Attributes.h"
 #include "Platform.h"
-#include "../../Renderer/Common/include/SwapChain.h"
+#include "../../../Renderer/Common/include/SwapChain.h"
 
 // TODO: Clean this up - Move to respective files
 // TODO: Different implementation of arithmetic -> Must implement all arithmetic operators
@@ -63,7 +62,7 @@ namespace SSSEngine
 
 		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowRect GetRect() const noexcept;
 
-		void SetWindowTitle(const WindowTitle &title) const;
+		void SetWindowTitle(WindowTitle title) const;
 
 		// TODO: Potentially allow other types of fullscreen
 		void SetBorderlessFullscreen(bool fullscreen) const;

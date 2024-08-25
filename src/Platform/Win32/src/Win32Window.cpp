@@ -2,7 +2,7 @@
 // Created by Francisco Santos on 13/07/2023.
 //
 
-#include "Window.h"
+#include "../../Common/include/Window.h"
 #include "Win32Window.h"
 #include "commctrl.h"
 
@@ -101,7 +101,7 @@ namespace SSSEngine
 		};
 	}
 
-	void Window::SetWindowTitle(const WindowTitle &title) const
+	void Window::SetWindowTitle(const WindowTitle title) const
 	{
 		SetWindowText(static_cast<HWND>(m_handle), title);
 	}

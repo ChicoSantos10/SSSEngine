@@ -50,3 +50,4 @@ using intptr = intptr_t;
 using maxuint = uintmax_t;
 using uintptr = uintptr_t;
 
+// TODO: User defined literals for stuff like GiB, GB, ...

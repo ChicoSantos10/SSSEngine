@@ -27,3 +27,4 @@
 #include "Debug.h"
 #include "Attributes.h"
 #include "Intrinsics.h"
+#include "Bits.h"

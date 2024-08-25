@@ -107,7 +107,7 @@ namespace SSSEngine
 			monitorInfo.cbSize = sizeof(monitorInfo);
 			if (GetMonitorInfo(monitor, &monitorInfo) && GetWindowPlacement(static_cast<HWND>(m_handle), &window))
 			{
-				SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, styles & ~WS_OVERLAPPEDWINDOW);
+				SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, WithoutBits(styles, WS_OVERLAPPEDWINDOW));
 				constexpr auto flags = SWP_FRAMECHANGED | SWP_NOOWNERZORDER;
 				const auto [left, top, right, bottom] = monitorInfo.rcMonitor;
 				SetWindowPos(static_cast<HWND>(m_handle), HWND_TOP, left, top, right - left, bottom - top, flags);
@@ -132,7 +132,7 @@ namespace SSSEngine
 	{
 		const LONG styles = GetWindowLong(static_cast<HWND>(m_handle), GWL_STYLE);
 
-		const bool isBorderless = !(styles & WS_OVERLAPPEDWINDOW);
+		const bool isBorderless = !HasBits(styles, WS_OVERLAPPEDWINDOW);
 		SetBorderlessFullscreen(!isBorderless);
 	}
 } // SSSEngine

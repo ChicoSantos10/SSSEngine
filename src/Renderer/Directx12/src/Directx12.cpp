@@ -344,7 +344,7 @@ namespace SSSDirectx12
 			buffer.Size = encoder->GetBufferSize();
 			buffer.Encoding = DXC_CP_ACP;
 
-			auto Debug = [](const ComPtr<IDxcResult> &result)
+			auto debug = [](const ComPtr<IDxcResult> &result)
 			{
 				ComPtr<IDxcBlobUtf8> errors;
 				result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
@@ -377,8 +377,8 @@ namespace SSSDirectx12
 			                        IID_PPV_ARGS(&psResult)
 			);
 
-			Debug(vsResult);
-			Debug(psResult);
+			debug(vsResult);
+			debug(psResult);
 
 			ComPtr<ID3DBlob> vertexShader;
 			ComPtr<ID3DBlob> fragmentShader;

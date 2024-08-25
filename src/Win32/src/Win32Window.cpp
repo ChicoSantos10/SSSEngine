@@ -9,7 +9,9 @@
 namespace SSSEngine
 {
 	// INVESTIGATE: Is this necessary?? It currently does not do anything useful
-	LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, UINT_PTR idSubclass, DWORD_PTR dwRefData)
+	//  A better alternative would be to have a method to update the window and poll there
+	LRESULT WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass,
+	                        DWORD_PTR dwRefData)
 	{
 		auto *window = reinterpret_cast<Window*>(dwRefData);
 
@@ -31,7 +33,7 @@ namespace SSSEngine
 	}
 
 	Window::Window(Window::WindowSize x, Window::WindowSize y, Window::WindowSize width, Window::WindowSize height,
-	               const WindowTitle &title, Window *parent)
+	               const WindowTitle &title, const Window *parent)
 	{
 		// TODO: SSSENGINE_ASSERT that class has been registered
 
@@ -55,13 +57,14 @@ namespace SSSEngine
 		                          nullptr
 		);
 
+		// INVESTIGATE: This should probably not be asserts since we do want to check in runtime
 		SSSENGINE_ASSERT(m_handle && "Failed to create window.");
 		SSSENGINE_ASSERT(
 			SetWindowSubclass(static_cast<HWND>(m_handle), & WindowProcedure, 0, reinterpret_cast< DWORD_PTR>(this)) &&
 			"Window subclassed failed!"
 		);
 
-		ShowWindow(static_cast<HWND>(m_handle), SW_SHOW);
+		ShowWindow(static_cast<HWND>(m_handle), SW_SHOWNORMAL);
 	}
 
 	Window::WindowRect Window::GetRect() const noexcept
@@ -83,70 +86,53 @@ namespace SSSEngine
 		SetWindowText(static_cast<HWND>(m_handle), title);
 	}
 
-	void Window::SetBorderlessFullscreen(const bool fullscreen)
+	void Window::SetBorderlessFullscreen(const bool fullscreen) const
 	{
+		// TODO: This only allows one window to be fullscreen at a time.
+		//		 What happens if we try to go fullscreen on a different one?
+		// TODO: Remove static and replace with macro for functionLocal
+		static WINDOWPLACEMENT window{.length = sizeof(window)};
+		// IDEA: static Window* currentFullscreenWindow = nullptr
+		// if(currentFullscreenWindow) currentFullscreenWindow->SetBorderlessFullscreen(false)
+
 		const LONG styles = GetWindowLong(static_cast<HWND>(m_handle), GWL_STYLE);
-
-		//constexpr auto borderlessStyle = WS_OVERLAPPED;
-		constexpr LONG borderlessStyle = WS_MAXIMIZE;
-
-		if (const bool isBorderless = styles & borderlessStyle; isBorderless && fullscreen)
-			return;
-
-		WINDOWPLACEMENT placement;
-		placement.length = sizeof(WINDOWPLACEMENT);
-		GetWindowPlacement(static_cast<HWND>(m_handle), &placement);
 
 		// INVESTIGATE: Do we to resize the swap chain???
 		if (fullscreen)
 		{
-			const auto newStyle = styles | borderlessStyle;
-			//prevValues.Style = GetWindowLongPtr(m_Handle, GWL_STYLE);
-			SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, newStyle);
-
 			// INVESTIGATE: Should we store the monitor? Or should we just query it when we need it?
 			HMONITOR monitor = MonitorFromWindow(static_cast<HWND>(m_handle), MONITOR_DEFAULTTONEAREST);
 
 			MONITORINFOEX monitorInfo{};
-			monitorInfo.cbSize = sizeof(MONITORINFOEX);
-			GetMonitorInfo(monitor, &monitorInfo);
-			constexpr auto flags = SWP_FRAMECHANGED | SWP_NOACTIVATE;
-			const auto [left, top, right, bottom] = monitorInfo.rcMonitor;
-			SetWindowPos(static_cast<HWND>(m_handle), HWND_TOP, left, top, right - left, bottom - top, flags);
+			monitorInfo.cbSize = sizeof(monitorInfo);
+			if (GetMonitorInfo(monitor, &monitorInfo) && GetWindowPlacement(static_cast<HWND>(m_handle), &window))
+			{
+				SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, styles & ~WS_OVERLAPPEDWINDOW);
+				constexpr auto flags = SWP_FRAMECHANGED | SWP_NOOWNERZORDER;
+				const auto [left, top, right, bottom] = monitorInfo.rcMonitor;
+				SetWindowPos(static_cast<HWND>(m_handle), HWND_TOP, left, top, right - left, bottom - top, flags);
 
-			ShowWindow(static_cast<HWND>(m_handle), SW_MAXIMIZE);
+				//ShowWindow(static_cast<HWND>(m_handle), SW_SHOWMAXIMIZED);
+			}
 		}
 		else
 		{
-			// TODO: Create helper functions that can be inlined to help with flag operations to prevent mistakes
-			const auto restoredStyle = styles & ~borderlessStyle;
-			SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, restoredStyle);
+			// TODO: Create helper functions that can be inlined to help with bitwise flag operations to prevent mistakes
+			SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, styles | WS_OVERLAPPEDWINDOW);
+			SetWindowPlacement(static_cast<HWND>(m_handle), &window);
 
-			const auto [left, top, right, bottom] = placement.rcNormalPosition;
-			SetWindowPos(static_cast<HWND>(m_handle),
-			             HWND_TOP,
-			             left,
-			             top,
-			             right - left,
-			             bottom - top,
-			             SWP_FRAMECHANGED
-			);
+			constexpr auto flags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED;
+			SetWindowPos(static_cast<HWND>(m_handle), nullptr, 0, 0, 0, 0, flags);
 
-			ShowWindow(static_cast<HWND>(m_handle), SW_NORMAL);
-
-			//ZeroMemory(&prevValues, sizeof(OldValues));
+			//ShowWindow(static_cast<HWND>(m_handle), SW_SHOWNORMAL);
 		}
 	}
 
-	void Window::ToggleBorderlessFullscreen()
+	void Window::ToggleBorderlessFullscreen() const
 	{
 		const LONG styles = GetWindowLong(static_cast<HWND>(m_handle), GWL_STYLE);
 
-		//constexpr auto borderlessStyle = WS_OVERLAPPED;
-		constexpr LONG borderlessStyle = WS_MAXIMIZE;
-
-		const bool isBorderless = styles & borderlessStyle;
+		const bool isBorderless = !(styles & WS_OVERLAPPEDWINDOW);
 		SetBorderlessFullscreen(!isBorderless);
 	}
 } // SSSEngine
-

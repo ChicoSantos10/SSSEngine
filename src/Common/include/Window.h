@@ -42,7 +42,7 @@ namespace SSSEngine
 		using WindowRect = Rect<WindowSize>;
 
 		Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
-		       Window *parent = nullptr);
+		       const Window *parent = nullptr);
 		~Window() = default;
 
 		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowHandle GetHandle() const noexcept
@@ -62,15 +62,11 @@ namespace SSSEngine
 
 		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowRect GetRect() const noexcept;
 
-		// INVESTIGATE: Is it necessary to ever get the title?
-		//		[[nodiscard]] inline std::string_view GetTitle() const
-		//		{ return m_Title; }
-
 		void SetWindowTitle(const WindowTitle &title) const;
 
 		// TODO: Potentially allow other types of fullscreen
-		void SetBorderlessFullscreen(bool fullscreen);
-		void ToggleBorderlessFullscreen();
+		void SetBorderlessFullscreen(bool fullscreen) const;
+		void ToggleBorderlessFullscreen() const;
 
 		/* TODO:
 		 *  - Add a method to change the window size
@@ -80,6 +76,7 @@ namespace SSSEngine
 		 *  - Add a method to change the window cursor
 		 *  - Add a method to minimize the window
 		 */
+
 	private:
 		WindowHandle m_handle;
 	};

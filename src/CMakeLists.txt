@@ -1,13 +1,11 @@
-add_executable(SSSEngine WIN32 Win32.cpp
-        Win32/src/Win32Utils.cpp
-        Common/src/Window.cpp
-        Win32/src/Win32Window.cpp
-        Common/src/Application.cpp
-        Common/src/Exceptions.cpp
-        Common/src/Exceptions.cpp
-        Renderer/src/Renderer.cpp
-        Win32/src/Win32Debug.cpp
-)
+if (WIN32)
+    add_compile_definitions(SSSENGINE_WIN32)
+    add_executable(SSSEngine WIN32)
+elseif (LINUX)
+    add_compile_definitions(SSSENGINE_LINUX)
+endif ()
+add_subdirectory(Platform)
+
 target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)
 
 # Make a bin directory
@@ -82,6 +80,5 @@ else ()
 endif ()
 
 add_subdirectory(Renderer)
-add_subdirectory(Win32)
 add_subdirectory(Common)
 

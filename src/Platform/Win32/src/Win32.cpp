@@ -20,13 +20,13 @@ Copyright (C) 2024  Francisco Santos
 #include <xinput.h>
 #include <cmath>
 #include <wrl/client.h>
-#include "Application.h"
-#include "XAudioRedist/xaudio2.h"
-#include "XAudioRedist/xaudio2fx.h"
-#include "XAudioRedist/xapofx.h"
-#include "XAudioRedist/xapo.h"
+#include "../../../Common/include/Application.h"
+#include "../../../../include/XAudioRedist/xaudio2.h"
+#include "../../../../include/XAudioRedist/xaudio2fx.h"
+#include "../../../../include/XAudioRedist/xapofx.h"
+#include "../../../../include/XAudioRedist/xapo.h"
 #include "Win32Window.h"
-#include "Renderer.h"
+#include "../../../Renderer/include/Renderer.h"
 
 void InitConsole();
 void CloseConsole();

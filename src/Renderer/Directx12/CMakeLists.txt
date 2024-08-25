@@ -1,8 +1,8 @@
 add_library(Directx12 MODULE
         src/Directx12.cpp
-        # TODO: Build library with these so we don't have to include on both main and directx etc.
-        ${CMAKE_SOURCE_DIR}/src/Win32/src/Win32Utils.cpp
-        ${CMAKE_SOURCE_DIR}/src/Win32/src/Win32Debug.cpp
+        # TODO: Build library with these so we don't have to include on both main and directx etc. Make it a module?
+        ${CMAKE_SOURCE_DIR}/src/Platform/Win32/src/Win32Utils.cpp
+        ${CMAKE_SOURCE_DIR}/src/Platform/Win32/src/Win32Debug.cpp
 )
 target_precompile_headers(Directx12 REUSE_FROM SSSEngine)
 
@@ -29,7 +29,7 @@ target_include_directories(Directx12 BEFORE PUBLIC ${DX12_LIB_PATH}/build/native
 target_include_directories(Directx12 BEFORE PUBLIC ${DX12_LIB_PATH}/build/native/include/d3dx12)
 target_include_directories(Directx12 BEFORE PUBLIC ${DX12_COMPILER_PATH}/inc)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/libs)
-target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Win32/include)
+target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Platform/Win32/include)
 
 target_link_libraries(Directx12 PRIVATE DXGI.lib)
 target_link_libraries(Directx12 PRIVATE D3D12.lib)

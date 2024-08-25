@@ -11,13 +11,6 @@ add_compile_definitions(
         "$<$<CONFIG:Release>:SSSENGINE_RELEASE>"
 )
 
-if (WIN32)
-    add_compile_definitions(SSSENGINE_WIN32)
-elseif (LINUX)
-    add_compile_definitions(SSSENGINE_LINUX)
-    message(FATAL_ERROR "LINUX not currently supported!")
-endif ()
-
 # TODO: Different compile options for different build types (DEBUG, RELEASE, ...)
 # TODO: Warnings as errors, Suppress useless warnings
 # TODO: Code analysis

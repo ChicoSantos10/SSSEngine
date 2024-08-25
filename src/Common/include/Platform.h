@@ -20,10 +20,10 @@
 namespace SSSEngine
 {
 #ifdef SSSENGINE_WIN32
-
 	using WindowHandle = void*;
 	using WindowTitle = const wchar_t*; // TODO: Create definitions for this like UTF8 and stuff
-
+#else
+#error Platform not supported
 #endif
 
 	constexpr auto MainWindowName = L"SSS Engine";

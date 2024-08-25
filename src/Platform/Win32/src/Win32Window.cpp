@@ -13,10 +13,22 @@ namespace SSSEngine
 	LRESULT WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass,
 	                        DWORD_PTR dwRefData)
 	{
-		auto *window = reinterpret_cast<Window*>(dwRefData);
+		const auto *window = reinterpret_cast<Window*>(dwRefData);
 
 		switch (msg)
 		{
+		case WM_ENTERSIZEMOVE:
+			{
+				// TODO: Pause Window (stop update and render)
+			}
+		case WM_EXITSIZEMOVE:
+			{
+				RECT rect;
+				GetClientRect(hwnd, &rect);
+
+				// NOTE: Client rect starts at [0, 0] so right and bottom are the width and height respectively
+				SSSRenderer::ResizeSwapChain(*window);
+			}
 		case WM_SYSCHAR: // Alt + Enter
 			{
 				window->ToggleBorderlessFullscreen();
@@ -32,30 +44,37 @@ namespace SSSEngine
 		return DefSubclassProc(hwnd, msg, wParam, lParam);
 	}
 
-	Window::Window(Window::WindowSize x, Window::WindowSize y, Window::WindowSize width, Window::WindowSize height,
-	               const WindowTitle &title, const Window *parent)
-	{
-		// TODO: SSSENGINE_ASSERT that class has been registered
+	Window::Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
+	               const Window *parent) : m_handle{
+		                                       [width, height, &title, parent]()
+		                                       {
+			                                       // TODO: SSSENGINE_ASSERT that class has been registered
 
+			                                       constexpr int childStyle = WS_CHILD | (WS_OVERLAPPEDWINDOW & ~(
+				                                       WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
+			                                       const int style = parent ? childStyle : WS_OVERLAPPEDWINDOW;
+
+			                                       return CreateWindowEx(0,
+			                                                             SSSWin32::windowClass.lpszClassName,
+			                                                             title,
+			                                                             style,
+			                                                             CW_USEDEFAULT,
+			                                                             CW_USEDEFAULT,
+			                                                             width,
+			                                                             height,
+			                                                             parent
+				                                                             ? static_cast<HWND>(parent->m_handle)
+				                                                             : nullptr,
+			                                                             nullptr,
+			                                                             SSSWin32::windowClass.hInstance,
+			                                                             nullptr
+			                                       );
+		                                       }()
+	                                       }, m_swapChain{[this]() { return SSSRenderer::CreateSwapChain(*this); }()}
+	{
+		// INVESTIGATE: What can we do with this?
 		HMENU menu = CreateMenu();
 		AppendMenu(menu, MF_STRING, 1, L"File");
-
-		constexpr int childStyle = WS_CHILD | (WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
-		const int style = parent ? childStyle : WS_OVERLAPPEDWINDOW;
-
-		m_handle = CreateWindowEx(0,
-		                          SSSWin32::WindowClass.lpszClassName,
-		                          title,
-		                          style,
-		                          CW_USEDEFAULT,
-		                          CW_USEDEFAULT,
-		                          width,
-		                          height,
-		                          parent ? static_cast<HWND>(parent->m_handle) : nullptr,
-		                          nullptr,
-		                          SSSWin32::WindowClass.hInstance,
-		                          nullptr
-		);
 
 		// INVESTIGATE: This should probably not be asserts since we do want to check in runtime
 		SSSENGINE_ASSERT(m_handle && "Failed to create window.");

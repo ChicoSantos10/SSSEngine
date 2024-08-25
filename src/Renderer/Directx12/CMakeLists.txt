@@ -30,6 +30,7 @@ target_include_directories(Directx12 BEFORE PUBLIC ${DX12_LIB_PATH}/build/native
 target_include_directories(Directx12 BEFORE PUBLIC ${DX12_COMPILER_PATH}/inc)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/libs)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Platform/Win32/include)
+target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Renderer/Common/include)
 
 target_link_libraries(Directx12 PRIVATE DXGI.lib)
 target_link_libraries(Directx12 PRIVATE D3D12.lib)

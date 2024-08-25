@@ -8,11 +8,11 @@
 
 namespace SSSRenderer
 {
-	typedef void (*CreateSwapChain_t)(const SSSEngine::Window &window);
+	typedef SwapChain (*CreateSwapChain_t)(const SSSEngine::Window &window);
 	typedef void (*Render_t)();
 	typedef void (*Terminate_t)();
 	typedef void (*LoadAssetsTest_t)();
-	typedef void (*ResizeSwapChain_t)(uint32_t width, uint32_t height);
+	typedef void (*ResizeSwapChain_t)(const SSSEngine::Window &window);
 
 	inline CreateSwapChain_t CreateSwapChain;
 	inline Render_t Render;

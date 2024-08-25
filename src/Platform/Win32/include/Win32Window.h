@@ -11,9 +11,9 @@
 
 namespace SSSWin32
 {
-	// INVESTIGATE: How about create a macro for inline as global to better indicate its usage
+	// INVESTIGATE: How about create a macro for inline as global to make it easier to search all globals
 	//  and same thing for static
-	inline WNDCLASSEXW WindowClass;
+	inline WNDCLASSEXW windowClass;
 
 	inline LRESULT MainWindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
@@ -29,18 +29,6 @@ namespace SSSWin32
 				if (MessageBox(hwnd, L"Are you sure you want to quit?", L"SSSEngine", MB_YESNO) == IDYES)
 					DestroyWindow(hwnd); // TODO: Window destroy event. Cleanup and removal of corresponding swap chain
 				return 0;
-			}
-		case WM_ENTERSIZEMOVE:
-			{
-				// TODO: Pause Window (stop update and render)
-			}
-		case WM_EXITSIZEMOVE:
-			{
-				RECT rect;
-				GetClientRect(hwnd, &rect);
-
-				// NOTE: Client rect starts at [0, 0] so right and bottom are the width and height respectively
-				SSSRenderer::ResizeSwapChain(rect.right, rect.bottom);
 			}
 		case WM_SIZE:
 			{

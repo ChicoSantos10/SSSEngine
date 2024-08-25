@@ -54,22 +54,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	/*SSSEngine::Application app;
 	app.Run();*/
 
-	SSSWin32::WindowClass.cbSize = sizeof(WNDCLASSEX);
-	SSSWin32::WindowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-	SSSWin32::WindowClass.lpfnWndProc = SSSWin32::MainWindowProcedure;
-	SSSWin32::WindowClass.hInstance = hInstance;
-	SSSWin32::WindowClass.lpszClassName = WindowClassName;
-	SSSWin32::WindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	SSSWin32::WindowClass.lpszMenuName = RT_MENU;
+	SSSWin32::windowClass.cbSize = sizeof(WNDCLASSEX);
+	SSSWin32::windowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+	SSSWin32::windowClass.lpfnWndProc = SSSWin32::MainWindowProcedure;
+	SSSWin32::windowClass.hInstance = hInstance;
+	SSSWin32::windowClass.lpszClassName = WindowClassName;
+	SSSWin32::windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	SSSWin32::windowClass.lpszMenuName = RT_MENU;
 
-	if (RegisterClassExW(&SSSWin32::WindowClass) == 0)
+	if (RegisterClassExW(&SSSWin32::windowClass) == 0)
 	{
 		OutputDebugStringW(L"Window class creation failed");
 		return -1;
 	}
-
-	SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, SSSEngine::MainWindowName);
-
 	// COM initialization
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	if (FAILED(hr))
@@ -84,8 +81,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	//GetWindowRect(hwnd, &SSSEngineRenderer::DirectX::windowRect);
 	//SSSEngineRenderer::DirectX::InitializeDirectx12(hwnd);
 	SSSRenderer::LoadDirectx();
-	SSSRenderer::CreateSwapChain(window);
 	SSSRenderer::LoadAssetsTest();
+
+	SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, SSSEngine::MainWindowName);
 
 	//SSSEngineRenderer::Directx::SSSEngineRenderer renderer;
 	//renderer.Initialize(hwnd);
@@ -198,8 +196,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	EQParameters.FrequencyCenter0 = FXEQ_MIN_FREQUENCY_CENTER;
 
 	IXAudio2SourceVoice *pSourceVoice;
-	hr = xAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wave, 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr,
-	                                &sendList, nullptr
+	hr = xAudio2->CreateSourceVoice(&pSourceVoice,
+	                                (WAVEFORMATEX*)&wave,
+	                                0,
+	                                XAUDIO2_DEFAULT_FREQ_RATIO,
+	                                nullptr,
+	                                &sendList,
+	                                nullptr
 	);
 	if (FAILED(hr))
 	{

@@ -19,7 +19,7 @@ Copyright (C) 2024  Francisco Santos
 #include <iostream>
 #include "Win32Utils.h"
 
-void SSSWin32::ThrowIfFailed(HRESULT hr)
+void SSSWin32::ThrowIfFailed(const HRESULT hr)
 {
 	if (FAILED(hr))
 	{
@@ -32,19 +32,29 @@ void SSSWin32::ThrowIfFailed(HRESULT hr)
 	}
 }
 
-void SSSWin32::GetErrorMessage(HRESULT hr, char *message)
+// TODO: Rework
+void SSSWin32::GetErrorMessage(const HRESULT hr, char *message)
 {
 	LPWSTR messageBuffer = nullptr;
 
 	LCID langId;
-	GetLocaleInfoEx(L"en-US", LOCALE_RETURN_NUMBER | LOCALE_ILANGUAGE, reinterpret_cast<LPWSTR>(&langId),
-	                sizeof(langId));
+	GetLocaleInfoEx(L"en-US",
+	                LOCALE_RETURN_NUMBER | LOCALE_ILANGUAGE,
+	                reinterpret_cast<LPWSTR>(&langId),
+	                sizeof(langId)
+	);
 
-	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
-	               hr, langId, (LPWSTR)&messageBuffer, 0, nullptr);
+	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+	               nullptr,
+	               hr,
+	               langId,
+	               reinterpret_cast<LPWSTR>(&messageBuffer),
+	               0,
+	               nullptr
+	);
 
 	//Copy the error message into a std::string.
-	sprintf(message, "%ls", messageBuffer);
+	sprintf_s(message, 1024, "%ls", messageBuffer);
 
 	//Free the Win32's string's buffer.
 	LocalFree(messageBuffer);

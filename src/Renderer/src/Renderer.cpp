@@ -30,33 +30,35 @@ namespace SSSRenderer
 	{
 		typedef void (*Init)();
 
-		HMODULE Module;
+		HMODULE module;
 	}
 
 	void Unload()
 	{
 		Terminate();
-		FreeLibrary(Module);
-		Module = nullptr;
+		FreeLibrary(module);
+		module = nullptr;
 	}
 
 	template <typename T>
-	inline void LoadFunction(T &type, const char *name)
+	SSSENGINE_FORCE_INLINE void LoadFunction(T &type, const char *name)
 	{
-		type = reinterpret_cast<T>(GetProcAddress(Module, name));
+		type = reinterpret_cast<T>(GetProcAddress(module, name));
 		SSSENGINE_ASSERT(type);
 	}
 
 	void LoadDirectx()
 	{
-		if (Module)
+		if (module)
 			Unload();
 
 		// TODO: Relative Path
-		Module = LoadLibraryEx(LR"(N:\C++Projects\SSSEngine\build-debug-msvccl\bin\Directx12\Directx12.dll)", nullptr, 0
+		module = LoadLibraryEx(LR"(N:\C++Projects\SSSEngine\build-debug-msvccl\bin\Directx12\Directx12.dll)",
+		                       nullptr,
+		                       0
 		);
 
-		if (!Module)
+		if (!module)
 			throw std::exception();
 
 		Init init;

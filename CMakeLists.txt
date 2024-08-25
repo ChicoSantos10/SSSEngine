@@ -12,12 +12,16 @@ add_compile_definitions(
 )
 
 # TODO: Different compile options for different build types (DEBUG, RELEASE, ...)
-# TODO: Warnings as errors, Suppress useless warnings
-# TODO: Code analysis
-# TODO: Add address sanitizer
 if (MSVC)
     add_compile_definitions(SSSENGINE_MSVC)
-    add_compile_options(/W4)
+    add_compile_options(/W4 /WX /Od /EHs)
+    # NOTE: Disable certain warnings
+    add_compile_options(
+            # NOTE: Disable this on debug only
+            /wd4100 /wd4189
+            # NOTE: This can be always disabled
+            /wd28251
+    )
 elseif (MINGW)
     add_compile_definitions(SSSENGINE_MINGW)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

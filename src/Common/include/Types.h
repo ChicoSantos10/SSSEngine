@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// ReSharper disable CppInconsistentNaming
 #pragma once
 
 using i8 = int8_t;

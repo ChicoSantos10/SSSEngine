@@ -7,12 +7,13 @@
 #include <exception>
 
 // TODO: Remove this from release builds
-class NotImplementedException : public std::exception
+class NotImplementedException final : public std::exception
 {
-	static constexpr char const* const reason = "Not implemented";
+	static constexpr auto Reason = "Not implemented";
+
 public:
 	[[nodiscard]] const char* what() const noexcept override
 	{
-		return reason;
+		return Reason;
 	}
 };

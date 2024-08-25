@@ -100,7 +100,7 @@ namespace SSSRenderer::SSSDirectx12
 		WaitForFenceValue();
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> &descriptorHeap)
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle(const ComPtr<ID3D12DescriptorHeap> &descriptorHeap)
 	{
 #if defined(_MSC_VER) || !defined(_WIN32)
 		return descriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -124,7 +124,7 @@ namespace SSSRenderer::SSSDirectx12
 		}
 	}
 
-	void CreateDepthStencilBuffer(uint32_t width, uint32_t height)
+	void CreateDepthStencilBuffer(const uint32_t width, const uint32_t height)
 	{
 		SSSENGINE_ASSERT(width > 0 && height > 0);
 
@@ -135,15 +135,15 @@ namespace SSSRenderer::SSSDirectx12
 		clearValue.DepthStencil = {1.0f, 0};
 
 		// INVESTIGATE: Should we take into consideration the sample count even if we don't use it in the swap chain?
-		CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-		auto resourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(ClearValueFormat,
-		                                                 width,
-		                                                 height,
-		                                                 1,
-		                                                 0,
-		                                                 1,
-		                                                 0,
-		                                                 D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
+		const CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
+		const auto resourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(ClearValueFormat,
+		                                                       width,
+		                                                       height,
+		                                                       1,
+		                                                       0,
+		                                                       1,
+		                                                       0,
+		                                                       D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL
 		);
 
 		SSSENGINE_THROW_IF_FAILED(
@@ -270,7 +270,11 @@ namespace SSSRenderer::SSSDirectx12
 				D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
 			CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-			rootParameters[0].InitAsConstants(sizeof(DirectX::XMMATRIX) * 0.25f, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+			rootParameters[0].InitAsConstants(static_cast<UINT>(sizeof(DirectX::XMMATRIX) * 0.25f),
+			                                  0,
+			                                  0,
+			                                  D3D12_SHADER_VISIBILITY_VERTEX
+			);
 
 			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig;
 			rootSig.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
@@ -524,7 +528,7 @@ namespace SSSRenderer::SSSDirectx12
 			factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing) )
 		);
 
-		HWND handle = static_cast<HWND>(window.GetHandle());
+		const auto handle = static_cast<HWND>(window.GetHandle());
 
 		DXGI_SWAP_CHAIN_DESC1 desc = {};
 		desc.Width = 0; // Note: Passing 0 means use window height and width
@@ -552,10 +556,10 @@ namespace SSSRenderer::SSSDirectx12
 		SSSENGINE_THROW_IF_FAILED(factory->MakeWindowAssociation(handle, DXGI_MWA_NO_ALT_ENTER));
 
 		RECT rect;
-		BOOL success = GetWindowRect(handle, &rect);
+		const BOOL success = GetWindowRect(handle, &rect);
 		SSSENGINE_ASSERT(success); // INVESTIGATE: Should we throw if failed in release versions?
-		LONG width = rect.right - rect.left;
-		LONG height = rect.bottom - rect.top;
+		const LONG width = rect.right - rect.left;
+		const LONG height = rect.bottom - rect.top;
 		// INVESTIGATE: Should the viewport use 0,0 or the window position?
 		viewport.TopLeftX = static_cast<FLOAT>(rect.left);
 		viewport.TopLeftY = static_cast<FLOAT>(rect.top);
@@ -595,11 +599,11 @@ namespace SSSRenderer::SSSDirectx12
 			);
 			commandList->ResourceBarrier(1, &barrier);
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle(rtvDescriptorHeap),
-			                                        static_cast<int>(backBufferIndex),
-			                                        rtvDescriptorSize
+			const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(GetDescriptorHandle(rtvDescriptorHeap),
+			                                              static_cast<int>(backBufferIndex),
+			                                              rtvDescriptorSize
 			);
-			CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(GetDescriptorHandle(dsvDescriptorHeap));
+			const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(GetDescriptorHandle(dsvDescriptorHeap));
 			commandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
 
 			constexpr float clearColor[]{0.5f, 0.5f, 0.75f, 1.0f};
@@ -641,10 +645,10 @@ namespace SSSRenderer::SSSDirectx12
 		Flush();
 	}
 
-	// TODO: Specify the swap chain
+	// TODO: Use the swap chain from window
 	SSSENGINE_DLL_EXPORT void ResizeSwapChain(const SSSEngine::Window &window)
 	{
-		HWND handle = static_cast<HWND>(window.GetHandle());
+		const auto handle = static_cast<HWND>(window.GetHandle());
 		RECT rect;
 		GetWindowRect(handle, &rect);
 
@@ -654,8 +658,9 @@ namespace SSSRenderer::SSSDirectx12
 		SSSENGINE_ASSERT(width > 0 && height > 0 && "Must pass appropriate values for width and height");
 
 		DXGI_SWAP_CHAIN_DESC1 desc;
-		swapChain->GetDesc1(&desc);
-		if (desc.Width == width && desc.Height == height)
+		// INVESTIGATE: Should we throw
+		SSSENGINE_THROW_IF_FAILED(swapChain->GetDesc1(&desc));
+		if (desc.Width == static_cast<UINT>(width) && desc.Height == static_cast<UINT>(height))
 			return;
 
 		// TODO: Needs to be specific to this swap chain
@@ -691,8 +696,8 @@ namespace SSSRenderer::SSSDirectx12
 			};
 
 			constexpr UINT vertexBufferSize = sizeof(vertices);
-			CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
-			auto desc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
+			const CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
+			const auto desc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
 
 			SSSENGINE_THROW_IF_FAILED(
 				device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &desc,
@@ -700,7 +705,7 @@ namespace SSSRenderer::SSSDirectx12
 			);
 
 			UINT8 *begin;
-			CD3DX12_RANGE readRange(0, 0);
+			const CD3DX12_RANGE readRange(0, 0);
 			SSSENGINE_THROW_IF_FAILED(vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&begin)));
 			memcpy(begin, vertices, vertexBufferSize);
 			vertexBuffer->Unmap(0, nullptr);

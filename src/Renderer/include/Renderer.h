@@ -14,11 +14,13 @@ namespace SSSRenderer
 	typedef void (*LoadAssetsTest_t)();
 	typedef void (*ResizeSwapChain_t)(const SSSEngine::Window &window);
 
+	// ReSharper disable CppInconsistentNaming
 	inline CreateSwapChain_t CreateSwapChain;
 	inline Render_t Render;
 	inline Terminate_t Terminate;
 	inline LoadAssetsTest_t LoadAssetsTest;
 	inline ResizeSwapChain_t ResizeSwapChain;
+	// ReSharper restore CppInconsistentNaming
 
 	void LoadDirectx();
 	void Unload();

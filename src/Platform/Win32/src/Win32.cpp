@@ -126,12 +126,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	// Populate the audio buffer with some simple sine wave data at 440 Hz.
 	for (DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i)
 	{
-		float t = i / (float)wave.Format.nSamplesPerSec;
-		constexpr float TwoPi = 2.0f * 3.14159265358979323846264338327950288419716939937510f;
+		float t = i / static_cast<float>(wave.Format.nSamplesPerSec);
+		constexpr float twoPi = 2.0f * 3.14159265358979323846264338327950288419716939937510f;
 
 		// Write the sample to the buffer
-		((BYTE*)buffer.pAudioData)[i * 2 + 0] = (BYTE)(sinf(t * TwoPi * 440.0f) * 30000.0f); // Left channel
-		((BYTE*)buffer.pAudioData)[i * 2 + 1] = (BYTE)(sinf(t * TwoPi * 440.0f) * 30000.0f); // Right channel
+		((BYTE*)buffer.pAudioData)[i * 2 + 0] = static_cast<BYTE>(sinf(t * twoPi * 440.0f) * 30000.0f); // Left channel
+		((BYTE*)buffer.pAudioData)[i * 2 + 1] = static_cast<BYTE>(sinf(t * twoPi * 440.0f) * 30000.0f); // Right channel
 	}
 
 	IXAudio2SubmixVoice *pSubMixVoice;
@@ -197,7 +197,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 	IXAudio2SourceVoice *pSourceVoice;
 	hr = xAudio2->CreateSourceVoice(&pSourceVoice,
-	                                (WAVEFORMATEX*)&wave,
+	                                reinterpret_cast<WAVEFORMATEX*>(&wave),
 	                                0,
 	                                XAUDIO2_DEFAULT_FREQ_RATIO,
 	                                nullptr,
@@ -292,17 +292,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
 void GamepadInput()
 {
-	DWORD dwResult;
 	for (int i = 0; i < XUSER_MAX_COUNT; ++i)
 	{
 		XINPUT_STATE state;
 		ZeroMemory(&state, sizeof(XINPUT_STATE));
 
-		dwResult = XInputGetState(i, &state);
-		if (dwResult == ERROR_SUCCESS)
+		if (const DWORD dwResult = XInputGetState(i, &state); dwResult == ERROR_SUCCESS)
 		{
 			// Controller is connected
-			XINPUT_GAMEPAD gamepad = state.Gamepad;
+			const XINPUT_GAMEPAD gamepad = state.Gamepad;
 
 			if (gamepad.wButtons & XINPUT_GAMEPAD_A)
 			{
@@ -321,14 +319,14 @@ void GamepadInput()
 				XInputSetState(i, &vibration);
 			}
 
-			float leftThumbX = gamepad.sThumbLX;
-			float leftThumbY = gamepad.sThumbLY;
+			const float leftThumbX = gamepad.sThumbLX;
+			const float leftThumbY = gamepad.sThumbLY;
 
 			float magnitude = sqrtf(leftThumbX * leftThumbX + leftThumbY * leftThumbY);
 
 			// Direction
-			float normalizedLX = leftThumbX / magnitude;
-			float normalizedLY = leftThumbY / magnitude;
+			float normalizedLx = leftThumbX / magnitude;
+			float normalizedLy = leftThumbY / magnitude;
 
 			float normalizedMagnitude = 0;
 			if (magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)

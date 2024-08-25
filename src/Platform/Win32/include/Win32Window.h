@@ -15,7 +15,7 @@ namespace SSSWin32
 	//  and same thing for static
 	inline WNDCLASSEXW windowClass;
 
-	inline LRESULT MainWindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+	inline LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
 	{
 		switch (msg)
 		{

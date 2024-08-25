@@ -11,7 +11,7 @@ namespace SSSEngine
 	// INVESTIGATE: Is this necessary?? It currently does not do anything useful
 	//  A better alternative would be to have a method to update the window and poll there
 	LRESULT WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass,
-	                        DWORD_PTR dwRefData)
+	                        const DWORD_PTR dwRefData)
 	{
 		const auto *window = reinterpret_cast<Window*>(dwRefData);
 
@@ -39,6 +39,7 @@ namespace SSSEngine
 				RemoveWindowSubclass(hwnd, &WindowProcedure, 0);
 				break;
 			}
+		default: ;
 		}
 
 		return DefSubclassProc(hwnd, msg, wParam, lParam);
@@ -73,7 +74,7 @@ namespace SSSEngine
 	                                       }, m_swapChain{[this]() { return SSSRenderer::CreateSwapChain(*this); }()}
 	{
 		// INVESTIGATE: What can we do with this?
-		HMENU menu = CreateMenu();
+		const auto menu = CreateMenu();
 		AppendMenu(menu, MF_STRING, 1, L"File");
 
 		// INVESTIGATE: This should probably not be asserts since we do want to check in runtime
@@ -120,7 +121,7 @@ namespace SSSEngine
 		if (fullscreen)
 		{
 			// INVESTIGATE: Should we store the monitor? Or should we just query it when we need it?
-			HMONITOR monitor = MonitorFromWindow(static_cast<HWND>(m_handle), MONITOR_DEFAULTTONEAREST);
+			const auto monitor = MonitorFromWindow(static_cast<HWND>(m_handle), MONITOR_DEFAULTTONEAREST);
 
 			MONITORINFOEX monitorInfo{};
 			monitorInfo.cbSize = sizeof(monitorInfo);

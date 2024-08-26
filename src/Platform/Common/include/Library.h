@@ -19,7 +19,7 @@
 
 namespace SSSEngine
 {
-    SSSENGINE_FORCE_INLINE void* PlatformLoadLibrary(const wchar_t *path, int flags);
-    void PlatformUnloadLibrary(void *handle);
-    void* PlatformGetFunctionAddress(void *handle, const char *funcName);
+    SSSENGINE_FORCE_INLINE void* LoadSharedLibrary(const wchar_t *path, int flags);
+    void UnloadSharedLibrary(void *handle);
+    void* GetFunctionAddressFromLibrary(void *handle, const char *funcName);
 }

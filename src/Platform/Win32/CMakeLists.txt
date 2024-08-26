@@ -13,3 +13,4 @@ target_sources(SSSEngine PUBLIC
 )
 
 target_include_directories(SSSEngine PUBLIC include)
+target_include_directories(SSSEngine PUBLIC ${CMAKE_SOURCE_DIR}/include/XAudioRedist)

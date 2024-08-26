@@ -50,4 +50,16 @@ using intptr = intptr_t;
 using maxuint = uintmax_t;
 using uintptr = uintptr_t;
 
-// TODO: User defined literals for stuff like GiB, GB, ...
+using byte = unsigned char;
+
+consteval size_t operator""_B(const size_t n) { return n; }
+consteval size_t operator""_KiB(const size_t n) { return n * 1024_B; }
+consteval size_t operator""_MiB(const size_t n) { return n * 1024_KiB; }
+consteval size_t operator""_GiB(const size_t n) { return n * 1024_MiB; }
+consteval size_t operator""_TiB(const size_t n) { return n * 1024_GiB; }
+// INVESTIGATE: This may be confusing to have both
+consteval size_t operator""_KB(const size_t n) { return n * 1000_B; }
+consteval size_t operator""_MB(const size_t n) { return n * 1000_KB; }
+consteval size_t operator""_GB(const size_t n) { return n * 1000_MB; }
+consteval size_t operator""_TB(const size_t n) { return n * 1000_GB; }
+

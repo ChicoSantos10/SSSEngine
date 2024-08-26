@@ -20,17 +20,17 @@
 
 namespace SSSEngine
 {
-    void* PlatformLoadLibrary(const wchar_t *path, const int flags)
+    void* LoadSharedLibrary(const wchar_t *path, const int flags)
     {
         return {LoadLibraryEx(path, nullptr, flags)};
     }
 
-    void PlatformUnloadLibrary(void *handle)
+    void UnloadSharedLibrary(void *handle)
     {
         FreeLibrary(static_cast<HMODULE>(handle));
     }
 
-    void* PlatformGetFunctionAddress(void *handle, const char *funcName)
+    void* GetFunctionAddressFromLibrary(void *handle, const char *funcName)
     {
         return GetProcAddress(static_cast<HMODULE>(handle), funcName);
     }

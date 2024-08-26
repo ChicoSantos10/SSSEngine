@@ -17,8 +17,6 @@
 
 #pragma once
 
-// TODO: Remove this include and fix all errors
-#include <cassert>
 /* INVESTIGATE: Have different types of assertions:
  *  -Debug: All assertions should be built
  *  -Internal: Same as debug?
@@ -59,7 +57,14 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
             SSSENGINE_DEBUG_BREAK, \
             0)  \
         )
+
+// TODO: Add assume with using assert(0) when assertions are enabled and using assume otherwise
+#define SSSENGINE_UNREACHABLE SSSENGINE_ASSERT(false && "Supposedly unreachable code reached")
 #else
-// TODO: Replace Assert to be Assume.
-#define SSSENGINE_ASSERT(expression)
+#define SSSENGINE_ASSERT(expression) [[assume(expression)]]
+#ifdef SSSENGINE_MSVC
+#define SSSENGINE_UNREACHABLE __assume(0)
+#elif SSSENGINE_MINGW
+#define SSSENGINE_UNREACHABLE __builtin_unreachable()
+#endif
 #endif

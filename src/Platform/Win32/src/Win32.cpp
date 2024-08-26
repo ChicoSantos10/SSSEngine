@@ -15,18 +15,17 @@ Copyright (C) 2024  Francisco Santos
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "windows.h"
+#include <windows.h>
 #include <cstdio>
 #include <xinput.h>
-#include <cmath>
 #include <wrl/client.h>
 #include "../../../Common/include/Application.h"
-#include "../../../../include/XAudioRedist/xaudio2.h"
-#include "../../../../include/XAudioRedist/xaudio2fx.h"
-#include "../../../../include/XAudioRedist/xapofx.h"
-#include "../../../../include/XAudioRedist/xapo.h"
+#include "xaudio2.h"
+#include "xaudio2fx.h"
+#include "xapofx.h"
+#include "xapo.h"
 #include "Win32Window.h"
-#include "../../../Renderer/include/Renderer.h"
+#include "Renderer.h"
 
 void InitConsole();
 void CloseConsole();
@@ -45,11 +44,12 @@ constexpr WCHAR WindowClassName[] = L"SSS Engine";
 // TODO: Check for cpu attributes to ensure minimum specs
 //  -> SIMD
 //  -> Minimum memory perhaps or just try to allocate and if fails allocate less?
+// NOLINTNEXTLINE
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
 	InitConsole();
 
-	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2); // NOLINT
 
 	/*SSSEngine::Application app;
 	app.Run();*/
@@ -58,9 +58,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	SSSWin32::windowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
 	SSSWin32::windowClass.lpfnWndProc = SSSWin32::MainWindowProcedure;
 	SSSWin32::windowClass.hInstance = hInstance;
-	SSSWin32::windowClass.lpszClassName = WindowClassName;
-	SSSWin32::windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	SSSWin32::windowClass.lpszMenuName = RT_MENU;
+	SSSWin32::windowClass.lpszClassName = WindowClassName; // NOLINT(*-pro-bounds-array-to-pointer-decay)
+	SSSWin32::windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW); // NOLINT
+	SSSWin32::windowClass.lpszMenuName = RT_MENU; // NOLINT
 
 	if (RegisterClassExW(&SSSWin32::windowClass) == 0)
 	{
@@ -97,7 +97,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		return -1;
 	}
 
-	IXAudio2MasteringVoice *pMasteringVoice;
+	IXAudio2MasteringVoice *pMasteringVoice; // NOLINT(*-init-variables)
 	hr = xAudio2->CreateMasteringVoice(&pMasteringVoice);
 	if (FAILED(hr))
 	{
@@ -126,15 +126,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	// Populate the audio buffer with some simple sine wave data at 440 Hz.
 	for (DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i)
 	{
-		float t = i / static_cast<float>(wave.Format.nSamplesPerSec);
+		float t = static_cast<float>(i) / static_cast<float>(wave.Format.nSamplesPerSec);
 		constexpr float twoPi = 2.0f * 3.14159265358979323846264338327950288419716939937510f;
 
+		// ReSharper disable CppCStyleCast NOLINTBEGIN(*-pro-type-cstyle-cast)
 		// Write the sample to the buffer
 		((BYTE*)buffer.pAudioData)[i * 2 + 0] = static_cast<BYTE>(sinf(t * twoPi * 440.0f) * 30000.0f); // Left channel
 		((BYTE*)buffer.pAudioData)[i * 2 + 1] = static_cast<BYTE>(sinf(t * twoPi * 440.0f) * 30000.0f); // Right channel
+		// ReSharper restore CppCStyleCast NOLINTEND(*-pro-type-cstyle-cast)
 	}
 
-	IXAudio2SubmixVoice *pSubMixVoice;
+	IXAudio2SubmixVoice *pSubMixVoice; // NOLINT(*-init-variables)
 	hr = xAudio2->CreateSubmixVoice(&pSubMixVoice, 2, wave.Format.nSamplesPerSec, 0, 0, nullptr, nullptr);
 	if (FAILED(hr))
 	{
@@ -145,8 +147,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	XAUDIO2_SEND_DESCRIPTOR sendDescriptors = {0, pSubMixVoice};
 	XAUDIO2_VOICE_SENDS sendList = {1, &sendDescriptors};
 
-	IUnknown *reverbFx;
-	if (FAILED(hr = XAudio2CreateReverb(&reverbFx)))
+	IUnknown *reverbFx; // NOLINT(*-init-variables)
+	hr = XAudio2CreateReverb(&reverbFx);
+	if (FAILED(hr))
 	{
 		OutputDebugStringW(L"XAudio2 reverb initialization failed");
 		return -1;
@@ -178,7 +181,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	reverbParameters.RoomSize = XAUDIO2FX_REVERB_DEFAULT_ROOM_SIZE;
 	reverbParameters.WetDryMix = XAUDIO2FX_REVERB_DEFAULT_WET_DRY_MIX;
 
-	IUnknown *echoFx;
+	IUnknown *echoFx; // NOLINT(*-init-variables)
 	CreateFX(CLSID_FXEcho, &echoFx);
 	XAUDIO2_EFFECT_DESCRIPTOR echoDescriptor = {echoFx, true, 1};
 	XAUDIO2_EFFECT_CHAIN echoChain = {1, &echoDescriptor};
@@ -187,15 +190,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	echoParameters.Feedback = FXECHO_DEFAULT_FEEDBACK * 2;
 	echoParameters.Delay = FXECHO_DEFAULT_DELAY * 2;
 
-	IUnknown *EQFx;
-	CreateFX(CLSID_FXEQ, &EQFx);
-	XAUDIO2_EFFECT_DESCRIPTOR EQDescriptor = {EQFx, true, 1};
-	XAUDIO2_EFFECT_CHAIN EQChain = {1, &EQDescriptor};
-	FXEQ_PARAMETERS EQParameters;
-	EQParameters.Gain0 = FXEQ_MIN_GAIN;
-	EQParameters.FrequencyCenter0 = FXEQ_MIN_FREQUENCY_CENTER;
+	IUnknown *eqFx; // NOLINT(*-init-variables)
+	CreateFX(CLSID_FXEQ, &eqFx);
+	XAUDIO2_EFFECT_DESCRIPTOR eqDescriptor = {eqFx, true, 1};
+	XAUDIO2_EFFECT_CHAIN eqChain = {1, &eqDescriptor};
+	FXEQ_PARAMETERS eqParameters;
+	eqParameters.Gain0 = FXEQ_MIN_GAIN;
+	eqParameters.FrequencyCenter0 = FXEQ_MIN_FREQUENCY_CENTER;
 
-	IXAudio2SourceVoice *pSourceVoice;
+	IXAudio2SourceVoice *pSourceVoice; // NOLINT(*-init-variables)
 	hr = xAudio2->CreateSourceVoice(&pSourceVoice,
 	                                reinterpret_cast<WAVEFORMATEX*>(&wave),
 	                                0,
@@ -221,8 +224,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	pSourceVoice->EnableEffect(1);
 
 	// EQ
-	pSourceVoice->SetEffectChain(&EQChain);
-	pSourceVoice->SetEffectParameters(2, &EQParameters, sizeof(EQParameters));
+	pSourceVoice->SetEffectChain(&eqChain);
+	pSourceVoice->SetEffectParameters(2, &eqParameters, sizeof(eqParameters));
 	pSourceVoice->EnableEffect(2);
 
 	hr = pSourceVoice->SubmitSourceBuffer(&buffer);
@@ -300,9 +303,9 @@ void GamepadInput()
 		if (const DWORD dwResult = XInputGetState(i, &state); dwResult == ERROR_SUCCESS)
 		{
 			// Controller is connected
-			const XINPUT_GAMEPAD gamepad = state.Gamepad;
+			const auto [wButtons, bLeftTrigger, bRightTrigger, sThumbLX, sThumbLY, sThumbRX, sThumbRY] = state.Gamepad;
 
-			if (gamepad.wButtons & XINPUT_GAMEPAD_A)
+			if (wButtons & XINPUT_GAMEPAD_A)
 			{
 				// Vibrations
 				XINPUT_VIBRATION vibration;
@@ -319,8 +322,8 @@ void GamepadInput()
 				XInputSetState(i, &vibration);
 			}
 
-			const float leftThumbX = gamepad.sThumbLX;
-			const float leftThumbY = gamepad.sThumbLY;
+			const float leftThumbX = sThumbLX;
+			const float leftThumbY = sThumbLY;
 
 			float magnitude = sqrtf(leftThumbX * leftThumbX + leftThumbY * leftThumbY);
 

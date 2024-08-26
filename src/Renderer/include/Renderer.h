@@ -8,11 +8,11 @@
 
 namespace SSSRenderer
 {
-	typedef SwapChain (*CreateSwapChain_t)(const SSSEngine::Window &window);
-	typedef void (*Render_t)();
-	typedef void (*Terminate_t)();
-	typedef void (*LoadAssetsTest_t)();
-	typedef void (*ResizeSwapChain_t)(const SSSEngine::Window &window);
+	using CreateSwapChain_t = SwapChain (*)(const SSSEngine::Window &);
+	using Render_t = void (*)();
+	using Terminate_t = void (*)();
+	using LoadAssetsTest_t = void (*)();
+	using ResizeSwapChain_t = void (*)(const SSSEngine::Window &);
 
 	// ReSharper disable CppInconsistentNaming
 	inline CreateSwapChain_t CreateSwapChain;

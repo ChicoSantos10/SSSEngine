@@ -10,16 +10,18 @@ namespace SSSEngine
 {
 	// INVESTIGATE: Is this necessary?? It currently does not do anything useful
 	//  A better alternative would be to have a method to update the window and poll there
+	// ReSharper disable once CppParameterMayBeConst
 	LRESULT WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass,
 	                        const DWORD_PTR dwRefData)
 	{
-		const auto *window = reinterpret_cast<Window*>(dwRefData);
+		const auto *window = reinterpret_cast<Window*>(dwRefData); // NOLINT(*-no-int-to-ptr)
 
 		switch (msg)
 		{
 		case WM_ENTERSIZEMOVE:
 			{
 				// TODO: Pause Window (stop update and render)
+				break;
 			}
 		case WM_EXITSIZEMOVE:
 			{
@@ -28,6 +30,7 @@ namespace SSSEngine
 
 				// NOTE: Client rect starts at [0, 0] so right and bottom are the width and height respectively
 				SSSRenderer::ResizeSwapChain(*window);
+				break;
 			}
 		case WM_SYSCHAR: // Alt + Enter
 			{
@@ -47,9 +50,16 @@ namespace SSSEngine
 
 	Window::Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
 	               const Window *parent) : m_handle{
-		                                       [width, height, &title, parent]()
+		                                       [x, y, width, height, &title, parent]()
 		                                       {
 			                                       // TODO: SSSENGINE_ASSERT that class has been registered
+
+			                                       // TODO: assert max values as well
+			                                       // INVESTIGATE: Run time check?
+			                                       SSSENGINE_ASSERT(
+				                                       (x > 0 || x == CW_USEDEFAULT) && (y > 0 || y == CW_USEDEFAULT) &&
+				                                       width > 0 && height > 0 && "Window size is invalid"
+			                                       );
 
 			                                       constexpr int childStyle = WS_CHILD | (WS_OVERLAPPEDWINDOW & ~(
 				                                       WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
@@ -59,8 +69,8 @@ namespace SSSEngine
 			                                                             SSSWin32::windowClass.lpszClassName,
 			                                                             title,
 			                                                             style,
-			                                                             CW_USEDEFAULT,
-			                                                             CW_USEDEFAULT,
+			                                                             x,
+			                                                             y,
 			                                                             width,
 			                                                             height,
 			                                                             parent

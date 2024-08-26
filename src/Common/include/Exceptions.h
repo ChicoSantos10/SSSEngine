@@ -4,16 +4,18 @@
 
 #pragma once
 
+#if defined(SSSENGINE_DEBUG) || defined(SSSENGINE_INTERNAL)
 #include <exception>
 
-// TODO: Remove this from release builds
 class NotImplementedException final : public std::exception
 {
 	static constexpr auto Reason = "Not implemented";
 
 public:
-	[[nodiscard]] const char* what() const noexcept override
+	SSSENGINE_PURE const char* what() const noexcept override
 	{
 		return Reason;
 	}
 };
+#endif
+

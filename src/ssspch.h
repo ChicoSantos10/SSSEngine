@@ -23,7 +23,9 @@
 #include <unordered_set>
 
 // SSSEngine includes
+#include "HelperMacros.h"
 #include "Types.h"
+#include "Concepts.h"
 #include "Debug.h"
 #include "Attributes.h"
 #include "Intrinsics.h"

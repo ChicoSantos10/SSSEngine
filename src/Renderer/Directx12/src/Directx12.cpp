@@ -638,9 +638,9 @@ namespace SSSRenderer::SSSDirectx12
 		// TODO: Also check for windowed mode
 		//  (Currently there is no way to set to exclusive fullscreen mode so not needed for now)
 		if (allowTearing)
-			SSSENGINE_THROW_IF_FAILED(swapChain->Present(0, renderFlags))
+			SSSENGINE_THROW_IF_FAILED(swapChain->Present(0, renderFlags));
 		else
-			SSSENGINE_THROW_IF_FAILED(swapChain->Present(1, 0))
+			SSSENGINE_THROW_IF_FAILED(swapChain->Present(1, 0));
 
 		Flush();
 	}

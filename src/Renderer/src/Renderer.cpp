@@ -22,24 +22,13 @@ namespace SSSRenderer
 {
 	using Init_t = void (*)();
 
-	static void *module;
+	SSSENGINE_INTERNAL void *module;
 
 	void Unload()
 	{
 		Terminate();
 		SSSEngine::UnloadSharedLibrary(module);
 		module = nullptr;
-	}
-
-	template <typename T> concept FunctionPointer = std::is_pointer_v<T>;
-
-	// TODO: The assert should become run time check
-	template <FunctionPointer T>
-	SSSENGINE_FORCE_INLINE T LoadFunction(const char *name)
-	{
-		T type = reinterpret_cast<T>(SSSEngine::GetFunctionAddressFromLibrary(module, name));
-		SSSENGINE_ASSERT(type);
-		return type;
 	}
 
 	void LoadDirectx()
@@ -54,11 +43,11 @@ namespace SSSRenderer
 		if (!module)
 			throw std::exception();
 
-		LoadFunction<Init_t>("Initialize")();
-		LoadAssetsTest = LoadFunction<LoadAssetsTest_t>("LoadAssetsTest");
-		CreateSwapChain = LoadFunction<CreateSwapChain_t>("CreateSwapChain");
-		ResizeSwapChain = LoadFunction<ResizeSwapChain_t>("ResizeSwapChain");
-		Render = LoadFunction<Render_t>("Render");
-		Terminate = LoadFunction<Terminate_t>("Terminate");
+		SSSEngine::LoadFunction<Init_t>(module, "Initialize")();
+		LoadAssetsTest = SSSEngine::LoadFunction<LoadAssetsTest_t>(module, "LoadAssetsTest");
+		CreateSwapChain = SSSEngine::LoadFunction<CreateSwapChain_t>(module, "CreateSwapChain");
+		ResizeSwapChain = SSSEngine::LoadFunction<ResizeSwapChain_t>(module, "ResizeSwapChain");
+		Render = SSSEngine::LoadFunction<Render_t>(module, "Render");
+		Terminate = SSSEngine::LoadFunction<Terminate_t>(module, "Terminate");
 	}
 }

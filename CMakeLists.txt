@@ -5,23 +5,28 @@ include(ExternalProject)
 project(SSSEngine)
 set(CMAKE_CXX_STANDARD 26)
 
-# TODO: Look at all options from clang-tidy and use the best ones
 
 add_compile_definitions(
         "$<$<CONFIG:Debug>:SSSENGINE_DEBUG;SSSENGINE_ASSERTIONS>"
-        "$<$<CONFIG:Internal>:SSSENGINE_INTERNAL;SSSENGINE_ASSERTIONS>"
+        "$<$<CONFIG:RelWithDebInfo>:SSSENGINE_INTERNAL;SSSENGINE_ASSERTIONS>"
         "$<$<CONFIG:Release>:SSSENGINE_RELEASE>"
+
+        "SSSENGINE_ALLOW_FORCE_INLINE_STATEMENT"
+        "SSSENGINE_ALLOW_INLINE_HINT"
+        "SSSENGINE_ALLOW_FORCE_INLINE"
+        "SSSENGINE_ALLOW_NO_INLINE"
+        "SSSENGINE_ALLOW_HINT_INLINE_STATEMENT"
+        "SSSENGINE_ALLOW_NO_INLINE_STATEMENT"
 )
 
-# TODO: Different compile options for different build types (DEBUG, RELEASE, ...)
 if (MSVC)
     add_compile_definitions(SSSENGINE_MSVC)
-    add_compile_options(/W4 /WX /Od /EHs)
+
+    add_compile_options("$<$<CONFIG:Debug>:/W4;/WX;/Od;/EHs;/EHc->")
+    add_compile_options("$<$<CONFIG:RelWithDebInfo>:/W4;/WX;/O2;/EHs;/EHc->")
     # NOTE: Disable certain warnings
     add_compile_options(
-            # NOTE: Disable this on debug only
-            /wd4100 /wd4189
-            # NOTE: This can be always disabled
+            "$<$<CONFIG:Debug,RelWithDebugInfo>:/wd4100;/wd4189>"
             /wd28251
     )
 elseif (MINGW)

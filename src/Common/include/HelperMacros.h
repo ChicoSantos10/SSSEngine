@@ -15,25 +15,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <Windows.h>
-#include "Library.h"
+#pragma once
 
-namespace SSSEngine
-{
-    void* LoadSharedLibrary(const wchar_t *path, const int flags)
-    {
-        return {LoadLibraryEx(path, nullptr, flags)};
-    }
+#define SSSENGINE_WIDE_STRING_(x) L ## x
+#define SSSENGINE_WIDE_STRING(x) SSSENGINE_WIDE_STRING_(#x)
 
-    void UnloadSharedLibrary(void *handle)
-    {
-        FreeLibrary(static_cast<HMODULE>(handle));
-    }
+#define SSSENGINE_PRAGMA(x) _Pragma(#x)
 
-    void* GetFunctionAddressFromLibrary(void *handle, const char *funcName)
-    {
-        // INVESTIGATE: Consider exporting by ordinals using .def files instead to make the loading process faster
-        //      https://learn.microsoft.com/en-us/cpp/build/exporting-from-a-dll-using-def-files?view=msvc-170
-        return GetProcAddress(static_cast<HMODULE>(handle), funcName);
-    }
-}
+#define SSSENGINE_GLOBAL inline
+#define SSSENGINE_INTERNAL static
+#define SSSENGINE_FUNCTION_LOCAL static

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#if defined(SSSENGINE_DEBUG) || defined(SSSENGINE_INTERNAL)
 #include <exception>
+#if defined(SSSENGINE_DEBUG) || defined(SSSENGINE_INTERNAL)
 
 class NotImplementedException final : public std::exception
 {
@@ -17,5 +17,6 @@ public:
 		return Reason;
 	}
 };
+
 #endif
 

@@ -8,21 +8,10 @@
 #include <wrl/client.h>
 //#include "directx/d3d12.h"
 
-// TODO: Fix release version and also improve the debug version as well
 #ifdef SSSENGINE_DEBUG
-#define SSSENGINE_THROW_IF_FAILED(hr)  if(!FAILED(hr)){} else 				\
-	{																\
-		SSSENGINE_DEBUG_BREAK;\
-	}
+#define SSSENGINE_THROW_IF_FAILED(hr)  SSSENGINE_ASSERT(SUCCEEDED(hr))
 #else
-#define SSSENGINE_THROW_IF_FAILED(hr) if (FAILED(hr))				\
-	{\
-		char message[1024];											\
-		GetErrorMessage(hr, message);								\
-		std::cout << message << std::endl;							\
-																	\
-		throw std::exception();										\
-	}
+#define SSSENGINE_THROW_IF_FAILED(hr) ThrowIfFailed(hr)
 #endif
 namespace SSSWin32
 {

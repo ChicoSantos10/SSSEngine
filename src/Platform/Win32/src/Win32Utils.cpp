@@ -19,6 +19,9 @@ Copyright (C) 2024  Francisco Santos
 #include <iostream>
 #include "Win32Utils.h"
 
+/* LOW_PRIORITY: Improve this, make it more robust, create a dx12 exception or maybe a renderer exception, handle cases
+		* where we can potentially recover: such as device removed maybe
+*/
 void SSSWin32::ThrowIfFailed(const HRESULT hr)
 {
 	if (FAILED(hr))

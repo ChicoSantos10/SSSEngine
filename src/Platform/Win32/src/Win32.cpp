@@ -358,7 +358,7 @@ void GamepadInput()
 void InitConsole()
 {
 	AllocConsole();
-	FILE *stream;
+	FILE *stream; // NOLINT(*-init-variables)
 	freopen_s(&stream, "CONOUT$", "w", stdout);
 	freopen_s(&stream, "CONOUT$", "w", stderr);
 	freopen_s(&stream, "CONIN$", "r", stdin);

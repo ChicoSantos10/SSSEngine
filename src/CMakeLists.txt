@@ -80,5 +80,6 @@ else ()
 endif ()
 
 add_subdirectory(Renderer)
+add_subdirectory(Math)
 add_subdirectory(Common)
 

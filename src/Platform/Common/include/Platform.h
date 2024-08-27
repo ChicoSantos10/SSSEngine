@@ -21,7 +21,7 @@ namespace SSSEngine
 {
 #ifdef SSSENGINE_WIN32
 	using WindowHandle = void*;
-	using WindowTitle = const wchar_t*; // TODO: Create definitions for this like UTF8 and stuff
+	using WindowTitle = const wchar_t*; // LOW_PRIORITY: Create definitions for this like UTF8 and stuff
 #else
 #error Platform not currently supported
 #endif

@@ -17,7 +17,10 @@
 
 #pragma once
 
-struct SwapChain
+namespace SSSRenderer
 {
-    int handle;
-};
+    struct SwapChain
+    {
+        int handle;
+    };
+}

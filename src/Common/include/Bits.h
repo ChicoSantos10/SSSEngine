@@ -23,8 +23,7 @@ namespace SSSEngine
     // INVESTIGATE: Can we make a concept for this?
     // requires std::conjunction_v<std::is_same<T, Bits>...>
 
-    // INVESTIGATE: Do we need to check if they are of the same type? The compiler will probably warn
-    //  if narrowing conversion happens
+    // TODO: Change to sssengine concepts
     template <std::integral T, std::integral... Bits> requires std::conjunction_v<std::is_same<T, Bits>...>
     SSSENGINE_FORCE_INLINE constexpr auto Join(T first, Bits... bits) -> T
     {

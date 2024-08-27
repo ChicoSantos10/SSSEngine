@@ -97,6 +97,12 @@ namespace SSSEngine
 		ShowWindow(static_cast<HWND>(m_handle), SW_SHOWNORMAL);
 	}
 
+	Window::~Window()
+	{
+		// INVESTIGATE: Should we release the swap chain?
+		//SSSRenderer::ReleaseSwapChain();
+	}
+
 	Window::WindowRect Window::GetRect() const noexcept
 	{
 		// TODO: Handle GetWindowRect failure
@@ -120,8 +126,7 @@ namespace SSSEngine
 	{
 		// TODO: This only allows one window to be fullscreen at a time.
 		//		 What happens if we try to go fullscreen on a different one?
-		// TODO: Remove static and replace with macro for functionLocal
-		static WINDOWPLACEMENT window{.length = sizeof(window)};
+		SSSENGINE_FUNCTION_LOCAL WINDOWPLACEMENT window{.length = sizeof(window)};
 		// IDEA: static Window* currentFullscreenWindow = nullptr
 		// if(currentFullscreenWindow) currentFullscreenWindow->SetBorderlessFullscreen(false)
 
@@ -147,7 +152,6 @@ namespace SSSEngine
 		}
 		else
 		{
-			// TODO: Create helper functions that can be inlined to help with bitwise flag operations to prevent mistakes
 			SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, styles | WS_OVERLAPPEDWINDOW);
 			SetWindowPlacement(static_cast<HWND>(m_handle), &window);
 

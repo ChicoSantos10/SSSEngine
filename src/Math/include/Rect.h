@@ -15,25 +15,16 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <Windows.h>
-#include "Library.h"
+#pragma once
 
-namespace SSSEngine
+namespace SSSMath
 {
-    void* LoadSharedLibrary(const wchar_t *path, const int flags)
+    template <typename T> requires std::is_arithmetic_v<T>
+    struct Rect
     {
-        return {LoadLibraryEx(path, nullptr, flags)};
-    }
-
-    void UnloadSharedLibrary(void *handle)
-    {
-        FreeLibrary(static_cast<HMODULE>(handle));
-    }
-
-    void* GetFunctionAddressFromLibrary(void *handle, const char *funcName)
-    {
-        // INVESTIGATE: Consider exporting by ordinals using .def files instead to make the loading process faster
-        //      https://learn.microsoft.com/en-us/cpp/build/exporting-from-a-dll-using-def-files?view=msvc-170
-        return GetProcAddress(static_cast<HMODULE>(handle), funcName);
-    }
+        T x;
+        T y;
+        T width;
+        T height;
+    };
 }

@@ -27,10 +27,6 @@
  *  -----
  *   Is the __debugbreak useful?
  */
-// TODO: Move this somewhere else
-#define SSSENGINE_WIDE_STRING_(x) L ## x
-#define SSSENGINE_WIDE_STRING(x) SSSENGINE_WIDE_STRING_(x)
-
 #ifdef SSSENGINE_ASSERTIONS
 
 #define SSSENGINE_DEBUG_BREAK __debugbreak()
@@ -51,20 +47,28 @@
 // INVESTIGATE: Can we have this in a namespace?
 void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line);
 
+#include "HelperMacros.h"
+/**
+ * @brief Warning: This converts into [[assume(expression)]] when assertions are turned off. DO NOT PUT expressions that have side effects!!!
+ * @param expression The expression to be tested. Since we assert that it must not be true we can then tell the compiler it can assume to be true
+ * potentially allowing for some optimizations
+ */
 #define SSSENGINE_ASSERT(expression) (void)(                                                       \
             (!!(expression)) ||                                                          \
-            (ReportAssertionFailure(SSSENGINE_WIDE_STRING(#expression), SSSENGINE_WIDE_STRING(__FILE__), (unsigned)(__LINE__)), \
+            (ReportAssertionFailure(SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE_STRING(__FILE__), (unsigned)(__LINE__)), \
             SSSENGINE_DEBUG_BREAK, \
             0)  \
         )
 
-// TODO: Add assume with using assert(0) when assertions are enabled and using assume otherwise
 #define SSSENGINE_UNREACHABLE SSSENGINE_ASSERT(false && "Supposedly unreachable code reached")
 #else
-#define SSSENGINE_ASSERT(expression) [[assume(expression)]]
+#include "Attributes.h"
+#define SSSENGINE_ASSERT(expression) SSSENGINE_ASSUME(expression)
 #ifdef SSSENGINE_MSVC
 #define SSSENGINE_UNREACHABLE __assume(0)
 #elif SSSENGINE_MINGW
 #define SSSENGINE_UNREACHABLE __builtin_unreachable()
 #endif
 #endif
+
+#define SSSENGINE_STATIC_ASSERT(expression) static_assert(expression);

@@ -18,32 +18,24 @@
 #pragma once
 
 #include "Platform.h"
-#include "../../../Renderer/Common/include/SwapChain.h"
-
-// TODO: Clean this up - Move to respective files
-// TODO: Different implementation of arithmetic -> Must implement all arithmetic operators
-//		 Also implement logical with all logical operators and one that includes both arithmetic and logical
-//		 Also a is number for all integer and floating points
-template <typename T> requires std::is_arithmetic_v<T>
-struct Rect
-{
-	T x;
-	T y;
-	T width;
-	T height;
-};
+#include "SwapChain.h"
+#include "Rect.h"
 
 namespace SSSEngine
 {
-	class Window
+	class Window final
 	{
 	public:
 		using WindowSize = int;
-		using WindowRect = Rect<WindowSize>;
+		using WindowRect = SSSMath::Rect<WindowSize>;
 
 		Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
 		       const Window *parent = nullptr);
-		~Window() = default;
+		~Window();
+		Window(const Window &other) = delete;
+		Window(Window &&other) = delete;
+		Window& operator=(const Window &other) = delete;
+		Window& operator=(Window &&other) = delete;
 
 		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowHandle GetHandle() const noexcept
 		{
@@ -64,11 +56,11 @@ namespace SSSEngine
 
 		void SetWindowTitle(WindowTitle title) const;
 
-		// TODO: Potentially allow other types of fullscreen
+		// LOW_PRIORITY: Potentially allow other types of fullscreen
 		void SetBorderlessFullscreen(bool fullscreen) const;
 		void ToggleBorderlessFullscreen() const;
 
-		/* TODO:
+		/* LOW_PRIORITY:
 		 *  - Add a method to change the window size
 		 *  - Add a method to change the window position
 		 *  - Add a method to set a new rect
@@ -79,7 +71,7 @@ namespace SSSEngine
 
 	private:
 		WindowHandle m_handle;
-		SwapChain m_swapChain{};
+		SSSRenderer::SwapChain m_swapChain{};
 	};
 } // SSSEngine
 

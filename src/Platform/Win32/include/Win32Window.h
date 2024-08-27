@@ -6,14 +6,12 @@
 
 #include <windows.h>
 
-#include "../../Common/include/Window.h"
+#include "Window.h"
 #include "Renderer.h"
 
 namespace SSSWin32
 {
-	// INVESTIGATE: How about create a macro for inline as global to make it easier to search all globals
-	//  and same thing for static
-	inline WNDCLASSEXW windowClass;
+	SSSENGINE_GLOBAL WNDCLASSEXW windowClass;
 
 	inline LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
 	{
@@ -27,7 +25,7 @@ namespace SSSWin32
 		case WM_CLOSE:
 			{
 				if (MessageBox(hwnd, L"Are you sure you want to quit?", L"SSSEngine", MB_YESNO) == IDYES)
-					DestroyWindow(hwnd); // TODO: Window destroy event. Cleanup and removal of corresponding swap chain
+					DestroyWindow(hwnd);
 				return 0;
 			}
 		case WM_SIZE:
@@ -65,7 +63,7 @@ namespace SSSWin32
 					}
 				default:
 					{
-						return DefWindowProcW(hwnd, msg, wParam, lParam);
+						break;
 					}
 				}
 			}
@@ -78,12 +76,13 @@ namespace SSSWin32
 			{
 				//				SetCursor(LoadCursor(nullptr, IDC_ARROW));
 				//				return true;
-				return DefWindowProcW(hwnd, msg, wParam, lParam);
+				break;
 			}
 		default:
-			return DefWindowProcW(hwnd, msg, wParam, lParam);
+			break;
 		}
 
+		return DefWindowProcW(hwnd, msg, wParam, lParam);
 		// TODO: Set the default outside the switch to avoid duplication of the default return
 	}
 } // Win32

@@ -19,24 +19,18 @@
 
 namespace SSSEngine
 {
-    // NOTE: In case needed this checks to see if all parameters are the same type
-    // INVESTIGATE: Can we make a concept for this?
-    // requires std::conjunction_v<std::is_same<T, Bits>...>
-
-    // TODO: Change to sssengine concepts
-    template <std::integral T, std::integral... Bits> requires std::conjunction_v<std::is_same<T, Bits>...>
+    template <Integral T, Integral... Bits> requires EqualTypes<T, Bits...>
     SSSENGINE_FORCE_INLINE constexpr auto Join(T first, Bits... bits) -> T
     {
         return first | (bits | ...);
     }
 
-    template <std::integral T>
-    SSSENGINE_FORCE_INLINE constexpr bool HasBits(T first, T second)
+    SSSENGINE_FORCE_INLINE constexpr bool HasBits(Integral auto first, Integral auto second)
     {
         return first & second;
     }
 
-    template <std::integral T>
+    template <Integral T>
     SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, T second)
     {
         return first & ~second;

@@ -83,6 +83,5 @@ namespace SSSWin32
 		}
 
 		return DefWindowProcW(hwnd, msg, wParam, lParam);
-		// TODO: Set the default outside the switch to avoid duplication of the default return
 	}
 } // Win32

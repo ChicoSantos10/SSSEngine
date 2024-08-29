@@ -24,6 +24,7 @@ namespace SSSEngine
     template <typename T> concept Number = std::is_arithmetic_v<T>;
     template <typename T> concept Integral = std::integral<T>;
     template <typename T> concept Real = std::floating_point<T>;
+    template <typename T, typename... Others> concept EqualTypes = std::conjunction_v<std::is_same<T, Others>...>;
 
     template <typename T>concept Arithmetic = requires(T t)
     {

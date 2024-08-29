@@ -19,9 +19,12 @@
 
 #define SSSENGINE_WIDE_STRING_(x) L ## x
 #define SSSENGINE_WIDE_STRING(x) SSSENGINE_WIDE_STRING_(#x)
+#define SSSENGINE_WIDE(x) SSSENGINE_WIDE_STRING_(x)
 
 #define SSSENGINE_PRAGMA(x) _Pragma(#x)
 
 #define SSSENGINE_GLOBAL inline
 #define SSSENGINE_INTERNAL static
 #define SSSENGINE_FUNCTION_LOCAL static
+
+#define SSSENGINE_LIB(library) SSSENGINE_PRAGMA(comment(lib, #library))

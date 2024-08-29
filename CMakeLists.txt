@@ -5,7 +5,6 @@ include(ExternalProject)
 project(SSSEngine)
 set(CMAKE_CXX_STANDARD 26)
 
-
 add_compile_definitions(
         "$<$<CONFIG:Debug>:SSSENGINE_DEBUG;SSSENGINE_ASSERTIONS>"
         "$<$<CONFIG:RelWithDebInfo>:SSSENGINE_INTERNAL;SSSENGINE_ASSERTIONS>"

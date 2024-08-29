@@ -44,6 +44,8 @@
 // #endif
 // #endif
 
+struct FrameContext;
+
 // INVESTIGATE: Can we have this in a namespace?
 void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line);
 
@@ -55,7 +57,10 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
  */
 #define SSSENGINE_ASSERT(expression) (void)(                                                       \
             (!!(expression)) ||                                                          \
-            (ReportAssertionFailure(SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE_STRING(__FILE__), (unsigned)(__LINE__)), \
+            (ReportAssertionFailure(\
+                SSSENGINE_WIDE_STRING(expression),\
+                SSSENGINE_WIDE(__FILE__),\
+                (unsigned)(__LINE__)),\
             SSSENGINE_DEBUG_BREAK, \
             0)  \
         )

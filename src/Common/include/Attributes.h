@@ -122,7 +122,7 @@
 #define SSSENGINE_PACK_SHOW SSSENGINE_PRAGMA(pack (show))
 #define SSSENGINE_PACK_POP SSSENGINE_PRAGMA(pack (pop))
 
-// TODO: assume_aligned -> https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1007r3.pdf
+// LOW_PRIORITY: assume_aligned -> https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1007r3.pdf
 
 // INVESTIGATE: Check gnu and msvc attributes
 // GCC: https://gcc.gnu.org/onlinedocs/gcc/Function-Attributes.html

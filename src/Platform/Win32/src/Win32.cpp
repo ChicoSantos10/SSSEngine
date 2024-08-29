@@ -27,6 +27,11 @@ Copyright (C) 2024  Francisco Santos
 #include "Win32Window.h"
 #include "Renderer.h"
 
+// Debugs
+#include <dbghelp.h>
+#include <atlbase.h>
+#include <dia2.h>
+
 void InitConsole();
 void CloseConsole();
 void GamepadInput();
@@ -39,15 +44,74 @@ __declspec(dllexport) extern const char8_t *D3D12SDKPath = u8".\\Directx12\\D3D1
 // ReSharper restore CppInconsistentNaming
 }
 
+//SSSENGINE_LIB("dbghelp.lib")
+
 constexpr WCHAR WindowClassName[] = L"SSS Engine";
 
-// TODO: Check for cpu attributes to ensure minimum specs
+// LOW_PRIORITY: Check for cpu attributes to ensure minimum specs
 //  -> SIMD
 //  -> Minimum memory perhaps or just try to allocate and if fails allocate less?
 // NOLINTNEXTLINE
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
 	InitConsole();
+
+	// COM initialization
+	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+	if (FAILED(hr))
+	{
+		OutputDebugStringW(L"COM initialization failed");
+		return -1;
+	}
+
+	// NOTE: This uses the DIA SDK but not sure it's very useful TODO: Move it another file
+	{
+		// NOTE: You need to have the dll registered in server to use this debug
+		//  From MSDOCS:
+		//  To register the dll, open an elevated Developer command prompt window, and change to the directory that
+		//  contains the version for your machine architecture. Enter the command regsvr32 msdia140.dll to register
+		//  the COM server.
+		CComPtr<IDiaDataSource> source;
+		if (FAILED(CoCreateInstance(CLSID_DiaSource, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&source))))
+		{
+			OutputDebugString(L"Failed to create DiaSource instance");
+		}
+
+		if (FAILED(source->loadDataFromPdb(LR"(Directx12/Directx12.pdb)")))
+		{
+			OutputDebugString(L"Failed to load data from PDB");
+		}
+
+		CComPtr<IDiaSession> session;
+		if (FAILED(source->openSession( &session )))
+		{
+			OutputDebugString(L"Failed to open session");
+		}
+
+		CComPtr<IDiaSymbol> global;
+		if (FAILED(session->get_globalScope( &global)))
+		{
+			OutputDebugString(L"Failed to get global scope");
+		}
+
+		CComPtr<IDiaEnumTables> tables;
+		if (FAILED(session->getEnumTables( &tables )))
+		{
+			OutputDebugString(L"Failed to get enumerated tables");
+		}
+
+		CComPtr<IDiaTable> table;
+		ULONG celt;
+		while (SUCCEEDED(tables->Next( 1, &table, &celt )) && celt == 1)
+		{
+			// Do something with each IDiaTable.
+			BSTR name;
+			table->get_name(&name);
+			OutputDebugString(name);
+			OutputDebugString(L"\n");
+			table = nullptr;
+		}
+	}
 
 	SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2); // NOLINT
 
@@ -65,13 +129,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	if (RegisterClassExW(&SSSWin32::windowClass) == 0)
 	{
 		OutputDebugStringW(L"Window class creation failed");
-		return -1;
-	}
-	// COM initialization
-	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	if (FAILED(hr))
-	{
-		OutputDebugStringW(L"COM initialization failed");
 		return -1;
 	}
 
@@ -255,7 +312,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 				isRunning = false;
 				break;
 			}
-			else if (msg.message == WM_DESTROY)
+			if (msg.message == WM_DESTROY)
 			{
 				// TODO: Window closing must release its swap chain first
 				SSSRenderer::Unload();

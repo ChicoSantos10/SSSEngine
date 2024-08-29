@@ -6,6 +6,8 @@ add_library(Directx12 MODULE
 )
 target_precompile_headers(Directx12 REUSE_FROM SSSEngine)
 
+target_compile_options(Directx12 PUBLIC /DEBUG:FULL)
+
 set(OUTPUT_DIR ${BIN_DIR}/Directx12)
 set_target_properties(Directx12 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 

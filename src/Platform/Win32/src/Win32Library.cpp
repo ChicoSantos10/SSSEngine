@@ -22,7 +22,7 @@ namespace SSSEngine
 {
     void* LoadSharedLibrary(const wchar_t *path, const int flags)
     {
-        return {LoadLibraryEx(path, nullptr, flags)};
+        return LoadLibraryEx(path, nullptr, flags);
     }
 
     void UnloadSharedLibrary(void *handle)

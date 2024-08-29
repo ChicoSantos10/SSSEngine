@@ -21,12 +21,12 @@
 #include <immintrin.h>
 #include <ammintrin.h>
 
-// TODO: Compiler specific intrinsics
+// LOW_PRIORITY: Compiler specific intrinsics. Create as needed
 #ifdef SSSENGINE_MSVC
-#elif defined(SSSENGINE_GCC) || defined(SSSENGINE_CLANG)
+#elif SSSENGINE_MINGW
 #endif
 
-// TODO: Other intrinsics
+// LOW_PRIORITY: Other intrinsics. Create as needed
 // INVESTIGATE: Naming convention
 using Vector128 = __m128;
 using Vector256 = __m256;

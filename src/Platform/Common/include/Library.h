@@ -30,12 +30,13 @@ namespace SSSEngine
     void UnloadSharedLibrary(void *libraryHandle);
     void* GetFunctionAddressFromLibrary(void *libraryHandle, const char *funcName);
 
-    // TODO: The assert should become run time check
+    // INVESTIGATE: Think about error handling. Should we throw an exception? Return an optional?
     template <Function T>
     SSSENGINE_FORCE_INLINE T LoadFunction(void *libraryHandle, const char *name)
     {
         T type = reinterpret_cast<T>(GetFunctionAddressFromLibrary(libraryHandle, name));
-        SSSENGINE_ASSERT(type != nullptr);
+        if (!type)
+            throw std::runtime_error("Failed to load function " + std::string(name));
         return type;
     }
 }

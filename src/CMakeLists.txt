@@ -1,6 +1,15 @@
 if (WIN32)
-    add_compile_definitions(SSSENGINE_WIN32)
+    add_compile_definitions(
+            SSSENGINE_WIN32
+            $<$<CONFIG:Debug,RelWithDebugInfo>:DBGHELP_TRANSLATE_TCHAR>
+    )
     add_executable(SSSEngine WIN32)
+
+    # DIA SDK - used only for debug builds
+    set(SDK_PATH "$ENV{VSINSTALLDIR}/DIA SDK")
+    target_include_directories(SSSEngine PUBLIC "$<$<CONFIG:Debug,RelWithDebInfo>:${SDK_PATH}/include>")
+    target_link_libraries(SSSEngine PUBLIC "$<$<CONFIG:Debug,RelWithDebInfo>:${SDK_PATH}/lib/amd64/diaguids.lib>")
+    target_link_libraries(SSSEngine PRIVATE "$<$<CONFIG:Debug,RelWithDebInfo>:dbghelp.lib>")
 elseif (LINUX)
     add_compile_definitions(SSSENGINE_LINUX)
 endif ()

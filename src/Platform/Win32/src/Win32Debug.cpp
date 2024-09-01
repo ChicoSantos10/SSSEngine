@@ -117,7 +117,9 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
 
     // LOW_PRIORITY: Custom stream
     std::wstringstream ss;
-    ss << SSSENGINE_WIDE_STRING(ERROR FOUND AT) << L" " << file << SSSENGINE_WIDE_STRING(:) << L" " << line << L"\n";
+    ss << SSSENGINE_WIDE_STRING(ERROR FOUND AT) << L" " << file << SSSENGINE_WIDE_STRING(:) << L" "
+    << line << L"with message: " << message << L"\n";
+
     while (StackWalk64(IMAGE_FILE_MACHINE_AMD64,
                        process,
                        thread,

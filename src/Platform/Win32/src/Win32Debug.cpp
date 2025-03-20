@@ -16,13 +16,14 @@
 */
 
 #include "windows.h"
-#include "Debug.h"
 #include <dbghelp.h>
+#include <sstream>
+#include "Debug.h"
 
 SSSENGINE_LIB("dbghelp.lib")
 
 // LOW_PRIORITY: This has no safety measures aside from looking until \0
-wchar_t* Trim(wchar_t *string)
+wchar_t *Trim(wchar_t *string)
 {
     wchar_t *lastDivisor = nullptr;
     for (auto c = string; *c != L'\0'; c++)
@@ -117,8 +118,10 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
 
     // LOW_PRIORITY: Custom stream
     std::wstringstream ss;
-    ss << SSSENGINE_WIDE_STRING(ERROR FOUND AT) << L" " << file << SSSENGINE_WIDE_STRING(:) << L" "
-    << line << L"with message: " << message << L"\n";
+    ss << SSSENGINE_WIDE_STRING(ERROR FOUND AT) << L" " << file
+       << SSSENGINE_WIDE_STRING(
+              :)
+       << L" " << line << L"with message: " << message << L"\n";
 
     while (StackWalk64(IMAGE_FILE_MACHINE_AMD64,
                        process,
@@ -128,8 +131,7 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
                        nullptr,
                        SymFunctionTableAccess64,
                        SymGetModuleBase64,
-                       nullptr
-    ))
+                       nullptr))
     {
         // LOW_PRIORITY: Trim names to be better understandable
         // LOW_PRIORITY: No need to copy the names to variables
@@ -155,11 +157,7 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
         auto symbolInfo = reinterpret_cast<PSYMBOL_INFO>(buffer);
         symbolInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
         symbolInfo->MaxNameLen = MAX_SYM_NAME;
-        if (!SymFromAddr(process,
-                         functionAddress,
-                         nullptr,
-                         symbolInfo
-        ))
+        if (!SymFromAddr(process, functionAddress, nullptr, symbolInfo))
         {
             OutputDebugString(L"No SymFromAddr\n");
         }
@@ -179,12 +177,7 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
         ss << moduleName << L": " << fileName << L" " << functionName << L" at " << lineNumber << L"\n\n";
     }
 
-    MessageBox(
-        nullptr,
-        ss.str().c_str(),
-        L"Assertion Failed",
-        MB_OK | MB_ICONERROR
-    );
+    MessageBox(nullptr, ss.str().c_str(), L"Assertion Failed", MB_OK | MB_ICONERROR);
 
     SymCleanup(GetCurrentProcess());
 }

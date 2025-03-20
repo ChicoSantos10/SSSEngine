@@ -20,34 +20,34 @@
 
 namespace SSSRenderer
 {
-	using Init_t = void (*)();
+    using Init_t = void (*)();
 
-	SSSENGINE_INTERNAL void *module;
+    SSSENGINE_INTERNAL void *module;
 
-	void Unload()
-	{
-		Terminate();
-		SSSEngine::UnloadSharedLibrary(module);
-		module = nullptr;
-	}
+    void Unload()
+    {
+        Terminate();
+        SSSEngine::UnloadSharedLibrary(module);
+        module = nullptr;
+    }
 
-	void LoadDirectx()
-	{
-		if (module)
-			Unload();
+    void LoadDirectx()
+    {
+        if(module)
+            Unload();
 
-		constexpr auto relativePath = LR"(Directx12\Directx12.dll)";
-		module = SSSEngine::LoadSharedLibrary(relativePath, 0);
+        constexpr auto relativePath = LR"(Directx12\Directx12.dll)";
+        module = SSSEngine::LoadSharedLibrary(relativePath, 0);
 
-		// TODO: Proper handling / exception throwing
-		if (!module)
-			throw std::exception();
+        // TODO: Proper handling / exception throwing
+        if(!module)
+            throw std::exception();
 
-		SSSEngine::LoadFunction<Init_t>(module, "Initialize")();
-		LoadAssetsTest = SSSEngine::LoadFunction<LoadAssetsTest_t>(module, "LoadAssetsTest");
-		CreateSwapChain = SSSEngine::LoadFunction<CreateSwapChain_t>(module, "CreateSwapChain");
-		ResizeSwapChain = SSSEngine::LoadFunction<ResizeSwapChain_t>(module, "ResizeSwapChain");
-		Render = SSSEngine::LoadFunction<Render_t>(module, "Render");
-		Terminate = SSSEngine::LoadFunction<Terminate_t>(module, "Terminate");
-	}
-}
+        SSSEngine::LoadFunction<Init_t>(module, "Initialize")();
+        LoadAssetsTest = SSSEngine::LoadFunction<LoadAssetsTest_t>(module, "LoadAssetsTest");
+        CreateSwapChain = SSSEngine::LoadFunction<CreateSwapChain_t>(module, "CreateSwapChain");
+        ResizeSwapChain = SSSEngine::LoadFunction<ResizeSwapChain_t>(module, "ResizeSwapChain");
+        Render = SSSEngine::LoadFunction<Render_t>(module, "Render");
+        Terminate = SSSEngine::LoadFunction<Terminate_t>(module, "Terminate");
+    }
+} // namespace SSSRenderer

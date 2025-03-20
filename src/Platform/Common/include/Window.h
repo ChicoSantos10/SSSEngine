@@ -17,61 +17,52 @@
 
 #pragma once
 
+#include "Attributes.h"
 #include "Platform.h"
-#include "SwapChain.h"
 #include "Rect.h"
+#include "SwapChain.h"
 
 namespace SSSEngine
 {
-	class Window final
-	{
-	public:
-		using WindowSize = int;
-		using WindowRect = SSSMath::Rect<WindowSize>;
+    class Window final
+    {
+    public:
+        using WindowSize = int;
+        using WindowRect = SSSMath::Rect<WindowSize>;
 
-		Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
-		       const Window *parent = nullptr);
-		~Window();
-		Window(const Window &other) = delete;
-		Window(Window &&other) = delete;
-		Window& operator=(const Window &other) = delete;
-		Window& operator=(Window &&other) = delete;
+        Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
+               const Window *parent = nullptr);
+        ~Window();
+        Window(const Window &other) = delete;
+        Window(Window &&other) = delete;
+        Window &operator=(const Window &other) = delete;
+        Window &operator=(Window &&other) = delete;
 
-		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowHandle GetHandle() const noexcept
-		{
-			return m_handle;
-		}
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowHandle GetHandle() const noexcept { return m_handle; }
 
-		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowSize GetWidth() const noexcept
-		{
-			return GetRect().width;
-		}
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowSize GetWidth() const noexcept { return GetRect().width; }
 
-		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowSize GetHeight() const noexcept
-		{
-			return GetRect().height;
-		}
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowSize GetHeight() const noexcept { return GetRect().height; }
 
-		SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowRect GetRect() const noexcept;
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE WindowRect GetRect() const noexcept;
 
-		void SetWindowTitle(WindowTitle title) const;
+        void SetWindowTitle(WindowTitle title) const;
 
-		// LOW_PRIORITY: Potentially allow other types of fullscreen
-		void SetBorderlessFullscreen(bool fullscreen) const;
-		void ToggleBorderlessFullscreen() const;
+        // LOW_PRIORITY: Potentially allow other types of fullscreen
+        void SetBorderlessFullscreen(bool fullscreen) const;
+        void ToggleBorderlessFullscreen() const;
 
-		/* LOW_PRIORITY:
-		 *  - Add a method to change the window size
-		 *  - Add a method to change the window position
-		 *  - Add a method to set a new rect
-		 *  - Add a method to change the window icon
-		 *  - Add a method to change the window cursor
-		 *  - Add a method to minimize the window
-		 */
+        /* LOW_PRIORITY:
+         *  - Add a method to change the window size
+         *  - Add a method to change the window position
+         *  - Add a method to set a new rect
+         *  - Add a method to change the window icon
+         *  - Add a method to change the window cursor
+         *  - Add a method to minimize the window
+         */
 
-	private:
-		WindowHandle m_handle;
-		SSSRenderer::SwapChain m_swapChain{};
-	};
-} // SSSEngine
-
+    private:
+        WindowHandle m_handle;
+        SSSRenderer::SwapChain m_swapChain{};
+    };
+} // namespace SSSEngine

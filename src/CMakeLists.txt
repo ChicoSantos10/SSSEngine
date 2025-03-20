@@ -6,7 +6,11 @@ if (WIN32)
     add_executable(SSSEngine WIN32)
 
     # DIA SDK - used only for debug builds
-    set(SDK_PATH "$ENV{VSINSTALLDIR}/DIA SDK")
+    if(NOT DEFINED ENV{VSINSTALLDIR})
+        message(FATAL_ERROR "VSINSTALLDIR not set! Run vcvarsall.bat or similar")
+    endif()
+    set(SDK_PATH "$ENV{VSINSTALLDIR}DIA SDK")
+    message(STATUS "SDK PATH IS ${SDK_PATH}")
     target_include_directories(SSSEngine PUBLIC "$<$<CONFIG:Debug,RelWithDebInfo>:${SDK_PATH}/include>")
     target_link_libraries(SSSEngine PUBLIC "$<$<CONFIG:Debug,RelWithDebInfo>:${SDK_PATH}/lib/amd64/diaguids.lib>")
     target_link_libraries(SSSEngine PRIVATE "$<$<CONFIG:Debug,RelWithDebInfo>:dbghelp.lib>")
@@ -15,7 +19,7 @@ elseif (LINUX)
 endif ()
 add_subdirectory(Platform)
 
-target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)
+# target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)
 
 # Make a bin directory
 set(BIN_DIR ${CMAKE_BINARY_DIR}/bin CACHE INTERNAL "")

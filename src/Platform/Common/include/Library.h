@@ -17,18 +17,24 @@
 
 #pragma once
 
+#include <cstdint>
+#include "Attributes.h"
+#include "Concepts.h"
+#include <iostream>
+#include <stdexcept>
+
 namespace SSSEngine
 {
     /* LOW_PRIORITY:
-        * Have a small amount of memory for library handles that we can pass around instead of void*
-        * Then we can have a struct Handle; and we also avoid leaking implementation details since consumers of the class
-        * Wouldn't have access to anything inside. Also use RAII.
-    * INVESTIGATE: Can we use protected memory? To prevent someone deleting it?
-        * Under Windows look at: VirtualAlloc and VirtualProtect
+     * Have a small amount of memory for library handles that we can pass around instead of void*
+     * Then we can have a struct Handle; and we also avoid leaking implementation details since consumers of the class
+     * Wouldn't have access to anything inside. Also use RAII.
+     * INVESTIGATE: Can we use protected memory? To prevent someone deleting it?
+     * Under Windows look at: VirtualAlloc and VirtualProtect
      */
-    void* LoadSharedLibrary(const wchar_t *path, int flags);
+    void *LoadSharedLibrary(const wchar_t *path, int flags);
     void UnloadSharedLibrary(void *libraryHandle);
-    void* GetFunctionAddressFromLibrary(void *libraryHandle, const char *funcName);
+    void *GetFunctionAddressFromLibrary(void *libraryHandle, const char *funcName);
 
     // INVESTIGATE: Think about error handling. Should we throw an exception? Return an optional?
     template <Function T>
@@ -39,4 +45,4 @@ namespace SSSEngine
             throw std::runtime_error("Failed to load function " + std::string(name));
         return type;
     }
-}
+} // namespace SSSEngine

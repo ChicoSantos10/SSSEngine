@@ -4,24 +4,24 @@
 
 #pragma once
 
-#include "../../Platform/Common/include/Window.h"
+#include "Window.h"
 
 namespace SSSRenderer
 {
-	using CreateSwapChain_t = SwapChain (*)(const SSSEngine::Window &);
-	using Render_t = void (*)();
-	using Terminate_t = void (*)();
-	using LoadAssetsTest_t = void (*)();
-	using ResizeSwapChain_t = void (*)(const SSSEngine::Window &);
+    using CreateSwapChain_t = SwapChain (*)(const SSSEngine::Window &);
+    using Render_t = void (*)();
+    using Terminate_t = void (*)();
+    using LoadAssetsTest_t = void (*)();
+    using ResizeSwapChain_t = void (*)(const SSSEngine::Window &);
 
-	// ReSharper disable CppInconsistentNaming
-	inline CreateSwapChain_t CreateSwapChain;
-	inline Render_t Render;
-	inline Terminate_t Terminate;
-	inline LoadAssetsTest_t LoadAssetsTest;
-	inline ResizeSwapChain_t ResizeSwapChain;
-	// ReSharper restore CppInconsistentNaming
+    // ReSharper disable CppInconsistentNaming
+    inline CreateSwapChain_t CreateSwapChain;
+    inline Render_t Render;
+    inline Terminate_t Terminate;
+    inline LoadAssetsTest_t LoadAssetsTest;
+    inline ResizeSwapChain_t ResizeSwapChain;
+    // ReSharper restore CppInconsistentNaming
 
-	void LoadDirectx();
-	void Unload();
-}
+    void LoadDirectx();
+    void Unload();
+} // namespace SSSRenderer

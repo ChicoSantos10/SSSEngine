@@ -51,19 +51,16 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
 
 #include "HelperMacros.h"
 /**
- * @brief Warning: This converts into [[assume(expression)]] when assertions are turned off. DO NOT PUT expressions that have side effects!!!
- * @param expression The expression to be tested. Since we assert that it must not be true we can then tell the compiler it can assume to be true
- * potentially allowing for some optimizations
+ * @brief Warning: This converts into [[assume(expression)]] when assertions are turned off. DO NOT PUT expressions that
+ * have side effects!!!
+ * @param expression The expression to be tested. Since we assert that it must not be true we can then tell the compiler
+ * it can assume to be true potentially allowing for some optimizations
  */
-#define SSSENGINE_ASSERT(expression) (void)(                                                       \
-            (!!(expression)) ||                                                          \
-            (ReportAssertionFailure(\
-                SSSENGINE_WIDE_STRING(expression),\
-                SSSENGINE_WIDE(__FILE__),\
-                (unsigned)(__LINE__)),\
-            SSSENGINE_DEBUG_BREAK, \
-            0)  \
-        )
+#define SSSENGINE_ASSERT(expression)                                                                                   \
+    (void)((!!(expression)) ||                                                                                         \
+           (ReportAssertionFailure(SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE(__FILE__), (unsigned)(__LINE__)), \
+            SSSENGINE_DEBUG_BREAK,                                                                                     \
+            0))
 
 #define SSSENGINE_UNREACHABLE SSSENGINE_ASSERT(false && "Supposedly unreachable code reached")
 #else

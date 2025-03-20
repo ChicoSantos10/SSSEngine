@@ -17,22 +17,23 @@
 
 #pragma once
 
+#include "Attributes.h"
+#include "Concepts.h"
+
 namespace SSSEngine
 {
-    template <Integral T, Integral... Bits> requires EqualTypes<T, Bits...>
+    template <Integral T, Integral... Bits>
+        requires EqualTypes<T, Bits...>
     SSSENGINE_FORCE_INLINE constexpr auto Join(T first, Bits... bits) -> T
     {
         return first | (bits | ...);
     }
 
-    SSSENGINE_FORCE_INLINE constexpr bool HasBits(Integral auto first, Integral auto second)
-    {
-        return first & second;
-    }
+    SSSENGINE_FORCE_INLINE constexpr bool HasBits(Integral auto first, Integral auto second) { return first & second; }
 
     template <Integral T>
     SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, T second)
     {
         return first & ~second;
     }
-}
+} // namespace SSSEngine

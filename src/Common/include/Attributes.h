@@ -35,7 +35,7 @@
 #ifdef SSSENGINE_MSVC
 #define SSSENGINE_FORCE_INLINE __forceinline
 #elif SSSENGINE_MINGW
-#define SSSENGINE_FORCE_INLINE [[using gnu : always_inline, inline]] inline
+#define SSSENGINE_FORCE_INLINE [[using gnu: always_inline, inline]] inline
 #endif
 #else
 #define SSSENGINE_FORCE_INLINE SSSENGINE_INLINE_HINT
@@ -45,7 +45,7 @@
 #ifdef SSSENGINE_MSVC
 #define SSSENGINE_NO_INLINE declspec(noinline)
 #elif SSSENGINE_MINGW
-#define SSSENGINE_NO_INLINE __attribute__ ((noinline))
+#define SSSENGINE_NO_INLINE __attribute__((noinline))
 #endif
 #endif
 
@@ -113,14 +113,14 @@
 #define SSSENGINE_ASSUME(expression) [[assume(expression)]]
 #endif
 #define SSSENGINE_INDETERMINATE [[indeterminate]]
-//#define SSSENGINE_OPTIMIZE_FOR_SYNCHRONIZED [[optimize_for_synchronized]]
+// #define SSSENGINE_OPTIMIZE_FOR_SYNCHRONIZED [[optimize_for_synchronized]]
 
 #pragma endregion
 
 // INVESTIGATE: Pragmas
-#define SSSENGINE_PACK_PUSH(command) SSSENGINE_PRAGMA(pack (push, command))
-#define SSSENGINE_PACK_SHOW SSSENGINE_PRAGMA(pack (show))
-#define SSSENGINE_PACK_POP SSSENGINE_PRAGMA(pack (pop))
+#define SSSENGINE_PACK_PUSH(command) SSSENGINE_PRAGMA(pack(push, command))
+#define SSSENGINE_PACK_SHOW SSSENGINE_PRAGMA(pack(show))
+#define SSSENGINE_PACK_POP SSSENGINE_PRAGMA(pack(pop))
 
 // LOW_PRIORITY: assume_aligned -> https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1007r3.pdf
 

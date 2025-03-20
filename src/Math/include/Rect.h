@@ -17,9 +17,12 @@
 
 #pragma once
 
+#include "Concepts.h"
+
 namespace SSSMath
 {
-    template <typename T> requires std::is_arithmetic_v<T>
+    template <typename T>
+        requires SSSEngine::Integral<T>
     struct Rect
     {
         T x;
@@ -27,4 +30,4 @@ namespace SSSMath
         T width;
         T height;
     };
-}
+} // namespace SSSMath

@@ -18,6 +18,8 @@
 // ReSharper disable CppInconsistentNaming
 #pragma once
 
+#include <cstdint>
+
 using i8 = int8_t;
 using i16 = int16_t;
 using i32 = int32_t;
@@ -62,4 +64,3 @@ consteval size_t operator""_KB(const size_t n) { return n * 1000_B; }
 consteval size_t operator""_MB(const size_t n) { return n * 1000_KB; }
 consteval size_t operator""_GB(const size_t n) { return n * 1000_MB; }
 consteval size_t operator""_TB(const size_t n) { return n * 1000_GB; }
-

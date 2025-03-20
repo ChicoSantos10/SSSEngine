@@ -4,7 +4,7 @@ add_library(Directx12 MODULE
         ${CMAKE_SOURCE_DIR}/src/Platform/Win32/src/Win32Utils.cpp
         ${CMAKE_SOURCE_DIR}/src/Platform/Win32/src/Win32Debug.cpp
 )
-target_precompile_headers(Directx12 REUSE_FROM SSSEngine)
+# target_precompile_headers(Directx12 REUSE_FROM SSSEngine)
 
 target_compile_options(Directx12 PUBLIC /DEBUG:FULL)
 

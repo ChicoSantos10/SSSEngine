@@ -33,7 +33,7 @@ cppcoreguidelines-init-variables,
 cppcoreguidelines-narrowing-conversions,
 cppcoreguidelines-special-member-functions,
 cppcoreguidelines-missing-std-forward,
-cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+# cppcoreguidelines-pro-bounds-array-to-pointer-decay,
 google-build-namespaces,
 google-default-arguments,
 google-runtime-operator,
@@ -81,7 +81,12 @@ readability-redundant-control-flow,
 readability-misplaced-array-index,
 readability-inconsistent-declaration-parameter-name,
 readability-container-size-empty,
+readability-identifier-naming,
+cert-dcl16-c,
 -bugprone-easily-swappable-parameters'
+
+WarningsAsErrors: "*"
+
 # Naming 
 CheckOptions:
   - { key: readability-identifier-naming.NamespaceCase,          value: CamelCase }
@@ -93,14 +98,13 @@ CheckOptions:
   - { key: readability-identifier-naming.ClassMemberCase,        value: camelBack }
   - { key: readability-identifier-naming.PrivateMemberPrefix,    value: m_ }
   - { key: readability-identifier-naming.EnumConstantCase,         value: CamelCase }
-  - { key: readability-identifier-naming.ConstexprVariableCase,    value: camelBack }
+  - { key: readability-identifier-naming.ConstexprVariableCase,    value: CamelCase }
   - { key: readability-identifier-naming.GlobalConstantCase,       value: CamelCase }
+  - { key: readability-identifier-naming.GlobalVariableCase,       value: CamelCase }
   - { key: readability-identifier-naming.MemberConstantCase,       value: camelBack }
   - { key: readability-identifier-naming.StaticConstantCase,       value: camelBack }
   - { key: readability-identifier-naming.MacroDefinitionCase, value: UPPER_CASE}
-  - { key: readability-identifier-naming.MacroDefinitionPrefix, value: SSSENGINE}
-
+  - { key: readability-identifier-naming.MacroDefinitionPrefix, value: SSSENGINE_}
   - { key: readability-implicit-bool-conversion.AllowIntegerConditions,  value: 1 }
   - { key: readability-implicit-bool-conversion.AllowPointerConditions,  value: 1 }
   - { key: readability-function-cognitive-complexity.IgnoreMacros,  value: 1 }
-  ---

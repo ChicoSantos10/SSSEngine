@@ -13,19 +13,19 @@ namespace SSSEngine
     // INVESTIGATE: Is this necessary?? It currently does not do anything useful
     //  A better alternative would be to have a method to update the window and poll there
     // ReSharper disable once CppParameterMayBeConst
-    LRESULT WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass,
-                            const DWORD_PTR dwRefData)
+    LRESULT
+    WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass, const DWORD_PTR dwRefData)
     {
         const auto *window = reinterpret_cast<Window *>(dwRefData); // NOLINT(*-no-int-to-ptr)
 
-        switch (msg)
+        switch(msg)
         {
-        case WM_ENTERSIZEMOVE:
+            case WM_ENTERSIZEMOVE:
             {
                 // TODO: Pause Window (stop update and render)
                 break;
             }
-        case WM_EXITSIZEMOVE:
+            case WM_EXITSIZEMOVE:
             {
                 RECT rect;
                 GetClientRect(hwnd, &rect);
@@ -34,51 +34,50 @@ namespace SSSEngine
                 SSSRenderer::ResizeSwapChain(*window);
                 break;
             }
-        case WM_SYSCHAR: // Alt + Enter
+            case WM_SYSCHAR: // Alt + Enter
             {
                 window->ToggleBorderlessFullscreen();
                 return 0;
             }
-        case WM_DESTROY:
+            case WM_DESTROY:
             {
                 RemoveWindowSubclass(hwnd, &WindowProcedure, 0);
                 break;
             }
-        default:;
+            default:;
         }
 
         return DefSubclassProc(hwnd, msg, wParam, lParam);
     }
 
-    Window::Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
-                   const Window *parent) :
-        m_handle{[x, y, width, height, &title, parent]()
-                 {
-                     // TODO: SSSENGINE_ASSERT that class has been registered
+    Window::Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title, const Window *parent) :
+    m_handle{[x, y, width, height, &title, parent]()
+             {
+                 // TODO: SSSENGINE_ASSERT that class has been registered
 
-                     // TODO: assert max values as well
-                     // INVESTIGATE: Run time check?
-                     SSSENGINE_ASSERT((x > 0 || x == CW_USEDEFAULT) && (y > 0 || y == CW_USEDEFAULT) && width > 0 &&
-                                      height > 0 && "Window size is invalid");
+                 // TODO: assert max values as well
+                 // INVESTIGATE: Run time check?
+                 SSSENGINE_ASSERT((x > 0 || x == CW_USEDEFAULT) && (y > 0 || y == CW_USEDEFAULT) && width > 0 &&
+                                  height > 0 && "Window size is invalid");
 
-                     constexpr int childStyle =
-                         WS_CHILD | (WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
-                     const int style = parent ? childStyle : WS_OVERLAPPEDWINDOW;
+                 constexpr int childStyle =
+                     WS_CHILD | (WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
+                 const int style = parent ? childStyle : WS_OVERLAPPEDWINDOW;
 
-                     return CreateWindowEx(0,
-                                           SSSWin32::windowClass.lpszClassName,
-                                           title,
-                                           style,
-                                           x,
-                                           y,
-                                           width,
-                                           height,
-                                           parent ? static_cast<HWND>(parent->m_handle) : nullptr,
-                                           nullptr,
-                                           SSSWin32::windowClass.hInstance,
-                                           nullptr);
-                 }()},
-        m_swapChain{[this]() { return SSSRenderer::CreateSwapChain(*this); }()}
+                 return CreateWindowEx(0,
+                                       SSSWin32::WindowClass.lpszClassName,
+                                       title,
+                                       style,
+                                       x,
+                                       y,
+                                       width,
+                                       height,
+                                       parent ? static_cast<HWND>(parent->m_handle) : nullptr,
+                                       nullptr,
+                                       SSSWin32::WindowClass.hInstance,
+                                       nullptr);
+             }()},
+    m_swapChain{[this]() { return SSSRenderer::CreateSwapChain(*this); }()}
     {
         // INVESTIGATE: What can we do with this?
         const auto menu = CreateMenu();
@@ -124,14 +123,14 @@ namespace SSSEngine
         const LONG styles = GetWindowLong(static_cast<HWND>(m_handle), GWL_STYLE);
 
         // INVESTIGATE: Do we to resize the swap chain???
-        if (fullscreen)
+        if(fullscreen)
         {
             // INVESTIGATE: Should we store the monitor? Or should we just query it when we need it?
             const auto monitor = MonitorFromWindow(static_cast<HWND>(m_handle), MONITOR_DEFAULTTONEAREST);
 
             MONITORINFOEX monitorInfo{};
             monitorInfo.cbSize = sizeof(monitorInfo);
-            if (GetMonitorInfo(monitor, &monitorInfo) && GetWindowPlacement(static_cast<HWND>(m_handle), &window))
+            if(GetMonitorInfo(monitor, &monitorInfo) && GetWindowPlacement(static_cast<HWND>(m_handle), &window))
             {
                 SetWindowLongPtr(static_cast<HWND>(m_handle), GWL_STYLE, WithoutBits(styles, WS_OVERLAPPEDWINDOW));
                 constexpr auto flags = SWP_FRAMECHANGED | SWP_NOOWNERZORDER;

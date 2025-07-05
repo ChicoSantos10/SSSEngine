@@ -16,6 +16,7 @@ Copyright (C) 2024  Francisco Santos
 */
 
 #include <cstdio>
+#include <ostream>
 #include <windows.h>
 #include <wrl/client.h>
 #include <xinput.h>
@@ -26,9 +27,13 @@ Copyright (C) 2024  Francisco Santos
 #include "xaudio2.h"
 #include "xaudio2fx.h"
 
+// Timing
+#include "Timer.h"
+
 // Debugs
 #include <dbghelp.h>
 #include <dia2.h>
+#include "Debug.h"
 
 void InitConsole();
 void CloseConsole();
@@ -37,10 +42,8 @@ void GamepadInput();
 // NOTE: For some reason this needs to be on main
 extern "C"
 {
-    // ReSharper disable CppInconsistentNaming
     __declspec(dllexport) extern const UINT D3D12SDKVersion = 610;
     __declspec(dllexport) extern const char8_t *D3D12SDKPath = u8".\\Directx12\\D3D12\\";
-    // ReSharper restore CppInconsistentNaming
 }
 
 // SSSENGINE_LIB("dbghelp.lib")
@@ -121,15 +124,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     /*SSSEngine::Application app;
     app.Run();*/
 
-    SSSWin32::windowClass.cbSize = sizeof(WNDCLASSEX);
-    SSSWin32::windowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-    SSSWin32::windowClass.lpfnWndProc = SSSWin32::MainWindowProcedure;
-    SSSWin32::windowClass.hInstance = hInstance;
-    SSSWin32::windowClass.lpszClassName = WindowClassName; // NOLINT(*-pro-bounds-array-to-pointer-decay)
-    SSSWin32::windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW); // NOLINT
-    SSSWin32::windowClass.lpszMenuName = RT_MENU; // NOLINT
+    SSSWin32::WindowClass.cbSize = sizeof(WNDCLASSEX);
+    SSSWin32::WindowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+    SSSWin32::WindowClass.lpfnWndProc = SSSWin32::MainWindowProcedure;
+    SSSWin32::WindowClass.hInstance = hInstance;
+    SSSWin32::WindowClass.lpszClassName = WindowClassName; // NOLINT(*-pro-bounds-array-to-pointer-decay)
+    SSSWin32::WindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW); // NOLINT
+    SSSWin32::WindowClass.lpszMenuName = RT_MENU; // NOLINT
 
-    if(RegisterClassExW(&SSSWin32::windowClass) == 0)
+    if(RegisterClassExW(&SSSWin32::WindowClass) == 0)
     {
         OutputDebugStringW(L"Window class creation failed");
         return -1;
@@ -299,6 +302,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     pSourceVoice->SetVolume(1);*/
 
     // ShowWindow(hwnd, nShowCmd);
+    SSSEngine::Timestamp firstTimestamp = SSSEngine::GetCurrentTime();
     bool isRunning = true;
     while(isRunning)
     {
@@ -333,6 +337,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
             SSSRenderer::Render();
         }
+
+        SSSEngine::Timestamp lastTimestamp = SSSEngine::GetCurrentTime();
+        u64 elapsedMicroseconds = SSSEngine::ToMicroSeconds(lastTimestamp - firstTimestamp);
+        SSSENGINE_ASSERT(elapsedMicroseconds > 0);
+        firstTimestamp = lastTimestamp;
+        std::cout << elapsedMicroseconds << " microseconds" << std::endl;
     }
 
     /*{

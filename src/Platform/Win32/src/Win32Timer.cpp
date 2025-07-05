@@ -15,23 +15,29 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
 #include <windows.h>
-#include <wrl/client.h>
-#include "Debug.h"
-// #include "directx/d3d12.h"
+#include "Timer.h"
+#include "Types.h"
 
-#ifdef SSSENGINE_DEBUG
-    #define SSSENGINE_THROW_IF_FAILED(hr) SSSENGINE_ASSERT(SUCCEEDED(hr))
-#else
-    #define SSSENGINE_THROW_IF_FAILED(hr) ThrowIfFailed(hr)
-#endif
-namespace SSSWin32
+namespace SSSEngine
 {
-    using namespace Microsoft::WRL;
+    Timestamp GetCurrentTime()
+    {
+        LARGE_INTEGER counter;
+        QueryPerformanceCounter(&counter);
 
-    void ThrowIfFailed(HRESULT hr);
-    void GetErrorMessage(HRESULT hr, char *message);
-    // void GetDeviceRemovedReason(const ComPtr<ID3D12Device>&, char* message);
-} // namespace SSSWin32
+        return {static_cast<u64>(counter.QuadPart)};
+    }
+
+    u64 ToMicroSeconds(Timestamp timestamp)
+    {
+        // TODO: This value does not change so should be cached instead
+        LARGE_INTEGER frequency;
+        QueryPerformanceFrequency(&frequency);
+
+        timestamp.time *= Microseconds;
+        // INVESTIGATE:
+        // Since this is a division, maybe it's better to return a floating precision number (either 32 or 64 bit)
+        return timestamp.time / frequency.QuadPart;
+    }
+} // namespace SSSEngine

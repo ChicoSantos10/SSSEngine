@@ -17,22 +17,13 @@
 
 #pragma once
 
-#include "Window.h"
+#include "HelperMacros.h"
+#include "d3d12.h"
+#include "wrl/client.h"
 
-namespace SSSRenderer
+namespace SSSRenderer::SSSDirectx12
 {
-    using CreateSwapChain_t = SwapChainHandle (*)(const SSSEngine::Window &);
-    using Render_t = void (*)();
-    using Terminate_t = void (*)();
-    using LoadAssetsTest_t = void (*)();
-    using ResizeSwapChain_t = void (*)(const SSSEngine::Window &);
-
-    inline CreateSwapChain_t CreateSwapChain;
-    inline Render_t Render;
-    inline Terminate_t Terminate;
-    inline LoadAssetsTest_t LoadAssetsTest;
-    inline ResizeSwapChain_t ResizeSwapChain;
-
-    void LoadDirectx();
-    void Unload();
-} // namespace SSSRenderer
+    template<typename T>
+    using ComPtr = Microsoft::WRL::ComPtr<T>;
+    SSSENGINE_GLOBAL ComPtr<ID3D12Device10> Device;
+} // namespace SSSRenderer::SSSDirectx12

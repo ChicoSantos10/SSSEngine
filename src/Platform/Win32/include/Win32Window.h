@@ -13,75 +13,75 @@
 
 namespace SSSWin32
 {
-    SSSENGINE_GLOBAL WNDCLASSEXW windowClass;
+    SSSENGINE_GLOBAL WNDCLASSEXW WindowClass;
 
     inline LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
     {
-        switch (msg)
+        switch(msg)
         {
-        case WM_DESTROY:
+            case WM_DESTROY:
             {
                 PostQuitMessage(0);
                 return 0;
             }
-        case WM_CLOSE:
+            case WM_CLOSE:
             {
-                if (MessageBox(hwnd, L"Are you sure you want to quit?", L"SSSEngine", MB_YESNO) == IDYES)
+                if(MessageBox(hwnd, L"Are you sure you want to quit?", L"SSSEngine", MB_YESNO) == IDYES)
                     DestroyWindow(hwnd);
                 return 0;
             }
-        case WM_SIZE:
+            case WM_SIZE:
             {
                 return 0;
             }
-        // Mouse
-        case WM_LBUTTONDOWN:
+            // Mouse
+            case WM_LBUTTONDOWN:
             {
                 std::cout << "Left mouse button pressed" << std::endl;
                 return 0;
             }
-        // Keyboard
-        case WM_KEYDOWN:
-        case WM_KEYUP:
-        case WM_SYSKEYDOWN:
-        case WM_SYSKEYUP:
+            // Keyboard
+            case WM_KEYDOWN:
+            case WM_KEYUP:
+            case WM_SYSKEYDOWN:
+            case WM_SYSKEYUP:
             {
-                switch (wParam)
+                switch(wParam)
                 {
-                case VK_ESCAPE:
+                    case VK_ESCAPE:
                     {
                         PostQuitMessage(0);
                         return 0;
                     }
-                case VK_SPACE:
+                    case VK_SPACE:
                     {
                         std::cout << "Spacebar pressed" << std::endl;
                         return 0;
                     }
-                case VK_UP:
+                    case VK_UP:
                     {
                         std::cout << "Up arrow pressed" << std::endl;
                         return 0;
                     }
-                default:
+                    default:
                     {
                         break;
                     }
                 }
             }
-        case WM_SYSCHAR: // Alt + Enter
+            case WM_SYSCHAR: // Alt + Enter
             {
                 return 0;
             }
-        // Cursor
-        case WM_SETCURSOR:
+            // Cursor
+            case WM_SETCURSOR:
             {
                 //				SetCursor(LoadCursor(nullptr, IDC_ARROW));
                 //				return true;
                 break;
             }
-        default:
-            break;
+            default:
+                break;
         }
 
         return DefWindowProcW(hwnd, msg, wParam, lParam);

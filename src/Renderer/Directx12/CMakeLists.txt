@@ -1,5 +1,7 @@
+message(STATUS Building Directx12)
 add_library(Directx12 MODULE
         src/Directx12.cpp
+        src/RenderingContext.cpp
         # TODO: Build library with these so we don't have to include on both main and directx etc. Make it a module?
         ${CMAKE_SOURCE_DIR}/src/Platform/Win32/src/Win32Utils.cpp
         ${CMAKE_SOURCE_DIR}/src/Platform/Win32/src/Win32Debug.cpp
@@ -7,6 +9,8 @@ add_library(Directx12 MODULE
 # target_precompile_headers(Directx12 REUSE_FROM SSSEngine)
 
 target_compile_options(Directx12 PUBLIC /DEBUG:FULL)
+
+message(STATUS ${BIN_DIR})
 
 set(OUTPUT_DIR ${BIN_DIR}/Directx12)
 set_target_properties(Directx12 PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR})
@@ -32,7 +36,9 @@ target_include_directories(Directx12 BEFORE PUBLIC ${DX12_LIB_PATH}/build/native
 target_include_directories(Directx12 BEFORE PUBLIC ${DX12_COMPILER_PATH}/inc)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/libs)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Platform/Win32/include)
+target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Platform/Common/include)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Renderer/Common/include)
+target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Renderer/Directx12/include)
 
 target_link_libraries(Directx12 PRIVATE DXGI.lib)
 target_link_libraries(Directx12 PRIVATE D3D12.lib)
@@ -51,4 +57,8 @@ set_property(TARGET DX_COMPILER PROPERTY
 set_target_properties(DX_COMPILER PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(Directx12 PRIVATE DX_COMPILER)
 
+# INVESTIGATE: Probably should be a target instead and should be on rendering instead of directx12
+# Also maybe should be a different variant and not be always on debug
 add_compile_definitions($<$<CONFIG:Debug>:SSSENGINE_DEBUG_GRAPHICS>)
+
+add_dependencies(SSSEngine Directx12)

@@ -17,22 +17,13 @@
 
 #pragma once
 
-#include "Window.h"
-
 namespace SSSRenderer
 {
-    using CreateSwapChain_t = SwapChainHandle (*)(const SSSEngine::Window &);
-    using Render_t = void (*)();
-    using Terminate_t = void (*)();
-    using LoadAssetsTest_t = void (*)();
-    using ResizeSwapChain_t = void (*)(const SSSEngine::Window &);
-
-    inline CreateSwapChain_t CreateSwapChain;
-    inline Render_t Render;
-    inline Terminate_t Terminate;
-    inline LoadAssetsTest_t LoadAssetsTest;
-    inline ResizeSwapChain_t ResizeSwapChain;
-
-    void LoadDirectx();
-    void Unload();
+    // INVESTIGATE: This could just be a handle instead of specific type
+    // Issue would be that it could be passed for different scenarios
+    // It actually can be a window id only
+    struct SwapChainHandle
+    {
+        int index;
+    };
 } // namespace SSSRenderer

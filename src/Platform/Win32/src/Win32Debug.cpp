@@ -15,6 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// NOTE: Windows.h needs to be included for dbghelp to work.
 #include "windows.h"
 #include <dbghelp.h>
 #include <sstream>
@@ -26,15 +27,15 @@ SSSENGINE_LIB("dbghelp.lib")
 wchar_t *Trim(wchar_t *string)
 {
     wchar_t *lastDivisor = nullptr;
-    for (auto c = string; *c != L'\0'; c++)
+    for(auto c = string; *c != L'\0'; c++)
     {
-        if (*c == L'/' || *c == L'\\')
+        if(*c == L'/' || *c == L'\\')
         {
             lastDivisor = c;
         }
     }
 
-    if (lastDivisor != nullptr)
+    if(lastDivisor != nullptr)
         return ++lastDivisor;
 
     return string;
@@ -48,7 +49,7 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
 
     DWORD error = 0;
     // TODO: RAII on the initialization
-    if (!SymInitialize(GetCurrentProcess(), nullptr, true))
+    if(!SymInitialize(GetCurrentProcess(), nullptr, true))
         error = GetLastError();
 
     // TODO: Message still needs the file and line as well as it could have the stack trace
@@ -118,20 +119,11 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
 
     // LOW_PRIORITY: Custom stream
     std::wstringstream ss;
-    ss << SSSENGINE_WIDE_STRING(ERROR FOUND AT) << L" " << file
-       << SSSENGINE_WIDE_STRING(
-              :)
-       << L" " << line << L"with message: " << message << L"\n";
+    ss << SSSENGINE_WIDE_STRING(ERROR FOUND AT) << L" " << file << SSSENGINE_WIDE_STRING( :) << L" " << line
+       << L"with message: " << message << L"\n";
 
-    while (StackWalk64(IMAGE_FILE_MACHINE_AMD64,
-                       process,
-                       thread,
-                       &frame,
-                       &context,
-                       nullptr,
-                       SymFunctionTableAccess64,
-                       SymGetModuleBase64,
-                       nullptr))
+    while(StackWalk64(
+        IMAGE_FILE_MACHINE_AMD64, process, thread, &frame, &context, nullptr, SymFunctionTableAccess64, SymGetModuleBase64, nullptr))
     {
         // LOW_PRIORITY: Trim names to be better understandable
         // LOW_PRIORITY: No need to copy the names to variables
@@ -144,7 +136,7 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
         stream << e << L"\n";
         OutputDebugString(stream.str().c_str());
         WCHAR moduleBuff[MAX_PATH];
-        if (!moduleBase || !GetModuleFileName(reinterpret_cast<HINSTANCE>(moduleBase), moduleBuff, MAX_PATH))
+        if(!moduleBase || !GetModuleFileName(reinterpret_cast<HINSTANCE>(moduleBase), moduleBuff, MAX_PATH))
         {
             // auto e = GetLastError();
             // std::wstringstream stream;
@@ -157,7 +149,7 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
         auto symbolInfo = reinterpret_cast<PSYMBOL_INFO>(buffer);
         symbolInfo->SizeOfStruct = sizeof(SYMBOL_INFO);
         symbolInfo->MaxNameLen = MAX_SYM_NAME;
-        if (!SymFromAddr(process, functionAddress, nullptr, symbolInfo))
+        if(!SymFromAddr(process, functionAddress, nullptr, symbolInfo))
         {
             OutputDebugString(L"No SymFromAddr\n");
         }
@@ -167,7 +159,7 @@ void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigne
         IMAGEHLP_LINE lineInfo;
         lineInfo.SizeOfStruct = sizeof(lineInfo);
 
-        if (!SymGetLineFromAddr(process, frame.AddrPC.Offset, &offset, &lineInfo))
+        if(!SymGetLineFromAddr(process, frame.AddrPC.Offset, &offset, &lineInfo))
         {
             OutputDebugString(L"No SymGetLineFromAddr\n");
         }

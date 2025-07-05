@@ -19,5 +19,6 @@
 
 namespace SSSRenderer
 {
+    // INVESTIGATE: Have this be in renderer.h or something
     constexpr int BackBuffersAmount = 3;
-}
+} // namespace SSSRenderer

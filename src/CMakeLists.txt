@@ -5,6 +5,7 @@ if (WIN32)
     )
     add_executable(SSSEngine WIN32)
 
+    # INVESTIGATE: Are we still using DIA SDK?
     # DIA SDK - used only for debug builds
     if(NOT DEFINED ENV{VSINSTALLDIR})
         message(FATAL_ERROR "VSINSTALLDIR not set! Run vcvarsall.bat or similar")
@@ -17,7 +18,6 @@ if (WIN32)
 elseif (LINUX)
     add_compile_definitions(SSSENGINE_LINUX)
 endif ()
-add_subdirectory(Platform)
 
 # target_precompile_headers(SSSEngine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ssspch.h)
 
@@ -92,6 +92,7 @@ else ()
     message(FATAL_ERROR "Could not find D3D12Core path at ${D3D12_CORE_PATH}")
 endif ()
 
+add_subdirectory(Platform)
 add_subdirectory(Renderer)
 add_subdirectory(Math)
 add_subdirectory(Common)

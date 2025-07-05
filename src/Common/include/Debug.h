@@ -29,7 +29,7 @@
  */
 #ifdef SSSENGINE_ASSERTIONS
 
-#define SSSENGINE_DEBUG_BREAK __debugbreak()
+    #define SSSENGINE_DEBUG_BREAK __debugbreak()
 // NOTE: Seems like mingw implements __debugbreak as well
 // #ifdef SSSENGINE_MSVC
 // #else
@@ -44,33 +44,31 @@
 // #endif
 // #endif
 
-struct FrameContext;
-
 // INVESTIGATE: Can we have this in a namespace?
 void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line);
 
-#include "HelperMacros.h"
-/**
- * @brief Warning: This converts into [[assume(expression)]] when assertions are turned off. DO NOT PUT expressions that
- * have side effects!!!
- * @param expression The expression to be tested. Since we assert that it must not be true we can then tell the compiler
- * it can assume to be true potentially allowing for some optimizations
- */
-#define SSSENGINE_ASSERT(expression)                                                                                   \
-    (void)((!!(expression)) ||                                                                                         \
-           (ReportAssertionFailure(SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE(__FILE__), (unsigned)(__LINE__)), \
-            SSSENGINE_DEBUG_BREAK,                                                                                     \
-            0))
+    #include "HelperMacros.h"
+    /**
+     * @brief Warning: This converts into [[assume(expression)]] when assertions are turned off. DO NOT PUT expressions
+     * that have side effects!!!
+     * @param expression The expression to be tested. Since we assert that it must not be true we can then tell the
+     * compiler it can assume to be true potentially allowing for some optimizations
+     */
+    #define SSSENGINE_ASSERT(expression)                                                                                   \
+        (void)((!!(expression)) ||                                                                                         \
+               (ReportAssertionFailure(SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE(__FILE__), (unsigned)(__LINE__)), \
+                SSSENGINE_DEBUG_BREAK,                                                                                     \
+                0))
 
-#define SSSENGINE_UNREACHABLE SSSENGINE_ASSERT(false && "Supposedly unreachable code reached")
+    #define SSSENGINE_UNREACHABLE SSSENGINE_ASSERT(false && "Supposedly unreachable code reached")
 #else
-#include "Attributes.h"
-#define SSSENGINE_ASSERT(expression) SSSENGINE_ASSUME(expression)
-#ifdef SSSENGINE_MSVC
-#define SSSENGINE_UNREACHABLE __assume(0)
-#elif SSSENGINE_MINGW
-#define SSSENGINE_UNREACHABLE __builtin_unreachable()
-#endif
+    #include "Attributes.h"
+    #define SSSENGINE_ASSERT(expression) SSSENGINE_ASSUME(expression)
+    #ifdef SSSENGINE_MSVC
+        #define SSSENGINE_UNREACHABLE __assume(0)
+    #elif SSSENGINE_MINGW
+        #define SSSENGINE_UNREACHABLE __builtin_unreachable()
+    #endif
 #endif
 
 #define SSSENGINE_STATIC_ASSERT(expression) static_assert(expression);

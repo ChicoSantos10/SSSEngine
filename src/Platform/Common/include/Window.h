@@ -20,18 +20,17 @@
 #include "Attributes.h"
 #include "Platform.h"
 #include "Rect.h"
-#include "SwapChain.h"
+#include "SwapChainHandle.h"
 
 namespace SSSEngine
 {
     class Window final
     {
-    public:
+        public:
         using WindowSize = int;
         using WindowRect = SSSMath::Rect<WindowSize>;
 
-        Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
-               const Window *parent = nullptr);
+        Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title, const Window *parent = nullptr);
         ~Window();
         Window(const Window &other) = delete;
         Window(Window &&other) = delete;
@@ -61,8 +60,8 @@ namespace SSSEngine
          *  - Add a method to minimize the window
          */
 
-    private:
+        private:
         WindowHandle m_handle;
-        SSSRenderer::SwapChain m_swapChain{};
+        SSSRenderer::SwapChainHandle m_swapChain{};
     };
 } // namespace SSSEngine

@@ -15,12 +15,22 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "HelperMacros.h"
+#include "Types.h"
 
-namespace SSSRenderer
+namespace SSSEngine
 {
-    struct SwapChain
+    constexpr int Microseconds = static_cast<int>(1e6);
+    constexpr int Miliseconds = static_cast<int>(1e3);
+
+    struct Timestamp
     {
-        int handle;
+        u64 time;
     };
-}
+
+    SSSENGINE_GLOBAL Timestamp operator+(Timestamp lhs, Timestamp rhs) { return {lhs.time + rhs.time}; }
+    SSSENGINE_GLOBAL Timestamp operator-(Timestamp lhs, Timestamp rhs) { return {lhs.time - rhs.time}; }
+
+    Timestamp GetCurrentTime();
+    u64 ToMicroSeconds(Timestamp timestamp);
+} // namespace SSSEngine

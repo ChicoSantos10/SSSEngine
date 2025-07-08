@@ -44,6 +44,13 @@ elseif (MINGW)
     endif ()
 endif ()
 
+# TODO: What are the common include folders? Can we use the target_include_directories but using dependencies to include
+# everything necessary?
+include_directories(BEFORE src/Common/include src/Math/include)
+
+include(CTest)
+add_subdirectory(test)
+
 add_subdirectory(src)
 
 

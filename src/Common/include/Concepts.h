@@ -20,6 +20,7 @@
 #include <type_traits>
 #include <concepts>
 
+// TODO: Rewrite the std library functions
 namespace SSSEngine
 {
     template<typename T>
@@ -36,19 +37,37 @@ namespace SSSEngine
 
     template<typename T>
     concept Arithmetic = requires(T t) {
-        { t + t } -> std::convertible_to<T>;
-        { t - t } -> std::convertible_to<T>;
-        { t *t } -> std::convertible_to<T>;
-        { t / t } -> std::convertible_to<T>;
-        { t = t };
-        { t += t };
-        { t -= t };
+        {
+            t + t
+        } -> std::convertible_to<T>;
+        {
+            t - t
+        } -> std::convertible_to<T>;
+        {
+            t *t
+        } -> std::convertible_to<T>;
+        {
+            t / t
+        } -> std::convertible_to<T>;
+        {
+            t = t
+        };
+        {
+            t += t
+        };
+        {
+            t -= t
+        };
     };
 
     template<typename T>
     concept Logical = requires(T t) {
-        { t &&t } -> std::convertible_to<bool>;
-        { t || t } -> std::convertible_to<bool>;
+        {
+            t &&t
+        } -> std::convertible_to<bool>;
+        {
+            t || t
+        } -> std::convertible_to<bool>;
     };
 
     template<typename T>
@@ -56,4 +75,24 @@ namespace SSSEngine
 
     template<typename T>
     concept Function = std::is_pointer_v<T> && std::is_function_v<typename std::remove_pointer_t<T>>;
+
+    template<typename T, template<typename...> typename V>
+    inline constexpr bool IsInstanceOfV = std::false_type{};
+
+    template<template<typename...> typename V, typename... Vs>
+    inline constexpr bool IsInstanceOfV<V<Vs...>, V> = std::true_type{};
+
+    template<typename T, typename V>
+    inline constexpr bool IsLikeV = std::is_same_v<T, V>;
+
+    struct _
+    {
+    };
+
+    template<typename T>
+    inline constexpr bool IsLikeV<T, _> = true;
+
+    template<template<typename...> typename T, typename... Ts, typename... Us>
+        requires(sizeof...(Ts) == sizeof...(Us))
+    inline constexpr bool IsLikeV<T<Ts...>, T<Us...>> = (IsLikeV<Ts, Us> && ...);
 } // namespace SSSEngine

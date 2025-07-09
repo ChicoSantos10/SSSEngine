@@ -35,34 +35,21 @@ namespace SSSMath
 
         T data[NumberElements()]{0};
 
-        T &operator[](MatrixSize row, MatrixSize col)
+        template<class Self>
+        auto &&operator[](this Self &&self, MatrixSize row, MatrixSize col)
         {
             SSSENGINE_ASSERT(row < R);
             SSSENGINE_ASSERT(col < C);
 
-            return data[row * C + col];
+            return std::forward<Self>(self).data[row * C + col];
         }
 
-        const T &operator[](MatrixSize row, MatrixSize col) const
-        {
-            SSSENGINE_ASSERT(row < R);
-            SSSENGINE_ASSERT(col < C);
-
-            return data[row * C + col];
-        }
-
-        T &operator[](MatrixSize index)
+        template<class Self>
+        auto &&operator[](this Self &&self, MatrixSize index)
         {
             SSSENGINE_ASSERT(index < NumberElements());
 
-            return data[index];
-        }
-
-        const T &operator[](MatrixSize index) const
-        {
-            SSSENGINE_ASSERT(index < NumberElements());
-
-            return data[index];
+            return std::forward<Self>(self).data[index];
         }
     };
 

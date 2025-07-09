@@ -31,4 +31,16 @@ namespace SSSTest
 
         SSS_EXPECT_EQ(result, expected);
     }
+
+    SSS_TEST(MatrixSubscriptOperator)
+    {
+        Mat4x4f m{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
+        float f = m[2];
+        float f1 = m[0, 3];
+        float f2 = m[3, 2];
+
+        SSS_EXPECT_EQ(f, 3);
+        SSS_EXPECT_EQ(f1, 4);
+        SSS_EXPECT_EQ(f2, 5);
+    }
 } // namespace SSSTest

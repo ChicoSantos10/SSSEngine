@@ -70,7 +70,7 @@ namespace SSSMath
 
     template<MatrixType T, MatrixType V>
         requires(std::same_as<T, V>) && (T::Columns() == V::Rows())
-    SSSENGINE_GLOBAL auto operator*(const T &lhs, const V &rhs)
+    SSSENGINE_GLOBAL constexpr auto operator*(const T &lhs, const V &rhs)
     {
         using Type = typename T::Type;
         constexpr MatrixSize RowsLhs = T::Rows();

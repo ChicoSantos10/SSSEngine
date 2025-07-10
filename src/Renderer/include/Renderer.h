@@ -26,12 +26,14 @@ namespace SSSRenderer
     using Terminate_t = void (*)();
     using LoadAssetsTest_t = void (*)();
     using ResizeSwapChain_t = void (*)(const SSSEngine::Window &);
+    using BeginFrame_t = void (*)();
 
-    inline CreateSwapChain_t CreateSwapChain;
-    inline Render_t Render;
-    inline Terminate_t Terminate;
-    inline LoadAssetsTest_t LoadAssetsTest;
-    inline ResizeSwapChain_t ResizeSwapChain;
+    SSSENGINE_GLOBAL CreateSwapChain_t CreateSwapChain;
+    SSSENGINE_GLOBAL Render_t Render;
+    SSSENGINE_GLOBAL Terminate_t Terminate;
+    SSSENGINE_GLOBAL LoadAssetsTest_t LoadAssetsTest;
+    SSSENGINE_GLOBAL ResizeSwapChain_t ResizeSwapChain;
+    SSSENGINE_GLOBAL BeginFrame_t BeginFrame;
 
     void LoadDirectx();
     void Unload();

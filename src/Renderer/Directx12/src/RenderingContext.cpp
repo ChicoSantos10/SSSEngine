@@ -225,8 +225,6 @@ void RenderingContext::Render(const ComPtr<ID3D12PipelineState> &pipelineState,
         const auto backBufferIndex = swapChain->GetCurrentBackBufferIndex();
         const auto commandAllocator = commandAllocators[backBufferIndex];
         const auto backBuffer = backBuffers[backBufferIndex];
-        SSSENGINE_THROW_IF_FAILED(commandAllocator->Reset());
-        SSSENGINE_THROW_IF_FAILED(commandList->Reset(commandAllocator.Get(), pipelineState.Get()));
 
         commandList->SetPipelineState(pipelineState.Get());
         commandList->SetGraphicsRootSignature(rootSignature.Get());
@@ -300,6 +298,15 @@ void RenderingContext::ResizeSwapChain(u32 width, u32 height)
     // TODO: Should this be it's own function? Since we usually call this 2 functions together
     CreateDepthStencilBuffer(width, height);
     CreateRtv();
+}
+
+void RenderingContext::BeginFrame()
+{
+    const auto backBufferIndex = swapChain->GetCurrentBackBufferIndex();
+    const auto commandAllocator = commandAllocators[backBufferIndex];
+    const auto backBuffer = backBuffers[backBufferIndex];
+    SSSENGINE_THROW_IF_FAILED(commandAllocator->Reset());
+    SSSENGINE_THROW_IF_FAILED(commandList->Reset(commandAllocator.Get(), nullptr));
 }
 
 RenderingContext::~RenderingContext()

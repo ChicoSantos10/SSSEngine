@@ -146,9 +146,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     // GetWindowRect(hwnd, &SSSEngineRenderer::DirectX::windowRect);
     // SSSEngineRenderer::DirectX::InitializeDirectx12(hwnd);
     SSSRenderer::LoadDirectx();
-    SSSRenderer::LoadAssetsTest();
-
     SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, SSSEngine::MainWindowName);
+    // SSSRenderer::LoadAssetsTest();
 
     // SSSEngineRenderer::Directx::SSSEngineRenderer renderer;
     // renderer.Initialize(hwnd);
@@ -306,6 +305,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     // ShowWindow(hwnd, nShowCmd);
     SSSEngine::Timestamp firstTimestamp = SSSEngine::GetCurrentTime();
     bool isRunning = true;
+    bool firstFrame = true;
     while(isRunning)
     {
         MSG msg = {};
@@ -331,13 +331,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
         // Render
         {
-            //			using namespace SSSEngineRenderer::Directx;
-            //			CommandQueue commandQueue =
-            // renderer.GetCommandQueue(); 			auto commandList =
-            // commandQueue.GetCommandList(); 			renderer.SetClearColor(1.0f, 0.2f, 0.5f,
-            // 0.5f, commandList.Get()); 			renderer.ExecuteCommandList(commandList);
-
+            SSSRenderer::BeginFrame();
+            if(firstFrame)
+                SSSRenderer::LoadAssetsTest();
             SSSRenderer::Render();
+            firstFrame = false;
         }
 
         SSSEngine::Timestamp lastTimestamp = SSSEngine::GetCurrentTime();

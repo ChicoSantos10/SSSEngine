@@ -20,19 +20,23 @@ Copyright (C) 2024  Francisco Santos
 #include <vector>
 
 #include <windows.h>
+#include "initguid.h"
+#include "d3d12.h"
+#include "d3dx12.h"
+#include "DirectXMath.h"
+#include "Factory.h"
+#include "Win32Utils.h"
+#include "dxcapi.h"
+#include "dxgi1_6.h"
+
+#include "Device.h"
+#include "RenderingContext.h"
+#include "Vertex.h"
+#include "GpuHeaps.h"
 #include "../../../Platform/Common/include/Window.h"
 #include "Attributes.h"
 #include "Constants.h"
 #include "Debug.h"
-#include "Device.h"
-#include "DirectXMath.h"
-#include "Factory.h"
-#include "Win32Utils.h"
-#include "d3d12.h"
-#include "d3dx12.h"
-#include "dxcapi.h"
-#include "dxgi1_6.h"
-#include "RenderingContext.h"
 
 // TODO: LOG function/Macro for HR results
 
@@ -50,6 +54,8 @@ namespace SSSRenderer::SSSDirectx12
         ComPtr<ID3D12PipelineState> PipelineState;
         ComPtr<ID3D12InfoQueue> InfoQueue;
 
+        ComPtr<ID3D12Resource> UploadBuffer; // This buffer needs to exist until its contents are copied to the
+                                             // vertex buffer
         ComPtr<ID3D12Resource> VertexBuffer;
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
 
@@ -283,10 +289,13 @@ namespace SSSRenderer::SSSDirectx12
             DebugCompilation(D3DCompileFromFile(
                 filePath, nullptr, nullptr, "fragment", "ps_5_0", compilerFlags, 0, &fragmentShader, &errorMsgs));
 #endif
+            constexpr u64 NormalOffset = sizeof(Vertex::Position);
+            constexpr u64 ColorOffset = NormalOffset + sizeof(Vertex::Normal);
 
             D3D12_INPUT_ELEMENT_DESC inputDesc[]{
                 {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-                {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+                {"NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, NormalOffset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+                {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, ColorOffset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
             };
 
             D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
@@ -335,6 +344,14 @@ namespace SSSRenderer::SSSDirectx12
         }
     }
 
+    SSSENGINE_DLL_EXPORT void BeginFrame()
+    {
+        for(auto &renderingContext: RenderingContexts)
+        {
+            renderingContext.BeginFrame();
+        }
+    }
+
     // TODO: Use the swap chain from window
     SSSENGINE_DLL_EXPORT void ResizeSwapChain(const SSSEngine::Window &window)
     {
@@ -359,32 +376,27 @@ namespace SSSRenderer::SSSDirectx12
     // TODO: Remove this eventually
     SSSENGINE_DLL_EXPORT void LoadAssetsTest()
     {
-        // Something
         // Vertex Buffer
         {
-            struct Vertex
-            {
-                DirectX::XMFLOAT3 position;
-                DirectX::XMFLOAT4 color;
-            };
-
-            constexpr Vertex Vertices[]{{.position = {0.0f, 0.5f, 0.0f}, .color = {1.0f, 0.0f, 0.0f, 1.0f}},
-                                        {.position = {0.25f, -0.5f, 0.0f}, .color = {0.0f, 1.0f, 0.0f, 1.0f}},
-                                        {.position = {-0.25f, -0.5f, 0.0f}, .color = {0.0f, 0.0f, 1.0f, 1.0f}}};
+            constexpr Vertex Vertices[]{{.Position = {0.0f, 0.5f, 0.0f}, .Color = {{1.0f, 0.0f, 0.0f}, 1.0f}},
+                                        {.Position = {0.25f, -0.5f, 0.0f}, .Color = {{0.0f, 1.0f, 0.0f}, 1.0f}},
+                                        {.Position = {-0.25f, -0.5f, 0.0f}, .Color = {{0.0f, 0.0f, 1.0f}, 1.0f}}};
 
             constexpr UINT VertexBufferSize = sizeof(Vertices);
-            const CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_UPLOAD);
-            const auto desc = CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize);
 
-            SSSENGINE_THROW_IF_FAILED(Device->CreateCommittedResource(
-                &heapProperties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&VertexBuffer)));
+            SSSENGINE_ASSERT(RenderingContexts.size() > 0);
+            SSSENGINE_ASSERT(RenderingContexts[0].commandList.Get());
 
-            UINT8 *begin = nullptr;
-            const CD3DX12_RANGE readRange(0, 0);
-            SSSENGINE_THROW_IF_FAILED(VertexBuffer->Map(0, &readRange, reinterpret_cast<void **>(&begin)));
-            memcpy(begin, Vertices, VertexBufferSize);
-            VertexBuffer->Unmap(0, nullptr);
+            VertexBuffer =
+                CreateDefaultBuffer(RenderingContexts[0].commandList.Get(), Vertices, VertexBufferSize, UploadBuffer);
 
+            // This was copying data directly into the vertex buffer
+            // UINT8 *begin = nullptr;
+            // const CD3DX12_RANGE readRange(0, 0);
+            // SSSENGINE_THROW_IF_FAILED(VertexBuffer->Map(0, &readRange, reinterpret_cast<void **>(&begin)));
+            // memcpy(begin, Vertices, VertexBufferSize);
+
+            // VertexBuffer->Unmap(0, nullptr);
             VertexBufferView.BufferLocation = VertexBuffer->GetGPUVirtualAddress();
             VertexBufferView.StrideInBytes = sizeof(Vertex);
             VertexBufferView.SizeInBytes = VertexBufferSize;

@@ -23,6 +23,7 @@ namespace SSSRenderer
     struct Vertex
     {
         SSSMath::Float3 Position{};
+        SSSMath::Float3 Normal{};
         ColorRGBA Color{};
         // INVESTIGATE: Should this always be here? Should we have more classes with different parameters as to save
         // memory?

@@ -45,6 +45,7 @@ namespace SSSRenderer
 
         SSSEngine::LoadFunction<Init_t>(Module, "Initialize")();
         LoadAssetsTest = SSSEngine::LoadFunction<LoadAssetsTest_t>(Module, "LoadAssetsTest");
+        BeginFrame = SSSEngine::LoadFunction<BeginFrame_t>(Module, "BeginFrame");
         CreateSwapChain = SSSEngine::LoadFunction<CreateSwapChain_t>(Module, "CreateSwapChain");
         ResizeSwapChain = SSSEngine::LoadFunction<ResizeSwapChain_t>(Module, "ResizeSwapChain");
         Render = SSSEngine::LoadFunction<Render_t>(Module, "Render");

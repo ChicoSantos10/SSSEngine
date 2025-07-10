@@ -56,6 +56,7 @@ namespace SSSRenderer::SSSDirectx12
         void WaitForFenceValue();
         void
         Render(const ComPtr<ID3D12PipelineState> &, const ComPtr<ID3D12RootSignature> &, const D3D12_VERTEX_BUFFER_VIEW &);
+        void BeginFrame();
 
         // Descriptors
         ComPtr<ID3D12DescriptorHeap> rtvDescriptorHeap;

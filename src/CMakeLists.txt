@@ -96,4 +96,4 @@ add_subdirectory(Platform)
 add_subdirectory(Renderer)
 add_subdirectory(Math)
 add_subdirectory(Common)
-
+add_subdirectory(Logging)

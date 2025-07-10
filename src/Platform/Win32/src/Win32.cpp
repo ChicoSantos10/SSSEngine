@@ -34,6 +34,7 @@ Copyright (C) 2024  Francisco Santos
 #include <dbghelp.h>
 #include <dia2.h>
 #include "Debug.h"
+#include "Logger.h"
 
 void InitConsole();
 void CloseConsole();
@@ -63,7 +64,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
     if(FAILED(hr))
     {
-        OutputDebugStringW(L"COM initialization failed");
+        // OutputDebugStringW(L"COM initialization failed");
+        SSSENGINE_LOG_ERROR("COM initialization failed");
         return -1;
     }
 
@@ -342,7 +344,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         u64 elapsedMicroseconds = SSSEngine::ToMicroSeconds(lastTimestamp - firstTimestamp);
         SSSENGINE_ASSERT(elapsedMicroseconds > 0);
         firstTimestamp = lastTimestamp;
-        std::cout << elapsedMicroseconds << " microseconds" << std::endl;
+        SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", elapsedMicroseconds);
     }
 
     /*{

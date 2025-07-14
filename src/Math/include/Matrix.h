@@ -28,15 +28,15 @@ namespace SSSMath
     template<SSSEngine::Number T, MatrixSize C, MatrixSize R>
     struct Matrix
     {
-        static consteval int Rows() { return R; }
-        static consteval int Columns() { return C; }
-        static consteval int NumberElements() { return R * C; }
+        static consteval MatrixSize Rows() { return R; }
+        static consteval MatrixSize Columns() { return C; }
+        static consteval MatrixSize NumberElements() { return R * C; }
         using Type = T;
 
         T data[NumberElements()]{0};
 
         template<class Self>
-        auto &&operator[](this Self &&self, MatrixSize row, MatrixSize col)
+        constexpr auto &&operator[](this Self &&self, MatrixSize row, MatrixSize col)
         {
             SSSENGINE_ASSERT(row < R);
             SSSENGINE_ASSERT(col < C);
@@ -45,7 +45,7 @@ namespace SSSMath
         }
 
         template<class Self>
-        auto &&operator[](this Self &&self, MatrixSize index)
+        constexpr auto &&operator[](this Self &&self, MatrixSize index)
         {
             SSSENGINE_ASSERT(index < NumberElements());
 
@@ -67,6 +67,9 @@ namespace SSSMath
 
     template<typename T>
     concept MatrixType = IsMatrix<T, Matrix>::value;
+
+    template<typename T>
+    concept SquareMatrix = requires { IsMatrix<T, Matrix>::value &&T::Rows() == T::Columns(); };
 
     template<MatrixType T, MatrixType V>
         requires(std::same_as<T, V>) && (T::Columns() == V::Rows())
@@ -117,4 +120,27 @@ namespace SSSMath
         return !(lhs == rhs);
     }
 
+    template<SquareMatrix M>
+    consteval M Identity()
+    {
+        constexpr MatrixSize Size = M::Rows();
+
+        M m;
+
+        for(int i = 0; i < Size; ++i)
+        {
+            for(int j = 0; j < Size; ++j)
+            {
+                if(i == j)
+                {
+                    m[i, j] = 1;
+                }
+                else
+                {
+                    m[i, j] = 0;
+                }
+            }
+        }
+        return m;
+    }
 } // namespace SSSMath

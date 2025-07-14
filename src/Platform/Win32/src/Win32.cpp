@@ -16,6 +16,8 @@ Copyright (C) 2024  Francisco Santos
 */
 
 #include <cstdio>
+#include <exception>
+#include <iostream>
 #include <ostream>
 #include <windows.h>
 #include <wrl/client.h>
@@ -35,6 +37,8 @@ Copyright (C) 2024  Francisco Santos
 #include <dia2.h>
 #include "Debug.h"
 #include "Logger.h"
+
+using std::exception;
 
 void InitConsole();
 void CloseConsole();
@@ -145,8 +149,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
     // GetWindowRect(hwnd, &SSSEngineRenderer::DirectX::windowRect);
     // SSSEngineRenderer::DirectX::InitializeDirectx12(hwnd);
-    SSSRenderer::LoadDirectx();
+    // TODO: Proper error and exception catching
+    try
+    {
+        SSSRenderer::LoadDirectx();
+    }
+    catch(exception &e)
+    {
+        std::cerr << e.what() << "\n";
+        SSSENGINE_DEBUG_BREAK;
+        return -1;
+    }
     SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, SSSEngine::MainWindowName);
+
     // SSSRenderer::LoadAssetsTest();
 
     // SSSEngineRenderer::Directx::SSSEngineRenderer renderer;
@@ -331,11 +346,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
         // Render
         {
-            SSSRenderer::BeginFrame();
-            if(firstFrame)
-                SSSRenderer::LoadAssetsTest();
-            SSSRenderer::Render();
-            firstFrame = false;
+            try
+            {
+                SSSRenderer::BeginFrame();
+                if(firstFrame)
+                    SSSRenderer::LoadAssetsTest();
+                SSSRenderer::Render();
+                firstFrame = false;
+            }
+            catch(exception &e)
+            {
+                std::cerr << e.what() << "\n";
+                SSSENGINE_DEBUG_BREAK;
+                break;
+            }
         }
 
         SSSEngine::Timestamp lastTimestamp = SSSEngine::GetCurrentTime();

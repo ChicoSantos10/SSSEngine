@@ -17,10 +17,16 @@ Copyright (C) 2024  Francisco Santos
 
 // TODO: Remove std library
 #include <iostream>
+#include <memory>
 #include <vector>
 
-#include <windows.h>
 #include "initguid.h"
+#include "d3dx12_core.h"
+#include <windows.h>
+#include "Types.h"
+#include "d3dcommon.h"
+#include "d3dx12_root_signature.h"
+#include "dxgiformat.h"
 #include "d3d12.h"
 #include "d3dx12.h"
 #include "DirectXMath.h"
@@ -32,11 +38,12 @@ Copyright (C) 2024  Francisco Santos
 #include "Device.h"
 #include "RenderingContext.h"
 #include "Vertex.h"
-#include "GpuHeaps.h"
+#include "DefaultBuffer.h"
 #include "../../../Platform/Common/include/Window.h"
 #include "Attributes.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "UploadBuffer.h"
 
 // TODO: LOG function/Macro for HR results
 
@@ -54,10 +61,16 @@ namespace SSSRenderer::SSSDirectx12
         ComPtr<ID3D12PipelineState> PipelineState;
         ComPtr<ID3D12InfoQueue> InfoQueue;
 
-        ComPtr<ID3D12Resource> UploadBuffer; // This buffer needs to exist until its contents are copied to the
-                                             // vertex buffer
+        ComPtr<ID3D12Resource> IntermediateBuffer; // NOTE: This buffer needs to exist until its contents are copied to
+                                                   // the vertex buffer
         ComPtr<ID3D12Resource> VertexBuffer;
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
+        ComPtr<ID3D12Resource> IndexBuffer;
+        D3D12_INDEX_BUFFER_VIEW IndexBufferView;
+
+        // Constant buffer
+        std::unique_ptr<UploadBuffer<DirectX::XMFLOAT4X4, true>> ObjectMatrixBuffer;
+        ComPtr<ID3D12DescriptorHeap> ObjectMatrixBufferDescriptor;
 
         // AA
         UINT MsaaMaxQualityLevelsSupported = 0;
@@ -93,7 +106,15 @@ namespace SSSRenderer::SSSDirectx12
             ComPtr<ID3D12Debug> debugInterface;
             if(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugInterface))))
             {
+                SSSENGINE_LOG_INFO("Enabling Debug Interface");
                 debugInterface->EnableDebugLayer();
+            }
+
+            ComPtr<ID3D12Debug1> debug1;
+            if(SUCCEEDED(debugInterface.As(&debug1)))
+            {
+                SSSENGINE_LOG_INFO("Enabling Debug Interface 1");
+                debug1->SetEnableGPUBasedValidation(true);
             }
         }
 #endif
@@ -167,20 +188,43 @@ namespace SSSRenderer::SSSDirectx12
                 D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
                 D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
-            CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-            rootParameters[0].InitAsConstants(
-                static_cast<UINT>(sizeof(DirectX::XMMATRIX) * 0.25f), 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+            CD3DX12_ROOT_PARAMETER rootParameters[1];
+            // rootParameters[0].InitAsConstants(
+            //     static_cast<UINT>(sizeof(DirectX::XMMATRIX) * 0.25f), 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
-            CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig;
-            rootSig.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, RootSignatureFlags);
+            CD3DX12_DESCRIPTOR_RANGE cbvTable;
+            cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+
+            rootParameters[0].InitAsDescriptorTable(1, &cbvTable);
+
+            CD3DX12_ROOT_SIGNATURE_DESC rootSig(1, rootParameters, 0, nullptr, RootSignatureFlags);
 
             ComPtr<ID3DBlob> signature;
             ComPtr<ID3DBlob> error;
 
-            SSSENGINE_THROW_IF_FAILED(
-                D3DX12SerializeVersionedRootSignature(&rootSig, featureData.HighestVersion, &signature, &error));
+            // TODO: Use error and figure out why the version needs to be 1 here
+            SSSENGINE_THROW_IF_FAILED(D3D12SerializeRootSignature(&rootSig, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
             SSSENGINE_THROW_IF_FAILED(Device->CreateRootSignature(
                 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&RootSignature)));
+        }
+
+        // Anti Aliasing Support
+        // TODO: Check all supported options
+        // TODO: Implement Antialiasing in the render pipeline
+        {
+            // 4x MSAA
+            D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS qualityLevels{
+                .Format = RenderingContext::BackBufferFormat,
+                .SampleCount = 4,
+                .Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
+                .NumQualityLevels = 0,
+            };
+
+            SSSENGINE_THROW_IF_FAILED(Device->CheckFeatureSupport(
+                D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &qualityLevels, sizeof(qualityLevels)));
+
+            MsaaMaxQualityLevelsSupported = qualityLevels.NumQualityLevels;
+            SSSENGINE_ASSERT(MsaaMaxQualityLevelsSupported > 0);
         }
 
         // PSO
@@ -298,7 +342,9 @@ namespace SSSRenderer::SSSDirectx12
                 {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, ColorOffset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
             };
 
+            // TODO: MSAA 4x
             D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+            ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
             psoDesc.InputLayout = {inputDesc, _countof(inputDesc)};
             psoDesc.pRootSignature = RootSignature.Get();
             psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
@@ -312,27 +358,32 @@ namespace SSSRenderer::SSSDirectx12
             psoDesc.NumRenderTargets = 1;
             psoDesc.RTVFormats[0] = RenderingContext::BackBufferFormat;
             psoDesc.SampleDesc.Count = 1;
+            psoDesc.SampleDesc.Quality = 0;
+            psoDesc.DSVFormat = RenderingContext::DepthStencilFormat;
 
             SSSENGINE_THROW_IF_FAILED(Device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&PipelineState)));
         }
 
-        // Anti Aliasing Support
-        // TODO: Check all supported options
-        // TODO: Implement Antialiasing in the render pipeline
+        // TODO: Remove this
         {
-            // 4x MSAA
-            D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS qualityLevels{
-                .Format = RenderingContext::BackBufferFormat,
-                .SampleCount = 4,
-                .Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
-                .NumQualityLevels = 0,
-            };
+            ObjectMatrixBuffer = std::make_unique<UploadBuffer<DirectX::XMFLOAT4X4, true>>(1);
 
-            SSSENGINE_THROW_IF_FAILED(Device->CheckFeatureSupport(
-                D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &qualityLevels, sizeof(qualityLevels)));
+            D3D12_DESCRIPTOR_HEAP_DESC cbvHeadDesc;
+            cbvHeadDesc.NumDescriptors = 1;
+            cbvHeadDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+            cbvHeadDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+            cbvHeadDesc.NodeMask = 0;
+            Device->CreateDescriptorHeap(&cbvHeadDesc, IID_PPV_ARGS(&ObjectMatrixBufferDescriptor));
 
-            MsaaMaxQualityLevelsSupported = qualityLevels.NumQualityLevels;
-            SSSENGINE_ASSERT(MsaaMaxQualityLevelsSupported > 0);
+            u32 objByteSize = UploadBuffer<DirectX::XMFLOAT4X4, true>::Size;
+
+            D3D12_GPU_VIRTUAL_ADDRESS cbAddress = ObjectMatrixBuffer->GetBufferResource()->GetGPUVirtualAddress();
+
+            D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+            cbvDesc.BufferLocation = cbAddress;
+            cbvDesc.SizeInBytes = objByteSize;
+
+            Device->CreateConstantBufferView(&cbvDesc, ObjectMatrixBufferDescriptor->GetCPUDescriptorHandleForHeapStart());
         }
     }
 
@@ -340,7 +391,25 @@ namespace SSSRenderer::SSSDirectx12
     {
         for(auto &renderingContext: RenderingContexts)
         {
-            renderingContext.Render(PipelineState, RootSignature, VertexBufferView);
+            using namespace DirectX;
+
+            XMVECTOR pos = XMVectorSet(0, 0, -10, 1);
+            XMVECTOR target = XMVectorZero();
+            XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+            XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+
+            XMMATRIX world = XMMatrixIdentity();
+            XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * XM_PI, 1920.0f / 1080, 1, 1000);
+
+            XMMATRIX worldViewProj = world * view * proj;
+
+            XMFLOAT4X4 objectWVP{};
+            XMStoreFloat4x4(&objectWVP, XMMatrixTranspose(worldViewProj));
+
+            ObjectMatrixBuffer->CopyData(0, objectWVP);
+
+            renderingContext.Render(
+                PipelineState, RootSignature, VertexBufferView, IndexBufferView, ObjectMatrixBufferDescriptor);
         }
     }
 
@@ -384,11 +453,16 @@ namespace SSSRenderer::SSSDirectx12
 
             constexpr UINT VertexBufferSize = sizeof(Vertices);
 
+            constexpr u16 Indices[]{0, 1, 2};
+            constexpr UINT IndexBufferSize = sizeof(Indices);
+
             SSSENGINE_ASSERT(RenderingContexts.size() > 0);
             SSSENGINE_ASSERT(RenderingContexts[0].commandList.Get());
 
-            VertexBuffer =
-                CreateDefaultBuffer(RenderingContexts[0].commandList.Get(), Vertices, VertexBufferSize, UploadBuffer);
+            auto cmdList = RenderingContexts[0].commandList.Get();
+            VertexBuffer = CreateDefaultBuffer(cmdList, Vertices, VertexBufferSize, IntermediateBuffer);
+
+            IndexBuffer = CreateDefaultBuffer(cmdList, Indices, IndexBufferSize, IntermediateBuffer);
 
             // This was copying data directly into the vertex buffer
             // UINT8 *begin = nullptr;
@@ -400,6 +474,10 @@ namespace SSSRenderer::SSSDirectx12
             VertexBufferView.BufferLocation = VertexBuffer->GetGPUVirtualAddress();
             VertexBufferView.StrideInBytes = sizeof(Vertex);
             VertexBufferView.SizeInBytes = VertexBufferSize;
+
+            IndexBufferView.BufferLocation = IndexBuffer->GetGPUVirtualAddress();
+            IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+            IndexBufferView.SizeInBytes = IndexBufferSize;
         }
 
         // NOTE: No need to flush since this is loaded before we even commit drawing commands

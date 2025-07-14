@@ -22,6 +22,7 @@
 #include "Debug.h"
 // #include "directx/d3d12.h"
 
+// INVESTIGATE: If we just assert we lose the error message. Figure out a way to keep it
 #ifdef SSSENGINE_DEBUG
     #define SSSENGINE_THROW_IF_FAILED(hr) SSSENGINE_ASSERT(SUCCEEDED(hr))
 #else

@@ -54,8 +54,11 @@ namespace SSSRenderer::SSSDirectx12
         void Flush();
         void Signal();
         void WaitForFenceValue();
-        void
-        Render(const ComPtr<ID3D12PipelineState> &, const ComPtr<ID3D12RootSignature> &, const D3D12_VERTEX_BUFFER_VIEW &);
+        void Render(const ComPtr<ID3D12PipelineState> &,
+                    const ComPtr<ID3D12RootSignature> &,
+                    const D3D12_VERTEX_BUFFER_VIEW &,
+                    const D3D12_INDEX_BUFFER_VIEW &,
+                    const ComPtr<ID3D12DescriptorHeap> &);
         void BeginFrame();
 
         // Descriptors
@@ -87,7 +90,7 @@ namespace SSSRenderer::SSSDirectx12
         // Constants
         // INVESTIGATE: Where should this be. Are they useful as constants
         static constexpr DXGI_FORMAT BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-        static constexpr DXGI_FORMAT ClearValueFormat = DXGI_FORMAT_D32_FLOAT;
+        static constexpr DXGI_FORMAT DepthStencilFormat = DXGI_FORMAT_D32_FLOAT;
     };
 
     // TODO: This should be in a file of it's own since it's just a helper function

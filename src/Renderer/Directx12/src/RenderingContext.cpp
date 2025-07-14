@@ -190,14 +190,13 @@ void RenderingContext::CreateDepthStencilBuffer(const uint32_t width, const uint
     Flush();
 
     D3D12_CLEAR_VALUE clearValue;
-    clearValue.Format = ClearValueFormat;
+    clearValue.Format = DepthStencilFormat;
     clearValue.DepthStencil = {1.0f, 0};
 
-    // INVESTIGATE: Should we take into consideration the sample count even if we don't use it in the swap
-    // chain?
+    // TODO: This function should know the current sample count and quality
     const CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
-    const auto resourceDesc =
-        CD3DX12_RESOURCE_DESC::Tex2D(ClearValueFormat, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+    const auto resourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+        DepthStencilFormat, width, height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
     SSSENGINE_THROW_IF_FAILED(Device->CreateCommittedResource(&heapProperties,
                                                               D3D12_HEAP_FLAG_NONE,
@@ -207,7 +206,7 @@ void RenderingContext::CreateDepthStencilBuffer(const uint32_t width, const uint
                                                               IID_PPV_ARGS(depthStencilBuffer.ReleaseAndGetAddressOf())));
 
     D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc;
-    depthStencilDesc.Format = ClearValueFormat;
+    depthStencilDesc.Format = DepthStencilFormat;
     depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
     depthStencilDesc.Texture2D.MipSlice = 0;
     depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
@@ -218,7 +217,9 @@ void RenderingContext::CreateDepthStencilBuffer(const uint32_t width, const uint
 
 void RenderingContext::Render(const ComPtr<ID3D12PipelineState> &pipelineState,
                               const ComPtr<ID3D12RootSignature> &rootSignature,
-                              const D3D12_VERTEX_BUFFER_VIEW &vertexBufferView)
+                              const D3D12_VERTEX_BUFFER_VIEW &vertexBufferView,
+                              const D3D12_INDEX_BUFFER_VIEW &indexBufferView,
+                              const ComPtr<ID3D12DescriptorHeap> &descriptorHeap)
 {
     // Populate command list
     {
@@ -228,6 +229,13 @@ void RenderingContext::Render(const ComPtr<ID3D12PipelineState> &pipelineState,
 
         commandList->SetPipelineState(pipelineState.Get());
         commandList->SetGraphicsRootSignature(rootSignature.Get());
+
+        ID3D12DescriptorHeap *descriptorHeaps[] = {descriptorHeap.Get()};
+        commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+        commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+        CD3DX12_GPU_DESCRIPTOR_HANDLE cbv(descriptorHeap->GetGPUDescriptorHandleForHeapStart());
+        commandList->SetGraphicsRootDescriptorTable(0, cbv);
+
         commandList->RSSetViewports(1, &viewport);
         commandList->RSSetScissorRects(1, &scissorRect);
 
@@ -250,7 +258,8 @@ void RenderingContext::Render(const ComPtr<ID3D12PipelineState> &pipelineState,
                                            nullptr);
         commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
-        commandList->DrawInstanced(3, 1, 0, 0);
+        commandList->IASetIndexBuffer(&indexBufferView);
+        commandList->DrawIndexedInstanced(3, 1, 0, 0, 0);
 
         barrier = CD3DX12_RESOURCE_BARRIER::Transition(
             backBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

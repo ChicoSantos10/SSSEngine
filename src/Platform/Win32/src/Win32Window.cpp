@@ -12,7 +12,6 @@ namespace SSSEngine
 {
     // INVESTIGATE: Is this necessary?? It currently does not do anything useful
     //  A better alternative would be to have a method to update the window and poll there
-    // ReSharper disable once CppParameterMayBeConst
     LRESULT
     WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass, const DWORD_PTR dwRefData)
     {

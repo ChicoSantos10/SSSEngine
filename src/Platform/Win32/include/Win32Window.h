@@ -8,6 +8,7 @@
 
 // TODO: Remove iostream
 #include <iostream>
+#include "HelperMacros.h"
 #include "Renderer.h"
 #include "Window.h"
 
@@ -15,7 +16,7 @@ namespace SSSWin32
 {
     SSSENGINE_GLOBAL WNDCLASSEXW WindowClass;
 
-    inline LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
+    SSSENGINE_GLOBAL LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
     {
         switch(msg)
         {

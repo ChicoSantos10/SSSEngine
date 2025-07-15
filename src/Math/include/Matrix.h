@@ -121,7 +121,7 @@ namespace SSSMath
     }
 
     template<SquareMatrix M>
-    consteval M Identity()
+    consteval M IdentityMatrix()
     {
         constexpr MatrixSize Size = M::Rows();
 

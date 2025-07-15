@@ -47,24 +47,24 @@ namespace SSSTest
     SSS_TEST(MatrixIdentity)
     {
         {
-            constexpr auto IdentityMatrix = Identity<Mat4x4f>();
+            constexpr auto Identiy4x4 = IdentityMatrix<Mat4x4f>();
             constexpr Mat4x4f Expected = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 
-            SSS_EXPECT_EQ(IdentityMatrix, Expected);
+            SSS_EXPECT_EQ(Identiy4x4, Expected);
         }
         {
             using Mat3x3f = Matrix<float, 3, 3>;
-            constexpr auto IdentityMatrix = Identity<Mat3x3f>();
+            constexpr auto Identity3x3 = IdentityMatrix<Mat3x3f>();
             constexpr Mat3x3f Expected = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
-            SSS_EXPECT_EQ(IdentityMatrix, Expected);
+            SSS_EXPECT_EQ(Identity3x3, Expected);
         }
         {
             using Mat2x2f = Matrix<float, 2, 2>;
-            constexpr auto IdentityMatrix = Identity<Mat2x2f>();
+            constexpr auto Identity2x2 = IdentityMatrix<Mat2x2f>();
             constexpr Mat2x2f Expected = {1, 0, 0, 1};
 
-            SSS_EXPECT_EQ(IdentityMatrix, Expected);
+            SSS_EXPECT_EQ(Identity2x2, Expected);
         }
     }
 } // namespace SSSTest

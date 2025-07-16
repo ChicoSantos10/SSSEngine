@@ -155,7 +155,7 @@ namespace SSSEngine
     {
         const LONG styles = GetWindowLong(static_cast<HWND>(m_handle), GWL_STYLE);
 
-        const bool isBorderless = !HasBits(styles, WS_OVERLAPPEDWINDOW);
+        const bool isBorderless = !HasBitSet(styles, WS_OVERLAPPEDWINDOW);
         SetBorderlessFullscreen(!isBorderless);
     }
 } // namespace SSSEngine

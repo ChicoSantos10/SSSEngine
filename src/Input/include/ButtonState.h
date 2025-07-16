@@ -15,28 +15,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include "Types.h"
 
-#include "Attributes.h"
-#include "Concepts.h"
-
-namespace SSSEngine
+namespace SSSEngine::SSSInput
 {
-    template<Integral T, Integral... Bits>
-        requires EqualTypes<T, Bits...>
-    SSSENGINE_FORCE_INLINE constexpr auto Join(T first, Bits... bits) -> T
+    enum class ButtonState : u8
     {
-        return first | (bits | ...);
-    }
-
-    SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(Integral auto first, Integral auto second)
-    {
-        return first & second;
-    }
-
-    template<Integral T>
-    SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, T second)
-    {
-        return first & ~second;
-    }
-} // namespace SSSEngine
+        Up,
+        Down,
+        Held,
+        Released
+    };
+}

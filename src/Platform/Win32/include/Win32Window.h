@@ -8,13 +8,19 @@
 
 // TODO: Remove iostream
 #include <iostream>
+#include "Bits.h"
 #include "HelperMacros.h"
 #include "Renderer.h"
 #include "Window.h"
 
+#include "Input.h"
+
 namespace SSSWin32
 {
     SSSENGINE_GLOBAL WNDCLASSEXW WindowClass;
+
+    // TODO: Move this to its own file responsible for win32 input
+    SSSENGINE_GLOBAL SSSEngine::SSSInput::KeyboardCodes MapInput(LPARAM windows);
 
     SSSENGINE_GLOBAL LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
     {
@@ -35,6 +41,8 @@ namespace SSSWin32
             {
                 return 0;
             }
+            // TODO: Allow the option to use raw input
+            //
             // Mouse
             case WM_LBUTTONDOWN:
             {
@@ -47,28 +55,20 @@ namespace SSSWin32
             case WM_SYSKEYDOWN:
             case WM_SYSKEYUP:
             {
-                switch(wParam)
+                bool wasDown = SSSEngine::HasBitSet(lParam, 1 << 30);
+                bool isDown = !SSSEngine::HasBitSet(lParam, 1 << 31);
+
+                // NOTE: Prevents windows repeat messages
+                if(wasDown == isDown)
                 {
-                    case VK_ESCAPE:
-                    {
-                        PostQuitMessage(0);
-                        return 0;
-                    }
-                    case VK_SPACE:
-                    {
-                        std::cout << "Spacebar pressed" << std::endl;
-                        return 0;
-                    }
-                    case VK_UP:
-                    {
-                        std::cout << "Up arrow pressed" << std::endl;
-                        return 0;
-                    }
-                    default:
-                    {
-                        break;
-                    }
+                    return 0;
                 }
+                auto keyboard = SSSEngine::SSSInput::KeyboardButtons;
+                using Code = SSSEngine::SSSInput::KeyboardCodes;
+                using State = SSSEngine::SSSInput::ButtonState;
+                State currentState = isDown ? State::Down : State::Released;
+                Code code = MapInput(lParam);
+                keyboard[code] = currentState;
             }
             case WM_SYSCHAR: // Alt + Enter
             {
@@ -86,5 +86,28 @@ namespace SSSWin32
         }
 
         return DefWindowProcW(hwnd, msg, wParam, lParam);
+    }
+
+    SSSEngine::SSSInput::KeyboardCodes MapInput(LPARAM windows)
+    {
+        using Code = SSSEngine::SSSInput::KeyboardCodes;
+        switch(windows)
+        {
+            case VK_ESCAPE:
+                return Code::Escape;
+            case VK_SPACE:
+                return Code::Space;
+            case VK_UP:
+                return Code::ArrowUp;
+            case VK_DOWN:
+                return Code::ArrowDown;
+            case VK_LEFT:
+                return Code::ArrowLeft;
+            case VK_RIGHT:
+                return Code::ArrowRight;
+            default: // TODO: What should be the default? If we guarantee that it can never happen then we can do
+                     // unreachable code and allow optimizations from the compiler
+                return Code::Delete;
+        }
     }
 } // namespace SSSWin32

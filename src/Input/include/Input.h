@@ -15,28 +15,18 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#include <unordered_map>
 
-#include "Attributes.h"
-#include "Concepts.h"
+#include "HelperMacros.h"
+#include "Keycodes.h"
+#include "ButtonState.h"
+#include "Vector.h"
 
-namespace SSSEngine
+namespace SSSEngine::SSSInput
 {
-    template<Integral T, Integral... Bits>
-        requires EqualTypes<T, Bits...>
-    SSSENGINE_FORCE_INLINE constexpr auto Join(T first, Bits... bits) -> T
-    {
-        return first | (bits | ...);
-    }
-
-    SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(Integral auto first, Integral auto second)
-    {
-        return first & second;
-    }
-
-    template<Integral T>
-    SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, T second)
-    {
-        return first & ~second;
-    }
-} // namespace SSSEngine
+    // TODO: This is an initial input system and will be updated later
+    // It will need a way to figure each event even during each frame by buffering input and dispatching events
+    SSSENGINE_GLOBAL std::unordered_map<KeyboardCodes, ButtonState> KeyboardButtons;
+    SSSENGINE_GLOBAL std::unordered_map<MouseButton, ButtonState> MouseButtons;
+    SSSENGINE_GLOBAL SSSMath::Vector2<float> MouseDirection;
+} // namespace SSSEngine::SSSInput

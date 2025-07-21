@@ -15,19 +15,29 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "Types.h"
 #include "Vector.h"
-#include "ColorRGB.h"
 
-namespace SSSRenderer
+struct SubmeshData
 {
-    struct Vertex
-    {
-        SSSMath::Float3 Position{};
-        // SSSMath::Float3 Normal{};
-        ColorRGBA Color{};
-        // INVESTIGATE: Should this always be here? Should we have more classes with different parameters as to save
-        // memory?
-        // SSSMath::Float2 Uv0;
-        // SSSMath::Float2 Uv1;
-    };
-} // namespace SSSRenderer
+    u32 indexCount{0};
+    u32 startIndex{0};
+    u32 baseVertexLocation{0};
+
+    // TODO: Bounding box
+};
+
+struct MeshGeometry
+{
+    // TODO: This should not be void pointers but we need memory management before changing this
+    void *vertexBufferCpu = nullptr;
+    void *indexBufferCpu = nullptr;
+    void *vertexBufferGpu = nullptr;
+    void *indexBufferGpu = nullptr;
+    void *vertexBufferUploader = nullptr;
+    void *indexBufferUploader = nullptr;
+
+    u32 vertexByteStride{0}, vertexBufferByteSize{0};
+    // TODO: Index format / size (16, 32)
+    u32 indexBufferByteSize{0};
+};

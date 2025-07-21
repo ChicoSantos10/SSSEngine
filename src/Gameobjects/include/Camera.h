@@ -16,18 +16,11 @@
 */
 
 #include "Vector.h"
-#include "ColorRGB.h"
 
-namespace SSSRenderer
+struct Camera
 {
-    struct Vertex
-    {
-        SSSMath::Float3 Position{};
-        // SSSMath::Float3 Normal{};
-        ColorRGBA Color{};
-        // INVESTIGATE: Should this always be here? Should we have more classes with different parameters as to save
-        // memory?
-        // SSSMath::Float2 Uv0;
-        // SSSMath::Float2 Uv1;
-    };
-} // namespace SSSRenderer
+    // TODO: This will need Quaternion instead of rotation. Maybe have transform as well but camera probably wont need a
+    // scale
+    SSSMath::Float3 position;
+    SSSMath::Float3 rotation;
+};

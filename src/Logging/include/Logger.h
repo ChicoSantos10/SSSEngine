@@ -38,7 +38,7 @@ namespace SSSLogging
         return std::format(fmt, std::forward<Args>(args)...);
     }
 
-    void LogConsole(LogLevel level, const String &message)
+    SSSENGINE_GLOBAL void LogConsole(LogLevel level, const String &message)
     {
         switch(level)
         {

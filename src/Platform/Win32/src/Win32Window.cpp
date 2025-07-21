@@ -1,6 +1,19 @@
-//
-// Created by Francisco Santos on 13/07/2023.
-//
+/*  SSS Engine
+    Copyright (C) 2024  Francisco Santos
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
 #include "Win32Window.h"
 #include "../../Common/include/Window.h"
@@ -13,7 +26,8 @@ namespace SSSEngine
     // INVESTIGATE: Is this necessary?? It currently does not do anything useful
     //  A better alternative would be to have a method to update the window and poll there
     LRESULT
-    WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass, const DWORD_PTR dwRefData)
+    WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass,
+                    const DWORD_PTR dwRefData)
     {
         const auto *window = reinterpret_cast<Window *>(dwRefData); // NOLINT(*-no-int-to-ptr)
 
@@ -49,7 +63,8 @@ namespace SSSEngine
         return DefSubclassProc(hwnd, msg, wParam, lParam);
     }
 
-    Window::Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title, const Window *parent) :
+    Window::Window(WindowSize x, WindowSize y, WindowSize width, WindowSize height, const WindowTitle &title,
+                   const Window *parent) :
     m_handle{[x, y, width, height, &title, parent]()
              {
                  // TODO: SSSENGINE_ASSERT that class has been registered

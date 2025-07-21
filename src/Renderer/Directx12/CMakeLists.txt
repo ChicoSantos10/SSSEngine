@@ -39,6 +39,7 @@ target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Platf
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Platform/Common/include)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Renderer/Common/include)
 target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Renderer/Directx12/include)
+target_include_directories(Directx12 BEFORE PUBLIC ${CMAKE_SOURCE_DIR}/src/Logging/include)
 
 target_link_libraries(Directx12 PRIVATE DXGI.lib)
 target_link_libraries(Directx12 PRIVATE D3D12.lib)

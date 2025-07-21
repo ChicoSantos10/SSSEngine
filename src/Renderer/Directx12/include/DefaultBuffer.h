@@ -26,15 +26,14 @@
 #include "d3dx12_core.h"
 #include "d3dx12_resource_helpers.h"
 #include "wrl/client.h"
-#include "../../../src/Logging/include/Logger.h"
 
 namespace SSSRenderer::SSSDirectx12
 {
     template<typename T>
     using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-    ComPtr<ID3D12Resource>
-    CreateDefaultBuffer(ID3D12GraphicsCommandList *cmdList, const void *data, u64 byteSize, ComPtr<ID3D12Resource> &uploadBuffer)
+    ComPtr<ID3D12Resource> CreateDefaultBuffer(ID3D12GraphicsCommandList *cmdList, const void *data, u64 byteSize,
+                                               ComPtr<ID3D12Resource> &uploadBuffer)
     {
         SSSENGINE_ASSERT(cmdList != nullptr);
         SSSENGINE_ASSERT(data);

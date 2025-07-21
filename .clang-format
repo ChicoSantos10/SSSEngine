@@ -1,4 +1,5 @@
 # Generated with: https://zed0.co.uk/clang-format-configurator/
+# Check https://clang.llvm.org/docs/ClangFormatStyleOptions.html 
 ---
 AccessModifierOffset: '0'
 AlignAfterOpenBracket: Align
@@ -21,7 +22,8 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: 'false'
 AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'false'
-BinPackParameters: 'false'
+# BinPackLongBracedList: 'true'
+BinPackParameters: 'true'
 BreakAfterJavaFieldAnnotations: 'false'
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Allman

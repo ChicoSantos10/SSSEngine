@@ -16,34 +16,38 @@ Copyright (C) 2024  Francisco Santos
 */
 
 // TODO: Remove std library
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <vector>
 
+#include "HelperMacros.h"
 #include "initguid.h"
-#include "d3dx12_core.h"
-#include <windows.h>
-#include "Types.h"
-#include "d3dcommon.h"
-#include "d3dx12_root_signature.h"
-#include "dxgiformat.h"
-#include "d3d12.h"
-#include "d3dx12.h"
 #include "DirectXMath.h"
 #include "Factory.h"
+#include "Types.h"
 #include "Win32Utils.h"
+#include "d3d12.h"
+#include "d3dcommon.h"
+#include "d3dx12.h"
+#include "d3dx12_core.h"
+#include "d3dx12_root_signature.h"
 #include "dxcapi.h"
 #include "dxgi1_6.h"
+#include "dxgiformat.h"
+#include <windows.h>
 
-#include "Device.h"
-#include "RenderingContext.h"
-#include "Vertex.h"
-#include "DefaultBuffer.h"
 #include "../../../Platform/Common/include/Window.h"
 #include "Attributes.h"
 #include "Constants.h"
 #include "Debug.h"
+#include "DefaultBuffer.h"
+#include "Device.h"
+#include "RenderingContext.h"
 #include "UploadBuffer.h"
+#include "Vertex.h"
+
+#include "Logger.h"
 
 // TODO: LOG function/Macro for HR results
 
@@ -61,8 +65,8 @@ namespace SSSRenderer::SSSDirectx12
         ComPtr<ID3D12PipelineState> PipelineState;
         ComPtr<ID3D12InfoQueue> InfoQueue;
 
-        ComPtr<ID3D12Resource> IntermediateBuffer; // NOTE: This buffer needs to exist until its contents are copied to
-                                                   // the vertex buffer
+        ComPtr<ID3D12Resource> IntermediateBuffer; // NOTE: This buffer needs to exist until its contents
+                                                   // are copied to the vertex buffer
         ComPtr<ID3D12Resource> VertexBuffer;
         D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
         ComPtr<ID3D12Resource> IndexBuffer;
@@ -180,7 +184,8 @@ namespace SSSRenderer::SSSDirectx12
                 featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
             }
 
-            // Allow input layout and deny unnecessary access to certain pipeline stages.
+            // Allow input layout and deny unnecessary access to certain pipeline
+            // stages.
             constexpr D3D12_ROOT_SIGNATURE_FLAGS RootSignatureFlags =
                 D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
                 D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
@@ -190,7 +195,8 @@ namespace SSSRenderer::SSSDirectx12
 
             CD3DX12_ROOT_PARAMETER rootParameters[1];
             // rootParameters[0].InitAsConstants(
-            //     static_cast<UINT>(sizeof(DirectX::XMMATRIX) * 0.25f), 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+            //     static_cast<UINT>(sizeof(DirectX::XMMATRIX) * 0.25f), 0, 0,
+            //     D3D12_SHADER_VISIBILITY_VERTEX);
 
             CD3DX12_DESCRIPTOR_RANGE cbvTable;
             cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
@@ -334,12 +340,14 @@ namespace SSSRenderer::SSSDirectx12
                 filePath, nullptr, nullptr, "fragment", "ps_5_0", compilerFlags, 0, &fragmentShader, &errorMsgs));
 #endif
             constexpr u64 NormalOffset = sizeof(Vertex::Position);
-            constexpr u64 ColorOffset = NormalOffset + sizeof(Vertex::Normal);
+            // constexpr u64 ColorOffset = NormalOffset + sizeof(Vertex::Normal);
 
+            // TODO: Figure out how to modify this for each vertex description
             D3D12_INPUT_ELEMENT_DESC inputDesc[]{
                 {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-                {"NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, NormalOffset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-                {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, ColorOffset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+                // {"NORMAL", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, NormalOffset,
+                // D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+                {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, NormalOffset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
             };
 
             // TODO: MSAA 4x
@@ -393,13 +401,21 @@ namespace SSSRenderer::SSSDirectx12
         {
             using namespace DirectX;
 
-            XMVECTOR pos = XMVectorSet(0, 0, -10, 1);
+            SSSENGINE_FUNCTION_LOCAL float phi{0};
+            SSSENGINE_FUNCTION_LOCAL float theta{0.25f * XM_PI};
+            constexpr float Radius{10.f};
+
+            float x = Radius * sinf(phi) * cosf(theta);
+            float y = Radius * sinf(phi) * sinf(theta);
+            float z = Radius * cosf(phi);
+
+            XMVECTOR pos = XMVectorSet(x, y, z, 1);
             XMVECTOR target = XMVectorZero();
             XMVECTOR up = XMVectorSet(0, 1, 0, 0);
             XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 
             XMMATRIX world = XMMatrixIdentity();
-            XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * XM_PI, 1920.0f / 1080, 1, 1000);
+            XMMATRIX proj = XMLoadFloat4x4(&renderingContext.projectionMatrix);
 
             XMMATRIX worldViewProj = world * view * proj;
 
@@ -410,6 +426,9 @@ namespace SSSRenderer::SSSDirectx12
 
             renderingContext.Render(
                 PipelineState, RootSignature, VertexBufferView, IndexBufferView, ObjectMatrixBufferDescriptor);
+
+            phi += 0.005f;
+            // theta += 0.00005f;
         }
     }
 
@@ -447,13 +466,64 @@ namespace SSSRenderer::SSSDirectx12
     {
         // Vertex Buffer
         {
-            constexpr Vertex Vertices[]{{.Position = {0.0f, 0.5f, 0.0f}, .Color = {{1.0f, 0.0f, 0.0f}, 1.0f}},
-                                        {.Position = {0.25f, -0.5f, 0.0f}, .Color = {{0.0f, 1.0f, 0.0f}, 1.0f}},
-                                        {.Position = {-0.25f, -0.5f, 0.0f}, .Color = {{0.0f, 0.0f, 1.0f}, 1.0f}}};
+            constexpr ColorRGBA Color{{1, 1, 1}, 1};
+            constexpr Vertex Vertices[]{
+                // Front face
+                {.Position = {-0.5f, -0.5f, -0.5f}, .Color = Color},
+                {.Position = {-0.5f, 0.5f, -0.5f}, .Color = Color},
+                {.Position = {0.5f, 0.5f, -0.5f}, .Color = Color},
+                {.Position = {0.5f, -0.5f, -0.5f}, .Color = Color},
+                // Back face
+                {.Position = {-0.5f, -0.5f, 0.5f}, .Color = Color},
+                {.Position = {0.5f, -0.5f, 0.5f}, .Color = Color},
+                {.Position = {0.5f, 0.5f, 0.5f}, .Color = Color},
+                {.Position = {-0.5f, 0.5f, 0.5f}, .Color = Color},
+            };
 
             constexpr UINT VertexBufferSize = sizeof(Vertices);
 
-            constexpr u16 Indices[]{0, 1, 2};
+            constexpr u16 Indices[]{// Front face
+                                    0,
+                                    1,
+                                    2,
+                                    0,
+                                    2,
+                                    3,
+                                    // Right face
+                                    3,
+                                    2,
+                                    6,
+                                    6,
+                                    5,
+                                    3,
+                                    // Back face
+                                    4,
+                                    5,
+                                    6,
+                                    6,
+                                    7,
+                                    4,
+                                    // Left face
+                                    4,
+                                    7,
+                                    1,
+                                    1,
+                                    0,
+                                    4,
+                                    // Top face
+                                    1,
+                                    7,
+                                    6,
+                                    6,
+                                    2,
+                                    1,
+                                    // Bottom face
+                                    0,
+                                    3,
+                                    5,
+                                    5,
+                                    4,
+                                    0};
             constexpr UINT IndexBufferSize = sizeof(Indices);
 
             SSSENGINE_ASSERT(RenderingContexts.size() > 0);
@@ -467,8 +537,9 @@ namespace SSSRenderer::SSSDirectx12
             // This was copying data directly into the vertex buffer
             // UINT8 *begin = nullptr;
             // const CD3DX12_RANGE readRange(0, 0);
-            // SSSENGINE_THROW_IF_FAILED(VertexBuffer->Map(0, &readRange, reinterpret_cast<void **>(&begin)));
-            // memcpy(begin, Vertices, VertexBufferSize);
+            // SSSENGINE_THROW_IF_FAILED(VertexBuffer->Map(0, &readRange,
+            // reinterpret_cast<void **>(&begin))); memcpy(begin, Vertices,
+            // VertexBufferSize);
 
             // VertexBuffer->Unmap(0, nullptr);
             VertexBufferView.BufferLocation = VertexBuffer->GetGPUVirtualAddress();
@@ -480,15 +551,17 @@ namespace SSSRenderer::SSSDirectx12
             IndexBufferView.SizeInBytes = IndexBufferSize;
         }
 
-        // NOTE: No need to flush since this is loaded before we even commit drawing commands
-        //		In the future we need to do this when commiting resources to the gpu
+        // NOTE: No need to flush since this is loaded before we even commit drawing
+        // commands
+        //		In the future we need to do this when commiting resources to the
+        // gpu
         // Flush();
     }
 
     SSSENGINE_DLL_EXPORT void Terminate()
     {
-        // INVESTIGATE: For now it's being done in the destructor of renderingContext but where should flushing and
-        // CloseHandle be?
+        // INVESTIGATE: For now it's being done in the destructor of renderingContext
+        // but where should flushing and CloseHandle be?
 
         /*Flush();*/
         /*CloseHandle(fenceEvent);*/

@@ -344,6 +344,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         // Gamepad
         GamepadInput();
 
+        if(SSSEngine::SSSInput::KeyboardButtons[SSSEngine::SSSInput::KeyboardCodes::A] ==
+           SSSEngine::SSSInput::ButtonState::Down)
+        {
+        }
+
         // Render
         {
             try
@@ -366,7 +371,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         u64 elapsedMicroseconds = SSSEngine::ToMicroSeconds(lastTimestamp - firstTimestamp);
         SSSENGINE_ASSERT(elapsedMicroseconds > 0);
         firstTimestamp = lastTimestamp;
-        SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", elapsedMicroseconds);
+        // SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", elapsedMicroseconds);
     }
 
     /*{

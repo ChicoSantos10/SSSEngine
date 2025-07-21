@@ -24,6 +24,8 @@
 #include "d3dx12_root_signature.h"
 #include "Win32Utils.h"
 
+#include "Logger.h"
+
 using namespace SSSRenderer::SSSDirectx12;
 
 RenderingContext::RenderingContext(const SSSEngine::Window &window)
@@ -94,7 +96,7 @@ RenderingContext::RenderingContext(const SSSEngine::Window &window)
     // Swap Chain
     {
         // INVESTIGATE: Do we need to reset?
-        /*swapChain.Reset();*/
+        // swapChain.Reset();
 
         SSSENGINE_THROW_IF_FAILED(
             Factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing)));
@@ -130,9 +132,8 @@ RenderingContext::RenderingContext(const SSSEngine::Window &window)
         SSSENGINE_ASSERT(success); // INVESTIGATE: Should we throw if failed in release versions?
         const LONG width = rect.right - rect.left;
         const LONG height = rect.bottom - rect.top;
-        // INVESTIGATE: Should the viewport use 0,0 or the window position?
-        viewport.TopLeftX = static_cast<FLOAT>(rect.left);
-        viewport.TopLeftY = static_cast<FLOAT>(rect.top);
+        viewport.TopLeftX = 0;
+        viewport.TopLeftY = 0;
         viewport.Width = static_cast<FLOAT>(width);
         viewport.Height = static_cast<FLOAT>(height);
 
@@ -140,6 +141,10 @@ RenderingContext::RenderingContext(const SSSEngine::Window &window)
         scissorRect.left = 0;
         scissorRect.right = width;
         scissorRect.bottom = height;
+
+        float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+        DirectX::XMMATRIX projection = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, aspectRatio, 1, 1000);
+        DirectX::XMStoreFloat4x4(&projectionMatrix, projection);
 
         CreateDepthStencilBuffer(width, height);
         CreateRtv();
@@ -217,8 +222,7 @@ void RenderingContext::CreateDepthStencilBuffer(const uint32_t width, const uint
 
 void RenderingContext::Render(const ComPtr<ID3D12PipelineState> &pipelineState,
                               const ComPtr<ID3D12RootSignature> &rootSignature,
-                              const D3D12_VERTEX_BUFFER_VIEW &vertexBufferView,
-                              const D3D12_INDEX_BUFFER_VIEW &indexBufferView,
+                              const D3D12_VERTEX_BUFFER_VIEW &vertexBufferView, const D3D12_INDEX_BUFFER_VIEW &indexBufferView,
                               const ComPtr<ID3D12DescriptorHeap> &descriptorHeap)
 {
     // Populate command list
@@ -259,7 +263,7 @@ void RenderingContext::Render(const ComPtr<ID3D12PipelineState> &pipelineState,
         commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
         commandList->IASetIndexBuffer(&indexBufferView);
-        commandList->DrawIndexedInstanced(3, 1, 0, 0, 0);
+        commandList->DrawIndexedInstanced(36, 1, 0, 0, 0);
 
         barrier = CD3DX12_RESOURCE_BARRIER::Transition(
             backBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
@@ -292,6 +296,15 @@ void RenderingContext::ResizeSwapChain(u32 width, u32 height)
     SSSENGINE_THROW_IF_FAILED(swapChain->GetDesc1(&desc));
     if(desc.Width == static_cast<UINT>(width) && desc.Height == static_cast<UINT>(height))
         return;
+
+    viewport.Width = static_cast<FLOAT>(width);
+    viewport.Height = static_cast<FLOAT>(height);
+    scissorRect.bottom = static_cast<LONG>(height);
+    scissorRect.right = static_cast<LONG>(width);
+
+    float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
+    DirectX::XMMATRIX projection = DirectX::XMMatrixPerspectiveFovLH(0.25f * DirectX::XM_PI, aspectRatio, 1, 1000);
+    DirectX::XMStoreFloat4x4(&projectionMatrix, projection);
 
     Flush();
 

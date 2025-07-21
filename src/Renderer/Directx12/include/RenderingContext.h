@@ -25,6 +25,8 @@
 #include <wrl/client.h>
 #include <dxgi1_6.h>
 
+#include "DirectXMath.h"
+
 namespace SSSRenderer::SSSDirectx12
 {
 
@@ -54,11 +56,9 @@ namespace SSSRenderer::SSSDirectx12
         void Flush();
         void Signal();
         void WaitForFenceValue();
-        void Render(const ComPtr<ID3D12PipelineState> &,
-                    const ComPtr<ID3D12RootSignature> &,
-                    const D3D12_VERTEX_BUFFER_VIEW &,
-                    const D3D12_INDEX_BUFFER_VIEW &,
-                    const ComPtr<ID3D12DescriptorHeap> &);
+        void
+        Render(const ComPtr<ID3D12PipelineState> &, const ComPtr<ID3D12RootSignature> &,
+               const D3D12_VERTEX_BUFFER_VIEW &, const D3D12_INDEX_BUFFER_VIEW &, const ComPtr<ID3D12DescriptorHeap> &);
         void BeginFrame();
 
         // Descriptors
@@ -86,6 +86,8 @@ namespace SSSRenderer::SSSDirectx12
         // Viewport
         D3D12_VIEWPORT viewport{};
         D3D12_RECT scissorRect{};
+
+        DirectX::XMFLOAT4X4 projectionMatrix;
 
         // Constants
         // INVESTIGATE: Where should this be. Are they useful as constants

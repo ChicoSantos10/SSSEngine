@@ -464,98 +464,92 @@ namespace SSSRenderer::SSSDirectx12
     // TODO: Remove this eventually
     SSSENGINE_DLL_EXPORT void LoadAssetsTest()
     {
-        // Vertex Buffer
-        {
-            constexpr ColorRGBA Color{{1, 1, 1}, 1};
-            constexpr Vertex Vertices[]{
-                // Front face
-                {.Position = {-0.5f, -0.5f, -0.5f}, .Color = Color},
-                {.Position = {-0.5f, 0.5f, -0.5f}, .Color = Color},
-                {.Position = {0.5f, 0.5f, -0.5f}, .Color = Color},
-                {.Position = {0.5f, -0.5f, -0.5f}, .Color = Color},
-                // Back face
-                {.Position = {-0.5f, -0.5f, 0.5f}, .Color = Color},
-                {.Position = {0.5f, -0.5f, 0.5f}, .Color = Color},
-                {.Position = {0.5f, 0.5f, 0.5f}, .Color = Color},
-                {.Position = {-0.5f, 0.5f, 0.5f}, .Color = Color},
-            };
+        BeginFrame();
 
-            constexpr UINT VertexBufferSize = sizeof(Vertices);
+        constexpr ColorRGBA Color{{1, 1, 1}, 1};
+        constexpr Vertex Vertices[]{
+            // Front face
+            {.Position = {-0.5f, -0.5f, -0.5f}, .Color = Color},
+            {.Position = {-0.5f, 0.5f, -0.5f}, .Color = Color},
+            {.Position = {0.5f, 0.5f, -0.5f}, .Color = Color},
+            {.Position = {0.5f, -0.5f, -0.5f}, .Color = Color},
+            // Back face
+            {.Position = {-0.5f, -0.5f, 0.5f}, .Color = Color},
+            {.Position = {0.5f, -0.5f, 0.5f}, .Color = Color},
+            {.Position = {0.5f, 0.5f, 0.5f}, .Color = Color},
+            {.Position = {-0.5f, 0.5f, 0.5f}, .Color = Color},
+        };
 
-            constexpr u16 Indices[]{// Front face
-                                    0,
-                                    1,
-                                    2,
-                                    0,
-                                    2,
-                                    3,
-                                    // Right face
-                                    3,
-                                    2,
-                                    6,
-                                    6,
-                                    5,
-                                    3,
-                                    // Back face
-                                    4,
-                                    5,
-                                    6,
-                                    6,
-                                    7,
-                                    4,
-                                    // Left face
-                                    4,
-                                    7,
-                                    1,
-                                    1,
-                                    0,
-                                    4,
-                                    // Top face
-                                    1,
-                                    7,
-                                    6,
-                                    6,
-                                    2,
-                                    1,
-                                    // Bottom face
-                                    0,
-                                    3,
-                                    5,
-                                    5,
-                                    4,
-                                    0};
-            constexpr UINT IndexBufferSize = sizeof(Indices);
+        constexpr UINT VertexBufferSize = sizeof(Vertices);
 
-            SSSENGINE_ASSERT(RenderingContexts.size() > 0);
-            SSSENGINE_ASSERT(RenderingContexts[0].commandList.Get());
+        constexpr u16 Indices[]{// Front face
+                                0,
+                                1,
+                                2,
+                                0,
+                                2,
+                                3,
+                                // Right face
+                                3,
+                                2,
+                                6,
+                                6,
+                                5,
+                                3,
+                                // Back face
+                                4,
+                                5,
+                                6,
+                                6,
+                                7,
+                                4,
+                                // Left face
+                                4,
+                                7,
+                                1,
+                                1,
+                                0,
+                                4,
+                                // Top face
+                                1,
+                                7,
+                                6,
+                                6,
+                                2,
+                                1,
+                                // Bottom face
+                                0,
+                                3,
+                                5,
+                                5,
+                                4,
+                                0};
+        constexpr UINT IndexBufferSize = sizeof(Indices);
 
-            auto cmdList = RenderingContexts[0].commandList.Get();
-            VertexBuffer = CreateDefaultBuffer(cmdList, Vertices, VertexBufferSize, IntermediateBuffer);
+        SSSENGINE_ASSERT(RenderingContexts.size() > 0);
 
-            IndexBuffer = CreateDefaultBuffer(cmdList, Indices, IndexBufferSize, IntermediateBuffer);
+        auto &renderingContext = RenderingContexts[0];
+        auto cmdList = renderingContext.commandList.Get();
 
-            // This was copying data directly into the vertex buffer
-            // UINT8 *begin = nullptr;
-            // const CD3DX12_RANGE readRange(0, 0);
-            // SSSENGINE_THROW_IF_FAILED(VertexBuffer->Map(0, &readRange,
-            // reinterpret_cast<void **>(&begin))); memcpy(begin, Vertices,
-            // VertexBufferSize);
+        SSSENGINE_ASSERT(cmdList);
 
-            // VertexBuffer->Unmap(0, nullptr);
-            VertexBufferView.BufferLocation = VertexBuffer->GetGPUVirtualAddress();
-            VertexBufferView.StrideInBytes = sizeof(Vertex);
-            VertexBufferView.SizeInBytes = VertexBufferSize;
+        VertexBuffer = CreateDefaultBuffer(cmdList, Vertices, VertexBufferSize, IntermediateBuffer);
 
-            IndexBufferView.BufferLocation = IndexBuffer->GetGPUVirtualAddress();
-            IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
-            IndexBufferView.SizeInBytes = IndexBufferSize;
-        }
+        IndexBuffer = CreateDefaultBuffer(cmdList, Indices, IndexBufferSize, IntermediateBuffer);
 
-        // NOTE: No need to flush since this is loaded before we even commit drawing
-        // commands
-        //		In the future we need to do this when commiting resources to the
-        // gpu
-        // Flush();
+        VertexBufferView.BufferLocation = VertexBuffer->GetGPUVirtualAddress();
+        VertexBufferView.StrideInBytes = sizeof(Vertex);
+        VertexBufferView.SizeInBytes = VertexBufferSize;
+
+        IndexBufferView.BufferLocation = IndexBuffer->GetGPUVirtualAddress();
+        IndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+        IndexBufferView.SizeInBytes = IndexBufferSize;
+
+        SSSENGINE_THROW_IF_FAILED(cmdList->Close());
+        ID3D12CommandList *cmdLists[] = {cmdList};
+        renderingContext.commandQueue->ExecuteCommandLists(_countof(cmdLists), cmdLists);
+
+        renderingContext.Flush();
     }
 
     SSSENGINE_DLL_EXPORT void Terminate()

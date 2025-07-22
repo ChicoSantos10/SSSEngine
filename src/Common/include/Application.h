@@ -4,23 +4,29 @@
 
 #pragma once
 
-#include "../../Platform/Common/include/Window.h"
+#include <memory>
+
+#include "Renderer.h"
+#include "Window.h"
 
 namespace SSSEngine
 {
-//	class Application
-//	{
-//	public:
-//		Application() = default;
-//		virtual ~Application() = default;
-//
-//	private:
-//		void Run() const;
-//		friend int::SSSENGINE_ENTRY_POINT;
-//
-//	private:
-//		std::unique_ptr<Window> m_Window;
-//		bool m_Running = true;
-//	};
+    // INVESTIGATE: Does it make sense to be a class?
+    class Application final
+    {
+        public:
+        Application();
+        Application(const Application &) = delete;
+        Application(Application &&) = delete;
+        Application &operator=(const Application &) = delete;
+        Application &operator=(Application &&) = delete;
+        ~Application() { SSSRenderer::Unload(); };
 
-} // SSSEngine
+        void Run();
+
+        private:
+        std::unique_ptr<Window> m_Window;
+        bool m_Running = false;
+    };
+
+} // namespace SSSEngine

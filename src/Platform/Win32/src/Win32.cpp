@@ -22,7 +22,7 @@ Copyright (C) 2024  Francisco Santos
 #include <windows.h>
 #include <wrl/client.h>
 #include <xinput.h>
-#include "Renderer.h"
+#include "Application.h"
 #include "Win32Window.h"
 #include "xapo.h"
 #include "xapofx.h"
@@ -42,7 +42,6 @@ using std::exception;
 
 void InitConsole();
 void CloseConsole();
-void GamepadInput();
 
 // NOTE: For some reason this needs to be on main
 extern "C"
@@ -127,9 +126,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2); // NOLINT
 
-    /*SSSEngine::Application app;
-    app.Run();*/
-
     SSSWin32::WindowClass.cbSize = sizeof(WNDCLASSEX);
     SSSWin32::WindowClass.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
     SSSWin32::WindowClass.lpfnWndProc = SSSWin32::MainWindowProcedure;
@@ -144,309 +140,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         return -1;
     }
 
-    // Win32::Win32Window subWindow(640, 360, "Sub Window 1", wc, hwnd);
-    // Win32::Win32Window subWindow2(640, 360, "Sub Window 2", wc, hwnd);
-
-    // GetWindowRect(hwnd, &SSSEngineRenderer::DirectX::windowRect);
-    // SSSEngineRenderer::DirectX::InitializeDirectx12(hwnd);
-    // TODO: Proper error and exception catching
-    try
-    {
-        SSSRenderer::LoadDirectx();
-    }
-    catch(exception &e)
-    {
-        std::cerr << e.what() << "\n";
-        SSSENGINE_DEBUG_BREAK;
-        return -1;
-    }
-    SSSEngine::Window window(CW_USEDEFAULT, CW_USEDEFAULT, 1260, 720, SSSEngine::MainWindowName);
-
-    // SSSRenderer::LoadAssetsTest();
-
-    // SSSEngineRenderer::Directx::SSSEngineRenderer renderer;
-    // renderer.Initialize(hwnd);
-
-    // XAudio2
-    Microsoft::WRL::ComPtr<IXAudio2> xAudio2;
-    hr = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-    if(FAILED(hr))
-    {
-        OutputDebugStringW(L"XAudio2 initialization failed");
-        return -1;
-    }
-
-    IXAudio2MasteringVoice *pMasteringVoice; // NOLINT(*-init-variables)
-    hr = xAudio2->CreateMasteringVoice(&pMasteringVoice);
-    if(FAILED(hr))
-    {
-        OutputDebugStringW(L"XAudio2 mastering voice initialization failed");
-        return -1;
-    }
-
-    WAVEFORMATEXTENSIBLE wave = {};
-    wave.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
-    wave.Format.nChannels = 2;
-    wave.Format.nSamplesPerSec = 48000;
-    wave.Format.wBitsPerSample = 16;
-    wave.Format.nBlockAlign = (wave.Format.nChannels * wave.Format.wBitsPerSample) / 8;
-    wave.Format.nAvgBytesPerSec = wave.Format.nSamplesPerSec * wave.Format.nBlockAlign;
-    wave.Format.cbSize = sizeof(WAVEFORMATEXTENSIBLE) - sizeof(WAVEFORMATEX);
-    wave.Samples.wValidBitsPerSample = wave.Format.wBitsPerSample;
-    wave.dwChannelMask = SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT;
-    wave.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
-
-    XAUDIO2_BUFFER buffer = {};
-    buffer.AudioBytes = wave.Format.nSamplesPerSec * wave.Format.nChannels * (wave.Format.wBitsPerSample / 8);
-    buffer.pAudioData = new BYTE[buffer.AudioBytes];
-    buffer.Flags = XAUDIO2_END_OF_STREAM;
-    buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
-
-    // Populate the audio buffer with some simple sine wave data at 440 Hz.
-    for(DWORD i = 0; i < wave.Format.nSamplesPerSec; ++i)
-    {
-        float t = static_cast<float>(i) / static_cast<float>(wave.Format.nSamplesPerSec);
-        constexpr float twoPi = 2.0f * 3.14159265358979323846264338327950288419716939937510f;
-
-        // ReSharper disable CppCStyleCast NOLINTBEGIN(*-pro-type-cstyle-cast)
-        // Write the sample to the buffer
-        ((BYTE *)buffer.pAudioData)[i * 2 + 0] = static_cast<BYTE>(sinf(t * twoPi * 440.0f) * 30000.0f); // Left channel
-        ((BYTE *)buffer.pAudioData)[i * 2 + 1] = static_cast<BYTE>(sinf(t * twoPi * 440.0f) * 30000.0f); // Right
-                                                                                                         // channel
-        // ReSharper restore CppCStyleCast NOLINTEND(*-pro-type-cstyle-cast)
-    }
-
-    IXAudio2SubmixVoice *pSubMixVoice; // NOLINT(*-init-variables)
-    hr = xAudio2->CreateSubmixVoice(&pSubMixVoice, 2, wave.Format.nSamplesPerSec, 0, 0, nullptr, nullptr);
-    if(FAILED(hr))
-    {
-        OutputDebugStringW(L"XAudio2 submix voice initialization failed");
-        return -1;
-    }
-
-    XAUDIO2_SEND_DESCRIPTOR sendDescriptors = {0, pSubMixVoice};
-    XAUDIO2_VOICE_SENDS sendList = {1, &sendDescriptors};
-
-    IUnknown *reverbFx; // NOLINT(*-init-variables)
-    hr = XAudio2CreateReverb(&reverbFx);
-    if(FAILED(hr))
-    {
-        OutputDebugStringW(L"XAudio2 reverb initialization failed");
-        return -1;
-    }
-
-    XAUDIO2_EFFECT_DESCRIPTOR descriptor = {reverbFx, true, 1};
-    XAUDIO2_EFFECT_CHAIN effectChain = {1, &descriptor};
-    XAUDIO2FX_REVERB_PARAMETERS reverbParameters;
-    reverbParameters.ReflectionsDelay = XAUDIO2FX_REVERB_DEFAULT_REFLECTIONS_DELAY;
-    reverbParameters.ReverbDelay = XAUDIO2FX_REVERB_DEFAULT_REVERB_DELAY;
-    reverbParameters.RearDelay = XAUDIO2FX_REVERB_DEFAULT_REAR_DELAY;
-    reverbParameters.PositionLeft = XAUDIO2FX_REVERB_DEFAULT_POSITION;
-    reverbParameters.PositionRight = XAUDIO2FX_REVERB_DEFAULT_POSITION;
-    reverbParameters.PositionMatrixLeft = XAUDIO2FX_REVERB_DEFAULT_POSITION_MATRIX;
-    reverbParameters.PositionMatrixRight = XAUDIO2FX_REVERB_DEFAULT_POSITION_MATRIX;
-    reverbParameters.EarlyDiffusion = XAUDIO2FX_REVERB_DEFAULT_EARLY_DIFFUSION;
-    reverbParameters.LateDiffusion = XAUDIO2FX_REVERB_DEFAULT_LATE_DIFFUSION;
-    reverbParameters.LowEQGain = XAUDIO2FX_REVERB_DEFAULT_LOW_EQ_GAIN;
-    reverbParameters.LowEQCutoff = XAUDIO2FX_REVERB_DEFAULT_LOW_EQ_CUTOFF;
-    reverbParameters.HighEQGain = XAUDIO2FX_REVERB_DEFAULT_HIGH_EQ_GAIN;
-    reverbParameters.HighEQCutoff = XAUDIO2FX_REVERB_DEFAULT_HIGH_EQ_CUTOFF;
-    reverbParameters.RoomFilterFreq = XAUDIO2FX_REVERB_DEFAULT_ROOM_FILTER_FREQ;
-    reverbParameters.RoomFilterMain = XAUDIO2FX_REVERB_DEFAULT_ROOM_FILTER_MAIN;
-    reverbParameters.RoomFilterHF = XAUDIO2FX_REVERB_DEFAULT_ROOM_FILTER_HF;
-    reverbParameters.ReflectionsGain = XAUDIO2FX_REVERB_DEFAULT_REFLECTIONS_GAIN;
-    reverbParameters.ReverbGain = XAUDIO2FX_REVERB_DEFAULT_REVERB_GAIN;
-    reverbParameters.DecayTime = XAUDIO2FX_REVERB_DEFAULT_DECAY_TIME;
-    reverbParameters.Density = XAUDIO2FX_REVERB_DEFAULT_DENSITY;
-    reverbParameters.RoomSize = XAUDIO2FX_REVERB_DEFAULT_ROOM_SIZE;
-    reverbParameters.WetDryMix = XAUDIO2FX_REVERB_DEFAULT_WET_DRY_MIX;
-
-    IUnknown *echoFx; // NOLINT(*-init-variables)
-    CreateFX(CLSID_FXEcho, &echoFx);
-    XAUDIO2_EFFECT_DESCRIPTOR echoDescriptor = {echoFx, true, 1};
-    XAUDIO2_EFFECT_CHAIN echoChain = {1, &echoDescriptor};
-    FXECHO_PARAMETERS echoParameters;
-    echoParameters.WetDryMix = FXECHO_DEFAULT_WETDRYMIX * 2;
-    echoParameters.Feedback = FXECHO_DEFAULT_FEEDBACK * 2;
-    echoParameters.Delay = FXECHO_DEFAULT_DELAY * 2;
-
-    IUnknown *eqFx; // NOLINT(*-init-variables)
-    CreateFX(CLSID_FXEQ, &eqFx);
-    XAUDIO2_EFFECT_DESCRIPTOR eqDescriptor = {eqFx, true, 1};
-    XAUDIO2_EFFECT_CHAIN eqChain = {1, &eqDescriptor};
-    FXEQ_PARAMETERS eqParameters;
-    eqParameters.Gain0 = FXEQ_MIN_GAIN;
-    eqParameters.FrequencyCenter0 = FXEQ_MIN_FREQUENCY_CENTER;
-
-    IXAudio2SourceVoice *pSourceVoice; // NOLINT(*-init-variables)
-    hr = xAudio2->CreateSourceVoice(
-        &pSourceVoice, reinterpret_cast<WAVEFORMATEX *>(&wave), 0, XAUDIO2_DEFAULT_FREQ_RATIO, nullptr, &sendList, nullptr);
-    if(FAILED(hr))
-    {
-        OutputDebugStringW(L"XAudio2 src voice initialization failed");
-        return -1;
-    }
-
-    // Reverb
-    pSourceVoice->SetEffectChain(&effectChain);
-    pSourceVoice->SetEffectParameters(0, &reverbParameters, sizeof(reverbParameters));
-    pSourceVoice->EnableEffect(0);
-
-    // Echo
-    pSourceVoice->SetEffectChain(&echoChain);
-    pSourceVoice->SetEffectParameters(1, &echoParameters, sizeof(echoParameters));
-    pSourceVoice->EnableEffect(1);
-
-    // EQ
-    pSourceVoice->SetEffectChain(&eqChain);
-    pSourceVoice->SetEffectParameters(2, &eqParameters, sizeof(eqParameters));
-    pSourceVoice->EnableEffect(2);
-
-    hr = pSourceVoice->SubmitSourceBuffer(&buffer);
-    if(FAILED(hr))
-    {
-        OutputDebugStringW(L"XAudio2 src buffer initialization failed");
-        return -1;
-    }
-
-    /*hr = pSourceVoice->Start(0);
-    if (FAILED(hr))
-    {
-            OutputDebugStringW(L"XAudio2 src voice start failed");
-            return -1;
-    }
-    pSourceVoice->SetVolume(1);*/
-
-    // ShowWindow(hwnd, nShowCmd);
-    SSSEngine::Timestamp firstTimestamp = SSSEngine::GetCurrentTime();
-    bool isRunning = true;
-    bool firstFrame = true;
-    while(isRunning)
-    {
-        MSG msg = {};
-        while(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
-            if(msg.message == WM_QUIT)
-            {
-                isRunning = false;
-                break;
-            }
-            if(msg.message == WM_DESTROY)
-            {
-                // TODO: Window closing must release its swap chain first
-                SSSRenderer::Unload();
-            }
-
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        // Gamepad
-        GamepadInput();
-
-        if(SSSEngine::SSSInput::KeyboardButtons[SSSEngine::SSSInput::KeyboardCodes::A] ==
-           SSSEngine::SSSInput::ButtonState::Down)
-        {
-        }
-
-        // Render
-        {
-            try
-            {
-                SSSRenderer::BeginFrame();
-                if(firstFrame)
-                    SSSRenderer::LoadAssetsTest();
-                SSSRenderer::Render();
-                firstFrame = false;
-            }
-            catch(exception &e)
-            {
-                std::cerr << e.what() << "\n";
-                SSSENGINE_DEBUG_BREAK;
-                break;
-            }
-        }
-
-        SSSEngine::Timestamp lastTimestamp = SSSEngine::GetCurrentTime();
-        u64 elapsedMicroseconds = SSSEngine::ToMicroSeconds(lastTimestamp - firstTimestamp);
-        SSSENGINE_ASSERT(elapsedMicroseconds > 0);
-        firstTimestamp = lastTimestamp;
-        // SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", elapsedMicroseconds);
-    }
-
-    /*{
-            using namespace SSSEngineRenderer::DirectX;
-            Flush(commandQueue, fence, fenceValue, fenceEvent);
-            CloseHandle(fenceEvent);
-    }*/
-
-    // SSSEngineRenderer::Unload();
+    SSSEngine::Application app;
+    app.Run();
 
     UnregisterClass(WindowClassName, hInstance);
     CloseConsole();
     return 0;
-}
-
-void GamepadInput()
-{
-    for(int i = 0; i < XUSER_MAX_COUNT; ++i)
-    {
-        XINPUT_STATE state;
-        ZeroMemory(&state, sizeof(XINPUT_STATE));
-
-        if(const DWORD dwResult = XInputGetState(i, &state); dwResult == ERROR_SUCCESS)
-        {
-            // Controller is connected
-            const auto [wButtons, bLeftTrigger, bRightTrigger, sThumbLX, sThumbLY, sThumbRX, sThumbRY] = state.Gamepad;
-
-            if(wButtons & XINPUT_GAMEPAD_A)
-            {
-                // Vibrations
-                XINPUT_VIBRATION vibration;
-                ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
-                vibration.wLeftMotorSpeed = 1000;
-                vibration.wRightMotorSpeed = 2000;
-                XInputSetState(i, &vibration);
-            }
-            else
-            {
-                // Stop vibrations
-                XINPUT_VIBRATION vibration;
-                ZeroMemory(&vibration, sizeof(XINPUT_VIBRATION));
-                XInputSetState(i, &vibration);
-            }
-
-            const float leftThumbX = sThumbLX;
-            const float leftThumbY = sThumbLY;
-
-            float magnitude = sqrtf(leftThumbX * leftThumbX + leftThumbY * leftThumbY);
-
-            // Direction
-            float normalizedLx = leftThumbX / magnitude;
-            float normalizedLy = leftThumbY / magnitude;
-
-            float normalizedMagnitude = 0;
-            if(magnitude > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-            {
-                // clip the magnitude at its expected maximum value
-                if(magnitude > 32767)
-                    magnitude = 32767;
-
-                magnitude -= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-
-                normalizedMagnitude = magnitude / (32767 - XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE);
-            }
-            else
-            {
-                magnitude = 0.0;
-                normalizedMagnitude = 0.0;
-            }
-        }
-        else
-        {
-            // Controller is not connected
-        }
-    }
 }
 
 void InitConsole()

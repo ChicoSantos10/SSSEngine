@@ -1,5 +1,5 @@
 /*  SSS Engine
-    Copyright (C) ${YEAR}  Francisco Santos
+    Copyright (C) 2024  Francisco Santos
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,16 +15,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-namespace SSSEngine
+#include "HelperMacros.h"
+namespace SSSEngine::SSSAudio
 {
-#ifdef SSSENGINE_WIN32
-    using WindowHandle = void *;
-    using WindowTitle = const wchar_t *; // LOW_PRIORITY: Create definitions for this like UTF8 and stuff
-#else
-    #error Platform not currently supported
-#endif
-
-    constexpr auto MainWindowName = L"SSS Engine";
-} // namespace SSSEngine
+    void Init();
+}

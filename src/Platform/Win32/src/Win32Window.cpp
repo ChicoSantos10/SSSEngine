@@ -71,7 +71,7 @@ namespace SSSEngine
 
                  // TODO: assert max values as well
                  // INVESTIGATE: Run time check?
-                 SSSENGINE_ASSERT((x > 0 || x == CW_USEDEFAULT) && (y > 0 || y == CW_USEDEFAULT) && width > 0 &&
+                 SSSENGINE_ASSERT((x >= 0 || x == CW_USEDEFAULT) && (y >= 0 || y == CW_USEDEFAULT) && width > 0 &&
                                   height > 0 && "Window size is invalid");
 
                  constexpr int childStyle =

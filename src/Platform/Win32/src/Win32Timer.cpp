@@ -16,6 +16,10 @@
 */
 
 #include <windows.h>
+
+// NOTE: We need to undef this since Windows loves creating macros with capital case
+#undef GetCurrentTime
+
 #include "Timer.h"
 #include "Types.h"
 
@@ -38,6 +42,7 @@ namespace SSSEngine
         timestamp.time *= Microseconds;
         // INVESTIGATE:
         // Since this is a division, maybe it's better to return a floating precision number (either 32 or 64 bit)
+        // Or increasing the precision
         return timestamp.time / frequency.QuadPart;
     }
 } // namespace SSSEngine

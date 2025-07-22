@@ -8,6 +8,7 @@ set_target_properties(SSSEngine PROPERTIES
 )
 
 # INVESTIGATE: What privacy should this be? Public, Private or Interface
+# TODO: Only should add the sources relevant to windows
 target_sources(SSSEngine PUBLIC
         ${win32src}
         ${CMAKE_SOURCE_DIR}/src/Common/src/Window.cpp

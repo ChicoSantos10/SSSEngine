@@ -29,4 +29,7 @@ namespace SSSEngine::SSSInput
     SSSENGINE_GLOBAL std::unordered_map<KeyboardCodes, ButtonState> KeyboardButtons;
     SSSENGINE_GLOBAL std::unordered_map<MouseButton, ButtonState> MouseButtons;
     SSSENGINE_GLOBAL SSSMath::Vector2<float> MouseDirection;
+
+    bool HandleInput();
+    void GamepadInput();
 } // namespace SSSEngine::SSSInput

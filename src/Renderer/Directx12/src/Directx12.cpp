@@ -21,8 +21,10 @@ Copyright (C) 2024  Francisco Santos
 #include <memory>
 #include <vector>
 
-#include "HelperMacros.h"
+// Needed for guids
 #include "initguid.h"
+
+#include "HelperMacros.h"
 #include "DirectXMath.h"
 #include "Factory.h"
 #include "Types.h"
@@ -48,6 +50,7 @@ Copyright (C) 2024  Francisco Santos
 #include "Vertex.h"
 
 #include "Logger.h"
+#include "ShaderCompiler.h"
 
 // TODO: LOG function/Macro for HR results
 
@@ -237,108 +240,8 @@ namespace SSSRenderer::SSSDirectx12
         {
             constexpr LPCWSTR FilePath = LR"(N:\C++Projects\SSSEngine\src\Renderer\Shaders\TestShader.hlsl)";
 
-            ComPtr<IDxcUtils> compilerUtils;
-            ComPtr<IDxcCompiler3> shaderCompiler;
-            DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&compilerUtils));
-            DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&shaderCompiler));
+            Shader shader = CompileShader(FilePath);
 
-            ComPtr<IDxcIncludeHandler> includeHandler;
-            compilerUtils->CreateDefaultIncludeHandler(&includeHandler);
-
-            LPCWSTR commandArgsVs[] = {
-                L"TestShader.hlsl",
-                // Optional shader src file
-                L"-E",
-                L"vertex",
-                L"-T",
-                L"vs_6_6",
-                L"-Zs",
-                L"-Qstrip_reflect",
-                L"-Fo",
-                L"TestShader.bin",
-                L"-Fd",
-                L"TestShader.pdb",
-            };
-
-            LPCWSTR commandArgsPs[] = {
-                L"TestShader.hlsl",
-                // Optional shader src file
-                L"-E",
-                L"fragment",
-                L"-T",
-                L"ps_6_6",
-                L"-Zs",
-                L"-Qstrip_reflect",
-                L"-Fo",
-                L"TestShader.bin",
-                L"-Fd",
-                L"TestShader.pdb",
-            };
-
-            ComPtr<IDxcBlobEncoding> encoder;
-            compilerUtils->LoadFile(FilePath, nullptr, &encoder);
-
-            DxcBuffer buffer{};
-            buffer.Ptr = encoder->GetBufferPointer();
-            buffer.Size = encoder->GetBufferSize();
-            buffer.Encoding = DXC_CP_ACP;
-
-            auto debug = [](const ComPtr<IDxcResult> &result)
-            {
-                ComPtr<IDxcBlobUtf8> errors;
-                result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&errors), nullptr);
-                if(errors && errors->GetStringLength() > 0)
-                {
-                    std::cout << errors->GetStringPointer() << std::endl;
-                }
-
-                HRESULT hr;
-                result->GetStatus(&hr);
-                if(FAILED(hr))
-                {
-                    std::cout << "Failed vertex shader compilation" << std::endl;
-                }
-            };
-
-            ComPtr<IDxcResult> vsResult;
-            ComPtr<IDxcResult> psResult;
-
-            shaderCompiler->Compile(
-                &buffer, commandArgsVs, _countof(commandArgsVs), includeHandler.Get(), IID_PPV_ARGS(&vsResult));
-            shaderCompiler->Compile(
-                &buffer, commandArgsPs, _countof(commandArgsPs), includeHandler.Get(), IID_PPV_ARGS(&psResult));
-
-            debug(vsResult);
-            debug(psResult);
-
-            ComPtr<ID3DBlob> vertexShader;
-            ComPtr<ID3DBlob> fragmentShader;
-
-            vsResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&vertexShader), nullptr);
-            psResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&fragmentShader), nullptr);
-
-#ifdef SSSENGINE_FXC
-            UINT compilerFlags = 0;
-            ComPtr<ID3DBlob> errorMsgs;
-
-    #ifdef SSSENGINE_DEBUG_GRAPHICS
-            compilerFlags |= (D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION);
-    #endif
-
-            auto DebugCompilation = [&](HRESULT hr)
-            {
-                if(FAILED(hr))
-                {
-                    auto msg = reinterpret_cast<const char *>(errorMsgs->GetBufferPointer());
-                    std::cout << msg << std::endl;
-                }
-            };
-
-            DebugCompilation(D3DCompileFromFile(
-                filePath, nullptr, nullptr, "vertex", "vs_5_0", compilerFlags, 0, &vertexShader, &errorMsgs));
-            DebugCompilation(D3DCompileFromFile(
-                filePath, nullptr, nullptr, "fragment", "ps_5_0", compilerFlags, 0, &fragmentShader, &errorMsgs));
-#endif
             constexpr u64 NormalOffset = sizeof(Vertex::Position);
             // constexpr u64 ColorOffset = NormalOffset + sizeof(Vertex::Normal);
 
@@ -355,8 +258,8 @@ namespace SSSRenderer::SSSDirectx12
             ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
             psoDesc.InputLayout = {inputDesc, _countof(inputDesc)};
             psoDesc.pRootSignature = RootSignature.Get();
-            psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-            psoDesc.PS = CD3DX12_SHADER_BYTECODE(fragmentShader.Get());
+            psoDesc.VS = CD3DX12_SHADER_BYTECODE(shader.vertexShader.Get());
+            psoDesc.PS = CD3DX12_SHADER_BYTECODE(shader.fragmentShader.Get());
             psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
             psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
             psoDesc.DepthStencilState.DepthEnable = false;

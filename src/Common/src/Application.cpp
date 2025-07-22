@@ -33,7 +33,7 @@ namespace SSSEngine
         SSSAudio::Init();
 
         // TODO: Manage memory
-        m_Window = std::make_unique<Window>(0, 0, 1920, 1080, MainWindowName);
+        m_Window = std::make_unique<Window>(0, 0, 3440, 1440, MainWindowName);
     }
 
     void Application::Run()

@@ -22,19 +22,19 @@
 
 namespace SSSEngine
 {
-    template<Integral T, Integral... Bits>
+    template<IntegralConcept T, IntegralConcept... Bits>
         requires EqualTypes<T, Bits...>
     SSSENGINE_FORCE_INLINE constexpr auto Join(T first, Bits... bits) -> T
     {
         return first | (bits | ...);
     }
 
-    SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(Integral auto first, Integral auto second)
+    SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(IntegralConcept auto first, IntegralConcept auto second)
     {
         return first & second;
     }
 
-    template<Integral T>
+    template<IntegralConcept T>
     SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, T second)
     {
         return first & ~second;

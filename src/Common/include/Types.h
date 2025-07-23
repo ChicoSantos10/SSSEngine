@@ -53,6 +53,8 @@ using uintptr = uintptr_t;
 
 using byte = unsigned char;
 
+using functionPtr = void (*)();
+
 consteval size_t operator""_B(const size_t n) { return n; }
 consteval size_t operator""_KiB(const size_t n) { return n * 1024_B; }
 consteval size_t operator""_MiB(const size_t n) { return n * 1024_KiB; }

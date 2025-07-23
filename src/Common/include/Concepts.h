@@ -24,57 +24,39 @@
 namespace SSSEngine
 {
     template<typename T>
-    concept Number = std::is_arithmetic_v<T>;
+    concept NumberConcept = std::is_arithmetic_v<T>;
 
     template<typename T>
-    concept Integral = std::integral<T>;
+    concept IntegralConcept = std::integral<T>;
 
     template<typename T>
-    concept Real = std::floating_point<T>;
+    concept RealConcept = std::floating_point<T>;
 
     template<typename T, typename... Others>
-    concept EqualTypes = std::conjunction_v<std::is_same<T, Others>...>;
+    concept EqualTypesConcept = std::conjunction_v<std::is_same<T, Others>...>;
 
     template<typename T>
-    concept Arithmetic = requires(T t) {
-        {
-            t + t
-        } -> std::convertible_to<T>;
-        {
-            t - t
-        } -> std::convertible_to<T>;
-        {
-            t *t
-        } -> std::convertible_to<T>;
-        {
-            t / t
-        } -> std::convertible_to<T>;
-        {
-            t = t
-        };
-        {
-            t += t
-        };
-        {
-            t -= t
-        };
+    concept ArithmeticConcept = requires(T t) {
+        { t + t } -> std::convertible_to<T>;
+        { t - t } -> std::convertible_to<T>;
+        { t *t } -> std::convertible_to<T>;
+        { t / t } -> std::convertible_to<T>;
+        { t = t };
+        { t += t };
+        { t -= t };
     };
 
     template<typename T>
-    concept Logical = requires(T t) {
-        {
-            t &&t
-        } -> std::convertible_to<bool>;
-        {
-            t || t
-        } -> std::convertible_to<bool>;
+    concept LogicalConcept = requires(T t) {
+        { t &&t } -> std::convertible_to<bool>;
+        { t || t } -> std::convertible_to<bool>;
     };
 
     template<typename T>
-    concept ArithmeticComparable = Arithmetic<T> && Logical<T>;
+    concept ArithmeticComparableConcept = ArithmeticConcept<T> && LogicalConcept<T>;
 
     template<typename T>
-    concept Function = std::is_pointer_v<T> && std::is_function_v<typename std::remove_pointer_t<T>>;
+    concept FunctionPointerConcept = std::is_pointer_v<T> && std::is_function_v<typename std::remove_pointer_t<T>>;
 
     template<typename T, template<typename...> typename V>
     inline constexpr bool IsInstanceOfV = std::false_type{};

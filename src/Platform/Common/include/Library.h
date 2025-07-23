@@ -17,11 +17,10 @@
 
 #pragma once
 
-#include <cstdint>
+#include <stdexcept>
+#include "Types.h"
 #include "Attributes.h"
 #include "Concepts.h"
-#include <iostream>
-#include <stdexcept>
 
 namespace SSSEngine
 {
@@ -34,14 +33,15 @@ namespace SSSEngine
      */
     void *LoadSharedLibrary(const wchar_t *path, int flags);
     void UnloadSharedLibrary(void *libraryHandle);
-    void *GetFunctionAddressFromLibrary(void *libraryHandle, const char *funcName);
+
+    functionPtr GetFunctionAddressFromLibrary(void *libraryHandle, const char *funcName);
 
     // INVESTIGATE: Think about error handling. Should we throw an exception? Return an optional?
-    template <Function T>
+    template<FunctionPointerConcept T>
     SSSENGINE_FORCE_INLINE T LoadFunction(void *libraryHandle, const char *name)
     {
         T type = reinterpret_cast<T>(GetFunctionAddressFromLibrary(libraryHandle, name));
-        if (!type)
+        if(!type)
             throw std::runtime_error("Failed to load function " + std::string(name));
         return type;
     }

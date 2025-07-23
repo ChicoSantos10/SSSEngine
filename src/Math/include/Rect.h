@@ -21,8 +21,8 @@
 
 namespace SSSMath
 {
-    template <typename T>
-        requires SSSEngine::Integral<T>
+    template<typename T>
+        requires SSSEngine::IntegralConcept<T>
     struct Rect
     {
         T x;

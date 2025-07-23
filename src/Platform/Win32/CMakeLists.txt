@@ -11,9 +11,7 @@ set_target_properties(SSSEngine PROPERTIES
 # TODO: Only should add the sources relevant to windows
 target_sources(SSSEngine PUBLIC
         ${win32src}
-        ${CMAKE_SOURCE_DIR}/src/Common/src/Window.cpp
         ${CMAKE_SOURCE_DIR}/src/Common/src/Application.cpp
-        ${CMAKE_SOURCE_DIR}/src/Common/src/Exceptions.cpp
         ${CMAKE_SOURCE_DIR}/src/Renderer/src/Renderer.cpp
 )
 

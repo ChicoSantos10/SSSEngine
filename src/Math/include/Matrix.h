@@ -27,7 +27,7 @@
 namespace SSSMath
 {
     using MatrixSize = u32;
-    template<SSSEngine::Number T, MatrixSize C, MatrixSize R>
+    template<SSSEngine::NumberConcept T, MatrixSize C, MatrixSize R>
     struct Matrix
     {
         static consteval MatrixSize Rows() { return R; }

@@ -15,21 +15,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include <cstddef>
-#include <concepts>
-#include <functional>
-#include <string>
-
-// Declaration of the concept “Hashable”, which is satisfied by any type “T”
-// such that for values “a” of type “T”, the expression std::hash<T>{}(a)
-// compiles and its result is convertible to std::size_t
-template<typename T>
-concept Hashable = requires(T a) {
-    { std::hash<T>{}(a) } -> std::convertible_to<std::size_t>;
-};
-
 #include <Windows.h>
 #include "Library.h"
+#include "Types.h"
 
 namespace SSSEngine
 {
@@ -37,10 +25,10 @@ namespace SSSEngine
 
     void UnloadSharedLibrary(void *handle) { FreeLibrary(static_cast<HMODULE>(handle)); }
 
-    void *GetFunctionAddressFromLibrary(void *handle, const char *funcName)
+    functionPtr GetFunctionAddressFromLibrary(void *handle, const char *funcName)
     {
         // INVESTIGATE: Consider exporting by ordinals using .def files instead to make the loading process faster
         //      https://learn.microsoft.com/en-us/cpp/build/exporting-from-a-dll-using-def-files?view=msvc-170
-        return GetProcAddress(static_cast<HMODULE>(handle), funcName);
+        return reinterpret_cast<functionPtr>(GetProcAddress(static_cast<HMODULE>(handle), funcName));
     }
 } // namespace SSSEngine

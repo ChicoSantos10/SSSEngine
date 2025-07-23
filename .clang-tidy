@@ -103,6 +103,8 @@ CheckOptions:
   - { key: readability-identifier-naming.GlobalVariableCase,       value: CamelCase }
   - { key: readability-identifier-naming.MemberConstantCase,       value: camelBack }
   - { key: readability-identifier-naming.StaticConstantCase,       value: camelBack }
+  - { key: readability-identifier-naming.ConceptCase,  value: CamelCase }
+  - { key: readability-identifier-naming.ConceptSuffix,  value: Concept }
   - { key: readability-identifier-naming.MacroDefinitionCase, value: UPPER_CASE}
   - { key: readability-identifier-naming.MacroDefinitionPrefix, value: SSSENGINE_}
   - { key: readability-implicit-bool-conversion.AllowIntegerConditions,  value: 1 }

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Window.h"
+#include "SwapChainHandle.h"
 
 namespace SSSRenderer
 {

@@ -258,13 +258,15 @@ The rendering system is abstracted behind a minimal, explicit API surface. Inter
 The basic layout will be as follows:
 
 ```
-/thirdparty/    # Only headers or system APIs when absolutely needed
+/thirdparty/      # Only headers or system APIs when absolutely needed
+  /include/       # Headers
+  /libs/          # Dlls, Static libraries
+  CMakeLists.txt  # Handles dependencies
 /engine/
   /base/          # Code not specific to a game engine e.g Lists, Arrays, Typing, etc.
-  /core/          # ECS, Job System, Memory Allocator
+  /core/          # ECS, Job System, Memory Allocator, ...
   /platform/      # Win32, Linux, Input, Timing
   /renderer/      # DX12 and Vulkan backends
-  /audio/         # Core audio abstraction layer
   /editor/        # Separate binary using ImGui
   /launcher/      # Project Launcher and workspace manager
   /modules/       # Optional plug-ins and discovery tool
@@ -278,10 +280,13 @@ Then each module will be like this:
 /core/ 
   /.../         # Collection of folders like ECS, JobSystem, ...
     /include/   # Header files
+    /internal/  # Optional folder with internal logic that should not leak out of this module (e.g core)
     /src/       # Cpp files
   CMakeLists.txt
 ```
 
+As for namespaces they should at maximum nest 2 times and should be as an example SSSEngine{mainfolder}::{secondaryfolder}
+e.g. SSSEngineCore::ECS.
 
 ### Build System
 

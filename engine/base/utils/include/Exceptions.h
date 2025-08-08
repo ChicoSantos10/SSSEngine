@@ -15,10 +15,23 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include <exception>
+#include "Attributes.h"
+#if defined(SSSENGINE_DEBUG) || defined(SSSENGINE_INTERNAL)
+
+/**
+ * @class NotImplementedException
+ * @brief Represents code that was not implemented. Only works in builds with debug capabilities.
+ *
+ */
+class NotImplementedException final : public std::exception
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    static constexpr auto Reason = "Not implemented";
+
+    public:
+    SSSENGINE_PURE const char *what() const noexcept override { return Reason; }
+};
+
+#endif

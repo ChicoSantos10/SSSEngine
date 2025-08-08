@@ -19,7 +19,8 @@
 #include <utility>
 #include <vector>
 #include <iostream>
-#include "../src/Common/include/HelperMacros.h"
+#include "HelperMacros.h"
+#include "Types.h"
 
 namespace SSSTest
 {
@@ -67,12 +68,12 @@ namespace SSSTest
         }
     };
 
-#define SSS_TEST(name)                                                                                                 \
+#define SSSTEST_TEST(name)                                                                                             \
     void name();                                                                                                       \
     Test _##name({__LINE__, __FILE__, name});                                                                          \
     void name()
 
-#define SSS_EXPECT(first, second, comparison)                                                                          \
+#define SSSTEST_EXPECT(first, second, comparison)                                                                      \
     if((first)comparison(second))                                                                                      \
     {                                                                                                                  \
     }                                                                                                                  \
@@ -82,12 +83,12 @@ namespace SSSTest
         Succeeded = false;                                                                                             \
     }
 
-#define SSS_EXPECT_EQ(first, second) SSS_EXPECT(first, second, ==)
-#define SSS_EXPECT_NEQ(first, second) SSS_EXPECT(first, second, !=)
-#define SSS_EXPECT_GT(first, second) SSS_EXPECT(first, second, >)
-#define SSS_EXPECT_GE(first, second) SSS_EXPECT(first, second, >=)
-#define SSS_EXPECT_LT(first, second) SSS_EXPECT(first, second, <)
-#define SSS_EXPECT_LE(first, second) SSS_EXPECT(first, second, <=)
+#define SSSTEST_EXPECT_EQ(first, second) SSSTEST_EXPECT(first, second, ==)
+#define SSSTEST_EXPECT_NEQ(first, second) SSSTEST_EXPECT(first, second, !=)
+#define SSSTEST_EXPECT_GT(first, second) SSSTEST_EXPECT(first, second, >)
+#define SSSTEST_EXPECT_GE(first, second) SSSTEST_EXPECT(first, second, >=)
+#define SSSTEST_EXPECT_LE(first, second) SSSTEST_EXPECT(first, second, <=)
+#define SSSTEST_EXPECT_LT(first, second) SSSTEST_EXPECT(first, second, <)
 
     // TODO: Implement assert
     //

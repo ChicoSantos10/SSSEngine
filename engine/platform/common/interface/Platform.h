@@ -1,5 +1,5 @@
 /*  SSS Engine
-    Copyright (C) 2024  Francisco Santos
+    Copyright (C) ${YEAR}  Francisco Santos
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,10 +15,20 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include "Attributes.h"
+
+namespace SSSEngine::Platform
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+#ifdef SSSENGINE_WIN32
+    // TODO: Implement WindowHandle as a struct instead of type alias in platform specific code
+    using WindowHandle = void *;
+    using WindowTitle = const wchar_t *; // LOW_PRIORITY: Create definitions for this like UTF8 and stuff
+    SSSENGINE_MAYBE_UNUSED constexpr WindowTitle MainWindowName = L"SSS Engine";
+#else
+    #error Platform not currently supported
+#endif
+
+    void RunApplication(int argc, char *argv[]);
+} // namespace SSSEngine::Platform

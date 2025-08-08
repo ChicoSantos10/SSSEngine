@@ -15,10 +15,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include <dxgi1_6.h>
+#include "wrl/client.h"
+#include "HelperMacros.h"
+
+namespace SSSEngine::Renderer::DirectX12
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    SSSENGINE_GLOBAL Microsoft::WRL::ComPtr<IDXGIFactory6> Factory;
+} // namespace SSSEngine::Renderer::DirectX12

@@ -15,10 +15,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include "Vector.h"
+
+namespace SSSEngine::Core::Gameobjects
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    /**
+     * @class Transform
+     * @brief Represents the 3D physical representation of an object
+     *
+     */
+    struct Transform
+    {
+        Math::Float3 position;
+        Math::Float3 rotation; // TODO: Use quaternion
+        Math::Float3 scale;
+    };
+} // namespace SSSEngine::Core::Gameobjects

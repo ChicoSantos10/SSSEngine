@@ -15,10 +15,22 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include <windows.h>
+#include <wrl/client.h>
+#include "Debug.h"
+// #include "directx/d3d12.h"
+
+// INVESTIGATE: If we just assert we lose the error message. Figure out a way to keep it
+#ifdef SSSENGINE_DEBUG
+    #define SSSENGINE_THROW_IF_FAILED(hr) SSSENGINE_ASSERT(SUCCEEDED(hr))
+#else
+    #define SSSENGINE_THROW_IF_FAILED(hr) ThrowIfFailed(hr)
+#endif
+namespace SSSEngine::Platform::Win32
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    void ThrowIfFailed(HRESULT hr);
+    void GetErrorMessage(HRESULT hr, char *message);
+    // void GetDeviceRemovedReason(const ComPtr<ID3D12Device>&, char* message);
+} // namespace SSSEngine::Platform::Win32

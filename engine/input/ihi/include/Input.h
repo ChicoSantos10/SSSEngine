@@ -15,10 +15,23 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include <unordered_map>
+
+#include "HelperMacros.h"
+#include "Keycodes.h"
+#include "ButtonState.h"
+#include "Vector.h"
+
+namespace SSSEngine::Input
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    // TODO: This is an initial input system and will be updated later
+    // It will need a way to figure each event even during each frame by buffering input and dispatching events
+    SSSENGINE_GLOBAL std::unordered_map<KeyboardCodes, ButtonState> KeyboardButtons;
+    SSSENGINE_GLOBAL std::unordered_map<MouseButton, ButtonState> MouseButtons;
+    SSSENGINE_GLOBAL Math::Vector2<float> MouseDirection;
+
+    bool HandleInput();
+    void GamepadInput();
+} // namespace SSSEngine::Input

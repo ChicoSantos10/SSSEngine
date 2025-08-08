@@ -15,10 +15,26 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include "Vector.h"
+#include "ColorRGB.h"
+
+namespace SSSEngine::Renderer
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    /**
+     * @class Vertex
+     * @brief Represents the data needed for to pass the GPU for each vertex of a mesh
+     *
+     */
+    struct Vertex
+    {
+        Math::Float3 Position{};
+        // SSSMath::Float3 Normal{};
+        ColorRGBA Color{};
+        // INVESTIGATE: Should this always be here? Should we have more classes with different parameters as to save
+        // memory?
+        // SSSMath::Float2 Uv0;
+        // SSSMath::Float2 Uv1;
+    };
+} // namespace SSSEngine::Renderer

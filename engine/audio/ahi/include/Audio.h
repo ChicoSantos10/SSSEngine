@@ -15,10 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+namespace SSSEngine::Audio
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    /**
+     * @brief Initializes all systems needed for audio to work
+     */
+    void Init();
+} // namespace SSSEngine::Audio

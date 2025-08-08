@@ -15,10 +15,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include "Types.h"
+
+namespace SSSEngine::Input
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    enum class ButtonState : u8
+    {
+        Up,
+        Down,
+        Held,
+        Released
+    };
+}

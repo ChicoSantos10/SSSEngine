@@ -15,10 +15,18 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
-{
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+#include <intrin.h>
+#include <immintrin.h>
+#include <ammintrin.h>
+
+// LOW_PRIORITY: Compiler specific intrinsics. Create as needed
+#ifdef SSSENGINE_MSVC
+#elif SSSENGINE_MINGW
+#endif
+
+// LOW_PRIORITY: Other intrinsics. Create as needed
+// INVESTIGATE: Naming convention
+using Vector128 = __m128;
+using Vector256 = __m256;

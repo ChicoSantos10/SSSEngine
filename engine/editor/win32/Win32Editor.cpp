@@ -15,10 +15,13 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#include "Platform.h"
+#include "Application.h"
 
-namespace SSSTest
+#include "Win32Entry.h"
+
+void SSSEngine::Platform::RunApplication(int argc, char *argv[])
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    Editor::Application app;
+    app.Run();
+}

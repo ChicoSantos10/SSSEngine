@@ -15,10 +15,22 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include "Vector.h"
+
+namespace SSSEngine::Core::Gameobjects
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    /**
+     * @class Camera
+     * @brief Represents a game camera
+     *
+     */
+    struct Camera
+    {
+        // TODO: This will need Quaternion instead of rotation. Maybe have transform as well but camera probably wont
+        // need a scale
+        Math::Float3 position{};
+        Math::Float3 rotation{};
+    };
+} // namespace SSSEngine::Core::Gameobjects

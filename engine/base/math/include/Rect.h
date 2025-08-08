@@ -15,10 +15,23 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+#include "Concepts.h"
+
+namespace SSSEngine::Math
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    /**
+     * @brief A rect represented by top left position and width and height
+     *
+     * @tparam T An integer type
+     */
+    template<IntegralConcept T>
+    struct Rect
+    {
+        T x;
+        T y;
+        T width;
+        T height;
+    };
+} // namespace SSSEngine::Math

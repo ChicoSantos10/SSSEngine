@@ -15,10 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+namespace SSSEngine::Renderer
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    /**
+     * @brief How many buffers to use
+     */
+    constexpr int BackBuffersAmount = 3;
+} // namespace SSSEngine::Renderer

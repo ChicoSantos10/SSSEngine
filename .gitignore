@@ -49,6 +49,14 @@
 **/compile_commands.json
 **/.cache
 cmake-variants.yaml
+Testing
 
 # Directories
 .idea
+
+# Clang Tidy
+**/.clang-tidy
+
+# Thirdparty
+thirdparty/include/**
+thirdparty/libs/**

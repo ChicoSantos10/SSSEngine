@@ -15,10 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#include "Test.h"
 
-namespace SSSTest
+// INVESTIGATE: Should we still differentiate between windows and others? This does not need to be a gui app so we
+// don't need winMain so verify that we do not set the compiler option for that
+int main()
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    SSSTest::Test::Execute();
+    return SSSTest::Succeeded ? 0 : 1;
+}

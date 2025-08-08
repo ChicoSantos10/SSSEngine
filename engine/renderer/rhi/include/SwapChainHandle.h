@@ -15,10 +15,15 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#pragma once
 
-namespace SSSTest
+namespace SSSEngine::Renderer
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    // INVESTIGATE: This could just be a handle instead of specific type
+    // Issue would be that it could be passed for different scenarios
+    // It actually can be a window id only
+    struct SwapChainHandle
+    {
+        int index;
+    };
+} // namespace SSSEngine::Renderer

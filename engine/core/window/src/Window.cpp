@@ -15,10 +15,22 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "test.h"
-#include "Timer.h"
+#include "Window.h"
+#include "Renderer.h"
+#include "WindowHandle.h"
 
-namespace SSSTest
+namespace SSSEngine::Core
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    Window::Window(const Platform::WindowVec position, const Platform::WindowVec size,
+                   const Platform::WindowTitle &title, const Window *parent) :
+    m_handle{Platform::OpenWindow(position, size, title, parent ? parent->m_handle : nullptr)}
+    {
+        Renderer::CreateSwapChain(m_handle);
+    }
+
+    Window::~Window()
+    {
+        // INVESTIGATE: Should we release the swap chain?
+        // SSSRenderer::ReleaseSwapChain();
+    }
+} // namespace SSSEngine::Core

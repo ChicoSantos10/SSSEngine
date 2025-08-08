@@ -1,0 +1,4 @@
+target_include_directories(SSSRenderer PUBLIC include)
+
+add_library(SSSRendererInternal INTERFACE)
+target_include_directories(SSSRenderer PUBLIC internal)

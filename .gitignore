@@ -31,9 +31,13 @@
 *.out
 *.app
 
-# CMake
-**/build-debug
-**/build-release
+# CMake and build directories
+**/build*/
+**/*build*/
+**/.build/
+**/build-debug/
+**/build-release/
+**/build-debug-msvc/
 **/CMakeCache.txt
 **/cmake_install.cmake
 **/install_manifest.txt
@@ -43,7 +47,16 @@
 **/*.cbp
 **/CMakeScripts
 **/compile_commands.json
+**/.cache
+cmake-variants.yaml
+Testing
 
 # Directories
 .idea
 
+# Clang Tidy
+**/.clang-tidy
+
+# Thirdparty
+thirdparty/include/**
+thirdparty/libs/**

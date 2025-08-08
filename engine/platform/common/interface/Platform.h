@@ -1,0 +1,34 @@
+/*  SSS Engine
+    Copyright (C) ${YEAR}  Francisco Santos
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#pragma once
+
+#include "Attributes.h"
+
+namespace SSSEngine::Platform
+{
+#ifdef SSSENGINE_WIN32
+    // TODO: Implement WindowHandle as a struct instead of type alias in platform specific code
+    using WindowHandle = void *;
+    using WindowTitle = const wchar_t *; // LOW_PRIORITY: Create definitions for this like UTF8 and stuff
+    SSSENGINE_MAYBE_UNUSED constexpr WindowTitle MainWindowName = L"SSS Engine";
+#else
+    #error Platform not currently supported
+#endif
+
+    void RunApplication(int argc, char *argv[]);
+} // namespace SSSEngine::Platform

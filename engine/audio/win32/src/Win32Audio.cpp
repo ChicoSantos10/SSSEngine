@@ -19,5 +19,8 @@
 
 namespace SSSEngine::Audio
 {
-    void Init() {}
+    void Init()
+    {
+        // TODO: Implement audio initialization using a low level approach probably using WASAPI
+    }
 } // namespace SSSEngine::Audio

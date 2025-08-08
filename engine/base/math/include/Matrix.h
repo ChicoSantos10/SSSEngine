@@ -91,13 +91,19 @@ namespace SSSEngine::Math
     template<typename T>
     concept MatrixTypeConcept = IsMatrix<T, Matrix>::value;
 
+    SSSENGINE_STATIC_ASSERT(MatrixTypeConcept<Mat4x4f>, "Mat4x4f is a matrix")
+    SSSENGINE_STATIC_ASSERT(!MatrixTypeConcept<int>, "int is not a matrix")
+
     /**
      * @brief Concept of a Matrix where Columns are the same as Rows
      *
      * @tparam T A type of matrix
      */
     template<typename T>
-    concept SquareMatrixConcept = requires { MatrixTypeConcept<T> &&T::Rows() == T::Columns(); };
+    concept SquareMatrixConcept = MatrixTypeConcept<T> && T::Rows() == T::Columns();
+
+    SSSENGINE_STATIC_ASSERT((SquareMatrixConcept<Matrix<float, 4, 4>>), "A 4x4 matrix is a square matrix");
+    SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
 
     template<MatrixTypeConcept T, MatrixTypeConcept V>
         requires(std::same_as<T, V>) && (T::Columns() == V::Rows())

@@ -28,172 +28,154 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T>
     struct Vector2
     {
-        T X{0}, Y{0};
+        T X{0};
+        T Y{0};
+
+        friend SSSENGINE_GLOBAL Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        {
+            return {lhs.X + rhs.X, lhs.Y + rhs.Y};
+        }
+
+        friend SSSENGINE_GLOBAL Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs)
+        {
+            return {lhs.X - rhs.X, lhs.Y - rhs.Y};
+        }
+
+        friend SSSENGINE_GLOBAL Vector2<T> operator*(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        {
+            return {lhs.X * rhs.X, lhs.Y * rhs.Y};
+        }
+
+        friend SSSENGINE_GLOBAL Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs)
+        {
+            return {lhs.X / rhs.X, lhs.Y / rhs.Y};
+        }
+
+        friend SSSENGINE_GLOBAL Vector2<T> operator*(Vector2<T> lhs, T scalar)
+        {
+            return {lhs.X * scalar, lhs.Y * scalar};
+        }
+
+        friend SSSENGINE_GLOBAL Vector2<T> operator/(Vector2<T> vector, T scalar)
+        {
+            return {vector.X / scalar, vector.Y / scalar};
+        }
+
+        friend SSSENGINE_GLOBAL Vector2<T> operator*(T scalar, Vector2<T> vector)
+        {
+            return vector * scalar;
+        }
+
+        friend SSSENGINE_GLOBAL bool operator==(Vector2<T> lhs, Vector2<T> rhs)
+        {
+            return lhs.X == rhs.X && lhs.Y == rhs.Y;
+        }
     };
 
     template<SSSEngine::NumberConcept T>
     struct Vector3
     {
-        T X{0}, Y{0}, Z{0};
+        T X{0};
+        T Y{0};
+        T Z{0};
+
+        friend SSSENGINE_GLOBAL Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
+        {
+            return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z};
+        }
+
+        friend SSSENGINE_GLOBAL Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs)
+        {
+            return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z};
+        }
+
+        friend SSSENGINE_GLOBAL Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs)
+        {
+            return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z};
+        }
+
+        friend SSSENGINE_GLOBAL Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs)
+        {
+            return {lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z};
+        }
+
+        friend SSSENGINE_GLOBAL Vector3<T> operator*(Vector3<T> lhs, T scalar)
+        {
+            return {lhs.X * scalar, lhs.Y * scalar, lhs.Z * scalar};
+        }
+
+        friend SSSENGINE_GLOBAL Vector3<T> operator/(Vector3<T> vector, T scalar)
+        {
+            return {vector.X / scalar, vector.Y / scalar, vector.Z / scalar};
+        }
+
+        friend SSSENGINE_GLOBAL Vector3<T> operator*(T scalar, Vector3<T> vector)
+        {
+            return vector * scalar;
+        }
+
+        friend SSSENGINE_GLOBAL bool operator==(Vector3<T> lhs, Vector3<T> rhs)
+        {
+            return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
+        }
     };
 
     template<SSSEngine::NumberConcept T>
     struct Vector4
     {
-        T X{0}, Y{0}, Z{0}, W{0};
+        T X{0};
+        T Y{0};
+        T Z{0};
+        T W{0};
+
+        friend SSSENGINE_GLOBAL Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)
+        {
+            return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W};
+        }
+
+        friend SSSENGINE_GLOBAL Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs)
+        {
+            return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z, lhs.W - rhs.W};
+        }
+
+        friend SSSENGINE_GLOBAL Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs)
+        {
+            return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z, lhs.W * rhs.W};
+        }
+
+        friend SSSENGINE_GLOBAL Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs)
+        {
+            return {lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z, lhs.W / rhs.W};
+        }
+
+        friend SSSENGINE_GLOBAL Vector4<T> operator*(Vector4<T> lhs, T scalar)
+        {
+            return {lhs.X * scalar, lhs.Y * scalar, lhs.Z * scalar, lhs.W * scalar};
+        }
+
+        friend SSSENGINE_GLOBAL Vector4<T> operator/(Vector4<T> vector, T scalar)
+        {
+            return {vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar};
+        }
+
+        friend SSSENGINE_GLOBAL Vector4<T> operator*(T scalar, Vector4<T> vector)
+        {
+            return vector * scalar;
+        }
+
+        friend SSSENGINE_GLOBAL bool operator==(Vector4<T> lhs, Vector4<T> rhs)
+        {
+            return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z && lhs.W == rhs.W;
+        }
     };
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector2<T> operator+(Vector2<T> lhs, Vector2<T> rhs)
-    {
-        return {lhs.X + rhs.X, lhs.Y + rhs.Y};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
-    {
-        return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)
-    {
-        return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs)
-    {
-        return {lhs.X - rhs.X, lhs.Y - rhs.Y};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs)
-    {
-        return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs)
-    {
-        return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z, lhs.W - rhs.W};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector2<T> operator*(Vector2<T> lhs, Vector2<T> rhs)
-    {
-        return {lhs.X * rhs.X, lhs.Y * rhs.Y};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs)
-    {
-        return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs)
-    {
-        return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z, lhs.W * rhs.W};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs)
-    {
-        return {lhs.X / rhs.X, lhs.Y / rhs.Y};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs)
-    {
-        return {lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs)
-    {
-        return {lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z, lhs.W / rhs.W};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector2<T> operator*(Vector2<T> lhs, T scalar)
-    {
-        return {lhs.X * scalar, lhs.Y * scalar};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector3<T> operator*(Vector3<T> lhs, T scalar)
-    {
-        return {lhs.X * scalar, lhs.Y * scalar, lhs.Z * scalar};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector4<T> operator*(Vector4<T> lhs, T scalar)
-    {
-        return {lhs.X * scalar, lhs.Y * scalar, lhs.Z * scalar, lhs.W * scalar};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector2<T> operator/(Vector2<T> vector, T scalar)
-    {
-        return {vector.X / scalar, vector.Y / scalar};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector3<T> operator/(Vector3<T> vector, T scalar)
-    {
-        return {vector.X / scalar, vector.Y / scalar, vector.Z / scalar};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector4<T> operator/(Vector4<T> vector, T scalar)
-    {
-        return {vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar};
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector2<T> operator*(T scalar, Vector2<T> vector)
-    {
-        return vector * scalar;
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector3<T> operator*(T scalar, Vector3<T> vector)
-    {
-        return vector * scalar;
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL Vector4<T> operator*(T scalar, Vector4<T> vector)
-    {
-        return vector * scalar;
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL bool operator==(Vector2<T> lhs, Vector2<T> rhs)
-    {
-        return lhs.X == rhs.X && lhs.Y == rhs.Y;
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL bool operator==(Vector3<T> lhs, Vector3<T> rhs)
-    {
-        return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
-    }
-
-    template<SSSEngine::NumberConcept T>
-    SSSENGINE_GLOBAL bool operator==(Vector4<T> lhs, Vector4<T> rhs)
-    {
-        return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z && lhs.W == rhs.W;
-    }
 
     // INVESTIGATE: Should this be in a different file?
     using Int2 = Vector2<i32>;
-    using Int4 = Vector4<i32>;
     using Int3 = Vector3<i32>;
+    using Int4 = Vector4<i32>;
     using UInt2 = Vector2<u32>;
-    using UInt4 = Vector4<u32>;
     using UInt3 = Vector3<u32>;
+    using UInt4 = Vector4<u32>;
     using Float2 = Vector2<f32>;
     using Float3 = Vector3<f32>;
     using Float4 = Vector4<f32>;

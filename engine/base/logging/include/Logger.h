@@ -58,13 +58,14 @@ namespace SSSEngine::Logging
     {
         switch(level)
         {
-            case LogLevel::Info:
+            using enum LogLevel;
+            case Info:
                 std::wcout << L"[INFO]: " << message << "\n";
                 break;
-            case LogLevel::Warning:
+            case Warning:
                 std::wcout << L"[WARNING]: " << message << "\n";
                 break;
-            case LogLevel::Error:
+            case Error:
                 std::wcerr << L"[ERROR]: " << message << "\n";
                 break;
             default:

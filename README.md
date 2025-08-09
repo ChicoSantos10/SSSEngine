@@ -1,5 +1,7 @@
 # SSS Engine
 
+<img src="SSSEngineLogo.png" alt="Logo" width="350" style="margin:auto;display:block">
+
 ## Background
 
 Modern game development demands engines that can handle photorealistic graphics, complex physics, and massive game
@@ -11,22 +13,49 @@ without the overhead of typical monolithic engines. The engine should support bo
 ECS (Entity Component System) architectures, and be extensible to support custom rendering pipelines, physics backends,
 and scripting layers.
 
-The architecture will be designed with modern C++ and offer direct access to system-level resources where necessary to
-maximize performance. It will adopt best practices for high-performance focusing on minimal overhead, cache-aware data
-layouts, and parallel execution.
+The architecture will be designed with modern, yet simple C++ and offer direct access to system-level resources where
+necessary to maximize performance. It will adopt best practices for high-performance focusing on minimal overhead,
+cache-aware data layouts, and parallel execution.
 
-***This is a WIP. As development goes this readme will get updated to represent the new ideas and changes. This is
-purely a way to organize some ideas that I have for the engine and not final.***
+***This is a WIP. As development goes this README will get updated to represent the new ideas and changes. This is
+purely a way to organize some ideas that I have for the engine and are not final.***
 
 ## Motivation
 
 Even though game engines are fairly well optimized and built decently, I think the overall direction we are going is not
 the best. Instead of having great graphics with amazing performance we are chasing the barely noticeable graphic
-improvements at the high cost of performance.
+improvements at the high cost of performance. 
 
 My goal is to create a simple game engine that will not feature any technology that does not support the high
 performance metric. It's a game engine that will focus on the player experience above anything else. It's better to make
 life harder for designers, artists, and coders if the end product is better for the consumer.
+
+## Getting started
+
+Simply run cmake with the following commands:
+
+``````bash
+cmake -B buildfolder -G yourgenerator 
+cmake --build buildfolder
+``````
+
+Replacing your buildfolder and yourgenerator for your folder and generator of choice.
+
+Please note that I have not tested using Visual Studio as a generator and cannot guarantee it will work. Currently, only
+tested compiler is MSVC and the generator is Ninja.
+
+To run the engine run the following command:
+
+``````cmake
+buildfolder/bin/SSSEngine.exe
+``````
+
+Or simply find the exe at that location and double click it.
+
+## How to contribute
+
+Currently, since the main goal is learning, I would greatly appreciate any constructive criticism or even start a
+discussion on better ways of doing something. In the future I may be open to letting others contribute with features.
 
 ## Requirements
 
@@ -55,7 +84,6 @@ life harder for designers, artists, and coders if the end product is better for 
 
 - Minimalistic scripting interface (e.g., Lua or WASM runtime)
 - Default modules for common downloads like physics as separate installable packages
-- Headless mode for server builds
 
 ### No plans to implement
 
@@ -67,7 +95,7 @@ life harder for designers, artists, and coders if the end product is better for 
 
 ### High-Level Architecture Overview
 
-The engine is divided into two core binaries:
+The engine is divided into three core binaries:
 
 - **Runtime**: The standalone game execution environment
 - **Editor**: Development UI for world editing, asset management, profiling, etc.
@@ -75,45 +103,66 @@ The engine is divided into two core binaries:
 
 A strict separation ensures minimal overhead in runtime and clean module interfaces.
 
-```plantuml
-@startuml
-package "Game Engine" {
-  [Runtime]
-  [Editor]
-  [Project Launcher]
-  [Module Manager] --> [Runtime]
-  [Module Manager] --> [Editor]
-  [Project Launcher] --> [Editor]
-  [Project Launcher] --> [Runtime]
-}
+```mermaid
+graph TD
+    subgraph Base
+        Containers
+        Strings
+        Allocators
+        ...
+    end
 
-package "Runtime" {
-  [Core System] --> [Platform Abstraction Layer]
-  [Renderer] --> [Core System]
-  [Audio System] --> [Core System]
-  [Input System] --> [Core System]
-  [ECS Core] --> [Core System]
-  [Job System] --> [Core System]
-  [Module Loader] --> [Core System]
-}
+    subgraph Game_Engine [Game Engine]
+        Runtime
+        Editor
+        Project_Launcher[Launcher]
+        Windows
+        Linux
 
-package "Editor" {
-  [Editor UI] --> [Core System]
-  [Scene Graph Editor] --> [ECS Core]
-  [Profiler] --> [Job System]
-}
+        Editor --> Project_Launcher
+        Runtime --> Project_Launcher
+        Base --> Windows
+        Base --> Linux
+        Base --> Runtime
+        Base --> Editor
+    end
 
-[Platform Abstraction Layer] --> [Win32 API]
-[Platform Abstraction Layer] --> [Linux]
-@enduml
+    subgraph Runtime
+        Core
+        Platform_Abstraction_Layer[Platform Abstraction Layer]
+        Renderer
+        Audio
+        Input
+
+        Platform_Abstraction_Layer --> Core
+        Platform_Abstraction_Layer --> Renderer
+        Platform_Abstraction_Layer --> Audio
+        Platform_Abstraction_Layer --> Input
+        Renderer --> Core
+        Audio --> Core
+        Input --> Core
+    end
+
+    subgraph Editor
+        Editor_UI[Editor UI]
+        Scene_Graph_Editor[Scene Graph Editor]
+        Profiler
+        Module_Loader[Module Loader]
+    end
+
+    Windows --> Platform_Abstraction_Layer
+    Linux --> Platform_Abstraction_Layer
 ```
+The graph represents the top-down hierarchy. This means that at the top we have the libraries that do not depend on
+anything else.
 
 This layered architecture enforces modularity and high performance by minimizing interdependencies between systems and
 allowing platform-specific code to be isolated in the Platform Abstraction Layer.
 
 ### Module System Design
 
-Modules are compiled as **shared libraries** (`.dll` on Windows, `.so` on Linux) and loaded through the Module Loader.
+Modules are compiled as **shared libraries** (`.dll` on Windows, `.so` on Linux) and loaded through the Module Loader
+while in development. When building the final game they will be built into static libraries.
 
 Each module defines a plain C interface using function pointers (no virtual methods or inheritance) and registers itself
 with the engine during initialization.
@@ -279,45 +328,69 @@ Then each module will be like this:
 # Example for core
 /core/ 
   /.../         # Collection of folders like ECS, JobSystem, ...
-    /include/   # Header files
+    /include/   # Header files meant to be included by the module and/or other libraries
     /internal/  # Optional folder with internal logic that should not leak out of this module (e.g core)
     /src/       # Cpp files
   CMakeLists.txt
 ```
 
-As for namespaces they should at maximum nest 2 times and should be as an example SSSEngine{mainfolder}::{secondaryfolder}
-e.g. SSSEngineCore::ECS.
+As for namespaces they should at maximum nest 3 times and should be as an example **SSSEngine::{mainfolder}::{secondaryfolder}**
+e.g. **SSSEngine::Core::ECS**. For base however we will go with **SSSEngine::{secondaryfolder}** since base is just a collection
+of non-related modules.
 
 ### Build System
 
 - Use **CMake** with separate targets for each module
 - Define platform abstractions using `INTERFACE` targets
 - Cross-compile support for Linux and Windows
-- Different profiles based on the need for assertions, for editor and runtime
+- Different profiles and options based on the need for assertions, for editor and runtime
 
 ### Dependencies
 
 - System APIs only (Win32, Linux, Vulkan SDK, DX12 SDK)
-- This ensures the code is optimized for it's own use case
+- This ensures the code is optimized for its own use case
 - This also allows me to explore and learn more about multiple software and game architecture
+
+### Branching Strategy
+
+- ***main*** will be the latest stable release. Will only be merged from ***release/v#.##.##***
+- ***release/v#.##.##*** will be created when a release is ready and will be merged from ***dev***. Eventually will be merged
+  into ***main*** once stable
+- ***dev*** will be the integration branches for features and bug fixes.
+- ***feature/feature-name*** is a short-lived branching from ***dev*** that gets merged back to ***dev*** after PR and
+  code review
+
+CI will run on PRs to ***dev***. 
+Tags will be lightweight and created for versioning.
+
+### Naming conventions
+
+Each folder should be lowercase, small and ideally 1 word. Files themselves should be PascalCase.
 
 ## Milestones
 
-### Phase 1: Rendering using Directx12
-### Phase 2: Editor GUI
-### Phase 3: Input
-### Phase 4: Audio
-### Phase 5: Core Loop
-### Phase 6: Project Launcher
-### Phase 7: Module System
-### Phase 8: Profiler and optimizations
-### Phase 9: Implementing Linux and Vulkan 
+### Phase 1: Simple platform Windows code 
+- Window Creation ✔
+- Open shared libraries ✔
+- Simple memory allocation and simple allocator
+- Simple containers
+- Simple utf-8 strings and needed conversion to/from ANSI and windows WCHAR*
+
+### Phase 2: Rendering using Directx12
+### Phase 3: Editor GUI
+### Phase 4: Input
+### Phase 5: Audio
+### Phase 6: Core Loop
+### Phase 7: Project Launcher
+### Phase 8: Module System
+### Phase 9: Profiler and optimizations
+### Phase 10: Implementing Linux and Vulkan 
 
 ## Gathering Results
 
 To evaluate system performance and stability:
 
-- Unit and integration tests for ECS, jobs, and rendering
+- Unit and integration tests 
 - Module load/unload stress tests
-- Profiling for frame time, memory usage, and CPU utilization
+- Profiling for frame time, memory usage, and CPU/GPU utilization
 - Validate editor usability with test game projects

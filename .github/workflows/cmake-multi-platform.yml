@@ -23,7 +23,7 @@ jobs:
         compiler: [gcc, clang, cl]
         exclude:
           - os: ubuntu-latest
-            c_compiler: cl
+            compiler: cl
 
     steps:
     - uses: actions/checkout@v4

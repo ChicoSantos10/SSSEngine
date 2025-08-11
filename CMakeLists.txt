@@ -31,6 +31,8 @@ option(ALLOW_NO_INLINE_STATEMENT "Allow Force NO inline statement" ON)
 
 option(ALLOW_LOGGING "Allow logging" ON)
 
+option(ADDRESS_SANITIZER "Run the address sanitizer if available" OFF)
+
 add_compile_definitions(
         "$<$<CONFIG:Debug>:SSSENGINE_DEBUG;SSSENGINE_ASSERTIONS>"
         "$<$<CONFIG:RelWithDebInfo>:SSSENGINE_INTERNAL;SSSENGINE_ASSERTIONS>"
@@ -49,9 +51,13 @@ if (MSVC)
     # INVESTIGATE: What kind of exception handling we want?
     # Do we always want exceptions or maybe only in debug builds. Is it even feasible without littering code with macros
     # everywhere?
-    add_compile_options(/EHsc)
-    add_compile_options("$<$<CONFIG:Debug>:/W4;/WX;/Od;>")
-    add_compile_options("$<$<CONFIG:RelWithDebInfo>:/W4;/WX;/O2;>")
+    add_compile_options()
+    add_compile_options(
+        /EHsc
+        "$<$<CONFIG:Debug>:/W4;/WX;/Od;>"
+        "$<$<CONFIG:RelWithDebInfo>:/W4;/WX;/O2;>"
+        "$<$<BOOL:${ADDRESS_SANITIZER}>:/fsanitizer=address>"
+    )
     # NOTE: Disable certain warnings
     add_compile_options(
             "$<$<CONFIG:Debug,RelWithDebugInfo>:/wd4100;/wd4189>"
@@ -64,6 +70,9 @@ elseif (MINGW)
         set(CLANG TRUE)
         add_compile_definitions(SSSENGINE_CLANG)
         message(FATAL_ERROR "Finish before porting to CLANG")
+        add_compile_options(
+            "$<$<BOOL:${ADDRESS_SANITIZER}>:-fsanitizer=address>"
+        )
     else ()
         set(GCC TRUE)
         add_compile_definitions(SSSENGINE_GCC)

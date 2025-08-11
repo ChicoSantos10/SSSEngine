@@ -16,11 +16,12 @@ jobs:
       fail-fast: false
 
       matrix:
-        # We haven't tested ubuntu-latest so we don't have it here yet
+        # We haven't added ubuntu-latest so we don't have it here yet
         # Also we don't need to test release yet
         os: [windows-latest]
         build_type: [Debug]
-        compiler: [gcc, clang, cl]
+        # We currently are only using msvc. Will add support for gcc and clang later
+        compiler: [cl]
         exclude:
           - os: ubuntu-latest
             compiler: cl

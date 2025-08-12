@@ -10,8 +10,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - run: sudo apt-get install -y doxygen graphviz
-
+    - run: |
+          wget https://doxygen.nl/files/doxygen-1.14.0.linux.bin.tar.gz
+          tar -xzf doxygen-1.14.0.linux.bin.tar.gz
+          sudo cp doxygen-1.14.0/bin/doxygen /usr/local/bin/
     - name: Generate internal docs
       run: cd docs/internal && doxygen Doxyfile_internal
     - name: Generate public docs

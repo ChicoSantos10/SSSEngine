@@ -1,5 +1,0 @@
-var dir_502c28c27d00864c6b48cac76d92e39a =
-[
-    [ "directx12", "dir_e41da895be670b957fd79fe949e25705.html", "dir_e41da895be670b957fd79fe949e25705" ],
-    [ "rhi", "dir_76793642983438b8f497971df51c4771.html", "dir_76793642983438b8f497971df51c4771" ]
-];

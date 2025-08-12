@@ -1,5 +1,0 @@
-var dir_d68446314163d2f04f4d97fd6b76a265 =
-[
-    [ "ahi", "dir_37b61f69206408918b494d62ce6d108b.html", "dir_37b61f69206408918b494d62ce6d108b" ],
-    [ "win32", "dir_d2f3027f605ca1567531cbace4c4123a.html", "dir_d2f3027f605ca1567531cbace4c4123a" ]
-];

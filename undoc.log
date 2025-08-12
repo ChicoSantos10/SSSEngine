@@ -1,0 +1,286 @@
+N:/C++Projects/SSSEngine/engine/audio/ahi/include/Audio.h:26: warning: missing argument after '\namespace'.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:30: warning: missing argument after '\namespace'.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:38: warning: Compound SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:29: warning: Compound SSSEngine::Core::Gameobjects::SubmeshData is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:34: warning: Compound SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:81: warning: Compound SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:129: warning: Compound SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/ShaderCompiler.h:33: warning: Compound SSSEngine::Renderer::DirectX12::Shader is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:41: warning: Compound SSSEngine::Renderer::DirectX12::UploadBuffer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/SwapChainHandle.h:30: warning: Compound SSSEngine::Renderer::SwapChainHandle is not documented.
+N:/C++Projects/SSSEngine/engine/base/logging/include/Logger.h:101: warning: Member SSSENGINE_LOG_INFO(message,...) (macro definition) of file Logger.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/logging/include/Logger.h:102: warning: Member SSSENGINE_LOG_WARNING(message,...) (macro definition) of file Logger.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/logging/include/Logger.h:103: warning: Member SSSENGINE_LOG_ERROR(message,...) (macro definition) of file Logger.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:34: warning: Member MatrixSize (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:82: warning: Member Mat4x4f (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:123: warning: Member SSSENGINE_STATIC_ASSERT((SquareMatrixConcept< Matrix< float, 4, 4 > >), "A 4x4 matrix is a square matrix") (function) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:124: warning: Member SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept< Matrix< float, 3, 4 > >), "A 3x4 matrix is not a square matrix") (function) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:128: warning: Member operator*(const T &lhs, const V &rhs) (function) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:152: warning: Member operator==(const T &lhs, const T &rhs) (function) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:170: warning: Member operator!=(const T &lhs, const T &rhs) (function) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:178: warning: Member Int2 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:179: warning: Member Int3 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:180: warning: Member Int4 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:181: warning: Member UInt2 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:182: warning: Member UInt3 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:183: warning: Member UInt4 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:184: warning: Member Float2 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:185: warning: Member Float3 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:186: warning: Member Float4 (typedef) of namespace SSSEngine::Math is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:28: warning: Member SSSENGINE_DLL_EXPORT (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:29: warning: Member SSSENGINE_DLL_IMPORT (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:40: warning: Member SSSENGINE_FORCE_INLINE (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:50: warning: Member SSSENGINE_NO_INLINE (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:66: warning: Member SSSENGINE_HINT_INLINE_STATEMENT (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:67: warning: Member SSSENGINE_HINT_INLINE_STATEMENT_RECURSIVE (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:84: warning: Member SSSENGINE_FORCE_INLINE_STATEMENT (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:85: warning: Member SSSENGINE_FORCE_INLINE_STATEMENT_RECURSIVE (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:96: warning: Member SSSENGINE_NO_INLINE_STATEMENT (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:103: warning: Member SSSENGINE_PURE (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:104: warning: Member SSSENGINE_NO_RETURN (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:105: warning: Member SSSENGINE_FALLTHROUGH (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:106: warning: Member SSSENGINE_DEPRECATED(reason) (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:107: warning: Member SSSENGINE_CARRIES_DEPENDENCY (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:108: warning: Member SSSENGINE_LIKELY (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:109: warning: Member SSSENGINE_UNLIKELY (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:110: warning: Member SSSENGINE_NO_UNIQUE_ADDRESS (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:116: warning: Member SSSENGINE_INDETERMINATE (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:118: warning: Member SSSENGINE_MAYBE_UNUSED (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:123: warning: Member SSSENGINE_PACK_PUSH(command) (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:124: warning: Member SSSENGINE_PACK_SHOW (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h:125: warning: Member SSSENGINE_PACK_POP (macro definition) of file Attributes.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Debug.h:64: warning: Member SSSENGINE_ASSERT(expression) (macro definition) of file Debug.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Debug.h:72: warning: Member SSSENGINE_STATIC_ASSERT(expression, message) (macro definition) of file Debug.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:25: warning: Member SSSENGINE_WIDE_STRING_(x) (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:26: warning: Member SSSENGINE_WIDE_STRING(x) (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:27: warning: Member SSSENGINE_WIDE(x) (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:29: warning: Member SSSENGINE_PRAGMA(x) (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:31: warning: Member SSSENGINE_GLOBAL (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:32: warning: Member SSSENGINE_INTERNAL (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:33: warning: Member SSSENGINE_FUNCTION_LOCAL (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h:35: warning: Member SSSENGINE_LIB(library) (macro definition) of file HelperMacros.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Intrinsics.h:36: warning: Member Vector128 (typedef) of file Intrinsics.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Intrinsics.h:37: warning: Member Vector256 (typedef) of file Intrinsics.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:28: warning: Member i8 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:29: warning: Member i16 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:30: warning: Member i32 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:31: warning: Member i64 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:32: warning: Member u8 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:33: warning: Member u16 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:34: warning: Member u32 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:35: warning: Member u64 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:36: warning: Member f32 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:37: warning: Member f64 (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:38: warning: Member byte (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:40: warning: Member min8i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:41: warning: Member min16i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:42: warning: Member min32i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:43: warning: Member min64i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:44: warning: Member min8u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:45: warning: Member min16u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:46: warning: Member min32u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:47: warning: Member min64u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:49: warning: Member fast8i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:50: warning: Member fast16i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:51: warning: Member fast32i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:52: warning: Member fast64i (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:53: warning: Member fast8u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:54: warning: Member fast16u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:55: warning: Member fast32u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:56: warning: Member fast64u (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:58: warning: Member maxint (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:59: warning: Member intptr (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:60: warning: Member maxuint (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:61: warning: Member uintptr (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:63: warning: Member functionPtr (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:64: warning: Member objPtr (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Types.h:66: warning: Member size (typedef) of file Types.h is not documented.
+N:/C++Projects/SSSEngine/engine/input/ihi/include/ButtonState.h:29: warning: Member ButtonState (enumeration) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/input/win32/src/Win32Input.cpp:32: warning: Member HandleInput() (function) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/input/win32/src/Win32Input.cpp:57: warning: Member GamepadInput() (function) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/input/ihi/include/Input.h:36: warning: Member KeyboardButtons (variable) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/input/ihi/include/Input.h:37: warning: Member MouseButtons (variable) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/input/ihi/include/Input.h:38: warning: Member MouseDirection (variable) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/input/ihi/include/Keycodes.h:29: warning: Member KeyboardCodes (enumeration) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/input/ihi/include/Keycodes.h:129: warning: Member MouseButton (enumeration) of namespace SSSEngine::Input is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Platform.h:38: warning: Member RunApplication(int argc, char *argv[]) (function) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h:36: warning: Member SSSENGINE_STATIC_ASSERT(1 '000 '000==SSSEngine::Platform::Microseconds, "1 Microsecond must be 1 000 000 seconds") (function) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h:37: warning: Member SSSENGINE_STATIC_ASSERT(1 '000==SSSEngine::Platform::Miliseconds, "1 Milisecond must be 1 000 seconds") (function) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h:49: warning: Member operator+(Timestamp lhs, Timestamp rhs) (function) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h:54: warning: Member operator-(Timestamp lhs, Timestamp rhs) (function) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h:33: warning: Member Microseconds (variable) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h:34: warning: Member Miliseconds (variable) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/WindowHandle.h:31: warning: Member WindowSize (typedef) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/WindowHandle.h:32: warning: Member WindowRect (typedef) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/WindowHandle.h:33: warning: Member WindowVec (typedef) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Entry.h:157: warning: Member InitConsole() (function) of file Win32Entry.h is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Entry.h:166: warning: Member CloseConsole() (function) of file Win32Entry.h is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Entry.h:47: warning: Member __declspec(dllexport) extern const UINT D3D12SDKVersion (function) of file Win32Entry.h is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Entry.h:58: warning: Member wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd) (function) of file Win32Entry.h is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Entry.h:51: warning: Member WindowClassName[] (variable) of file Win32Entry.h is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Utils.h:34: warning: Member SSSENGINE_THROW_IF_FAILED(hr) (macro definition) of file Win32Utils.h is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/src/Win32Utils.cpp:33: warning: Member ThrowIfFailed(HRESULT hr) (function) of namespace SSSEngine::Platform::Win32 is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/src/Win32Utils.cpp:47: warning: Member GetErrorMessage(HRESULT hr, char *message) (function) of namespace SSSEngine::Platform::Win32 is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Window.h:39: warning: Member MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam) (function) of namespace SSSEngine::Platform::Win32 is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/internal/Win32Window.h:34: warning: Member WindowClass (variable) of namespace SSSEngine::Platform::Win32 is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/src/Win32Debug.cpp:32: warning: Member Trim(wchar_t *string) (function) of file Win32Debug.cpp is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/src/Win32Debug.cpp:49: warning: Member ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line) (function) of file Win32Debug.cpp is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/src/Win32Timer.cpp:35: warning: Member Frequency (variable) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/src/Win32WindowHandle.cpp:37: warning: Member WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass, const DWORD_PTR dwRefData) (function) of namespace SSSEngine::Platform::Win32 is not documented.
+N:/C++Projects/SSSEngine/engine/platform/win32/src/Win32WindowHandle.cpp:144: warning: Member SetBorderlessFullscreen(WindowHandle handle, bool fullscreen, LONG styles) (function) of namespace SSSEngine::Platform is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/DefaultBuffer.h:41: warning: Member CreateDefaultBuffer(ID3D12GraphicsCommandList *cmdList, const void *data, u64 byteSize, Microsoft::WRL::ComPtr< ID3D12Resource > &uploadBuffer) (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/Device.h:31: warning: Member Device (variable) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/Factory.h:31: warning: Member Factory (variable) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:106: warning: Member GetDescriptorHandle(const Microsoft::WRL::ComPtr< ID3D12DescriptorHeap > &descriptorHeap) (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/ShaderCompiler.h:39: warning: Member CompileShader(LPCWSTR file) (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:35: warning: Member GetConstantBufferByteSize(u64 size) (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:90: warning: Member FindMaxFeatureLevel() (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:108: warning: Member Initialize() (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:309: warning: Member Render() (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:346: warning: Member BeginFrame() (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:354: warning: Member ResizeSwapChain(const SSSEngine::Platform::WindowHandle &window) (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:364: warning: Member CreateSwapChain(const SSSEngine::Platform::WindowHandle &window) (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:370: warning: Member LoadAssetsTest() (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/src/Directx12.cpp:459: warning: Member Terminate() (function) of namespace SSSEngine::Renderer::DirectX12 is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:35: warning: Member CreateSwapChain_t (typedef) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:36: warning: Member Render_t (typedef) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:37: warning: Member Terminate_t (typedef) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:38: warning: Member LoadAssetsTest_t (typedef) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:39: warning: Member ResizeSwapChain_t (typedef) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:40: warning: Member BeginFrame_t (typedef) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/src/Renderer.cpp:39: warning: Member LoadDirectx() (function) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/src/Renderer.cpp:32: warning: Member Unload() (function) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:42: warning: Member CreateSwapChain (variable) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:43: warning: Member Render (variable) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:44: warning: Member Terminate (variable) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:45: warning: Member LoadAssetsTest (variable) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:46: warning: Member ResizeSwapChain (variable) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Renderer.h:47: warning: Member BeginFrame (variable) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/src/Renderer.cpp:28: warning: Member Init_t (typedef) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/src/Renderer.cpp:30: warning: Member Module (variable) of namespace SSSEngine::Renderer is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Exceptions.h:39: warning: Member what() const noexcept override (function) of class NotImplementedException is not documented.
+N:/C++Projects/SSSEngine/engine/base/utils/include/Exceptions.h:36: warning: Member Reason (variable) of class NotImplementedException is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:39: warning: Member Window(Platform::WindowVec position, Platform::WindowVec size, const Platform::WindowTitle &title, const Window *parent=nullptr) (function) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:47: warning: Member GetHandle() const noexcept (function) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:55: warning: Member GetSize() const noexcept (function) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:60: warning: Member GetRect() const noexcept (function) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:65: warning: Member SetWindowTitle(Platform::WindowTitle title) const (function) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:71: warning: Member SetBorderlessFullscreen(bool fullscreen) const (function) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:76: warning: Member ToggleBorderlessFullscreen() const (function) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/window/include/Window.h:91: warning: Member m_handle (variable) of class SSSEngine::Core::Window is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Camera.h:38: warning: Member position (variable) of class SSSEngine::Core::Gameobjects::Camera is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Camera.h:39: warning: Member rotation (variable) of class SSSEngine::Core::Gameobjects::Camera is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:41: warning: Member vertexBufferCpu (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:42: warning: Member indexBufferCpu (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:43: warning: Member vertexBufferGpu (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:44: warning: Member indexBufferGpu (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:45: warning: Member vertexBufferUploader (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:46: warning: Member indexBufferUploader (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:48: warning: Member vertexByteStride (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:48: warning: Member vertexBufferByteSize (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:50: warning: Member indexBufferByteSize (variable) of struct SSSEngine::Core::Gameobjects::MeshGeometry is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:31: warning: Member indexCount (variable) of struct SSSEngine::Core::Gameobjects::SubmeshData is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:32: warning: Member startIndex (variable) of struct SSSEngine::Core::Gameobjects::SubmeshData is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Mesh.h:33: warning: Member baseVertexLocation (variable) of struct SSSEngine::Core::Gameobjects::SubmeshData is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Transform.h:36: warning: Member position (variable) of class SSSEngine::Core::Gameobjects::Transform is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Transform.h:37: warning: Member rotation (variable) of class SSSEngine::Core::Gameobjects::Transform is not documented.
+N:/C++Projects/SSSEngine/engine/core/gameobjects/include/Transform.h:38: warning: Member scale (variable) of class SSSEngine::Core::Gameobjects::Transform is not documented.
+N:/C++Projects/SSSEngine/engine/editor/include/Application.h:52: warning: Member Run() (function) of class SSSEngine::Editor::Application is not documented.
+N:/C++Projects/SSSEngine/engine/editor/include/Application.h:55: warning: Member m_Window (variable) of class SSSEngine::Editor::Application is not documented.
+N:/C++Projects/SSSEngine/engine/editor/include/Application.h:56: warning: Member m_Running (variable) of class SSSEngine::Editor::Application is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:60: warning: Member Type (typedef) of struct SSSEngine::Math::Matrix is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:65: warning: Member operator[](this Self &&self, MatrixSize row, MatrixSize col) (function) of struct SSSEngine::Math::Matrix is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:74: warning: Member operator[](this Self &&self, MatrixSize index) (function) of struct SSSEngine::Math::Matrix is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:45: warning: Member Rows() (function) of struct SSSEngine::Math::Matrix is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:50: warning: Member Columns() (function) of struct SSSEngine::Math::Matrix is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:55: warning: Member NumberElements() (function) of struct SSSEngine::Math::Matrix is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Matrix.h:62: warning: Member data[NumberElements()] (variable) of struct SSSEngine::Math::Matrix is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Rect.h:37: warning: Member x (variable) of struct SSSEngine::Math::Rect is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Rect.h:38: warning: Member y (variable) of struct SSSEngine::Math::Rect is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Rect.h:39: warning: Member width (variable) of struct SSSEngine::Math::Rect is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Rect.h:40: warning: Member height (variable) of struct SSSEngine::Math::Rect is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:36: warning: Member X (variable) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:37: warning: Member Y (variable) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:39: warning: Member operator+(const Vector2< T > &lhs, const Vector2< T > &rhs) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:44: warning: Member operator-(Vector2< T > lhs, Vector2< T > rhs) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:49: warning: Member operator*(const Vector2< T > &lhs, const Vector2< T > &rhs) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:54: warning: Member operator/(Vector2< T > lhs, Vector2< T > rhs) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:59: warning: Member operator*(Vector2< T > lhs, T scalar) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:64: warning: Member operator/(Vector2< T > vector, T scalar) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:69: warning: Member operator*(T scalar, Vector2< T > vector) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:74: warning: Member operator==(Vector2< T > lhs, Vector2< T > rhs) (friend) of struct SSSEngine::Math::Vector2 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:83: warning: Member X (variable) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:84: warning: Member Y (variable) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:85: warning: Member Z (variable) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:87: warning: Member operator+(Vector3< T > lhs, Vector3< T > rhs) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:92: warning: Member operator-(Vector3< T > lhs, Vector3< T > rhs) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:97: warning: Member operator*(Vector3< T > lhs, Vector3< T > rhs) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:102: warning: Member operator/(Vector3< T > lhs, Vector3< T > rhs) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:107: warning: Member operator*(Vector3< T > lhs, T scalar) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:112: warning: Member operator/(Vector3< T > vector, T scalar) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:117: warning: Member operator*(T scalar, Vector3< T > vector) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:122: warning: Member operator==(Vector3< T > lhs, Vector3< T > rhs) (friend) of struct SSSEngine::Math::Vector3 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:131: warning: Member X (variable) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:132: warning: Member Y (variable) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:133: warning: Member Z (variable) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:134: warning: Member W (variable) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:136: warning: Member operator+(Vector4< T > lhs, Vector4< T > rhs) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:141: warning: Member operator-(Vector4< T > lhs, Vector4< T > rhs) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:146: warning: Member operator*(Vector4< T > lhs, Vector4< T > rhs) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:151: warning: Member operator/(Vector4< T > lhs, Vector4< T > rhs) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:156: warning: Member operator*(Vector4< T > lhs, T scalar) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:161: warning: Member operator/(Vector4< T > vector, T scalar) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:166: warning: Member operator*(T scalar, Vector4< T > vector) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/base/math/include/Vector.h:171: warning: Member operator==(Vector4< T > lhs, Vector4< T > rhs) (friend) of struct SSSEngine::Math::Vector4 is not documented.
+N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h:46: warning: Member time (variable) of class SSSEngine::Platform::Timestamp is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:36: warning: Member R (variable) of class SSSEngine::Renderer::Color32RGBA is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:36: warning: Member G (variable) of class SSSEngine::Renderer::Color32RGBA is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:36: warning: Member B (variable) of class SSSEngine::Renderer::Color32RGBA is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:36: warning: Member A (variable) of class SSSEngine::Renderer::Color32RGBA is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:46: warning: Member R (variable) of class SSSEngine::Renderer::ColorRGB is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:46: warning: Member G (variable) of class SSSEngine::Renderer::ColorRGB is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:46: warning: Member B (variable) of class SSSEngine::Renderer::ColorRGB is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:56: warning: Member RGB (variable) of class SSSEngine::Renderer::ColorRGBA is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/ColorRGB.h:57: warning: Member A (variable) of class SSSEngine::Renderer::ColorRGBA is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/SwapChainHandle.h:32: warning: Member index (variable) of struct SSSEngine::Renderer::SwapChainHandle is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Vertex.h:37: warning: Member Position (variable) of class SSSEngine::Renderer::Vertex is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/rhi/include/Vertex.h:39: warning: Member Color (variable) of class SSSEngine::Renderer::Vertex is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:49: warning: Member RenderingContext(const SSSEngine::Platform::WindowHandle &window) (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:50: warning: Member RenderingContext(RenderingContext &&)=default (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:56: warning: Member ResizeSwapChain(u32 width, u32 height) (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:57: warning: Member CreateRtv() (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:58: warning: Member CreateDepthStencilBuffer(u32 width, u32 height) (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:59: warning: Member Flush() (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:60: warning: Member Signal() (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:61: warning: Member WaitForFenceValue() (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:62: warning: Member Render(const Microsoft::WRL::ComPtr< ID3D12PipelineState > &, const Microsoft::WRL::ComPtr< ID3D12RootSignature > &, const D3D12_VERTEX_BUFFER_VIEW &, const D3D12_INDEX_BUFFER_VIEW &, const Microsoft::WRL::ComPtr< ID3D12DescriptorHeap > &) (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:65: warning: Member BeginFrame() (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:68: warning: Member Terminate() (function) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:71: warning: Member rtvDescriptorHeap (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:72: warning: Member dsvDescriptorHeap (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:73: warning: Member rtvDescriptorSize (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:74: warning: Member dsvDescriptorSize (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:75: warning: Member cbvSrvUavDescriptorSize (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:77: warning: Member swapChain (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:78: warning: Member backBuffers[BackBuffersAmount] (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:79: warning: Member depthStencilBuffer (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:80: warning: Member commandAllocators[BackBuffersAmount] (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:81: warning: Member commandQueue (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:82: warning: Member commandList (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:85: warning: Member fence (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:86: warning: Member frameFenceValues[BackBuffersAmount] (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:87: warning: Member fenceEvent (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:90: warning: Member allowTearing (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:93: warning: Member viewport (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:94: warning: Member scissorRect (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:96: warning: Member projectionMatrix (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:100: warning: Member BackBufferFormat (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/RenderingContext.h:101: warning: Member DepthStencilFormat (variable) of class SSSEngine::Renderer::DirectX12::RenderingContext is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/ShaderCompiler.h:35: warning: Member vertexShader (variable) of struct SSSEngine::Renderer::DirectX12::Shader is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/ShaderCompiler.h:36: warning: Member fragmentShader (variable) of struct SSSEngine::Renderer::DirectX12::Shader is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:44: warning: Member UploadBuffer(u32 count) (function) of class SSSEngine::Renderer::DirectX12::UploadBuffer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:65: warning: Member CopyData(u32 index, const T &data) (function) of class SSSEngine::Renderer::DirectX12::UploadBuffer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:72: warning: Member GetBufferResource() const noexcept (function) of class SSSEngine::Renderer::DirectX12::UploadBuffer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:70: warning: Member Size (variable) of class SSSEngine::Renderer::DirectX12::UploadBuffer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:78: warning: Member m_uploadBuffer (variable) of class SSSEngine::Renderer::DirectX12::UploadBuffer is not documented.
+N:/C++Projects/SSSEngine/engine/renderer/directx12/internal/UploadBuffer.h:79: warning: Member m_data (variable) of class SSSEngine::Renderer::DirectX12::UploadBuffer is not documented.

@@ -16,7 +16,7 @@ jobs:
           sudo cp doxygen-1.14.0/bin/doxygen /usr/local/bin/
     - name: Generate internal docs
       run: |
-        mkdir build/docs/internal
+        mkdir -p build/docs/internal
         doxygen docs/internal/Doxyfile_internal || true
     - name: Upload undoc.log artifact
       if: always()
@@ -27,7 +27,7 @@ jobs:
 
     - name: Generate public docs
       run: |
-        mkdir build/docs/public
+        mkdir -p build/docs/public
         doxygen docs/public/Doxyfile_public || true
 
     - name: Upload Docs

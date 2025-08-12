@@ -979,7 +979,7 @@ WARN_LINE_FORMAT       = "at line $line of file $file"
 # specified the warning and error messages are written to standard output
 # (stdout).
 
-WARN_LOGFILE           = undoc.log
+WARN_LOGFILE           = build/undoc.log
 
 #---------------------------------------------------------------------------
 # Configuration options related to the input files

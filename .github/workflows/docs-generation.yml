@@ -17,44 +17,27 @@ jobs:
     - name: Generate internal docs
       run: |
         mkdir -p build/docs/internal
-        doxygen docs/internal/Doxyfile_internal || true
-    - name: Upload undoc.log artifact
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: undoc-log
-        path: build/docs/internal/undoc.log
-
+        doxygen docs/internal/Doxyfile_internal
     - name: Generate public docs
       run: |
         mkdir -p build/docs/public
-        doxygen docs/public/Doxyfile_public || true
+        doxygen docs/public/Doxyfile_public
 
-    - name: Upload Docs
+    - name: Upload internal Docs
       uses: actions/upload-artifact@v4
       with:
         name: docs-internal
-        path: build/docs/internal/html
+        path: build/docs/internal/html/
     - name: Upload public Docs
       uses: actions/upload-artifact@v4
       with:
         name: docs-public
-        path: build/docs/public/html
-
-    - name: Get undocumented items
-      run: |
-          mkdir -p build/undoc_report
-          grep -i "function" undoc.log    || true > build/undoc_report/functions.txt
-          grep -i "namespace" undoc.log   || true > build/undoc_report/namespaces.txt
-          grep -i "file" undoc.log        || true > build/undoc_report/files.txt
-          grep -i "class" undoc.log       || true > build/undoc_report/classes.txt
-          grep -i "struct" undoc.log      || true > build/undoc_report/structs.txt
-          grep -i "enum" undoc.log        || true > build/undoc_report/enums.txt
+        path: build/docs/public/html/
 
     - name: Upload undocumented items
       uses: actions/upload-artifact@v4
       with:
         name: undocumented-report
-        path: build/docs/internal/html/
+        path: build/undoc.log
 
 # TODO: Upload to github pages

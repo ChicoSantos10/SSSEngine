@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief Representation of matrices and respective functions
+ */
+
 #pragma once
 
 #include "HelperMacros.h"
@@ -27,6 +32,7 @@
 namespace SSSEngine::Math
 {
     using MatrixSize = u32;
+
     /**
      * @brief A Matrix representation
      *
@@ -36,9 +42,21 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T, MatrixSize C, MatrixSize R>
     struct Matrix
     {
-        static consteval MatrixSize Rows() { return R; }
-        static consteval MatrixSize Columns() { return C; }
-        static consteval MatrixSize NumberElements() { return R * C; }
+        static consteval MatrixSize Rows()
+        {
+            return R;
+        }
+
+        static consteval MatrixSize Columns()
+        {
+            return C;
+        }
+
+        static consteval MatrixSize NumberElements()
+        {
+            return R * C;
+        }
+
         using Type = T;
 
         T data[NumberElements()]{0};

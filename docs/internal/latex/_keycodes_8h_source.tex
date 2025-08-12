@@ -1,0 +1,140 @@
+\doxysection{Keycodes.\+h}
+\hypertarget{_keycodes_8h_source}{}\label{_keycodes_8h_source}\index{N:/C++Projects/SSSEngine/engine/input/ihi/include/Keycodes.h@{N:/C++Projects/SSSEngine/engine/input/ihi/include/Keycodes.h}}
+\mbox{\hyperlink{_keycodes_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ \ SSS\ Engine}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2024\ \ Francisco\ Santos}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ \ \ \ This\ program\ is\ free\ software:\ you\ can\ redistribute\ it\ and/or\ modify}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ \ \ \ it\ under\ the\ terms\ of\ the\ GNU\ General\ Public\ License\ as\ published\ by}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ \ \ \ the\ Free\ Software\ Foundation,\ either\ version\ 3\ of\ the\ License,\ or}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ \ (at\ your\ option)\ any\ later\ version.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ \ \ \ This\ program\ is\ distributed\ in\ the\ hope\ that\ it\ will\ be\ useful,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ \ \ \ but\ WITHOUT\ ANY\ WARRANTY;\ without\ even\ the\ implied\ warranty\ of}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ \ \ \ MERCHANTABILITY\ or\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE.\ \ See\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ GNU\ General\ Public\ License\ for\ more\ details.}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ \ You\ should\ have\ received\ a\ copy\ of\ the\ GNU\ General\ Public\ License}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ along\ with\ this\ program.\ \ If\ not,\ see\ <https://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_types_8h}{Types.h}}"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{keyword}{namespace\ }SSSEngine::Input}
+\DoxyCodeLine{00028\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{enum\ class}\ KeyboardCodes\ :\ u8}
+\DoxyCodeLine{00030\ \ \ \ \ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ Number1,}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ Number2,}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ Number3,}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ Number4,}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ Number5,}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ Number6,}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ Number7,}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ Number8,}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ Number9,}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ Number0,}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ F1,}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ F2,}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ F3,}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ F4,}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ F5,}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ F6,}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ F7,}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ F8,}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ F9,}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ F10,}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ F11,}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ F12,}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ A,}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ B,}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ C,}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ D,}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ E,}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ F,}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ G,}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ H,}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ I,}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ J,}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ K,}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ L,}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ M,}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ N,}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ O,}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ P,}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ Q,}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ R,}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ S,}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ T,}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ U,}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ V,}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ X,}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ W,}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ Y,}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ Z,}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ Backspace,}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ Escape,}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ Tab,}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ Clear,}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ Enter,}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ Caps,}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ Space,}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ PageUp,}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ PageDown,}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ End,}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ Home,}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ Print,}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ Insert,}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ Delete,}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ Help,}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ LeftMeta,}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ RightMeta,}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ Numpad0,}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ Numpad1,}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ Numpad2,}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ Numpad3,}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ Numpad4,}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ Numpad5,}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ Numpad6,}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ Numpad7,}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ Numpad8,}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ Numpad9,}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ Asterisk,}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ Add,}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ Subtract,}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ NumLock,}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ Divide,}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ Dot,}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ Comma,}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ ScrollLock,}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ LShift,}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ RShift,}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ LControl,}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ RControl,}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ LAlt,}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ RAlt,}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ VolumeUp,}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ VolumeDown,}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ VolumeMute,}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ ArrowUp,}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ ArrowDown,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ ArrowLeft,}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ ArrowRight,}
+\DoxyCodeLine{00127\ \ \ \ \ \};}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keyword}{enum\ class}\ MouseButton\ :\ u8}
+\DoxyCodeLine{00130\ \ \ \ \ \{}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ Left\ =\ 1,}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ Right\ =\ 0x02,}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ Middle\ =\ 0x04,}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ Scroll\ =\ 0x08,}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ Btn1\ =\ 0x10,}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ Btn2\ =\ 0x20,}
+\DoxyCodeLine{00137\ \ \ \ \ \};}
+\DoxyCodeLine{00138\ \}\ \textcolor{comment}{//\ namespace\ SSSEngine::Input}}
+
+\end{DoxyCode}

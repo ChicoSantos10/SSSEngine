@@ -1,0 +1,97 @@
+\doxysection{N\+:/\+C++\+Projects/\+SSSEngine/engine/base/utils/include/\+Attributes.h File Reference}
+\hypertarget{_attributes_8h}{}\label{_attributes_8h}\index{N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h@{N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h}}
+{\ttfamily \#include "{}Helper\+Macros.\+h"{}}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{_attributes_8h_a03f269bbb60e8d82809ca59477d46fd1}\label{_attributes_8h_a03f269bbb60e8d82809ca59477d46fd1} 
+\#define {\bfseries SSSENGINE\+\_\+\+DLL\+\_\+\+EXPORT}~extern "{}C"{} \mbox{[}\mbox{[}maybe\+\_\+unused\mbox{]}\mbox{]} \+\_\+\+\_\+declspec(dllexport)
+\item 
+\Hypertarget{_attributes_8h_a46866f921e9196ae8882ecf0a055b5ad}\label{_attributes_8h_a46866f921e9196ae8882ecf0a055b5ad} 
+\#define {\bfseries SSSENGINE\+\_\+\+DLL\+\_\+\+IMPORT}~\+\_\+\+\_\+declspec(dllimport)
+\item 
+\Hypertarget{_attributes_8h_a1de9f06c52adf079b5962707c94085c2}\label{_attributes_8h_a1de9f06c52adf079b5962707c94085c2} 
+\#define {\bfseries SSSENGINE\+\_\+\+FORCE\+\_\+\+INLINE}~inline
+\item 
+\Hypertarget{_attributes_8h_ac32456a81d4a4588dafa362ab66f5553}\label{_attributes_8h_ac32456a81d4a4588dafa362ab66f5553} 
+\#define {\bfseries SSSENGINE\+\_\+\+NO\+\_\+\+INLINE}
+\item 
+\Hypertarget{_attributes_8h_ae8596448304f60ee4028520dd1c06752}\label{_attributes_8h_ae8596448304f60ee4028520dd1c06752} 
+\#define {\bfseries SSSENGINE\+\_\+\+HINT\+\_\+\+INLINE\+\_\+\+STATEMENT}
+\item 
+\Hypertarget{_attributes_8h_a3c718be950240662b1ef7aef5b69f533}\label{_attributes_8h_a3c718be950240662b1ef7aef5b69f533} 
+\#define {\bfseries SSSENGINE\+\_\+\+HINT\+\_\+\+INLINE\+\_\+\+STATEMENT\+\_\+\+RECURSIVE}
+\item 
+\Hypertarget{_attributes_8h_affab2aa602da9ef01d8ba93c3a770ffd}\label{_attributes_8h_affab2aa602da9ef01d8ba93c3a770ffd} 
+\#define {\bfseries SSSENGINE\+\_\+\+FORCE\+\_\+\+INLINE\+\_\+\+STATEMENT}
+\item 
+\Hypertarget{_attributes_8h_a74867a27b5704525593a325ae3bd32bc}\label{_attributes_8h_a74867a27b5704525593a325ae3bd32bc} 
+\#define {\bfseries SSSENGINE\+\_\+\+FORCE\+\_\+\+INLINE\+\_\+\+STATEMENT\+\_\+\+RECURSIVE}
+\item 
+\Hypertarget{_attributes_8h_a026f941877a8f820e78bd0e22f1cacca}\label{_attributes_8h_a026f941877a8f820e78bd0e22f1cacca} 
+\#define {\bfseries SSSENGINE\+\_\+\+NO\+\_\+\+INLINE\+\_\+\+STATEMENT}
+\item 
+\Hypertarget{_attributes_8h_acb90c0086d9ca5308dc78f2ed5e582ae}\label{_attributes_8h_acb90c0086d9ca5308dc78f2ed5e582ae} 
+\#define {\bfseries SSSENGINE\+\_\+\+PURE}~\mbox{[}\mbox{[}nodiscard\mbox{]}\mbox{]}
+\item 
+\Hypertarget{_attributes_8h_a5a81c21733b145ddfb5ed427c6aef702}\label{_attributes_8h_a5a81c21733b145ddfb5ed427c6aef702} 
+\#define {\bfseries SSSENGINE\+\_\+\+NO\+\_\+\+RETURN}~\mbox{[}\mbox{[}noreturn\mbox{]}\mbox{]}
+\item 
+\Hypertarget{_attributes_8h_ad130ad728a0fdd088813ba65b2d0a1f8}\label{_attributes_8h_ad130ad728a0fdd088813ba65b2d0a1f8} 
+\#define {\bfseries SSSENGINE\+\_\+\+FALLTHROUGH}~\mbox{[}\mbox{[}fallthrough\mbox{]}\mbox{]}
+\item 
+\#define \mbox{\hyperlink{_attributes_8h_aa395a0ba67bf6ab5289ccee86e1300cf}{SSSENGINE\+\_\+\+DEPRECATED}}(reason)
+\item 
+\Hypertarget{_attributes_8h_a41d430367a11a8dcb64a3aff8824c8c8}\label{_attributes_8h_a41d430367a11a8dcb64a3aff8824c8c8} 
+\#define {\bfseries SSSENGINE\+\_\+\+CARRIES\+\_\+\+DEPENDENCY}~\mbox{[}\mbox{[}carries\+\_\+dependency\mbox{]}\mbox{]}
+\item 
+\Hypertarget{_attributes_8h_a4234ebbf133f70c5701afc7900bd2169}\label{_attributes_8h_a4234ebbf133f70c5701afc7900bd2169} 
+\#define {\bfseries SSSENGINE\+\_\+\+LIKELY}~\mbox{[}\mbox{[}likely\mbox{]}\mbox{]}
+\item 
+\Hypertarget{_attributes_8h_a87679f3165af7b206222514b6708296d}\label{_attributes_8h_a87679f3165af7b206222514b6708296d} 
+\#define {\bfseries SSSENGINE\+\_\+\+UNLIKELY}~\mbox{[}\mbox{[}unlikely\mbox{]}\mbox{]}
+\item 
+\Hypertarget{_attributes_8h_a500579d1f531bce76ec8fb521ce6ef47}\label{_attributes_8h_a500579d1f531bce76ec8fb521ce6ef47} 
+\#define {\bfseries SSSENGINE\+\_\+\+NO\+\_\+\+UNIQUE\+\_\+\+ADDRESS}~\mbox{[}\mbox{[}no\+\_\+unique\+\_\+address\mbox{]}\mbox{]}
+\item 
+\Hypertarget{_attributes_8h_af8350c655572fd98358455893813c3db}\label{_attributes_8h_af8350c655572fd98358455893813c3db} 
+\#define {\bfseries SSSENGINE\+\_\+\+INDETERMINATE}~\mbox{[}\mbox{[}indeterminate\mbox{]}\mbox{]}
+\item 
+\Hypertarget{_attributes_8h_a61c808bd3daa25257741ca777a18bea3}\label{_attributes_8h_a61c808bd3daa25257741ca777a18bea3} 
+\#define {\bfseries SSSENGINE\+\_\+\+MAYBE\+\_\+\+UNUSED}~\mbox{[}\mbox{[}maybe\+\_\+unused\mbox{]}\mbox{]}
+\item 
+\#define \mbox{\hyperlink{_attributes_8h_afcb83e5c47ee2ccdc8dda74cc8956dab}{SSSENGINE\+\_\+\+PACK\+\_\+\+PUSH}}(command)
+\item 
+\Hypertarget{_attributes_8h_a7462667fbb6d30eb485357aa172241f2}\label{_attributes_8h_a7462667fbb6d30eb485357aa172241f2} 
+\#define {\bfseries SSSENGINE\+\_\+\+PACK\+\_\+\+SHOW}~SSSENGINE\+\_\+\+PRAGMA(pack(show))
+\item 
+\Hypertarget{_attributes_8h_aac0e12f45e312982969a1487483561bc}\label{_attributes_8h_aac0e12f45e312982969a1487483561bc} 
+\#define {\bfseries SSSENGINE\+\_\+\+PACK\+\_\+\+POP}~SSSENGINE\+\_\+\+PRAGMA(pack(pop))
+\end{DoxyCompactItemize}
+
+
+\label{doc-define-members}
+\Hypertarget{_attributes_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{_attributes_8h_aa395a0ba67bf6ab5289ccee86e1300cf}\index{Attributes.h@{Attributes.h}!SSSENGINE\_DEPRECATED@{SSSENGINE\_DEPRECATED}}
+\index{SSSENGINE\_DEPRECATED@{SSSENGINE\_DEPRECATED}!Attributes.h@{Attributes.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_DEPRECATED}{SSSENGINE\_DEPRECATED}}
+{\footnotesize\ttfamily \label{_attributes_8h_aa395a0ba67bf6ab5289ccee86e1300cf} 
+\#define SSSENGINE\+\_\+\+DEPRECATED(\begin{DoxyParamCaption}\item[{}]{reason}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{[[deprecated(\#reason)]]}
+
+\end{DoxyCode}
+\Hypertarget{_attributes_8h_afcb83e5c47ee2ccdc8dda74cc8956dab}\index{Attributes.h@{Attributes.h}!SSSENGINE\_PACK\_PUSH@{SSSENGINE\_PACK\_PUSH}}
+\index{SSSENGINE\_PACK\_PUSH@{SSSENGINE\_PACK\_PUSH}!Attributes.h@{Attributes.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_PACK\_PUSH}{SSSENGINE\_PACK\_PUSH}}
+{\footnotesize\ttfamily \label{_attributes_8h_afcb83e5c47ee2ccdc8dda74cc8956dab} 
+\#define SSSENGINE\+\_\+\+PACK\+\_\+\+PUSH(\begin{DoxyParamCaption}\item[{}]{command}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{SSSENGINE\_PRAGMA(pack(push,\ command))}
+
+\end{DoxyCode}

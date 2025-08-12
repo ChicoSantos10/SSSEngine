@@ -1,0 +1,75 @@
+\doxysection{N\+:/\+C++\+Projects/\+SSSEngine/engine/platform/common/interface/\+Timer.h File Reference}
+\hypertarget{_timer_8h}{}\label{_timer_8h}\index{N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h@{N:/C++Projects/SSSEngine/engine/platform/common/interface/Timer.h}}
+{\ttfamily \#include "{}Attributes.\+h"{}}\newline
+{\ttfamily \#include "{}Helper\+Macros.\+h"{}}\newline
+{\ttfamily \#include "{}Types.\+h"{}}\newline
+{\ttfamily \#include "{}Debug.\+h"{}}\newline
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{SSSEngine\+::\+Platform\+::\+Timestamp}}
+\begin{DoxyCompactList}\small\item\em A number that can be used to determine duration when subtracted to another. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{_timer_8h_a6b0c79a9f59eebf7a70e4fe419115173}\label{_timer_8h_a6b0c79a9f59eebf7a70e4fe419115173} 
+{\bfseries SSSEngine\+::\+Platform\+::\+SSSENGINE\+\_\+\+STATIC\+\_\+\+ASSERT} (1 \textquotesingle{}000 \textquotesingle{}000==SSSEngine\+::\+Platform\+::\+Microseconds, "{}1 Microsecond must be 1 000 000 seconds"{})
+\item 
+\Hypertarget{_timer_8h_acc018d6bb2ee810a2d125f68b47827f3}\label{_timer_8h_acc018d6bb2ee810a2d125f68b47827f3} 
+{\bfseries SSSEngine\+::\+Platform\+::\+SSSENGINE\+\_\+\+STATIC\+\_\+\+ASSERT} (1 \textquotesingle{}000==SSSEngine\+::\+Platform\+::\+Miliseconds, "{}1 Milisecond must be 1 000 seconds"{})
+\item 
+\Hypertarget{_timer_8h_a54e85ecc2aef9dc0be36dd49a3acd8c0}\label{_timer_8h_a54e85ecc2aef9dc0be36dd49a3acd8c0} 
+SSSENGINE\+\_\+\+GLOBAL \mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} {\bfseries SSSEngine\+::\+Platform\+::operator+} (\mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} lhs, \mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} rhs)
+\item 
+\Hypertarget{_timer_8h_a767ec8f5046d05ca1cfedcc328857e1e}\label{_timer_8h_a767ec8f5046d05ca1cfedcc328857e1e} 
+SSSENGINE\+\_\+\+GLOBAL \mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} {\bfseries SSSEngine\+::\+Platform\+::operator-\/} (\mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} lhs, \mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} rhs)
+\item 
+\mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} \mbox{\hyperlink{_timer_8h_acd699a3ecf41df0f399eb4c51fde7831}{SSSEngine\+::\+Platform\+::\+Get\+Current\+Time}} ()
+\begin{DoxyCompactList}\small\item\em Gets a timestamp that can be used to calculate the duration of something. \end{DoxyCompactList}\item 
+u64 \mbox{\hyperlink{_timer_8h_a8877388bca41390ede13b8c9081a94a0}{SSSEngine\+::\+Platform\+::\+To\+Micro\+Seconds}} (\mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}} timestamp)
+\begin{DoxyCompactList}\small\item\em Converts a timestamp to Microseconds duration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{_timer_8h_a2e4ff4a1bb1c836a38d38b2ab444e332}\label{_timer_8h_a2e4ff4a1bb1c836a38d38b2ab444e332} 
+SSSENGINE\+\_\+\+MAYBE\+\_\+\+UNUSED constexpr int {\bfseries SSSEngine\+::\+Platform\+::\+Microseconds} = static\+\_\+cast$<$int$>$(1e6)
+\item 
+\Hypertarget{_timer_8h_a1ff0af880d0063497a019d927b80affb}\label{_timer_8h_a1ff0af880d0063497a019d927b80affb} 
+SSSENGINE\+\_\+\+MAYBE\+\_\+\+UNUSED constexpr int {\bfseries SSSEngine\+::\+Platform\+::\+Miliseconds} = static\+\_\+cast$<$int$>$(1e3)
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{_timer_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{_timer_8h_acd699a3ecf41df0f399eb4c51fde7831}\index{Timer.h@{Timer.h}!GetCurrentTime@{GetCurrentTime}}
+\index{GetCurrentTime@{GetCurrentTime}!Timer.h@{Timer.h}}
+\doxysubsubsection{\texorpdfstring{GetCurrentTime()}{GetCurrentTime()}}
+{\footnotesize\ttfamily \label{_timer_8h_acd699a3ecf41df0f399eb4c51fde7831} 
+Timestamp SSSEngine\+::\+Platform\+::\+Get\+Current\+Time (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+
+
+Gets a timestamp that can be used to calculate the duration of something. 
+
+\begin{DoxyReturn}{Returns}
+\mbox{[}TODO\+:return\mbox{]} 
+\end{DoxyReturn}
+\Hypertarget{_timer_8h_a8877388bca41390ede13b8c9081a94a0}\index{Timer.h@{Timer.h}!ToMicroSeconds@{ToMicroSeconds}}
+\index{ToMicroSeconds@{ToMicroSeconds}!Timer.h@{Timer.h}}
+\doxysubsubsection{\texorpdfstring{ToMicroSeconds()}{ToMicroSeconds()}}
+{\footnotesize\ttfamily \label{_timer_8h_a8877388bca41390ede13b8c9081a94a0} 
+u64 SSSEngine\+::\+Platform\+::\+To\+Micro\+Seconds (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_s_s_s_engine_1_1_platform_1_1_timestamp}{Timestamp}}}]{timestamp}{}\end{DoxyParamCaption})}
+
+
+
+Converts a timestamp to Microseconds duration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em timestamp} & \mbox{[}TODO\+:parameter\mbox{]} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\mbox{[}TODO\+:return\mbox{]} 
+\end{DoxyReturn}

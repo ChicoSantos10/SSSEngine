@@ -15,12 +15,21 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include "Platform.h"
 #include "WindowHandle.h"
 #include "SwapChainHandle.h"
 
+/**
+ * @namespace
+ * @brief Namespace for all rendering related functions
+ */
 namespace SSSEngine::Renderer
 {
     using CreateSwapChain_t = SwapChainHandle (*)(const SSSEngine::Platform::WindowHandle &);

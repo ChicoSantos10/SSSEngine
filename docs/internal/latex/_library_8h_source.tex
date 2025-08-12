@@ -1,0 +1,56 @@
+\doxysection{Library.\+h}
+\hypertarget{_library_8h_source}{}\label{_library_8h_source}\index{N:/C++Projects/SSSEngine/engine/platform/common/interface/Library.h@{N:/C++Projects/SSSEngine/engine/platform/common/interface/Library.h}}
+\mbox{\hyperlink{_library_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ \ SSS\ Engine}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2024\ \ Francisco\ Santos}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ \ \ \ This\ program\ is\ free\ software:\ you\ can\ redistribute\ it\ and/or\ modify}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ \ \ \ it\ under\ the\ terms\ of\ the\ GNU\ General\ Public\ License\ as\ published\ by}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ \ \ \ the\ Free\ Software\ Foundation,\ either\ version\ 3\ of\ the\ License,\ or}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ \ (at\ your\ option)\ any\ later\ version.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ \ \ \ This\ program\ is\ distributed\ in\ the\ hope\ that\ it\ will\ be\ useful,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ \ \ \ but\ WITHOUT\ ANY\ WARRANTY;\ without\ even\ the\ implied\ warranty\ of}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ \ \ \ MERCHANTABILITY\ or\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE.\ \ See\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ GNU\ General\ Public\ License\ for\ more\ details.}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ \ You\ should\ have\ received\ a\ copy\ of\ the\ GNU\ General\ Public\ License}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ along\ with\ this\ program.\ \ If\ not,\ see\ <https://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ <stdexcept>}}
+\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_types_8h}{Types.h}}"{}}}
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_attributes_8h}{Attributes.h}}"{}}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_concepts_8h}{Concepts.h}}"{}}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{keyword}{namespace\ }SSSEngine::Platform}
+\DoxyCodeLine{00031\ \{}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{/*\ LOW\_PRIORITY:}}
+\DoxyCodeLine{00033\ \textcolor{comment}{\ \ \ \ \ *\ Have\ a\ small\ amount\ of\ memory\ for\ library\ handles\ that\ we\ can\ pass\ around\ instead\ of\ void*}}
+\DoxyCodeLine{00034\ \textcolor{comment}{\ \ \ \ \ *\ Then\ we\ can\ have\ a\ struct\ Handle;\ and\ we\ also\ avoid\ leaking\ implementation\ details\ since\ consumers\ of\ the\ class}}
+\DoxyCodeLine{00035\ \textcolor{comment}{\ \ \ \ \ *\ Wouldn't\ have\ access\ to\ anything\ inside.\ Also\ use\ RAII.}}
+\DoxyCodeLine{00036\ \textcolor{comment}{\ \ \ \ \ *\ INVESTIGATE:\ Can\ we\ use\ protected\ memory?\ To\ prevent\ someone\ deleting\ it?}}
+\DoxyCodeLine{00037\ \textcolor{comment}{\ \ \ \ \ *\ Under\ Windows\ look\ at:\ VirtualAlloc\ and\ VirtualProtect}}
+\DoxyCodeLine{00038\ \textcolor{comment}{\ \ \ \ \ *\ Also\ the\ wchar\_t*\ is\ not\ gonna\ be\ portable\ since\ linux\ will\ probably\ be\ a\ char*}}
+\DoxyCodeLine{00039\ \textcolor{comment}{\ \ \ \ \ */}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{void}\ *\mbox{\hyperlink{_library_8h_a1bf05a1f13ed94fc1280125af43917af}{LoadSharedLibrary}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{wchar\_t}\ *path,\ \textcolor{keywordtype}{int}\ flags);}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{_library_8h_af89604722bdf188b679fc6bc91567f68}{UnloadSharedLibrary}}(\textcolor{keywordtype}{void}\ *libraryHandle);}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00061\ \ \ \ \ functionPtr\ \mbox{\hyperlink{_library_8h_a108c3c04953289b2e81796146926352a}{GetFunctionAddressFromLibrary}}(\textcolor{keywordtype}{void}\ *libraryHandle,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *funcName);}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//\ INVESTIGATE:\ Think\ about\ error\ handling.\ Should\ we\ throw\ an\ exception?\ Return\ an\ optional?}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{template}<FunctionPo\textcolor{keywordtype}{int}erConcept\ T>}
+\DoxyCodeLine{00073\ \ \ \ \ SSSENGINE\_FORCE\_INLINE\ T\ \mbox{\hyperlink{_library_8h_a366de8ffa9721c8c683272632114388d}{LoadFunction}}(\textcolor{keywordtype}{void}\ *libraryHandle,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *name)}
+\DoxyCodeLine{00074\ \ \ \ \ \{}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ T\ type\ =\ \textcolor{keyword}{reinterpret\_cast<}T\textcolor{keyword}{>}(\mbox{\hyperlink{_library_8h_a108c3c04953289b2e81796146926352a}{GetFunctionAddressFromLibrary}}(libraryHandle,\ name));}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}(!type)}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{throw}\ std::runtime\_error(\textcolor{stringliteral}{"{}Failed\ to\ load\ function\ "{}}\ +\ std::string(name));}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ type;}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ \}\ \textcolor{comment}{//\ namespace\ SSSEngine::Platform}}
+
+\end{DoxyCode}

@@ -1,0 +1,46 @@
+\doxysection{SSSEngine\+::Renderer\+::Direct\+X12\+::Upload\+Buffer\texorpdfstring{$<$}{<} T, Is\+Constant\+Buffer \texorpdfstring{$>$}{>} Class Template Reference}
+\hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}{}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}\index{SSSEngine::Renderer::DirectX12::UploadBuffer$<$ T, IsConstantBuffer $>$@{SSSEngine::Renderer::DirectX12::UploadBuffer$<$ T, IsConstantBuffer $>$}}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_ac650dd55ddbdb024f87824cdd8f8d47b}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_ac650dd55ddbdb024f87824cdd8f8d47b} 
+{\bfseries Upload\+Buffer} (u32 count)
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a3a67afc89124c0621cd233cc4b3ee917}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a3a67afc89124c0621cd233cc4b3ee917} 
+{\bfseries Upload\+Buffer} (const \mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}{Upload\+Buffer}} \&rhs)=delete
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a546895faeaf15e847b8210abb1a93ee6}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a546895faeaf15e847b8210abb1a93ee6} 
+{\bfseries Upload\+Buffer} (\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}{Upload\+Buffer}} \&\&)=delete
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a79ecdb2ed307a73400bbc806ea3553d7}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a79ecdb2ed307a73400bbc806ea3553d7} 
+\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}{Upload\+Buffer}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}{Upload\+Buffer}} \&rhs)=delete
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a76bf9235f0069e3d8785652be7e3e8eb}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a76bf9235f0069e3d8785652be7e3e8eb} 
+\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}{Upload\+Buffer}} \& {\bfseries operator=} (\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer}{Upload\+Buffer}} \&\&)=delete
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a42cd31212dd78e29e9a80ecdbe87fa28}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a42cd31212dd78e29e9a80ecdbe87fa28} 
+SSSENGINE\+\_\+\+FORCE\+\_\+\+INLINE void {\bfseries Copy\+Data} (u32 index, const T \&data)
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a922ccfaedc1b012b0781b55be03f7bcc}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a922ccfaedc1b012b0781b55be03f7bcc} 
+SSSENGINE\+\_\+\+PURE Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Resource $>$ {\bfseries Get\+Buffer\+Resource} () const noexcept
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_aa39c927ca4ca4d36e64f751648bb86c5}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_aa39c927ca4ca4d36e64f751648bb86c5} 
+static constexpr u64 {\bfseries Size} = Is\+Constant\+Buffer ? Get\+Constant\+Buffer\+Byte\+Size(sizeof(T)) \+: sizeof(T)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Private Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_adbcb95d719ffadf373866ad6d7324e09}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_adbcb95d719ffadf373866ad6d7324e09} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Resource $>$ {\bfseries m\+\_\+upload\+Buffer}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a9192510fe9f0ffe246bb2c7b613729f3}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_upload_buffer_a9192510fe9f0ffe246bb2c7b613729f3} 
+byte \texorpdfstring{$\ast$}{*} {\bfseries m\+\_\+data} \{\}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+N\+:/\+C++\+Projects/\+SSSEngine/engine/renderer/directx12/internal/\mbox{\hyperlink{_upload_buffer_8h}{Upload\+Buffer.\+h}}\end{DoxyCompactItemize}

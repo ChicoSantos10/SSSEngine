@@ -1,0 +1,131 @@
+\doxysection{SSSEngine\+::Renderer\+::Direct\+X12\+::Rendering\+Context Class Reference}
+\hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}{}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}\index{SSSEngine::Renderer::DirectX12::RenderingContext@{SSSEngine::Renderer::DirectX12::RenderingContext}}
+
+
+Represents a visual part of a window This could be a virtual window inside of an actual window or the window itself.  
+
+
+
+
+{\ttfamily \#include $<$Rendering\+Context.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a7bd6e5ff46ab4a58e6134eebc269165a}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a7bd6e5ff46ab4a58e6134eebc269165a} 
+{\bfseries Rendering\+Context} (const SSSEngine\+::\+Platform\+::\+Window\+Handle \&window)
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a692e37c6233541a5510faff6c684bc98}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a692e37c6233541a5510faff6c684bc98} 
+{\bfseries Rendering\+Context} (\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}{Rendering\+Context}} \&\&)=default
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_acfc73f2663b7260223953ca41457c515}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_acfc73f2663b7260223953ca41457c515} 
+\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}{Rendering\+Context}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}{Rendering\+Context}} \&)=delete
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a5ff28ecee6576833bac7f9e899245077}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a5ff28ecee6576833bac7f9e899245077} 
+\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}{Rendering\+Context}} \& {\bfseries operator=} (\mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}{Rendering\+Context}} \&\&)=delete
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a13699f326327446f2b558c9bb5ba89ef}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a13699f326327446f2b558c9bb5ba89ef} 
+{\bfseries Rendering\+Context} (const \mbox{\hyperlink{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context}{Rendering\+Context}} \&context)=delete
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_adfa4dd4f3df2456d79391ca474367615}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_adfa4dd4f3df2456d79391ca474367615} 
+void {\bfseries Resize\+Swap\+Chain} (u32 width, u32 height)
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2520f1bf15426b75548e1e25cc90244f}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2520f1bf15426b75548e1e25cc90244f} 
+void {\bfseries Create\+Rtv} ()
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ab76e9ab1b5d1fdeec3de00a9bcca3f1d}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ab76e9ab1b5d1fdeec3de00a9bcca3f1d} 
+void {\bfseries Create\+Depth\+Stencil\+Buffer} (u32 width, u32 height)
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ae5d48e8a36208400d2d8b0e4c708ab3b}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ae5d48e8a36208400d2d8b0e4c708ab3b} 
+void {\bfseries Flush} ()
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a379cdb249db7030677a88af167510e39}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a379cdb249db7030677a88af167510e39} 
+void {\bfseries Signal} ()
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a389df1303bee4e37de5f479824a8e8b3}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a389df1303bee4e37de5f479824a8e8b3} 
+void {\bfseries Wait\+For\+Fence\+Value} ()
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a6dcee1c111b30b747c6e57d9db8c51d9}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a6dcee1c111b30b747c6e57d9db8c51d9} 
+void {\bfseries Render} (const Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Pipeline\+State $>$ \&, const Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Root\+Signature $>$ \&, const D3\+D12\+\_\+\+VERTEX\+\_\+\+BUFFER\+\_\+\+VIEW \&, const D3\+D12\+\_\+\+INDEX\+\_\+\+BUFFER\+\_\+\+VIEW \&, const Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Descriptor\+Heap $>$ \&)
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a9fafc9ccf11cb45383e1818b7198b2a0}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a9fafc9ccf11cb45383e1818b7198b2a0} 
+void {\bfseries Begin\+Frame} ()
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a5c21a2e80098e49da9c22d285095f10c}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a5c21a2e80098e49da9c22d285095f10c} 
+void {\bfseries Terminate} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2bd47bab40ded52c66c415785279b1ac}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2bd47bab40ded52c66c415785279b1ac} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Descriptor\+Heap $>$ {\bfseries rtv\+Descriptor\+Heap}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ab9474bb4c1fb4b1b3560a06e46533192}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ab9474bb4c1fb4b1b3560a06e46533192} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Descriptor\+Heap $>$ {\bfseries dsv\+Descriptor\+Heap}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a859cabf3113b623d8c4cb0cf41b9b32c}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a859cabf3113b623d8c4cb0cf41b9b32c} 
+UINT {\bfseries rtv\+Descriptor\+Size} = 0
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ac3c4b4c24852cc7e7053a4f5e83b3b1d}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ac3c4b4c24852cc7e7053a4f5e83b3b1d} 
+UINT {\bfseries dsv\+Descriptor\+Size} = 0
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a975fe3036e8288b25e79d6b782fcfbef}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a975fe3036e8288b25e79d6b782fcfbef} 
+UINT {\bfseries cbv\+Srv\+Uav\+Descriptor\+Size} = 0
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a9fa0a899c8de6a8213c229bef66d2ac9}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a9fa0a899c8de6a8213c229bef66d2ac9} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ IDXGISwap\+Chain4 $>$ {\bfseries swap\+Chain}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a23ae1dc20269acdaa86cea9d92d529e7}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a23ae1dc20269acdaa86cea9d92d529e7} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Resource $>$ {\bfseries back\+Buffers} \mbox{[}\mbox{\hyperlink{namespace_s_s_s_engine_1_1_renderer_a7be1801da8192cc4077568d34763ddff}{Back\+Buffers\+Amount}}\mbox{]}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ad6e4d1e08e907af263f33394c9a47832}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ad6e4d1e08e907af263f33394c9a47832} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Resource $>$ {\bfseries depth\+Stencil\+Buffer}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a8c6ae65980f4b50efe399c49bb8ec5a8}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a8c6ae65980f4b50efe399c49bb8ec5a8} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Command\+Allocator $>$ {\bfseries command\+Allocators} \mbox{[}\mbox{\hyperlink{namespace_s_s_s_engine_1_1_renderer_a7be1801da8192cc4077568d34763ddff}{Back\+Buffers\+Amount}}\mbox{]}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a91bd6926da6b5cb44e2d7c2acfd2e401}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a91bd6926da6b5cb44e2d7c2acfd2e401} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Command\+Queue $>$ {\bfseries command\+Queue}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2f9ac2b90f867e1021ab44f09cababc7}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2f9ac2b90f867e1021ab44f09cababc7} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Graphics\+Command\+List $>$ {\bfseries command\+List}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ad3a7b011d1d228da2808f67a0427e282}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ad3a7b011d1d228da2808f67a0427e282} 
+Microsoft\+::\+WRL\+::\+Com\+Ptr$<$ ID3\+D12\+Fence $>$ {\bfseries fence}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ac6d276866c03752f90d5c2af748767ea}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ac6d276866c03752f90d5c2af748767ea} 
+u64 {\bfseries frame\+Fence\+Values} \mbox{[}\mbox{\hyperlink{namespace_s_s_s_engine_1_1_renderer_a7be1801da8192cc4077568d34763ddff}{Back\+Buffers\+Amount}}\mbox{]} = \{0\}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2678fd74b838d85c2eeef3a57fb9da41}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a2678fd74b838d85c2eeef3a57fb9da41} 
+HANDLE {\bfseries fence\+Event} = nullptr
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a001aa1415d4e25c8af3a40e41f7d96fe}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a001aa1415d4e25c8af3a40e41f7d96fe} 
+BOOL {\bfseries allow\+Tearing} = false
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a69943e4b1ad5e621698382f40304d9a0}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a69943e4b1ad5e621698382f40304d9a0} 
+D3\+D12\+\_\+\+VIEWPORT {\bfseries viewport} \{\}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a488fee76f1915b515a4baa037729aeaa}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a488fee76f1915b515a4baa037729aeaa} 
+D3\+D12\+\_\+\+RECT {\bfseries scissor\+Rect} \{\}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a4e250c65806f65abcd80a9019a2fa8d3}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a4e250c65806f65abcd80a9019a2fa8d3} 
+Direct\+X\+::\+XMFLOAT4\+X4 {\bfseries projection\+Matrix} \{\}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ac66513a1c368225da029679619e062bd}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_ac66513a1c368225da029679619e062bd} 
+static constexpr DXGI\+\_\+\+FORMAT {\bfseries Back\+Buffer\+Format} = DXGI\+\_\+\+FORMAT\+\_\+\+R8\+G8\+B8\+A8\+\_\+\+UNORM
+\item 
+\Hypertarget{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a7d69555f980fbb62847ba787f2bd1b0f}\label{class_s_s_s_engine_1_1_renderer_1_1_direct_x12_1_1_rendering_context_a7d69555f980fbb62847ba787f2bd1b0f} 
+static constexpr DXGI\+\_\+\+FORMAT {\bfseries Depth\+Stencil\+Format} = DXGI\+\_\+\+FORMAT\+\_\+\+D32\+\_\+\+FLOAT
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Represents a visual part of a window This could be a virtual window inside of an actual window or the window itself. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+N\+:/\+C++\+Projects/\+SSSEngine/engine/renderer/directx12/internal/\mbox{\hyperlink{_rendering_context_8h}{Rendering\+Context.\+h}}\item 
+N\+:/\+C++\+Projects/\+SSSEngine/engine/renderer/directx12/src/\mbox{\hyperlink{_rendering_context_8cpp}{Rendering\+Context.\+cpp}}\end{DoxyCompactItemize}

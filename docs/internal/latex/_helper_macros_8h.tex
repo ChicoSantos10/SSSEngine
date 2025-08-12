@@ -1,0 +1,84 @@
+\doxysection{N\+:/\+C++\+Projects/\+SSSEngine/engine/base/utils/include/\+Helper\+Macros.h File Reference}
+\hypertarget{_helper_macros_8h}{}\label{_helper_macros_8h}\index{N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h@{N:/C++Projects/SSSEngine/engine/base/utils/include/HelperMacros.h}}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{_helper_macros_8h_a4abefb7e1f80d3ea05b3fc0c953f40cc}{SSSENGINE\+\_\+\+WIDE\+\_\+\+STRING\+\_\+}}(x)
+\item 
+\#define \mbox{\hyperlink{_helper_macros_8h_a4d9556a6fd74f69f2d9e97a808fc1b65}{SSSENGINE\+\_\+\+WIDE\+\_\+\+STRING}}(x)
+\item 
+\#define \mbox{\hyperlink{_helper_macros_8h_a57205ba3aa7c5308df3b9741a7828f5e}{SSSENGINE\+\_\+\+WIDE}}(x)
+\item 
+\#define \mbox{\hyperlink{_helper_macros_8h_aeb1d7621309e8f2dcf954d9e95f89add}{SSSENGINE\+\_\+\+PRAGMA}}(x)
+\item 
+\Hypertarget{_helper_macros_8h_a0f70c35d5ae07cd169b3e3d4f00cc37a}\label{_helper_macros_8h_a0f70c35d5ae07cd169b3e3d4f00cc37a} 
+\#define {\bfseries SSSENGINE\+\_\+\+GLOBAL}~inline
+\item 
+\Hypertarget{_helper_macros_8h_a40d7d04085d77d644b0c2be48b8b583a}\label{_helper_macros_8h_a40d7d04085d77d644b0c2be48b8b583a} 
+\#define {\bfseries SSSENGINE\+\_\+\+INTERNAL}~static
+\item 
+\Hypertarget{_helper_macros_8h_a3ff655a83cf7b9d2fbb092fa83444f06}\label{_helper_macros_8h_a3ff655a83cf7b9d2fbb092fa83444f06} 
+\#define {\bfseries SSSENGINE\+\_\+\+FUNCTION\+\_\+\+LOCAL}~static
+\item 
+\#define \mbox{\hyperlink{_helper_macros_8h_abd445c2fddeabb0351f2ef1120f10de7}{SSSENGINE\+\_\+\+LIB}}(library)
+\end{DoxyCompactItemize}
+
+
+\label{doc-define-members}
+\Hypertarget{_helper_macros_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{_helper_macros_8h_abd445c2fddeabb0351f2ef1120f10de7}\index{HelperMacros.h@{HelperMacros.h}!SSSENGINE\_LIB@{SSSENGINE\_LIB}}
+\index{SSSENGINE\_LIB@{SSSENGINE\_LIB}!HelperMacros.h@{HelperMacros.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_LIB}{SSSENGINE\_LIB}}
+{\footnotesize\ttfamily \label{_helper_macros_8h_abd445c2fddeabb0351f2ef1120f10de7} 
+\#define SSSENGINE\+\_\+\+LIB(\begin{DoxyParamCaption}\item[{}]{library}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{SSSENGINE\_PRAGMA(comment(lib,\ \#library))}
+
+\end{DoxyCode}
+\Hypertarget{_helper_macros_8h_aeb1d7621309e8f2dcf954d9e95f89add}\index{HelperMacros.h@{HelperMacros.h}!SSSENGINE\_PRAGMA@{SSSENGINE\_PRAGMA}}
+\index{SSSENGINE\_PRAGMA@{SSSENGINE\_PRAGMA}!HelperMacros.h@{HelperMacros.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_PRAGMA}{SSSENGINE\_PRAGMA}}
+{\footnotesize\ttfamily \label{_helper_macros_8h_aeb1d7621309e8f2dcf954d9e95f89add} 
+\#define SSSENGINE\+\_\+\+PRAGMA(\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\_Pragma(\#x)}
+
+\end{DoxyCode}
+\Hypertarget{_helper_macros_8h_a57205ba3aa7c5308df3b9741a7828f5e}\index{HelperMacros.h@{HelperMacros.h}!SSSENGINE\_WIDE@{SSSENGINE\_WIDE}}
+\index{SSSENGINE\_WIDE@{SSSENGINE\_WIDE}!HelperMacros.h@{HelperMacros.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_WIDE}{SSSENGINE\_WIDE}}
+{\footnotesize\ttfamily \label{_helper_macros_8h_a57205ba3aa7c5308df3b9741a7828f5e} 
+\#define SSSENGINE\+\_\+\+WIDE(\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{SSSENGINE\_WIDE\_STRING\_(x)}
+
+\end{DoxyCode}
+\Hypertarget{_helper_macros_8h_a4d9556a6fd74f69f2d9e97a808fc1b65}\index{HelperMacros.h@{HelperMacros.h}!SSSENGINE\_WIDE\_STRING@{SSSENGINE\_WIDE\_STRING}}
+\index{SSSENGINE\_WIDE\_STRING@{SSSENGINE\_WIDE\_STRING}!HelperMacros.h@{HelperMacros.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_WIDE\_STRING}{SSSENGINE\_WIDE\_STRING}}
+{\footnotesize\ttfamily \label{_helper_macros_8h_a4d9556a6fd74f69f2d9e97a808fc1b65} 
+\#define SSSENGINE\+\_\+\+WIDE\+\_\+\+STRING(\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{SSSENGINE\_WIDE\_STRING\_(\#x)}
+
+\end{DoxyCode}
+\Hypertarget{_helper_macros_8h_a4abefb7e1f80d3ea05b3fc0c953f40cc}\index{HelperMacros.h@{HelperMacros.h}!SSSENGINE\_WIDE\_STRING\_@{SSSENGINE\_WIDE\_STRING\_}}
+\index{SSSENGINE\_WIDE\_STRING\_@{SSSENGINE\_WIDE\_STRING\_}!HelperMacros.h@{HelperMacros.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_WIDE\_STRING\_}{SSSENGINE\_WIDE\_STRING\_}}
+{\footnotesize\ttfamily \label{_helper_macros_8h_a4abefb7e1f80d3ea05b3fc0c953f40cc} 
+\#define SSSENGINE\+\_\+\+WIDE\+\_\+\+STRING\+\_\+(\begin{DoxyParamCaption}\item[{}]{x}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{L\#\#x}
+
+\end{DoxyCode}

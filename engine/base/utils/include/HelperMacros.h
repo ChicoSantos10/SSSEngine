@@ -15,9 +15,14 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
-#define SSSENGINE_WIDE_STRING_(x) L ## x
+#define SSSENGINE_WIDE_STRING_(x) L##x
 #define SSSENGINE_WIDE_STRING(x) SSSENGINE_WIDE_STRING_(#x)
 #define SSSENGINE_WIDE(x) SSSENGINE_WIDE_STRING_(x)
 

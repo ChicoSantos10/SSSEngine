@@ -1,0 +1,37 @@
+\doxysection{N\+:/\+C++\+Projects/\+SSSEngine/engine/base/utils/include/\+Debug.h File Reference}
+\hypertarget{_debug_8h}{}\label{_debug_8h}\index{N:/C++Projects/SSSEngine/engine/base/utils/include/Debug.h@{N:/C++Projects/SSSEngine/engine/base/utils/include/Debug.h}}
+{\ttfamily \#include "{}Attributes.\+h"{}}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{_debug_8h_ae6d1059e0d8e5e5b28c9ec164bdcd777}{SSSENGINE\+\_\+\+ASSERT}}(expression)
+\item 
+\#define \mbox{\hyperlink{_debug_8h_ac0f219b14b56c2f22f5174670603a00d}{SSSENGINE\+\_\+\+STATIC\+\_\+\+ASSERT}}(expression,  message)
+\end{DoxyCompactItemize}
+
+
+\label{doc-define-members}
+\Hypertarget{_debug_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{_debug_8h_ae6d1059e0d8e5e5b28c9ec164bdcd777}\index{Debug.h@{Debug.h}!SSSENGINE\_ASSERT@{SSSENGINE\_ASSERT}}
+\index{SSSENGINE\_ASSERT@{SSSENGINE\_ASSERT}!Debug.h@{Debug.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_ASSERT}{SSSENGINE\_ASSERT}}
+{\footnotesize\ttfamily \label{_debug_8h_ae6d1059e0d8e5e5b28c9ec164bdcd777} 
+\#define SSSENGINE\+\_\+\+ASSERT(\begin{DoxyParamCaption}\item[{}]{expression}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{SSSENGINE\_ASSUME(expression)}
+
+\end{DoxyCode}
+\Hypertarget{_debug_8h_ac0f219b14b56c2f22f5174670603a00d}\index{Debug.h@{Debug.h}!SSSENGINE\_STATIC\_ASSERT@{SSSENGINE\_STATIC\_ASSERT}}
+\index{SSSENGINE\_STATIC\_ASSERT@{SSSENGINE\_STATIC\_ASSERT}!Debug.h@{Debug.h}}
+\doxysubsubsection{\texorpdfstring{SSSENGINE\_STATIC\_ASSERT}{SSSENGINE\_STATIC\_ASSERT}}
+{\footnotesize\ttfamily \label{_debug_8h_ac0f219b14b56c2f22f5174670603a00d} 
+\#define SSSENGINE\+\_\+\+STATIC\+\_\+\+ASSERT(\begin{DoxyParamCaption}\item[{}]{expression}{, }\item[{}]{message}{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{keyword}{static\_assert}(expression,\ message);}
+
+\end{DoxyCode}

@@ -1,0 +1,84 @@
+\doxysection{SSSEngine\+::Renderer Namespace Reference}
+\hypertarget{namespace_s_s_s_engine_1_1_renderer}{}\label{namespace_s_s_s_engine_1_1_renderer}\index{SSSEngine::Renderer@{SSSEngine::Renderer}}
+
+
+Namespace for all rendering related functions.  
+
+
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{struct_s_s_s_engine_1_1_renderer_1_1_color32_r_g_b_a}{Color32\+RGBA}}
+\begin{DoxyCompactList}\small\item\em A color represented by 32 bits. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{struct_s_s_s_engine_1_1_renderer_1_1_color_r_g_b}{Color\+RGB}}
+\begin{DoxyCompactList}\small\item\em A full representation of a color. Values should be between 0 and 1 but are not clamped. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{struct_s_s_s_engine_1_1_renderer_1_1_color_r_g_b_a}{Color\+RGBA}}
+\begin{DoxyCompactList}\small\item\em A full representation of a color with alpha. Values should be between 0 and 1 but are not clamped. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{struct_s_s_s_engine_1_1_renderer_1_1_swap_chain_handle}{Swap\+Chain\+Handle}}
+\item 
+class \mbox{\hyperlink{struct_s_s_s_engine_1_1_renderer_1_1_vertex}{Vertex}}
+\begin{DoxyCompactList}\small\item\em Represents the data needed for to pass the GPU for each vertex of a mesh. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_ae70575763db09cc2b0dbca32a1e088c8}\label{namespace_s_s_s_engine_1_1_renderer_ae70575763db09cc2b0dbca32a1e088c8} 
+using {\bfseries Create\+Swap\+Chain\+\_\+t} = \mbox{\hyperlink{struct_s_s_s_engine_1_1_renderer_1_1_swap_chain_handle}{Swap\+Chain\+Handle}} (\texorpdfstring{$\ast$}{*})(const SSSEngine\+::\+Platform\+::\+Window\+Handle \&)
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_aaa121570137b432aed71331186851100}\label{namespace_s_s_s_engine_1_1_renderer_aaa121570137b432aed71331186851100} 
+using {\bfseries Render\+\_\+t} = void (\texorpdfstring{$\ast$}{*})()
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a20013847ef6b4a6630934a9550455bcf}\label{namespace_s_s_s_engine_1_1_renderer_a20013847ef6b4a6630934a9550455bcf} 
+using {\bfseries Terminate\+\_\+t} = void (\texorpdfstring{$\ast$}{*})()
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a992e7f4de0ce186b59663c55547dc15a}\label{namespace_s_s_s_engine_1_1_renderer_a992e7f4de0ce186b59663c55547dc15a} 
+using {\bfseries Load\+Assets\+Test\+\_\+t} = void (\texorpdfstring{$\ast$}{*})()
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_af9b1ebd97f9401194082d14442e4ae4b}\label{namespace_s_s_s_engine_1_1_renderer_af9b1ebd97f9401194082d14442e4ae4b} 
+using {\bfseries Resize\+Swap\+Chain\+\_\+t} = void (\texorpdfstring{$\ast$}{*})(const SSSEngine\+::\+Platform\+::\+Window\+Handle \&)
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_adb960694c5dd5874e0527039ec3d417d}\label{namespace_s_s_s_engine_1_1_renderer_adb960694c5dd5874e0527039ec3d417d} 
+using {\bfseries Begin\+Frame\+\_\+t} = void (\texorpdfstring{$\ast$}{*})()
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_ae81ddfe68881992e2f6b09a6f4e09c25}\label{namespace_s_s_s_engine_1_1_renderer_ae81ddfe68881992e2f6b09a6f4e09c25} 
+using {\bfseries Init\+\_\+t} = void (\texorpdfstring{$\ast$}{*})()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_af8788323a007b616da3483ccd9baf001}\label{namespace_s_s_s_engine_1_1_renderer_af8788323a007b616da3483ccd9baf001} 
+void {\bfseries Load\+Directx} ()
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a426daf52615603ae4c6f3dd5b23edabb}\label{namespace_s_s_s_engine_1_1_renderer_a426daf52615603ae4c6f3dd5b23edabb} 
+void {\bfseries Unload} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a7be1d338ab1290f74f0285dc589150e1}\label{namespace_s_s_s_engine_1_1_renderer_a7be1d338ab1290f74f0285dc589150e1} 
+SSSENGINE\+\_\+\+GLOBAL Create\+Swap\+Chain\+\_\+t {\bfseries Create\+Swap\+Chain}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_ae5a2b25c5851dfb26e7e091f6ce1424a}\label{namespace_s_s_s_engine_1_1_renderer_ae5a2b25c5851dfb26e7e091f6ce1424a} 
+SSSENGINE\+\_\+\+GLOBAL Render\+\_\+t {\bfseries Render}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a60f220ca08db62123d8a6b25435ee2e0}\label{namespace_s_s_s_engine_1_1_renderer_a60f220ca08db62123d8a6b25435ee2e0} 
+SSSENGINE\+\_\+\+GLOBAL Terminate\+\_\+t {\bfseries Terminate}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a7c5a836178532b26058c03b9d32def11}\label{namespace_s_s_s_engine_1_1_renderer_a7c5a836178532b26058c03b9d32def11} 
+SSSENGINE\+\_\+\+GLOBAL Load\+Assets\+Test\+\_\+t {\bfseries Load\+Assets\+Test}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a896f25051ef9d0208f7cb9c87db2a72e}\label{namespace_s_s_s_engine_1_1_renderer_a896f25051ef9d0208f7cb9c87db2a72e} 
+SSSENGINE\+\_\+\+GLOBAL Resize\+Swap\+Chain\+\_\+t {\bfseries Resize\+Swap\+Chain}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_ade28b311dcdff998eeb6d7ebc04b66f5}\label{namespace_s_s_s_engine_1_1_renderer_ade28b311dcdff998eeb6d7ebc04b66f5} 
+SSSENGINE\+\_\+\+GLOBAL Begin\+Frame\+\_\+t {\bfseries Begin\+Frame}
+\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a7be1801da8192cc4077568d34763ddff}\label{namespace_s_s_s_engine_1_1_renderer_a7be1801da8192cc4077568d34763ddff} 
+constexpr int {\bfseries Back\+Buffers\+Amount} = 3
+\begin{DoxyCompactList}\small\item\em How many buffers to use. \end{DoxyCompactList}\item 
+\Hypertarget{namespace_s_s_s_engine_1_1_renderer_a0b36a2204b2694eef40de3db694e5951}\label{namespace_s_s_s_engine_1_1_renderer_a0b36a2204b2694eef40de3db694e5951} 
+SSSENGINE\+\_\+\+INTERNAL void \texorpdfstring{$\ast$}{*} {\bfseries Module}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Namespace for all rendering related functions. 

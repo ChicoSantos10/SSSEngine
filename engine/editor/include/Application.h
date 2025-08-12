@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include <memory>
@@ -38,7 +43,11 @@ namespace SSSEngine::Editor
         Application(Application &&) = delete;
         Application &operator=(const Application &) = delete;
         Application &operator=(Application &&) = delete;
-        ~Application() { Renderer::Unload(); };
+
+        ~Application()
+        {
+            Renderer::Unload();
+        };
 
         void Run();
 

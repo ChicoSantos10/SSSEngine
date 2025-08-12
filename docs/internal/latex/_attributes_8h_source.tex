@@ -1,0 +1,132 @@
+\doxysection{Attributes.\+h}
+\hypertarget{_attributes_8h_source}{}\label{_attributes_8h_source}\index{N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h@{N:/C++Projects/SSSEngine/engine/base/utils/include/Attributes.h}}
+\mbox{\hyperlink{_attributes_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{/*\ \ SSS\ Engine}}
+\DoxyCodeLine{00002\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2024\ \ Francisco\ Santos}}
+\DoxyCodeLine{00003\ \textcolor{comment}{}}
+\DoxyCodeLine{00004\ \textcolor{comment}{\ \ \ \ This\ program\ is\ free\ software:\ you\ can\ redistribute\ it\ and/or\ modify}}
+\DoxyCodeLine{00005\ \textcolor{comment}{\ \ \ \ it\ under\ the\ terms\ of\ the\ GNU\ General\ Public\ License\ as\ published\ by}}
+\DoxyCodeLine{00006\ \textcolor{comment}{\ \ \ \ the\ Free\ Software\ Foundation,\ either\ version\ 3\ of\ the\ License,\ or}}
+\DoxyCodeLine{00007\ \textcolor{comment}{\ \ \ \ (at\ your\ option)\ any\ later\ version.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{}}
+\DoxyCodeLine{00009\ \textcolor{comment}{\ \ \ \ This\ program\ is\ distributed\ in\ the\ hope\ that\ it\ will\ be\ useful,}}
+\DoxyCodeLine{00010\ \textcolor{comment}{\ \ \ \ but\ WITHOUT\ ANY\ WARRANTY;\ without\ even\ the\ implied\ warranty\ of}}
+\DoxyCodeLine{00011\ \textcolor{comment}{\ \ \ \ MERCHANTABILITY\ or\ FITNESS\ FOR\ A\ PARTICULAR\ PURPOSE.\ \ See\ the}}
+\DoxyCodeLine{00012\ \textcolor{comment}{\ \ \ \ GNU\ General\ Public\ License\ for\ more\ details.}}
+\DoxyCodeLine{00013\ \textcolor{comment}{}}
+\DoxyCodeLine{00014\ \textcolor{comment}{\ \ \ \ You\ should\ have\ received\ a\ copy\ of\ the\ GNU\ General\ Public\ License}}
+\DoxyCodeLine{00015\ \textcolor{comment}{\ \ \ \ along\ with\ this\ program.\ \ If\ not,\ see\ <https://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{00016\ \textcolor{comment}{*/}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{_helper_macros_8h}{HelperMacros.h}}"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ Exports\ and\ imports}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#define\ SSSENGINE\_DLL\_EXPORT\ extern\ "{}C"{}\ [[maybe\_unused]]\ \_\_declspec(dllexport)}}
+\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#define\ SSSENGINE\_DLL\_IMPORT\ \_\_declspec(dllimport)}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \textcolor{preprocessor}{\#pragma\ region\ Inlining}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{preprocessor}{\#ifdef\ SSSENGINE\_ALLOW\_FORCE\_INLINE}}
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00035\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\ \_\_forceinline}}
+\DoxyCodeLine{00036\ \textcolor{preprocessor}{\ \ \ \ \#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00037\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\ [[using\ gnu:\ always\_inline,\ inline]]\ inline}}
+\DoxyCodeLine{00038\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00039\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00040\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\ inline}}
+\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00043\ \textcolor{preprocessor}{\#ifdef\ SSSENGINE\_ALLOW\_NO\_INLINE}}
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00045\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_NO\_INLINE\ declspec(noinline)}}
+\DoxyCodeLine{00046\ \textcolor{preprocessor}{\ \ \ \ \#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00047\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_NO\_INLINE\ \_\_attribute\_\_((noinline))}}
+\DoxyCodeLine{00048\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00049\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00050\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_NO\_INLINE}}
+\DoxyCodeLine{00051\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \textcolor{comment}{//\ NOTE:\ As\ fas\ as\ I\ know\ there\ is\ no\ support\ for\ it\ from\ MSVC\ or\ GCC.\ Will\ keep\ it\ in\ case\ we\ ever\ get\ this\ option}}
+\DoxyCodeLine{00054\ \textcolor{preprocessor}{\#ifdef\ SSSENGINE\_ALLOW\_HINT\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00055\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00056\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_HINT\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00057\ \textcolor{preprocessor}{\ \ \ \ \#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00058\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_HINT\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00059\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00060\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00061\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_HINT\_INLINE\_STATEMENT\_RECURSIVE}}
+\DoxyCodeLine{00062\ \textcolor{preprocessor}{\ \ \ \ \#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00063\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_HINT\_INLINE\_STATEMENT\_RECURSIVE}}
+\DoxyCodeLine{00064\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00065\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00066\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_HINT\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_HINT\_INLINE\_STATEMENT\_RECURSIVE}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#ifdef\ SSSENGINE\_ALLOW\_FORCE\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ NOTE:\ As\ fas\ as\ I\ know\ there\ is\ no\ support\ for\ it\ from\ MSVC}}
+\DoxyCodeLine{00073\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00074\ \textcolor{preprocessor}{\ \ \ \ \#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00075\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\_STATEMENT\ SSSENGINE\_PRAGMA(FORCEINLINE)}}
+\DoxyCodeLine{00076\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00077\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ NOTE:\ As\ fas\ as\ I\ know\ there\ is\ no\ support\ for\ it\ from\ MSVC}}
+\DoxyCodeLine{00079\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\_STATEMENT\_RECURSIVE}}
+\DoxyCodeLine{00080\ \textcolor{preprocessor}{\ \ \ \ \#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00081\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\_STATEMENT\_RECURSIVE\ SSSENGINE\_PRAGMA(FORCEINLINE\_RECURSIVE)}}
+\DoxyCodeLine{00082\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00083\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00084\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00085\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_FORCE\_INLINE\_STATEMENT\_RECURSIVE}}
+\DoxyCodeLine{00086\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \textcolor{preprocessor}{\#ifdef\ SSSENGINE\_ALLOW\_NO\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00089\ \textcolor{preprocessor}{\ \ \ \ \#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ NOTE:\ As\ fas\ as\ I\ know\ there\ is\ no\ support\ for\ it\ from\ MSVC}}
+\DoxyCodeLine{00091\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_NO\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00092\ \textcolor{preprocessor}{\ \ \ \ \#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00093\ \textcolor{preprocessor}{\ \ \ \ \ \ \ \ \#define\ SSSENGINE\_NO\_INLINE\_STATEMENT\ SSSENGINE\_PRAGMA(NOINLINE)}}
+\DoxyCodeLine{00094\ \textcolor{preprocessor}{\ \ \ \ \#endif}}
+\DoxyCodeLine{00095\ \textcolor{preprocessor}{\#else}}
+\DoxyCodeLine{00096\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_NO\_INLINE\_STATEMENT}}
+\DoxyCodeLine{00097\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \textcolor{preprocessor}{\#pragma\ endregion}}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00101\ \textcolor{preprocessor}{\#pragma\ region\ Attributes}}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \textcolor{preprocessor}{\#define\ SSSENGINE\_PURE\ [[nodiscard]]}}
+\DoxyCodeLine{00104\ \textcolor{preprocessor}{\#define\ SSSENGINE\_NO\_RETURN\ [[noreturn]]}}
+\DoxyCodeLine{00105\ \textcolor{preprocessor}{\#define\ SSSENGINE\_FALLTHROUGH\ [[fallthrough]]}}
+\DoxyCodeLine{00106\ \textcolor{preprocessor}{\#define\ SSSENGINE\_DEPRECATED(reason)\ [[deprecated(\#reason)]]}}
+\DoxyCodeLine{00107\ \textcolor{preprocessor}{\#define\ SSSENGINE\_CARRIES\_DEPENDENCY\ [[carries\_dependency]]}}
+\DoxyCodeLine{00108\ \textcolor{preprocessor}{\#define\ SSSENGINE\_LIKELY\ [[likely]]}}
+\DoxyCodeLine{00109\ \textcolor{preprocessor}{\#define\ SSSENGINE\_UNLIKELY\ [[unlikely]]}}
+\DoxyCodeLine{00110\ \textcolor{preprocessor}{\#define\ SSSENGINE\_NO\_UNIQUE\_ADDRESS\ [[no\_unique\_address]]}}
+\DoxyCodeLine{00111\ \textcolor{preprocessor}{\#ifdef\ SSSENGINE\_MSVC}}
+\DoxyCodeLine{00112\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_ASSUME(expression)\ \_\_assume(expression)}}
+\DoxyCodeLine{00113\ \textcolor{preprocessor}{\#elif\ SSSENGINE\_MINGW}}
+\DoxyCodeLine{00114\ \textcolor{preprocessor}{\ \ \ \ \#define\ SSSENGINE\_ASSUME(expression)\ [[assume(expression)]]}}
+\DoxyCodeLine{00115\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00116\ \textcolor{preprocessor}{\#define\ SSSENGINE\_INDETERMINATE\ [[indeterminate]]}}
+\DoxyCodeLine{00117\ \textcolor{comment}{//\ \#define\ SSSENGINE\_OPTIMIZE\_FOR\_SYNCHRONIZED\ [[optimize\_for\_synchronized]]}}
+\DoxyCodeLine{00118\ \textcolor{preprocessor}{\#define\ SSSENGINE\_MAYBE\_UNUSED\ [[maybe\_unused]]}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \textcolor{preprocessor}{\#pragma\ endregion}}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \textcolor{comment}{//\ INVESTIGATE:\ Pragmas}}
+\DoxyCodeLine{00123\ \textcolor{preprocessor}{\#define\ SSSENGINE\_PACK\_PUSH(command)\ SSSENGINE\_PRAGMA(pack(push,\ command))}}
+\DoxyCodeLine{00124\ \textcolor{preprocessor}{\#define\ SSSENGINE\_PACK\_SHOW\ SSSENGINE\_PRAGMA(pack(show))}}
+\DoxyCodeLine{00125\ \textcolor{preprocessor}{\#define\ SSSENGINE\_PACK\_POP\ SSSENGINE\_PRAGMA(pack(pop))}}
+\DoxyCodeLine{00126\ }
+\DoxyCodeLine{00127\ \textcolor{comment}{//\ LOW\_PRIORITY:\ assume\_aligned\ -\/>\ https://www.open-\/std.org/jtc1/sc22/wg21/docs/papers/2018/p1007r3.pdf}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{comment}{//\ INVESTIGATE:\ Check\ gnu\ and\ msvc\ attributes}}
+\DoxyCodeLine{00130\ \textcolor{comment}{//\ GCC:\ https://gcc.gnu.org/onlinedocs/gcc/Function-\/Attributes.html}}
+
+\end{DoxyCode}

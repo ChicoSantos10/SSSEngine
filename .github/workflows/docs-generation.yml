@@ -21,7 +21,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: undoc-log
-        path: undoc.log
+        path: build/docs/internal/undoc.log
 
     - name: Generate public docs
       run: cd docs/public && doxygen Doxyfile_public || true

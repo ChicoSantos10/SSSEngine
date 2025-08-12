@@ -15,6 +15,11 @@ Copyright (C) 2024  Francisco Santos
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #include <exception>
 #include <iostream>
 #include "Win32Utils.h"

@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include <cstdint>
@@ -59,6 +64,7 @@ using functionPtr = void (*)();
 using objPtr = void *;
 
 using size = size_t;
+
 /**
  * @brief Suffix to denote bytes
  *
@@ -67,7 +73,11 @@ using size = size_t;
  * @param n The number of bytes
  * @return The number of bytes
  */
-consteval size operator""_B(const size n) { return n; }
+consteval size operator""_B(const size n)
+{
+    return n;
+}
+
 /**
  * @brief Suffix to denote Kibibytes
  * A Kibibyte is 1024 bytes
@@ -75,7 +85,11 @@ consteval size operator""_B(const size n) { return n; }
  * @param n The number of Kibibytes
  * @return The size in bytes of the Kibibytes
  */
-consteval size operator""_KiB(const size n) { return n * 1024_B; }
+consteval size operator""_KiB(const size n)
+{
+    return n * 1024_B;
+}
+
 /**
  * @brief Suffix to denote Mebibytes
  * A Mebibyte is 1024 Kibibytes
@@ -83,7 +97,11 @@ consteval size operator""_KiB(const size n) { return n * 1024_B; }
  * @param n The number of Mebibytes
  * @return The size in bytes of the Mebibytes
  */
-consteval size operator""_MiB(const size n) { return n * 1024_KiB; }
+consteval size operator""_MiB(const size n)
+{
+    return n * 1024_KiB;
+}
+
 /**
  * @brief Suffix to denote Gibibytes
  * A Gibibyte is 1024 Mebibytes
@@ -91,7 +109,11 @@ consteval size operator""_MiB(const size n) { return n * 1024_KiB; }
  * @param n The number of Gibibytes
  * @return The size in bytes of the Gibibytes
  */
-consteval size operator""_GiB(const size n) { return n * 1024_MiB; }
+consteval size operator""_GiB(const size n)
+{
+    return n * 1024_MiB;
+}
+
 /**
  * @brief Suffix to denote Tebibytes
  * A Tebibyte is 1024 Gibibytes
@@ -99,7 +121,10 @@ consteval size operator""_GiB(const size n) { return n * 1024_MiB; }
  * @param n The number of Gibibytes
  * @return The size in bytes of the Gibibytes
  */
-consteval size operator""_TiB(const size n) { return n * 1024_GiB; }
+consteval size operator""_TiB(const size n)
+{
+    return n * 1024_GiB;
+}
 
 // INVESTIGATE: This may be confusing to have both
 /**
@@ -109,7 +134,11 @@ consteval size operator""_TiB(const size n) { return n * 1024_GiB; }
  * @param n The number of Kilobytes
  * @return The size in bytes of the Kilobytes
  */
-consteval size operator""_KB(const size n) { return n * 1000_B; }
+consteval size operator""_KB(const size n)
+{
+    return n * 1000_B;
+}
+
 /**
  * @brief Suffix to denote Megabytes
  * A Megabyte is 1000 Kilobytes
@@ -117,7 +146,11 @@ consteval size operator""_KB(const size n) { return n * 1000_B; }
  * @param n The number of Megabytes
  * @return The size in bytes of the Megabytes
  */
-consteval size operator""_MB(const size n) { return n * 1000_KB; }
+consteval size operator""_MB(const size n)
+{
+    return n * 1000_KB;
+}
+
 /**
  * @brief Suffix to denote Gigabytes
  * A Gigabyte is 1000 Megabytes
@@ -125,7 +158,11 @@ consteval size operator""_MB(const size n) { return n * 1000_KB; }
  * @param n The number of Gigabytes
  * @return The size in bytes of the Gigabytes
  */
-consteval size operator""_GB(const size n) { return n * 1000_MB; }
+consteval size operator""_GB(const size n)
+{
+    return n * 1000_MB;
+}
+
 /**
  * @brief Suffix to denote Terabytes
  * A Terabyte is 1000 Gigabytes
@@ -133,7 +170,10 @@ consteval size operator""_GB(const size n) { return n * 1000_MB; }
  * @param n The number of Terabytes
  * @return The size in bytes of the Terabytes
  */
-consteval size operator""_TB(const size n) { return n * 1000_GB; }
+consteval size operator""_TB(const size n)
+{
+    return n * 1000_GB;
+}
 
 // Size assertions
 SSSENGINE_STATIC_ASSERT(sizeof(u8) == 1_B, "u8 must be 1 byte")

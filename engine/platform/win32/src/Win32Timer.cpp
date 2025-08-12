@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #include "Attributes.h"
 #include "HelperMacros.h"
 #include <windows.h>

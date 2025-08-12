@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 // INVESTIGATE: File name

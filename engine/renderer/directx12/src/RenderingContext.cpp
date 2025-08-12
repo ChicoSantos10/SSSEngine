@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #include "RenderingContext.h"
 #include "Constants.h"
 #include "Device.h"

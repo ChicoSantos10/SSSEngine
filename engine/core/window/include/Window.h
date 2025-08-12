@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include "WindowHandle.h"
@@ -39,7 +44,10 @@ namespace SSSEngine::Core
         Window &operator=(const Window &other) = delete;
         Window &operator=(Window &&other) = delete;
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowHandle GetHandle() const noexcept { return m_handle; }
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowHandle GetHandle() const noexcept
+        {
+            return m_handle;
+        }
 
         // INVESTIGATE: Are these really noexcept
         // PERF: Is getting the rect first fine for performance or is the compiler not able to optimize? Does it even
@@ -54,11 +62,21 @@ namespace SSSEngine::Core
             return Platform::GetWindowRect(m_handle);
         }
 
-        void SetWindowTitle(Platform::WindowTitle title) const { Platform::SetWindowTitle(m_handle, title); }
+        void SetWindowTitle(Platform::WindowTitle title) const
+        {
+            Platform::SetWindowTitle(m_handle, title);
+        }
 
         // LOW_PRIORITY: Potentially allow other types of fullscreen
-        void SetBorderlessFullscreen(bool fullscreen) const { Platform::SetBorderlessFullscreen(m_handle, fullscreen); }
-        void ToggleBorderlessFullscreen() const { Platform::ToggleBorderlessFullscreen(m_handle); }
+        void SetBorderlessFullscreen(bool fullscreen) const
+        {
+            Platform::SetBorderlessFullscreen(m_handle, fullscreen);
+        }
+
+        void ToggleBorderlessFullscreen() const
+        {
+            Platform::ToggleBorderlessFullscreen(m_handle);
+        }
 
         /* LOW_PRIORITY:
          *  - Add a method to change the window size

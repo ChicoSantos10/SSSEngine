@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #include "Platform.h"
 #include "Win32Window.h"
 #include "WindowHandle.h"

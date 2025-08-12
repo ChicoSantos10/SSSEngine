@@ -1,6 +1,8 @@
 # SSS Engine
 
-<img src="SSSEngineLogo.png" alt="Logo" width="350" style="margin:auto;display:block">
+<p align="center">
+    <img src="SSSEngineLogo.png" alt="Logo" width="350" align="center">
+</p>
 
 ## Background
 

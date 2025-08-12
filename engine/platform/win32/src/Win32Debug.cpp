@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 // NOTE: Windows.h needs to be included for dbghelp to work.
 #include "windows.h"
 #include <dbghelp.h>

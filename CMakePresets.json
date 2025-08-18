@@ -9,7 +9,7 @@
         {
             "name": "default",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/Debug/MSVC",
+            "binaryDir": "build/Debug/MSVC",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_C_COMPILER": "cl",
@@ -22,12 +22,26 @@
             }
         }
     ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "configurePreset": "default"
+        }
+    ],
     "testPresets": [
         {
             "name": "default",
             "configurePreset": "default",
             "output": {
                 "outputOnFailure": true
+            }
+        },
+        {
+            "name": "verbose",
+            "configurePreset": "default",
+            "output": {
+                "outputOnFailure": true,
+                "verbosity": "verbose"
             }
         }
     ]

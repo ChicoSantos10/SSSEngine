@@ -15,6 +15,11 @@ Copyright (C) 2024  Francisco Santos
         along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #include <cstdio>
 #include <windows.h>
 #include <wrl/client.h>
@@ -158,4 +163,7 @@ void InitConsole()
     freopen_s(&stream, "CONIN$", "r", stdin);
 }
 
-void CloseConsole() { FreeConsole(); }
+void CloseConsole()
+{
+    FreeConsole();
+}

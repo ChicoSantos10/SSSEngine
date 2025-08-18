@@ -15,12 +15,22 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include "Types.h"
 
 namespace SSSEngine::Input
 {
+    /**
+     * @enum KeyboardCodes
+     * @brief Possible codes for keyboard keys
+     *
+     */
     enum class KeyboardCodes : u8
     {
         Number1,

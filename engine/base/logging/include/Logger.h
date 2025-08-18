@@ -15,6 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief File with logging related internals
+ * Is only compiled when SSSENGINE_LOGGING is defined
+ */
+
 #pragma once
 
 #ifdef SSSENGINE_LOGGING
@@ -25,6 +31,10 @@
     #include "Types.h"
     #include "Debug.h"
 
+/**
+ * @namespace
+ * @brief Logging namespace
+ */
 namespace SSSEngine::Logging
 {
     using String = std::wstring;

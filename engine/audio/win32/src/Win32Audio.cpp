@@ -15,6 +15,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief Windows implementation of the Audio.h
+ *
+ */
+
 #include "Audio.h"
 
 namespace SSSEngine::Audio

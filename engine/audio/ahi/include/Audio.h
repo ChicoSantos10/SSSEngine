@@ -15,8 +15,17 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief This file contains functions that communicate directly with the Audio Hardware
+ */
+
 #pragma once
 
+/**
+ * @namespace
+ * @brief Namespace for all audio related functions
+ */
 namespace SSSEngine::Audio
 {
     /**

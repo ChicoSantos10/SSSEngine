@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #include <iostream>
 #include <memory>
 
@@ -71,5 +76,6 @@ namespace SSSEngine::Editor
             // SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", elapsedMicroseconds);
         }
     }
+
     //	}
 } // namespace SSSEngine::Editor

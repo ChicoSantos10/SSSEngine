@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include "Attributes.h"
@@ -29,7 +34,10 @@ namespace SSSEngine
      * @param bits The bits to join
      * @return A new number with the 1 bits from every parameter
      */
-    SSSENGINE_FORCE_INLINE constexpr auto Join(IntegralConcept auto... bits) { return (bits | ...); }
+    SSSENGINE_FORCE_INLINE constexpr auto Join(IntegralConcept auto... bits)
+    {
+        return (bits | ...);
+    }
 
     /**
      * @brief Checks to see if first has all the bits set from second

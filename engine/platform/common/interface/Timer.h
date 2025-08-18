@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include "Attributes.h"
@@ -41,8 +46,15 @@ namespace SSSEngine::Platform
         u64 time;
     };
 
-    SSSENGINE_GLOBAL Timestamp operator+(Timestamp lhs, Timestamp rhs) { return {lhs.time + rhs.time}; }
-    SSSENGINE_GLOBAL Timestamp operator-(Timestamp lhs, Timestamp rhs) { return {lhs.time - rhs.time}; }
+    SSSENGINE_GLOBAL Timestamp operator+(Timestamp lhs, Timestamp rhs)
+    {
+        return {lhs.time + rhs.time};
+    }
+
+    SSSENGINE_GLOBAL Timestamp operator-(Timestamp lhs, Timestamp rhs)
+    {
+        return {lhs.time - rhs.time};
+    }
 
     /**
      * @brief Gets a timestamp that can be used to calculate the duration of something

@@ -15,6 +15,11 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #pragma once
 
 #include "Attributes.h"
@@ -27,7 +32,10 @@
 
 namespace SSSEngine::Renderer::DirectX12
 {
-    consteval u32 GetConstantBufferByteSize(u64 size) { return (size + 255) & ~255; }
+    consteval u32 GetConstantBufferByteSize(u64 size)
+    {
+        return (size + 255) & ~255;
+    }
 
     template<typename T, bool IsConstantBuffer>
     class UploadBuffer
@@ -42,6 +50,7 @@ namespace SSSEngine::Renderer::DirectX12
 
             Platform::Win32::ThrowIfFailed(m_uploadBuffer->Map(0, nullptr, reinterpret_cast<void **>(&m_data)));
         }
+
         UploadBuffer(const UploadBuffer &rhs) = delete;
         UploadBuffer(UploadBuffer &&) = delete;
         UploadBuffer &operator=(const UploadBuffer &rhs) = delete;

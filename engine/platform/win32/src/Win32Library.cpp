@@ -15,15 +15,26 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+/**
+ * @file
+ * @brief
+ */
+
 #include <Windows.h>
 #include "Library.h"
 #include "Types.h"
 
 namespace SSSEngine::Platform
 {
-    void *LoadSharedLibrary(const wchar_t *path, const int flags) { return LoadLibraryEx(path, nullptr, flags); }
+    void *LoadSharedLibrary(const wchar_t *path, const int flags)
+    {
+        return LoadLibraryEx(path, nullptr, flags);
+    }
 
-    void UnloadSharedLibrary(void *handle) { FreeLibrary(static_cast<HMODULE>(handle)); }
+    void UnloadSharedLibrary(void *handle)
+    {
+        FreeLibrary(static_cast<HMODULE>(handle));
+    }
 
     functionPtr GetFunctionAddressFromLibrary(void *handle, const char *funcName)
     {

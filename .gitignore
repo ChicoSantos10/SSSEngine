@@ -60,3 +60,7 @@ Testing
 # Thirdparty
 thirdparty/include/**
 thirdparty/libs/**
+
+# Doxygen
+docs/**/html/
+docs/**/ltex/

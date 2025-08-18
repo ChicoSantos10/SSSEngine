@@ -26,6 +26,11 @@
 
 namespace SSSEngine::Input
 {
+    /**
+     * @enum KeyboardCodes
+     * @brief Possible codes for keyboard keys
+     *
+     */
     enum class KeyboardCodes : u8
     {
         Number1,

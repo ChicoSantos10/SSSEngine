@@ -36,9 +36,9 @@ namespace SSSEngine::Math
     template<IntegralConcept T>
     struct Rect
     {
-        T X;
-        T Y;
-        T Width;
-        T Height;
+        T x;
+        T y;
+        T width;
+        T height;
     };
 } // namespace SSSEngine::Math

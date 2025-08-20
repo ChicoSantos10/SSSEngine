@@ -4,7 +4,6 @@ add_library(SSSWin32 STATIC
     src/Win32Timer.cpp
     src/Win32Utils.cpp
     src/Win32WindowHandle.cpp
-    src/Win32Memory.cpp
 )
 
 add_library(SSSWin32Interface INTERFACE)

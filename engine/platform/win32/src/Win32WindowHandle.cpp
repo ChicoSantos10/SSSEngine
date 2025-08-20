@@ -124,10 +124,10 @@ namespace SSSEngine::Platform
         GetWindowRect(static_cast<HWND>(handle), &rect);
 
         // INVESTIGATE: Use width and height on rect vs top left, bottom right
-        return WindowRect{.x = static_cast<WindowSize>(rect.left),
-                          .y = static_cast<WindowSize>(rect.top),
-                          .width = static_cast<WindowSize>(rect.right - rect.left),
-                          .height = static_cast<WindowSize>(rect.bottom - rect.top)};
+        return WindowRect{.X = static_cast<WindowSize>(rect.left),
+                          .Y = static_cast<WindowSize>(rect.top),
+                          .Width = static_cast<WindowSize>(rect.right - rect.left),
+                          .Height = static_cast<WindowSize>(rect.bottom - rect.top)};
     }
 
     WindowVec GetWindowSize(WindowHandle handle)

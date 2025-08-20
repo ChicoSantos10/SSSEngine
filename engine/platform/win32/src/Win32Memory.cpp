@@ -30,7 +30,7 @@ namespace SSSEngine::Platform
         return {.TotalSize = memoryStatus.ullTotalPhys, .Available = memoryStatus.ullAvailPhys};
     }
 
-    void *AllocateMemory(size bytes, size alignment, void *startingAddress = nullptr)
+    void *AllocateMemory(size bytes, void *startingAddress = nullptr)
     {
         void *address = VirtualAlloc(startingAddress, bytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
         return address;

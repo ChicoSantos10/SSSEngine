@@ -17,28 +17,28 @@
     USA
 */
 
-/**
- * @file
- * @brief
- */
+#include "Memory.h"
+#include "Windows.h"
 
-#pragma once
-
-#include "Concepts.h"
-
-namespace SSSEngine::Math
+namespace SSSEngine::Platform
 {
-    /**
-     * @brief A rect represented by top left position and width and height
-     *
-     * @tparam T An integer type
-     */
-    template<IntegralConcept T>
-    struct Rect
+    MemorySnapshot GetSystemMemoryInfo()
     {
-        T X;
-        T Y;
-        T Width;
-        T Height;
-    };
-} // namespace SSSEngine::Math
+        MEMORYSTATUSEX memoryStatus;
+        GlobalMemoryStatusEx(&memoryStatus);
+
+        return {.TotalSize = memoryStatus.ullTotalPhys, .Available = memoryStatus.ullAvailPhys};
+    }
+
+    void *AllocateMemory(size bytes, size alignment, void *startingAddress = nullptr)
+    {
+        void *address = VirtualAlloc(startingAddress, bytes, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+        return address;
+    }
+
+    bool FreeMemory(void *address)
+    {
+        return VirtualFree(address, 0, MEM_RELEASE);
+    }
+
+} // namespace SSSEngine::Platform

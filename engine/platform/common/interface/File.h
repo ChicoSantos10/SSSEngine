@@ -144,7 +144,7 @@ namespace SSSEngine::Platform
          * @return True if the write was successful, false otherwise
          */
         // TODO: Pass a buffer instead (address, size)
-        bool PlatformWriteFile(void *data, Size size);
+        bool PlatformWriteFile(const void *data, Size size);
 
         /**
          * @brief Reads a file into a buffer. Can only happen if the file was opened with read permissions

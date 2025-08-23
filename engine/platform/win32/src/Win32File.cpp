@@ -66,7 +66,7 @@ namespace SSSEngine::Platform
     }
 
     template<FilePermissions T>
-    bool File<T>::PlatformWriteFile(void *data, Size size)
+    bool File<T>::PlatformWriteFile(const void *data, Size size)
     {
         // INVESTIGATE: WriteFileEx and async writes (do we need async or can we just use threads that block essentially
         // doing the async ourselves?)

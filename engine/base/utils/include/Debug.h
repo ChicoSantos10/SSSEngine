@@ -34,7 +34,6 @@
  */
 #ifdef SSSENGINE_ASSERTIONS
 
-    // NOTE: Seems like mingw implements __debugbreak as well
     #define SSSENGINE_DEBUG_BREAK __debugbreak()
 
 // INVESTIGATE: Can we have this in a namespace?

@@ -32,11 +32,6 @@
 // INVESTIGATE: Should be in the platform namespace instead of a time namespace?
 namespace SSSEngine::Platform
 {
-    SSSENGINE_MAYBE_UNUSED constexpr int Microseconds = static_cast<int>(1e6);
-    SSSENGINE_MAYBE_UNUSED constexpr int Miliseconds = static_cast<int>(1e3);
-
-    SSSENGINE_STATIC_ASSERT(1'000'000 == SSSEngine::Platform::Microseconds, "1 Microsecond must be 1 000 000 seconds");
-    SSSENGINE_STATIC_ASSERT(1'000 == SSSEngine::Platform::Miliseconds, "1 Milisecond must be 1 000 seconds");
 
     /**
      * @class Timestamp

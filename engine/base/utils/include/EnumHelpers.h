@@ -19,35 +19,20 @@
 
 /**
  * @file
- * @brief
+ * @brief File with helper functions for enums
  */
 
 #pragma once
 
-#include <windows.h>
-#include <wrl/client.h>
-#include "Bits.h"
+#include "Attributes.h"
 #include "Concepts.h"
-#include "Debug.h"
-// #include "directx/d3d12.h"
 
-// INVESTIGATE: If we just assert we lose the error message. Figure out a way to keep it
-#ifdef SSSENGINE_DEBUG
-    #define SSSENGINE_THROW_IF_FAILED(hr) SSSENGINE_ASSERT(SUCCEEDED(hr))
-#else
-    #define SSSENGINE_THROW_IF_FAILED(hr) ThrowIfFailed(hr)
-#endif
-namespace SSSEngine::Platform::Win32
+namespace SSSEngine
 {
-    void ThrowIfFailed(HRESULT hr);
-    void GetErrorMessage(HRESULT hr, char *message);
-
-    // void GetDeviceRemovedReason(const ComPtr<ID3D12Device>&, char* message);
-
-    template<IntegralConcept T, IntegralConcept U>
-        requires(sizeof(U) == 32_b && sizeof(T) == 64_b)
-    T Convert32to64(U highPart, U lowPart)
+    template<EnumConcept T>
+    SSSENGINE_FORCE_INLINE constexpr auto AsNumber(T value)
     {
-        return Join(static_cast<T>(highPart) << SizeInBits(highPart), lowPart);
+        return static_cast<std::underlying_type_t<T>>(value);
     }
-} // namespace SSSEngine::Platform::Win32
+
+} // namespace SSSEngine

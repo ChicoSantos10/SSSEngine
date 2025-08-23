@@ -22,14 +22,11 @@
  * @brief
  */
 
-#include "Attributes.h"
-#include "HelperMacros.h"
-#include <windows.h>
-
+#include "Timer.h"
+#include "TimeDuration.h"
+#include <Windows.h>
 // NOTE: We need to undef this since Windows loves creating macros in PascalCase
 #undef GetCurrentTime
-
-#include "Timer.h"
 #include "Types.h"
 
 namespace SSSEngine::Platform

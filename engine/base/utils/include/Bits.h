@@ -26,6 +26,8 @@
 
 #include "Attributes.h"
 #include "Concepts.h"
+#include "EnumHelpers.h"
+#include "Types.h"
 
 namespace SSSEngine
 {
@@ -50,7 +52,27 @@ namespace SSSEngine
      */
     SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(IntegralConcept auto first, IntegralConcept auto second)
     {
-        return first & second;
+        return (first & second) != 0;
+    }
+
+    /**
+     * @brief Checks to see if first has all the bits set from second
+     *
+     * The order does not matter
+     *
+     * e.g:
+     * first  -> 0100 1010
+     * second -> 1001 1010
+     * result -> 0000 1010 != 0 return true
+     *
+     * @param first A flag to check
+     * @param second The other flag to check
+     * @return True if all bits are set, false otherwise
+     */
+    template<EnumConcept Flag>
+    SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(Flag first, Flag second)
+    {
+        return (AsNumber(first) & AsNumber(second)) != 0;
     }
 
     /**
@@ -66,5 +88,11 @@ namespace SSSEngine
     SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, Bits... bits)
     {
         return first & ~Join(bits...);
+    }
+
+    template<typename T>
+    SSSENGINE_FORCE_INLINE constexpr Size SizeInBits(T object)
+    {
+        return (sizeof(object) * Bits);
     }
 } // namespace SSSEngine

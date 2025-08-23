@@ -31,8 +31,8 @@ namespace SSSEngine::Platform
 {
     // INVESTIGATE: Should we just assume 64 always? What should we namme this? Do we need both?
 #ifdef __cpp_lib_hardware_interference_size
-    SSSENGINE_GLOBAL constexpr size CacheLineConstructive = std::hardware_constructive_interference_size;
-    SSSENGINE_GLOBAL constexpr size CacheLineDestructive = std::hardware_destructive_interference_size;
+    SSSENGINE_GLOBAL constexpr Size CacheLineConstructive = std::hardware_constructive_interference_size;
+    SSSENGINE_GLOBAL constexpr Size CacheLineDestructive = std::hardware_destructive_interference_size;
 #elif
     SSSENGINE_GLOBAL size CacheLineConstructive = 64 SSSENGINE_GLOBAL size CacheLineDestructive = 64
 #endif
@@ -73,7 +73,7 @@ namespace SSSEngine::Platform
      * @return bytes The memory address of the allocated memory. nullptr if it failed
      */
     // TODO: Probably should return an optional/expected
-    void *AllocateMemory(size bytes, void *startingAddress = nullptr);
+    void *AllocateMemory(Size bytes, void *startingAddress = nullptr);
 
     /**
      * @brief Frees memory allocated by AllocateMemory

@@ -105,4 +105,7 @@ namespace SSSEngine
     template<template<typename...> typename T, typename... Ts, typename... Us>
         requires(sizeof...(Ts) == sizeof...(Us))
     inline constexpr bool IsLikeV<T<Ts...>, T<Us...>> = (IsLikeV<Ts, Us> && ...);
+
+    template<typename T>
+    concept EnumConcept = std::is_enum_v<T>;
 } // namespace SSSEngine

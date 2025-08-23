@@ -65,7 +65,26 @@ using uintptr = uintptr_t;
 using functionPtr = void (*)();
 using objPtr = void *;
 
-using size = size_t;
+using Size = size_t;
+
+/**
+ * @brief How many bits in a byte
+ */
+constexpr byte Bits = 8;
+
+/**
+ * @brief Converts n bits into bytes
+ *
+ * Since every Byte must always have 8 bits, n must be a multiple of 8
+ *
+ * @param n The amount of bits to convert
+ * @return The amount of bytes corresponding with the n bits
+ */
+consteval Size operator""_b(const Size n)
+{
+    SSSENGINE_ASSERT(n % 8 == 0);
+    return n / Bits;
+}
 
 /**
  * @brief Suffix to denote bytes
@@ -75,7 +94,7 @@ using size = size_t;
  * @param n The number of bytes
  * @return The number of bytes
  */
-consteval size operator""_B(const size n)
+consteval Size operator""_B(const Size n)
 {
     return n;
 }
@@ -87,7 +106,7 @@ consteval size operator""_B(const size n)
  * @param n The number of Kibibytes
  * @return The size in bytes of the Kibibytes
  */
-consteval size operator""_KiB(const size n)
+consteval Size operator""_KiB(const Size n)
 {
     return n * 1024_B;
 }
@@ -99,7 +118,7 @@ consteval size operator""_KiB(const size n)
  * @param n The number of Mebibytes
  * @return The size in bytes of the Mebibytes
  */
-consteval size operator""_MiB(const size n)
+consteval Size operator""_MiB(const Size n)
 {
     return n * 1024_KiB;
 }
@@ -111,7 +130,7 @@ consteval size operator""_MiB(const size n)
  * @param n The number of Gibibytes
  * @return The size in bytes of the Gibibytes
  */
-consteval size operator""_GiB(const size n)
+consteval Size operator""_GiB(const Size n)
 {
     return n * 1024_MiB;
 }
@@ -123,7 +142,7 @@ consteval size operator""_GiB(const size n)
  * @param n The number of Gibibytes
  * @return The size in bytes of the Gibibytes
  */
-consteval size operator""_TiB(const size n)
+consteval Size operator""_TiB(const Size n)
 {
     return n * 1024_GiB;
 }
@@ -136,7 +155,7 @@ consteval size operator""_TiB(const size n)
  * @param n The number of Kilobytes
  * @return The size in bytes of the Kilobytes
  */
-consteval size operator""_KB(const size n)
+consteval Size operator""_KB(const Size n)
 {
     return n * 1000_B;
 }
@@ -148,7 +167,7 @@ consteval size operator""_KB(const size n)
  * @param n The number of Megabytes
  * @return The size in bytes of the Megabytes
  */
-consteval size operator""_MB(const size n)
+consteval Size operator""_MB(const Size n)
 {
     return n * 1000_KB;
 }
@@ -160,7 +179,7 @@ consteval size operator""_MB(const size n)
  * @param n The number of Gigabytes
  * @return The size in bytes of the Gigabytes
  */
-consteval size operator""_GB(const size n)
+consteval Size operator""_GB(const Size n)
 {
     return n * 1000_MB;
 }
@@ -172,7 +191,7 @@ consteval size operator""_GB(const size n)
  * @param n The number of Terabytes
  * @return The size in bytes of the Terabytes
  */
-consteval size operator""_TB(const size n)
+consteval Size operator""_TB(const Size n)
 {
     return n * 1000_GB;
 }
@@ -189,3 +208,14 @@ SSSENGINE_STATIC_ASSERT(sizeof(i64) == 8_B, "i64 must be 8 bytes")
 SSSENGINE_STATIC_ASSERT(sizeof(f32) == 4_B, "f32 must be 4 bytes")
 SSSENGINE_STATIC_ASSERT(sizeof(f64) == 8_B, "f64 must be 8 bytes")
 SSSENGINE_STATIC_ASSERT(sizeof(byte) == 1_B, "byte must be 1 byte")
+// Literal operators
+SSSENGINE_STATIC_ASSERT((1_B) == 1, "1_B is 1 byte")
+SSSENGINE_STATIC_ASSERT((8_b) == 1_B, "8_b is 1 byte")
+SSSENGINE_STATIC_ASSERT((1_KiB) == 1024_B, "1_Kib is 1024 bytes")
+SSSENGINE_STATIC_ASSERT((1_MiB) == 1024_KiB, "1_MiB is 1024 Kibibytes")
+SSSENGINE_STATIC_ASSERT((1_GiB) == 1024_MiB, "1_GiB is 1024 Mebibytes")
+SSSENGINE_STATIC_ASSERT((1_TiB) == 1024_GiB, "1_TiB is 1024 Gibibytes")
+SSSENGINE_STATIC_ASSERT((1_KB) == 1000_B, "1_Kb is 1000 bytes")
+SSSENGINE_STATIC_ASSERT((1_MB) == 1000_KB, "1_MB is 1000 Kilobytes")
+SSSENGINE_STATIC_ASSERT((1_GB) == 1000_MB, "1_GB is 1000 Megabytes")
+SSSENGINE_STATIC_ASSERT((1_TB) == 1000_GB, "1_TB is 1000 Gigabytes")

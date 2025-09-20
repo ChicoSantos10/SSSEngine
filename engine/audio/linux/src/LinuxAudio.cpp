@@ -17,10 +17,17 @@
     USA
 */
 
-#include "test.h"
-#include "Timer.h"
+/**
+ * @file
+ * @brief Linux related audio functions
+ */
 
-namespace SSSTest
+#include "Audio.h"
+
+namespace SSSEngine::Audio
 {
-    // TODO: Test timestamp operators
-} // namespace SSSTest
+    void Init()
+    {
+        // TODO: Linux audio initialization
+    }
+} // namespace SSSEngine::Audio

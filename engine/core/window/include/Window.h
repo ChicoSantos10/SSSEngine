@@ -38,7 +38,7 @@ namespace SSSEngine::Core
     class Window final
     {
         public:
-        Window(Platform::WindowVec position, Platform::WindowVec size, const Platform::WindowTitle &title,
+        Window(Platform::WindowPos position, Platform::WindowSize size, const Platform::WindowTitle &title,
                const Window *parent = nullptr);
         ~Window();
         Window(const Window &other) = delete;
@@ -46,15 +46,13 @@ namespace SSSEngine::Core
         Window &operator=(const Window &other) = delete;
         Window &operator=(Window &&other) = delete;
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowHandle GetHandle() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowId GetHandle() const noexcept
         {
             return m_handle;
         }
 
         // INVESTIGATE: Are these really noexcept
-        // PERF: Is getting the rect first fine for performance or is the compiler not able to optimize? Does it even
-        // matter
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowVec GetSize() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowSize GetSize() const noexcept
         {
             return Platform::GetWindowSize(m_handle);
         }
@@ -64,18 +62,18 @@ namespace SSSEngine::Core
             return Platform::GetWindowRect(m_handle);
         }
 
-        void SetWindowTitle(Platform::WindowTitle title) const
+        SSSENGINE_FORCE_INLINE void SetWindowTitle(Platform::WindowTitle &title) const
         {
             Platform::SetWindowTitle(m_handle, title);
         }
 
         // LOW_PRIORITY: Potentially allow other types of fullscreen
-        void SetBorderlessFullscreen(bool fullscreen) const
+        SSSENGINE_FORCE_INLINE void SetBorderlessFullscreen(bool fullscreen) const
         {
             Platform::SetBorderlessFullscreen(m_handle, fullscreen);
         }
 
-        void ToggleBorderlessFullscreen() const
+        SSSENGINE_FORCE_INLINE void ToggleBorderlessFullscreen() const
         {
             Platform::ToggleBorderlessFullscreen(m_handle);
         }
@@ -90,6 +88,6 @@ namespace SSSEngine::Core
          */
 
         private:
-        Platform::WindowHandle m_handle;
+        Platform::WindowId m_handle;
     };
 } // namespace SSSEngine::Core

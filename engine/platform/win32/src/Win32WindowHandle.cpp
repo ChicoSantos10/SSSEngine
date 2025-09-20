@@ -75,6 +75,11 @@ namespace SSSEngine::Platform
         }
     } // namespace Win32
 
+    LONG GetWindowStyle(HWND handle)
+    {
+        const LONG styles = GetWindowLong(static_cast<HWND>(handle), GWL_STYLE);
+    }
+
     WindowHandle OpenWindow(const WindowVec pos, const WindowVec size, const WindowTitle &title, WindowHandle parent)
     {
         auto [x, y] = pos;
@@ -183,16 +188,16 @@ namespace SSSEngine::Platform
 
     void SetBorderlessFullscreen(WindowHandle handle, bool fullscreen)
     {
-        const LONG styles = GetWindowLong(static_cast<HWND>(handle), GWL_STYLE);
+        const LONG styles = GetWindowStyle(handle);
 
         SetBorderlessFullscreen(handle, fullscreen, styles);
     }
 
     void ToggleBorderlessFullscreen(WindowHandle handle)
     {
-        const LONG styles = GetWindowLong(static_cast<HWND>(handle), GWL_STYLE);
+        const LONG styles = GetWindowStyle(handle);
 
         const bool isBorderless = !HasBitSet(styles, WS_OVERLAPPEDWINDOW);
-        SetBorderlessFullscreen(handle, !isBorderless);
+        SetBorderlessFullscreen(handle, !isBorderless, styles);
     }
 } // namespace SSSEngine::Platform

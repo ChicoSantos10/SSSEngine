@@ -29,13 +29,12 @@ namespace SSSEngine::Renderer
 {
     using Init_t = void (*)();
 
-    SSSENGINE_INTERNAL void *Module;
+    SSSENGINE_INTERNAL Platform::LibraryHandle Module;
 
     void Unload()
     {
         Terminate();
         Platform::UnloadSharedLibrary(Module);
-        Module = nullptr;
     }
 
     void LoadDirectx()
@@ -43,7 +42,8 @@ namespace SSSEngine::Renderer
         if(Module)
             Unload();
 
-        constexpr auto RelativePath = LR"(Directx12\Directx12.dll)";
+        // constexpr auto RelativePath = LR"(Directx12\Directx12.dll)";
+        constexpr auto RelativePath = R"(Directx12\Directx12.dll)";
         Module = Platform::LoadSharedLibrary(RelativePath, 0);
 
         // TODO: Proper handling / exception throwing

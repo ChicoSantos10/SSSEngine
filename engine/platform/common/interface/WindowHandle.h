@@ -27,12 +27,24 @@
 #include "Platform.h"
 #include "Rect.h"
 #include "Vector.h"
+#include "Attributes.h"
 
 namespace SSSEngine::Platform
 {
-    using WindowSize = int;
-    using WindowRect = Math::Rect<WindowSize>;
-    using WindowVec = Math::Vector2<WindowSize>;
+    struct WindowId
+    {
+        int id{-1};
+
+        operator int() const // NOLINT(*-explicit-constructor)
+        {
+            return id;
+        }
+    };
+
+    using WindowSizeType = int;
+    using WindowRect = Math::Rect<WindowSizeType, WindowSizeType>;
+    using WindowPos = Math::Vector2<decltype(WindowRect::x)>;
+    using WindowSize = Math::Vector2<decltype(WindowRect::width)>;
 
     /**
      * @brief Opens a platform window
@@ -43,7 +55,7 @@ namespace SSSEngine::Platform
      * @param parent A window handle. Can be set to null if the window should not have a parent
      * @return A handle to the opened window
      */
-    WindowHandle OpenWindow(WindowVec pos, WindowVec size, const WindowTitle &title, WindowHandle parent);
+    WindowId OpenWindow(WindowPos pos, WindowSize size, const WindowTitle &title, WindowId parent);
 
     /**
      * @brief Gets the window rect
@@ -51,7 +63,7 @@ namespace SSSEngine::Platform
      * @param handle The window to get the rect from
      * @return The rect of the window
      */
-    WindowRect GetWindowRect(WindowHandle handle);
+    WindowRect GetWindowRect(WindowId handle);
 
     /**
      * @brief Gets the window size
@@ -59,7 +71,7 @@ namespace SSSEngine::Platform
      * @param handle The window to get the size of
      * @return The Size of the window
      */
-    WindowVec GetWindowSize(WindowHandle handle);
+    WindowSize GetWindowSize(WindowId handle);
 
     /**
      * @brief Sets the window title
@@ -67,7 +79,7 @@ namespace SSSEngine::Platform
      * @param handle The handle of the window to change the title
      * @param title The new title
      */
-    void SetWindowTitle(WindowHandle handle, const WindowTitle &title);
+    void SetWindowTitle(WindowId handle, const WindowTitle &title);
 
     /**
      * @brief Either sets the window to a borderlessfullscreen mode or back to window mode
@@ -75,12 +87,23 @@ namespace SSSEngine::Platform
      * @param handle The handle to the window to change
      * @param fullscreen True for fullscreen and false for windowed
      */
-    void SetBorderlessFullscreen(WindowHandle handle, bool fullscreen);
+    void SetBorderlessFullscreen(WindowId handle, bool fullscreen);
+
+    /**
+     * @brief Is this window currently in borderless fullscreen mode
+     *
+     * @param handle The Id of the window to check
+     * @return Whether the window is in borderless fullscreen
+     */
+    bool IsBorderlessFullscreen(WindowId handle);
 
     /**
      * @brief Goes fullscreen if windowed or windowed if fullscreen
      *
      * @param handle The handle to the window to chance
      */
-    void ToggleBorderlessFullscreen(WindowHandle handle);
+    SSSENGINE_FORCE_INLINE void ToggleBorderlessFullscreen(WindowId handle)
+    {
+        SetBorderlessFullscreen(handle, !IsBorderlessFullscreen(handle));
+    }
 } // namespace SSSEngine::Platform

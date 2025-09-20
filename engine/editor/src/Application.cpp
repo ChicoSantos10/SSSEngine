@@ -22,16 +22,16 @@
  * @brief
  */
 
-#include <iostream>
-#include <memory>
-
 #include "Application.h"
+
 #include "Debug.h"
 #include "Platform.h"
 #include "Audio.h"
 #include "Timer.h"
 #include "Input.h"
 #include "WindowHandle.h"
+
+#include <iostream>
 
 namespace SSSEngine::Editor
 {
@@ -42,7 +42,7 @@ namespace SSSEngine::Editor
 
         // TODO: Manage memory
         m_Window = std::make_unique<Core::Window>(
-            Platform::WindowVec{0, 0}, Platform::WindowVec{3440, 1440}, Platform::MainWindowName);
+            Platform::WindowPos{0, 0}, Platform::WindowSize{3440, 1440}, Platform::MainWindowName);
     }
 
     void Application::Run()
@@ -51,7 +51,7 @@ namespace SSSEngine::Editor
         m_Running = true;
 
         Renderer::LoadAssetsTest();
-        Platform::Timestamp firstTimestamp = Platform::GetCurrentTime();
+        auto firstTimestamp = Platform::GetCurrentTime();
         while(m_Running)
         {
             m_Running = Input::HandleInput();
@@ -71,13 +71,17 @@ namespace SSSEngine::Editor
                 }
             }
 
-            Platform::Timestamp lastTimestamp = Platform::GetCurrentTime();
-            u64 elapsedMicroseconds = Platform::ToMicroSeconds(lastTimestamp - firstTimestamp);
-            SSSENGINE_ASSERT(elapsedMicroseconds > 0);
+            auto lastTimestamp = Platform::GetCurrentTime();
+            auto deltaTime = lastTimestamp - firstTimestamp;
+            SSSENGINE_ASSERT(deltaTime.value > 0);
             firstTimestamp = lastTimestamp;
-            // SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", elapsedMicroseconds);
+            // SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", deltaTime);
         }
     }
-
-    //	}
 } // namespace SSSEngine::Editor
+
+void SSSEngine::Platform::RunApplication(int argc, char *argv[])
+{
+    Editor::Application app;
+    app.Run();
+}

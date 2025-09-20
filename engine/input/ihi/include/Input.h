@@ -39,6 +39,8 @@ namespace SSSEngine::Input
     SSSENGINE_GLOBAL std::unordered_map<MouseButton, ButtonState> MouseButtons;
     SSSENGINE_GLOBAL Math::Vector2<float> MouseDirection;
 
+    // INVESTIGATE: Should we separate between the different peripherals? Keyboard, Mouse, Gamepad as the most common
+    // but also pen and whatever else may be wanted
     bool HandleInput();
     void GamepadInput();
 } // namespace SSSEngine::Input

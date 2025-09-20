@@ -28,8 +28,10 @@
 #include "Types.h"
 #include "Concepts.h"
 #include "Debug.h"
+
 #include <concepts>
 #include <type_traits>
+#include <utility>
 
 namespace SSSEngine::Math
 {
@@ -88,7 +90,7 @@ namespace SSSEngine::Math
      *
      * @tparam T [TODO:tparam]
      */
-    template<typename T, template<typename, MatrixSize, MatrixSize> typename V>
+    template<typename T>
     struct IsMatrix : std::false_type
     {
     };
@@ -98,18 +100,18 @@ namespace SSSEngine::Math
      *
      * @tparam U [TODO:tparam]
      */
-    template<template<typename, MatrixSize, MatrixSize> typename V, typename U, MatrixSize C, MatrixSize R>
-    struct IsMatrix<V<U, C, R>, V> : std::true_type
+    template<typename T, MatrixSize C, MatrixSize R>
+    struct IsMatrix<Matrix<T, C, R>> : std::true_type
     {
     };
 
     /**
      * @brief Checks if Type T is a Matrix
      *
-     * @tparam T [TODO:tparam]
+     * @tparam T The type to check
      */
     template<typename T>
-    concept MatrixTypeConcept = IsMatrix<T, Matrix>::value;
+    concept MatrixTypeConcept = IsMatrix<T>::value;
 
     SSSENGINE_STATIC_ASSERT(MatrixTypeConcept<Mat4x4f>, "Mat4x4f is a matrix")
     SSSENGINE_STATIC_ASSERT(!MatrixTypeConcept<int>, "int is not a matrix")
@@ -126,7 +128,7 @@ namespace SSSEngine::Math
     SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
 
     template<MatrixTypeConcept T, MatrixTypeConcept V>
-        requires(std::same_as<T, V>) && (T::Columns() == V::Rows())
+        requires(SameType<T, V>) && (T::Columns() == V::Rows())
     SSSENGINE_GLOBAL constexpr auto operator*(const T &lhs, const V &rhs)
     {
         using Type = typename T::Type;
@@ -136,6 +138,8 @@ namespace SSSEngine::Math
 
         Matrix<Type, ColumnsRhs, RowsRhs> result;
 
+        // PERF: Optimize this! Although for most scenarios we should do a simd multiplication. Here we either dont do
+        // it or need to do it unaligned. The other question is column-order vs row-order
         for(MatrixSize i = 0; i < RowsLhs; ++i)
         {
             for(MatrixSize k = 0; k < RowsLhs; ++k)
@@ -203,4 +207,6 @@ namespace SSSEngine::Math
         }
         return m;
     }
+
+    constexpr auto Identity4x4f = IdentityMatrix<Mat4x4f>();
 } // namespace SSSEngine::Math

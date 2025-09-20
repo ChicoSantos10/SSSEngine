@@ -24,12 +24,14 @@
 
 #pragma once
 
+#include "MemorySize.h"
 #include "Types.h"
+
 #include <new>
 
 namespace SSSEngine::Platform
 {
-    // INVESTIGATE: Should we just assume 64 always? What should we namme this? Do we need both?
+    // INVESTIGATE: Should we just assume 64 always? What should we name this? Do we need both?
 #ifdef __cpp_lib_hardware_interference_size
     SSSENGINE_GLOBAL constexpr Size CacheLineConstructive = std::hardware_constructive_interference_size;
     SSSENGINE_GLOBAL constexpr Size CacheLineDestructive = std::hardware_destructive_interference_size;
@@ -48,11 +50,13 @@ namespace SSSEngine::Platform
         /**
          * @brief The total size of the system RAM
          */
-        u64 TotalSize{0};
+        // INVESTIGATE: We should probably cache this but probably does not make much of a difference
+        Math::Bytes totalSize{0};
+
         /**
          * @brief Currently available system RAM
          */
-        u64 Available{0};
+        Math::Bytes available{0};
     };
 
     /**
@@ -72,15 +76,16 @@ namespace SSSEngine::Platform
      *
      * @return bytes The memory address of the allocated memory. nullptr if it failed
      */
-    // TODO: Probably should return an optional/expected
-    void *AllocateMemory(Size bytes, void *startingAddress = nullptr);
+    // TODO: Probably should return an optional/expected<Buffer>
+    void *AllocateMemory(Math::Bytes size, void *startingAddress = nullptr);
 
     /**
      * @brief Frees memory allocated by AllocateMemory
      * @see AllocateMemory
      *
      * @param address The memory address to free
+     * @param length The size of memory to free
      * @return True if it succeeded, false otherwise
      */
-    bool FreeMemory(void *address);
+    bool FreeMemory(void *address, Math::Bytes size);
 } // namespace SSSEngine::Platform

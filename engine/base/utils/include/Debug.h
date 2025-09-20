@@ -24,6 +24,14 @@
 
 #pragma once
 
+#ifdef SSSENGINE_MSVC
+    #define SSSENGINE_DEBUG_BREAK __debugbreak()
+#elif SSSENGINE_CLANG
+    #define SSSENGINE_DEBUG_BREAK __builtin_debugtrap()
+#elif SSSENGINE_GCC
+    #define SSSENGINE_DEBUG_BREAK __builtin_trap()
+#endif
+
 /* INVESTIGATE: Have different types of assertions:
  *  -Debug: All assertions should be built
  *  -Internal: Same as debug?
@@ -34,30 +42,30 @@
  */
 #ifdef SSSENGINE_ASSERTIONS
 
-    #define SSSENGINE_DEBUG_BREAK __debugbreak()
-
-// INVESTIGATE: Can we have this in a namespace?
-/**
- * @brief Sets a breakpoint while logging the error
- *
- * @param message The error message
- * @param file The file that threw the error
- * @param line The line where the error occurred
- */
-void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line);
+namespace SSSEngine
+{
+    /**
+     * @brief Sets a breakpoint while logging the error
+     *
+     * @param message The error message
+     * @param file The file that threw the error
+     * @param line The line where the error occurred
+     */
+    void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line);
+} // namespace SSSEngine
 
     #include "HelperMacros.h"
     /**
-     * @brief Warning: This converts into [[assume(expression)]] when assertions are turned off. DO NOT PUT expressions
-     * that have side effects!!!
+     * @brief Warning: This converts into [[assume(expression)]] when assertions are turned off. DO NOT PUT
+     * expressions that have side effects!!!
      * @param expression The expression to be tested. Since we assert that it must not be true we can then tell the
      * compiler it can assume to be true, potentially allowing for some optimizations
      */
-    #define SSSENGINE_ASSERT(expression)                                                                                   \
-        (void)((!!(expression)) ||                                                                                         \
-               (ReportAssertionFailure(SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE(__FILE__), (unsigned)(__LINE__)), \
-                SSSENGINE_DEBUG_BREAK,                                                                                     \
-                0))
+    #define SSSENGINE_ASSERT(expression)                                                                                    \
+        (void)((!!(expression)) || (SSSEngine::ReportAssertionFailure(                                                      \
+                                        SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE(__FILE__), (unsigned)(__LINE__)), \
+                                    SSSENGINE_DEBUG_BREAK,                                                                  \
+                                    0))
 
     #define SSSENGINE_UNREACHABLE SSSENGINE_ASSERT(false && "Supposedly unreachable code reached")
 #else

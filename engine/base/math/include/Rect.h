@@ -31,14 +31,14 @@ namespace SSSEngine::Math
     /**
      * @brief A rect represented by top left position and width and height
      *
-     * @tparam T An integer type
+     * @tparam T An integral  type. For the size type will always be the unsigned version of T
      */
-    template<IntegralConcept T>
+    template<IntegralConcept T, IntegralConcept U = UnsignedType<T>>
     struct Rect
     {
-        T X;
-        T Y;
-        T Width;
-        T Height;
+        T x;
+        T y;
+        U width;
+        U height;
     };
 } // namespace SSSEngine::Math

@@ -29,8 +29,6 @@
 #include "Debug.h"
 #include "Types.h"
 
-#include <string>
-
 namespace SSSEngine::Platform
 {
     enum class FilePermissions : u8
@@ -52,6 +50,7 @@ namespace SSSEngine::Platform
             u32 nanoseconds;
         };
 
+        // INVESTIGATE: Do we need the creation time?
         Time creationTime;
         Time lastAccessTime;
         Time lastWriteTime;
@@ -65,12 +64,13 @@ namespace SSSEngine::Platform
 
     // TODO: Create a Path struct. Make it consteval but allow conversion to string types explicitly
     // Must be convertible to Wide String for Windows
-    using FilePath = std::wstring;
+    // using FilePath = std::wstring;
+    using FilePath = char *;
 
     template<FilePermissions T = FilePermissions::Read>
     class File final
     {
-        using FileHandle = void *;
+        using FileHandle = int;
 
         public:
         static constexpr FilePermissions AccessPermissions = T;
@@ -97,7 +97,8 @@ namespace SSSEngine::Platform
          * @param size The amount of bytes to write from data
          * @return True if the write was successful, false otherwise
          */
-        SSSENGINE_FORCE_INLINE friend bool WriteFile(File file, void *data, Size size);
+        friend bool WriteFile(File file, void *data, Size size);
+
         /**
          * @brief Reads maxBytes from file into a buffer
          *
@@ -106,7 +107,8 @@ namespace SSSEngine::Platform
          * @param maxBytes The maximum amount of bytes to read
          * @return True if successful, false otherwise
          */
-        SSSENGINE_FORCE_INLINE friend bool ReadFile(File file, void *buffer, Size maxBytes);
+        friend bool ReadFile(File file, void *buffer, Size maxBytes);
+
         /**
          * @brief Get's the extended file information
          *
@@ -117,7 +119,7 @@ namespace SSSEngine::Platform
          * @param file The file to get the information
          * @return The file data
          */
-        SSSENGINE_FORCE_INLINE friend ExtendedFileData GetExtendedFileData(File file);
+        friend ExtendedFileData GetExtendedFileData(File file);
 
         private:
         /**
@@ -185,18 +187,18 @@ namespace SSSEngine::Platform
                                                                                "is a "
                                                                                "ReadFileConcept")
 
-    bool WriteFile(WriteFileConcept auto &file, void *data, Size size)
+    SSSENGINE_FORCE_INLINE bool WriteFile(WriteFileConcept auto &file, void *data, Size size)
     {
         file.PlatformWriteFile(data, size);
     }
 
-    bool ReadFile(const ReadFileConcept auto &file, void *buffer, Size maxBytes)
+    SSSENGINE_FORCE_INLINE bool ReadFile(const ReadFileConcept auto &file, void *buffer, Size maxBytes)
     {
         file.PlatformReadFile(buffer, maxBytes);
     }
 
     template<FilePermissions T>
-    ExtendedFileData GetExtendedFileData(const File<T> &file)
+    SSSENGINE_FORCE_INLINE ExtendedFileData GetExtendedFileData(const File<T> &file)
     {
         file.PlatformFileInformation();
     }

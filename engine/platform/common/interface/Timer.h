@@ -24,47 +24,15 @@
 
 #pragma once
 
-#include "Attributes.h"
-#include "HelperMacros.h"
-#include "Types.h"
-#include "Debug.h"
+#include "TimeDuration.h"
 
 // INVESTIGATE: Should be in the platform namespace instead of a time namespace?
 namespace SSSEngine::Platform
 {
-
     /**
-     * @class Timestamp
-     * @brief A number that can be used to determine duration when subtracted to another
      *
+     * @return Gets the time, in nanoseconds, since an arbitrary point in time
      */
-    struct Timestamp
-    {
-        u64 time;
-    };
+    Nanoseconds GetCurrentTime();
 
-    SSSENGINE_GLOBAL Timestamp operator+(Timestamp lhs, Timestamp rhs)
-    {
-        return {lhs.time + rhs.time};
-    }
-
-    SSSENGINE_GLOBAL Timestamp operator-(Timestamp lhs, Timestamp rhs)
-    {
-        return {lhs.time - rhs.time};
-    }
-
-    /**
-     * @brief Gets a timestamp that can be used to calculate the duration of something
-     *
-     * @return [TODO:return]
-     */
-    Timestamp GetCurrentTime();
-
-    /**
-     * @brief Converts a timestamp to Microseconds duration
-     *
-     * @param timestamp [TODO:parameter]
-     * @return [TODO:return]
-     */
-    u64 ToMicroSeconds(Timestamp timestamp);
 } // namespace SSSEngine::Platform

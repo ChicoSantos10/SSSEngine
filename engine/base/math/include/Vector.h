@@ -24,8 +24,8 @@
 
 #pragma once
 
+#include "Attributes.h"
 #include "Concepts.h"
-#include "HelperMacros.h"
 #include "Types.h"
 
 // INVESTIGATE: Are Intrinsics worth it here? Would need to make sure of alignment
@@ -35,144 +35,144 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T>
     struct Vector2
     {
-        T X{0};
-        T Y{0};
+        T x{0};
+        T y{0};
 
-        friend SSSENGINE_GLOBAL Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        SSSENGINE_FORCE_INLINE friend Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs)
         {
-            return {lhs.X + rhs.X, lhs.Y + rhs.Y};
+            return {lhs.x + rhs.x, lhs.y + rhs.y};
         }
 
-        friend SSSENGINE_GLOBAL Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs)
         {
-            return {lhs.X - rhs.X, lhs.Y - rhs.Y};
+            return {lhs.x - rhs.x, lhs.y - rhs.y};
         }
 
-        friend SSSENGINE_GLOBAL Vector2<T> operator*(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        SSSENGINE_FORCE_INLINE friend Vector2<T> operator*(const Vector2<T> &lhs, const Vector2<T> &rhs)
         {
-            return {lhs.X * rhs.X, lhs.Y * rhs.Y};
+            return {lhs.x * rhs.x, lhs.y * rhs.y};
         }
 
-        friend SSSENGINE_GLOBAL Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs)
         {
-            return {lhs.X / rhs.X, lhs.Y / rhs.Y};
+            return {lhs.x / rhs.x, lhs.y / rhs.y};
         }
 
-        friend SSSENGINE_GLOBAL Vector2<T> operator*(Vector2<T> lhs, T scalar)
+        SSSENGINE_FORCE_INLINE friend Vector2<T> operator*(Vector2<T> lhs, T scalar)
         {
-            return {lhs.X * scalar, lhs.Y * scalar};
+            return {lhs.x * scalar, lhs.y * scalar};
         }
 
-        friend SSSENGINE_GLOBAL Vector2<T> operator/(Vector2<T> vector, T scalar)
+        SSSENGINE_FORCE_INLINE friend Vector2<T> operator/(Vector2<T> vector, T scalar)
         {
-            return {vector.X / scalar, vector.Y / scalar};
+            return {vector.x / scalar, vector.y / scalar};
         }
 
-        friend SSSENGINE_GLOBAL Vector2<T> operator*(T scalar, Vector2<T> vector)
+        SSSENGINE_FORCE_INLINE friend Vector2<T> operator*(T scalar, Vector2<T> vector)
         {
             return vector * scalar;
         }
 
-        friend SSSENGINE_GLOBAL bool operator==(Vector2<T> lhs, Vector2<T> rhs)
+        SSSENGINE_FORCE_INLINE friend bool operator==(Vector2<T> lhs, Vector2<T> rhs)
         {
-            return lhs.X == rhs.X && lhs.Y == rhs.Y;
+            return lhs.x == rhs.x && lhs.y == rhs.y;
         }
     };
 
     template<SSSEngine::NumberConcept T>
     struct Vector3
     {
-        T X{0};
-        T Y{0};
-        T Z{0};
+        T x{0};
+        T y{0};
+        T z{0};
 
-        friend SSSENGINE_GLOBAL Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
         {
-            return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z};
+            return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
         }
 
-        friend SSSENGINE_GLOBAL Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs)
         {
-            return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z};
+            return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
         }
 
-        friend SSSENGINE_GLOBAL Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs)
         {
-            return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z};
+            return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z};
         }
 
-        friend SSSENGINE_GLOBAL Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs)
         {
-            return {lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z};
+            return {lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z};
         }
 
-        friend SSSENGINE_GLOBAL Vector3<T> operator*(Vector3<T> lhs, T scalar)
+        SSSENGINE_FORCE_INLINE friend Vector3<T> operator*(Vector3<T> lhs, T scalar)
         {
-            return {lhs.X * scalar, lhs.Y * scalar, lhs.Z * scalar};
+            return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar};
         }
 
-        friend SSSENGINE_GLOBAL Vector3<T> operator/(Vector3<T> vector, T scalar)
+        SSSENGINE_FORCE_INLINE friend Vector3<T> operator/(Vector3<T> vector, T scalar)
         {
-            return {vector.X / scalar, vector.Y / scalar, vector.Z / scalar};
+            return {vector.x / scalar, vector.y / scalar, vector.z / scalar};
         }
 
-        friend SSSENGINE_GLOBAL Vector3<T> operator*(T scalar, Vector3<T> vector)
+        SSSENGINE_FORCE_INLINE friend Vector3<T> operator*(T scalar, Vector3<T> vector)
         {
             return vector * scalar;
         }
 
-        friend SSSENGINE_GLOBAL bool operator==(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE friend bool operator==(Vector3<T> lhs, Vector3<T> rhs)
         {
-            return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
+            return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
         }
     };
 
     template<SSSEngine::NumberConcept T>
     struct Vector4
     {
-        T X{0};
-        T Y{0};
-        T Z{0};
-        T W{0};
+        T x{0};
+        T y{0};
+        T z{0};
+        T w{0};
 
-        friend SSSENGINE_GLOBAL Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)
         {
-            return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W};
+            return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w};
         }
 
-        friend SSSENGINE_GLOBAL Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs)
         {
-            return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z, lhs.W - rhs.W};
+            return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w};
         }
 
-        friend SSSENGINE_GLOBAL Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs)
         {
-            return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z, lhs.W * rhs.W};
+            return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w};
         }
 
-        friend SSSENGINE_GLOBAL Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE friend Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs)
         {
-            return {lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z, lhs.W / rhs.W};
+            return {lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z, lhs.w / rhs.w};
         }
 
-        friend SSSENGINE_GLOBAL Vector4<T> operator*(Vector4<T> lhs, T scalar)
+        SSSENGINE_FORCE_INLINE friend Vector4<T> operator*(Vector4<T> lhs, T scalar)
         {
-            return {lhs.X * scalar, lhs.Y * scalar, lhs.Z * scalar, lhs.W * scalar};
+            return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar, lhs.w * scalar};
         }
 
-        friend SSSENGINE_GLOBAL Vector4<T> operator/(Vector4<T> vector, T scalar)
+        SSSENGINE_FORCE_INLINE friend Vector4<T> operator/(Vector4<T> vector, T scalar)
         {
-            return {vector.X / scalar, vector.Y / scalar, vector.Z / scalar, vector.W / scalar};
+            return {vector.x / scalar, vector.y / scalar, vector.z / scalar, vector.w / scalar};
         }
 
-        friend SSSENGINE_GLOBAL Vector4<T> operator*(T scalar, Vector4<T> vector)
+        SSSENGINE_FORCE_INLINE friend Vector4<T> operator*(T scalar, Vector4<T> vector)
         {
             return vector * scalar;
         }
 
-        friend SSSENGINE_GLOBAL bool operator==(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE friend bool operator==(Vector4<T> lhs, Vector4<T> rhs)
         {
-            return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z && lhs.W == rhs.W;
+            return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w;
         }
     };
 

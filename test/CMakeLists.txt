@@ -5,5 +5,5 @@ if(BUILD_TESTING)
     target_link_libraries(SSSTest PUBLIC SSSUtils SSSLogging)
 
     add_subdirectory(math)
-    add_subdirectory(time)
+    add_subdirectory(utils)
 endif()

@@ -35,8 +35,8 @@
 #ifdef SSSENGINE_ALLOW_FORCE_INLINE
     #ifdef SSSENGINE_MSVC
         #define SSSENGINE_FORCE_INLINE __forceinline
-    #elif SSSENGINE_MINGW
-        #define SSSENGINE_FORCE_INLINE [[using gnu: always_inline, inline]] inline
+    #else
+        #define SSSENGINE_FORCE_INLINE [[using gnu: always_inline]] inline
     #endif
 #else
     #define SSSENGINE_FORCE_INLINE inline
@@ -45,7 +45,7 @@
 #ifdef SSSENGINE_ALLOW_NO_INLINE
     #ifdef SSSENGINE_MSVC
         #define SSSENGINE_NO_INLINE declspec(noinline)
-    #elif SSSENGINE_MINGW
+    #else
         #define SSSENGINE_NO_INLINE __attribute__((noinline))
     #endif
 #else
@@ -56,12 +56,12 @@
 #ifdef SSSENGINE_ALLOW_HINT_INLINE_STATEMENT
     #ifdef SSSENGINE_MSVC
         #define SSSENGINE_HINT_INLINE_STATEMENT
-    #elif SSSENGINE_MINGW
+    #else
         #define SSSENGINE_HINT_INLINE_STATEMENT
     #endif
     #ifdef SSSENGINE_MSVC
         #define SSSENGINE_HINT_INLINE_STATEMENT_RECURSIVE
-    #elif SSSENGINE_MINGW
+    #else
         #define SSSENGINE_HINT_INLINE_STATEMENT_RECURSIVE
     #endif
 #else
@@ -73,13 +73,13 @@
     #ifdef SSSENGINE_MSVC
         // NOTE: As fas as I know there is no support for it from MSVC
         #define SSSENGINE_FORCE_INLINE_STATEMENT
-    #elif SSSENGINE_MINGW
+    #else
         #define SSSENGINE_FORCE_INLINE_STATEMENT SSSENGINE_PRAGMA(FORCEINLINE)
     #endif
     #ifdef SSSENGINE_MSVC
         // NOTE: As fas as I know there is no support for it from MSVC
         #define SSSENGINE_FORCE_INLINE_STATEMENT_RECURSIVE
-    #elif SSSENGINE_MINGW
+    #else
         #define SSSENGINE_FORCE_INLINE_STATEMENT_RECURSIVE SSSENGINE_PRAGMA(FORCEINLINE_RECURSIVE)
     #endif
 #else
@@ -91,7 +91,7 @@
     #ifdef SSSENGINE_MSVC
         // NOTE: As fas as I know there is no support for it from MSVC
         #define SSSENGINE_NO_INLINE_STATEMENT
-    #elif SSSENGINE_MINGW
+    #else
         #define SSSENGINE_NO_INLINE_STATEMENT SSSENGINE_PRAGMA(NOINLINE)
     #endif
 #else
@@ -110,9 +110,12 @@
 #define SSSENGINE_LIKELY [[likely]]
 #define SSSENGINE_UNLIKELY [[unlikely]]
 #define SSSENGINE_NO_UNIQUE_ADDRESS [[no_unique_address]]
+/** Tells the compiler that the pointer is not aliased by a different pointer **/
+#define SSSENGINE_RESTRICT __restrict
+
 #ifdef SSSENGINE_MSVC
     #define SSSENGINE_ASSUME(expression) __assume(expression)
-#elif SSSENGINE_MINGW
+#else
     #define SSSENGINE_ASSUME(expression) [[assume(expression)]]
 #endif
 #define SSSENGINE_INDETERMINATE [[indeterminate]]

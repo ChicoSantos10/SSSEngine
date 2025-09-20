@@ -24,18 +24,24 @@
 
 #pragma once
 
+#include "HelperMacros.h"
 #include "Attributes.h"
 
 namespace SSSEngine::Platform
 {
+// TODO: This is a temporary macro. Remove this once we have UTF-8 for the title
+#define SSSENGINE_WINDOW_TITLE SSSEngine
+
 #ifdef SSSENGINE_WIN32
-    // TODO: Implement WindowHandle as a struct instead of type alias in platform specific code
-    using WindowHandle = void *;
-    using WindowTitle = const wchar_t *; // LOW_PRIORITY: Create definitions for this like UTF8 and stuff
-    SSSENGINE_MAYBE_UNUSED constexpr WindowTitle MainWindowName = L"SSS Engine";
+    using WindowTitle = const wchar_t *;
+    SSSENGINE_MAYBE_UNUSED constexpr WindowTitle MainWindowName = SSSENGINE_WIDE_STRING(WINDOW_TITLE);
 #else
-    #error Platform not currently supported
+    using WindowTitle = const char *;
+    SSSENGINE_MAYBE_UNUSED constexpr WindowTitle MainWindowName = SSSENGINE_STRING(WINDOW_TITLE);
 #endif
 
+#undef SSSENGINE_WINDOW_TITLE
+
+    // TODO: Here we can receive an actual array
     void RunApplication(int argc, char *argv[]);
 } // namespace SSSEngine::Platform

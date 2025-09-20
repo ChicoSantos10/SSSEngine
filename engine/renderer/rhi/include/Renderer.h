@@ -34,11 +34,11 @@
  */
 namespace SSSEngine::Renderer
 {
-    using CreateSwapChain_t = SwapChainHandle (*)(const SSSEngine::Platform::WindowHandle &);
+    using CreateSwapChain_t = SwapChainHandle (*)(const SSSEngine::Platform::WindowId &);
     using Render_t = void (*)();
     using Terminate_t = void (*)();
     using LoadAssetsTest_t = void (*)();
-    using ResizeSwapChain_t = void (*)(const SSSEngine::Platform::WindowHandle &);
+    using ResizeSwapChain_t = void (*)(const SSSEngine::Platform::WindowId &);
     using BeginFrame_t = void (*)();
 
     SSSENGINE_GLOBAL CreateSwapChain_t CreateSwapChain;

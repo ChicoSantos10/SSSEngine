@@ -106,3 +106,26 @@ function(setup_dxcompiler target)
         ${DXCOMPILER_INCLUDE_DIR}/hlsl
     )
 endfunction()
+
+function(setup_wayland target)
+  set(WAYLAND_XDGSHELL_PATH "/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml")
+  set(WAYLAND_LIB_PATH "${THIRDPARTY_LIB_DIR}/wayland")
+  set(WAYLAND_INCLUDE_PATH "${WAYLAND_LIB_PATH}/include")
+  set(WAYLAND_SOURCE_PATH "${WAYLAND_LIB_PATH}/xdg-shell-protocol.c")
+  file(MAKE_DIRECTORY ${WAYLAND_INCLUDE_PATH} result)
+  execute_process(
+    COMMAND 
+    wayland-scanner private-code "${WAYLAND_XDGSHELL_PATH}" "${WAYLAND_SOURCE_PATH}" 
+    COMMAND
+    wayland-scanner client-header "${WAYLAND_XDGSHELL_PATH}" "${WAYLAND_INCLUDE_PATH}/xdg-shell-client-protocol.h"
+  )
+
+  if(result)
+    message(FATAL_ERROR "Failed to scan xdg-shell")
+  endif()
+
+  target_include_directories(${target} PUBLIC ${WAYLAND_INCLUDE_PATH})
+
+  add_library(XDG_LIB STATIC ${WAYLAND_LIB_PATH}/xdg-shell-protocol.c)
+  target_link_libraries(${target} PUBLIC XDG_LIB wayland-client)
+endfunction()

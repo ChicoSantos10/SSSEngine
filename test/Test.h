@@ -84,8 +84,8 @@ namespace SSSTest
     Test _##name({__LINE__, __FILE__, name});                                                                          \
     void name()
 
-#define SSSTEST_EXPECT(first, second, comparison)                                                                      \
-    if((first)comparison(second))                                                                                      \
+#define SSSTEST_EXPECT_(value)                                                                                         \
+    if((value))                                                                                                        \
     {                                                                                                                  \
     }                                                                                                                  \
     else                                                                                                               \
@@ -94,12 +94,15 @@ namespace SSSTest
         Succeeded = false;                                                                                             \
     }
 
-#define SSSTEST_EXPECT_EQ(first, second) SSSTEST_EXPECT(first, second, ==)
-#define SSSTEST_EXPECT_NEQ(first, second) SSSTEST_EXPECT(first, second, !=)
-#define SSSTEST_EXPECT_GT(first, second) SSSTEST_EXPECT(first, second, >)
-#define SSSTEST_EXPECT_GE(first, second) SSSTEST_EXPECT(first, second, >=)
-#define SSSTEST_EXPECT_LE(first, second) SSSTEST_EXPECT(first, second, <=)
-#define SSSTEST_EXPECT_LT(first, second) SSSTEST_EXPECT(first, second, <)
+#define SSSTEST_COMPARE_(first, second, comparison) SSSTEST_EXPECT_((first)comparison(second))
+
+#define SSSTEST_EXPECT_EQ(first, second) SSSTEST_COMPARE_(first, second, ==)
+#define SSSTEST_EXPECT_NEQ(first, second) SSSTEST_COMPARE_(first, second, !=)
+#define SSSTEST_EXPECT_GT(first, second) SSSTEST_COMPARE_(first, second, >)
+#define SSSTEST_EXPECT_GE(first, second) SSSTEST_COMPARE_(first, second, >=)
+#define SSSTEST_EXPECT_LE(first, second) SSSTEST_COMPARE_(first, second, <=)
+#define SSSTEST_EXPECT_LT(first, second) SSSTEST_COMPARE_(first, second, <)
+#define SSSTEST_EXPECT(value) SSSTEST_EXPECT_(value)
 
     // TODO: Implement assert
     //

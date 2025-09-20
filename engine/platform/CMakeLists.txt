@@ -1,10 +1,10 @@
 add_library(SSSPlatform INTERFACE)
-add_subdirectory(Common)
+add_subdirectory(common)
 
 if (WIN32)
-    add_subdirectory(Win32)
+    add_subdirectory(win32)
 elseif (LINUX)
-    message(FATAL_ERROR "LINUX not currently supported!")
+    add_subdirectory(linux)
 endif ()
 
 target_link_libraries(SSSPlatform 

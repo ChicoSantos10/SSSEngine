@@ -31,6 +31,16 @@
 
 namespace SSSEngine::Platform
 {
+    struct LibraryHandle
+    {
+        void *handle;
+
+        explicit operator bool() const
+        {
+            return handle;
+        }
+    };
+
     /* LOW_PRIORITY:
      * Have a small amount of memory for library handles that we can pass around instead of void*
      * Then we can have a struct Handle; and we also avoid leaking implementation details since consumers of the class
@@ -45,13 +55,14 @@ namespace SSSEngine::Platform
      * @param path The relative path to a library
      * @param flags [TODO:parameter]
      */
-    void *LoadSharedLibrary(const wchar_t *path, int flags);
+    LibraryHandle LoadSharedLibrary(const char *path, int flags);
+
     /**
      * @brief Unloads a shared library loaded by @see LoadSharedLibrary(path, flags)
      *
      * @param libraryHandle The handle returned by LoadSharedLibrary(path, flags)
      */
-    void UnloadSharedLibrary(void *libraryHandle);
+    void UnloadSharedLibrary(LibraryHandle libraryHandle);
 
     /**
      * @brief Loads a function from a library loaded by @see LoadSharedLibrary(path, flags)
@@ -60,7 +71,7 @@ namespace SSSEngine::Platform
      * @param funcName The name of the function to load
      * @return A pointer to the function loaded
      */
-    functionPtr GetFunctionAddressFromLibrary(void *libraryHandle, const char *funcName);
+    functionPtr GetFunctionAddressFromLibrary(LibraryHandle libraryHandle, const char *funcName);
 
     // INVESTIGATE: Think about error handling. Should we throw an exception? Return an optional?
     /**
@@ -72,7 +83,7 @@ namespace SSSEngine::Platform
      * @return The function casted to the appropriate type
      */
     template<FunctionPointerConcept T>
-    SSSENGINE_FORCE_INLINE T LoadFunction(void *libraryHandle, const char *name)
+    SSSENGINE_FORCE_INLINE T LoadFunction(LibraryHandle libraryHandle, const char *name)
     {
         T type = reinterpret_cast<T>(GetFunctionAddressFromLibrary(libraryHandle, name));
         if(!type)

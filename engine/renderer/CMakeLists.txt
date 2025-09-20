@@ -5,8 +5,11 @@ target_compile_definitions(SSSRenderer PUBLIC $<$<CONFIG:Debug>:SSSENGINE_DEBUG_
 
 add_subdirectory(rhi)
 
-if (WIN32)
+if (BUILD_DX12)
     add_subdirectory(directx12)
+endif ()
+if (BUILD_VULKAN)
+    add_subdirectory(vulkan)
 endif ()
 
 target_link_libraries(SSSRenderer 

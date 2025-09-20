@@ -22,3 +22,14 @@ target_link_libraries(SSSPlatform
     INTERFACE SSSWin32
 )
 
+function(CREATE_GUI_APP name)
+      add_executable(${name} WIN32 Win32Editor.cpp)
+      target_link_libraries(${name} 
+          PRIVATE 
+              SSSWin32Interface
+          )
+
+      # NOTE: This will need to be in every exe that builds dx12 
+      target_compile_definitions(${name} PRIVATE SSSENGINE_AGILITY_SDK_VERSION=${AGILITY_SDK_VERSION})
+function()
+

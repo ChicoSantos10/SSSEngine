@@ -27,7 +27,6 @@
 #include "Attributes.h"
 #include "Concepts.h"
 #include "EnumHelpers.h"
-#include "Types.h"
 
 namespace SSSEngine
 {
@@ -41,6 +40,19 @@ namespace SSSEngine
     SSSENGINE_FORCE_INLINE constexpr auto Join(IntegralConcept auto... bits)
     {
         return (bits | ...);
+    }
+
+    /**
+     * @brief Joins the bits together by doing a bitwise OR (|)
+     *
+     * @param flag The value to join to
+     * @param args The flags to join
+     * @return A new flag with all bits common to flag and args
+     */
+    template<EnumConcept T, SameAsConcept<T>... U>
+    SSSENGINE_FORCE_INLINE constexpr auto Join(T flag, U... args)
+    {
+        return static_cast<T>(Join(AsNumber(flag), AsNumber(args)...));
     }
 
     /**
@@ -72,7 +84,7 @@ namespace SSSEngine
     template<EnumConcept Flag>
     SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(Flag first, Flag second)
     {
-        return (AsNumber(first) & AsNumber(second)) != 0;
+        return HasBitSet(AsNumber(first), AsNumber(second));
     }
 
     /**
@@ -83,16 +95,32 @@ namespace SSSEngine
      * @param bits The values to check against
      * @return A number without the bits that are set in args
      */
-    template<IntegralConcept T, IntegralConcept... Bits>
-        requires EqualTypesConcept<T, Bits...>
+    template<IntegralConcept T, SameAsConcept<T>... Bits>
     SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, Bits... bits)
     {
         return first & ~Join(bits...);
     }
 
-    template<typename T>
-    SSSENGINE_FORCE_INLINE constexpr Size SizeInBits(T object)
+    /**
+     * @brief Gets a number without the bits from second.
+     *
+     * @param first The number to check
+     * @param bits The values to check against
+     * @return A number without the bits that are set in args
+     */
+    template<EnumConcept T, SameAsConcept<T>... Bits>
+    SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, Bits... bits)
     {
-        return (sizeof(object) * Bits);
+        return static_cast<T>(AsNumber(first) & ~Join(AsNumber(bits)...));
+    }
+
+    template<typename To, typename From>
+        requires(sizeof(To) == sizeof(From) && TriviallyCopyable<To> && TriviallyCopyable<From>)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr To BitCopy(const From &from) noexcept
+    {
+#ifdef SSSENGINE_MSVC
+#elif SSSENGINE_GCC | SSSENGINE_CLANG
+        return __builtin_bit_cast(To, from);
+#endif
     }
 } // namespace SSSEngine

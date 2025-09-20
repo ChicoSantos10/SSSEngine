@@ -48,6 +48,7 @@ namespace SSSEngine::Editor
 
         ~Application()
         {
+            // TODO: If we are unloading this here we should load it in the constructor
             Renderer::Unload();
         };
 

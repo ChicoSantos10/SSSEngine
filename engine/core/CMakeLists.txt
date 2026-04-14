@@ -8,4 +8,5 @@ target_link_libraries(SSSCore PRIVATE
     SSSInput
     SSSRenderer
     SSSPlatform
+    SSSText
 )

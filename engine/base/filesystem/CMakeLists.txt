@@ -1,0 +1,2 @@
+add_library(SSSFileSystem INTERFACE)
+target_include_directories(SSSFileSystem INTERFACE include)

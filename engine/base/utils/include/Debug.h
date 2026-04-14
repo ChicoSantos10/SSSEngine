@@ -32,6 +32,12 @@
     #define SSSENGINE_DEBUG_BREAK __builtin_trap()
 #endif
 
+#ifdef SSSENGINE_MSVC
+    #define SSSENGINE_UNREACHABLE_IMPL __assume(0)
+#elif SSSENGINE_CLANG || SSSENGINE_GCC
+    #define SSSENGINE_UNREACHABLE_IMPL __builtin_unreachable()
+#endif
+
 /* INVESTIGATE: Have different types of assertions:
  *  -Debug: All assertions should be built
  *  -Internal: Same as debug?
@@ -67,15 +73,13 @@ namespace SSSEngine
                                     SSSENGINE_DEBUG_BREAK,                                                                  \
                                     0))
 
-    #define SSSENGINE_UNREACHABLE SSSENGINE_ASSERT(false && "Supposedly unreachable code reached")
+    #define SSSENGINE_UNREACHABLE                                                                                      \
+        SSSENGINE_ASSERT(false && "Supposedly unreachable code reached"), SSSENGINE_UNREACHABLE_IMPL
 #else
     #include "Attributes.h"
     #define SSSENGINE_ASSERT(expression) SSSENGINE_ASSUME(expression)
-    #ifdef SSSENGINE_MSVC
-        #define SSSENGINE_UNREACHABLE __assume(0)
-    #elif SSSENGINE_MINGW
-        #define SSSENGINE_UNREACHABLE __builtin_unreachable()
-    #endif
+    #define SSSENGINE_UNREACHABLE SSSENGINE_UNREACHABLE_IMPL
 #endif
 
-#define SSSENGINE_STATIC_ASSERT(expression, message) static_assert(expression, message);
+#define SSSENGINE_STATIC_ASSERT(expression, message) static_assert(expression, message)
+#define SSSENGINE_NOT_IMPLEMENTED SSSENGINE_STATIC_ASSERT(false, "Not Implemented")

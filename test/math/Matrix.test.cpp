@@ -26,9 +26,9 @@ namespace SSSTest
 {
     SSSTEST_TEST(MatrixEquality)
     {
-        Mat4x4f m1{1, 4, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-        Mat4x4f m2{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
-        Mat4x4f m3{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
+        Float4x4 m1{1, 4, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+        Float4x4 m2{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
+        Float4x4 m3{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
 
         SSSTEST_EXPECT_EQ(m2, m3);
         SSSTEST_EXPECT_NEQ(m1, m3);
@@ -36,17 +36,17 @@ namespace SSSTest
 
     SSSTEST_TEST(MatrixMultiplication)
     {
-        Mat4x4f m1{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
-        Mat4x4f m2{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
-        Mat4x4f result = m1 * m2;
-        Mat4x4f expected = m2;
+        Float4x4 m1{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+        Float4x4 m2{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
+        Float4x4 result = m1 * m2;
+        Float4x4 expected = m2;
 
         SSSTEST_EXPECT_EQ(result, expected);
     }
 
     SSSTEST_TEST(MatrixSubscriptOperator)
     {
-        Mat4x4f m{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
+        Float4x4 m{1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6};
         float f = m[2];
         float f1 = m[0, 3];
         float f2 = m[3, 2];
@@ -59,8 +59,8 @@ namespace SSSTest
     SSSTEST_TEST(MatrixIdentity)
     {
         {
-            constexpr auto Identiy4x4 = IdentityMatrix<Mat4x4f>();
-            constexpr Mat4x4f Expected = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+            constexpr auto Identiy4x4 = IdentityMatrix<Float4x4>();
+            constexpr Float4x4 Expected = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 
             SSSTEST_EXPECT_EQ(Identiy4x4, Expected);
         }

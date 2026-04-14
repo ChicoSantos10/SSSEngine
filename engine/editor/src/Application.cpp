@@ -27,6 +27,8 @@
 #include "Debug.h"
 #include "Platform.h"
 #include "Audio.h"
+#include "Renderer.h"
+#include "String.h"
 #include "Timer.h"
 #include "Input.h"
 #include "WindowHandle.h"
@@ -37,12 +39,12 @@ namespace SSSEngine::Editor
 {
     Application::Application()
     {
-        Renderer::LoadDirectx();
+        // TODO: Allow user to define the renderer to use
+        Renderer::LoadRenderer(Renderer::Renderer::Vulkan);
         Audio::Init();
 
         // TODO: Manage memory
-        m_Window = std::make_unique<Core::Window>(
-            Platform::WindowPos{0, 0}, Platform::WindowSize{3440, 1440}, Platform::MainWindowName);
+        m_Window = std::make_unique<Core::Window>(Platform::WindowPos{0, 0}, Platform::WindowSize{3440, 1440}, u8"Editor");
     }
 
     void Application::Run()
@@ -80,6 +82,7 @@ namespace SSSEngine::Editor
     }
 } // namespace SSSEngine::Editor
 
+// TODO: Pass Array of Ascii strings instead
 void SSSEngine::Platform::RunApplication(int argc, char *argv[])
 {
     Editor::Application app;

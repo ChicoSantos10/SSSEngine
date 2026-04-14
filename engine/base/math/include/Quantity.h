@@ -25,9 +25,11 @@
 #pragma once
 
 #include "Concepts.h"
+#include "ConversionTraits.h"
 #include "HelperMacros.h"
 #include "Limits.h"
 #include "Ratio.h"
+#include "ValueConstant.h"
 
 namespace SSSEngine::Math
 {
@@ -39,17 +41,17 @@ namespace SSSEngine::Math
     struct Quantity;
 
     template<typename T>
-    struct IsQuantity : std::false_type
+    struct IsQuantity : FalseType
     {
     };
 
     template<typename T, NumberConcept V, Math::RatioConcept P>
-    struct IsQuantity<Quantity<T, V, P>> : std::true_type
+    struct IsQuantity<Quantity<T, V, P>> : TrueType
     {
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsQuantityValue = IsQuantity<T>::value;
+    SSSENGINE_GLOBAL constexpr bool IsQuantityValue = IsQuantity<T>::Value;
 
     template<typename T>
     concept QuantityConcept = IsQuantityValue<T>;
@@ -69,16 +71,7 @@ namespace SSSEngine::Math
     using TagType = typename QuantityTag<T>::TagType;
 
     template<typename T, typename V>
-    concept SameQuantityConcept = SameType<TagType<T>, TagType<V>>;
-
-    template<QuantityConcept Q1, SameQuantityConcept<Q1> Q2>
-    struct QuantityCommonType
-    {
-        using CommonValueType = CommonType<typename Q1::ValueType, typename Q2::ValueType>;
-        using CommonRatioType = CommonType<typename Q1::Ratio, typename Q2::Ratio>;
-
-        using type = Quantity<typename Q1::Tag, CommonValueType, CommonRatioType>;
-    };
+    concept SameQuantityConcept = IsSameType<TagType<T>, TagType<V>>;
 
     template<typename T, NumberConcept V, Math::RatioConcept P>
         requires(P::Numerator > 0)
@@ -95,19 +88,23 @@ namespace SSSEngine::Math
         template<SameQuantityConcept<QuantityType> To>
         explicit constexpr operator To() const
         {
-            if constexpr(SameType<QuantityType, To>)
+            if constexpr(IsSameType<QuantityType, To>)
             {
                 return To(value);
             }
 
             using Divide = Math::RatioDivide<typename QuantityType::Ratio, typename To::Ratio>;
-            // TODO: Create common type trait
-            using CommonType = std::common_type_t<typename To::ValueType, ValueType, maxint>;
+            using CT = CommonType<typename To::ValueType, ValueType, maxint>;
 
-            auto convertedValue = static_cast<CommonType>(value) * static_cast<CommonType>(Divide::Numerator) /
-                                  static_cast<CommonType>(Divide::Denominator);
+            auto convertedValue =
+                static_cast<CT>(value) * static_cast<CT>(Divide::Numerator) / static_cast<CT>(Divide::Denominator);
 
             return To(static_cast<To::ValueType>(convertedValue));
+        }
+
+        constexpr operator ValueType() // NOLINT(*-explicit-constructor)
+        {
+            return value;
         }
 
         constexpr Quantity operator+() const
@@ -282,17 +279,18 @@ namespace SSSEngine::Math
     }
 } // namespace SSSEngine::Math
 
-namespace std // NOLINT(readability-identifier-naming)
+template<SSSEngine::Math::QuantityConcept Q1, SSSEngine::Math::SameQuantityConcept<Q1> Q2>
+struct SSSEngine::CommonTypeChecker<Q1, Q2>
 {
-    template<SSSEngine::Math::QuantityConcept Q1, SSSEngine::Math::SameQuantityConcept<Q1> Q2>
-    struct common_type<Q1, Q2> : SSSEngine::Math::QuantityCommonType<Q1, Q2> // NOLINT(cert-dcl58-cpp)
-    {
-    };
+    using CommonValueType = CommonType<typename Q1::ValueType, typename Q2::ValueType>;
+    using CommonRatioType = CommonType<typename Q1::Ratio, typename Q2::Ratio>;
 
-    template<SSSEngine::Math::QuantityConcept Q, SSSEngine::NumberConcept Num>
-    struct common_type<Q, Num> // NOLINT(cert-dcl58-cpp)
-    {
-        using CT = common_type_t<typename Q::ValueType, Num>;
-        using type = SSSEngine::Math::Quantity<typename Q::Tag, CT, typename Q::Ratio>;
-    };
-} // namespace std
+    using Type = Math::Quantity<typename Q1::Tag, CommonValueType, CommonRatioType>;
+};
+
+template<SSSEngine::Math::QuantityConcept Q, SSSEngine::NumberConcept Num>
+struct SSSEngine::CommonTypeChecker<Q, Num>
+{
+    using CT = CommonType<typename Q::ValueType, Num>;
+    using Type = Math::Quantity<typename Q::Tag, CT, typename Q::Ratio>;
+};

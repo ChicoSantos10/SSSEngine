@@ -3,7 +3,13 @@ if(BUILD_TESTING)
     target_include_directories(SSSTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
     target_link_libraries(SSSTest PUBLIC SSSUtils SSSLogging)
+    if(WIN32)
+      target_link_libraries(SSSTest PRIVATE SSSWin32)
+    else()
+      target_link_libraries(SSSTest PRIVATE SSSLinux)
+    endif()
 
     add_subdirectory(math)
     add_subdirectory(utils)
+    add_subdirectory(string)
 endif()

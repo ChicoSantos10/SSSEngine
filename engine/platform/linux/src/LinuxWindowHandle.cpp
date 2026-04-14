@@ -23,7 +23,7 @@
  *
  */
 
-#include "Platform.h"
+#include "StringView.h"
 #include "WaylandWindow.h"
 #include "WindowHandle.h"
 #include "Bits.h"
@@ -42,7 +42,7 @@ namespace SSSEngine::Platform
     WaylandWindow Windows[5];
     int Index = 0;
 
-    WindowId OpenWindow(WindowPos pos, WindowSize size, const WindowTitle &title, WindowId parent)
+    WindowId OpenWindow(WindowPos pos, WindowSize size, const Text::Utf8View &title, WindowId parent)
     {
         int windowId = Index++;
         WaylandWindow &window = Windows[windowId];
@@ -65,7 +65,7 @@ namespace SSSEngine::Platform
         window.surfaceListener = {.configure = Configure};
 
         xdg_surface_add_listener(window.shellSurface, &window.surfaceListener, &window);
-        xdg_toplevel_set_title(window.topLevel, title);
+        xdg_toplevel_set_title(window.topLevel, title.RawData());
 
         constexpr auto TopLevelConfigure = [](void *data, xdg_toplevel *toplevel, int w, int h, wl_array *states)
         {
@@ -102,7 +102,7 @@ namespace SSSEngine::Platform
         WaylandWindow window = Windows[handle];
         auto [x, y] = window.position;
         auto [w, h] = window.size;
-        return {x, y, w, h};
+        return {.x = x, .y = y, .width = w, .height = h};
     }
 
     WindowSize GetWindowSize(WindowId handle)
@@ -110,10 +110,10 @@ namespace SSSEngine::Platform
         return Windows[handle].size;
     }
 
-    void SetWindowTitle(WindowId handle, const WindowTitle &title)
+    void SetWindowTitle(WindowId handle, const Text::Utf8View &title)
     {
         WaylandWindow window = Windows[handle];
-        xdg_toplevel_set_title(window.topLevel, title);
+        xdg_toplevel_set_title(window.topLevel, title.RawData());
     }
 
     void SetBorderlessFullscreen(WindowId handle, bool fullscreen)

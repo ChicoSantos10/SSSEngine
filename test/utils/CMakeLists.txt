@@ -1,5 +1,6 @@
 add_executable(SSSUtilsTest
   Bits.test.cpp
+  Storage.test.cpp
 )
 
 target_link_libraries(SSSUtilsTest PRIVATE

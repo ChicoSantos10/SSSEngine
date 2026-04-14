@@ -26,11 +26,14 @@
 #include "Library.h"
 #include "Debug.h"
 #include "Types.h"
+#include "String.h"
+#include "Path.h"
 
 #include <dlfcn.h>
 
 namespace SSSEngine::Platform
 {
+    // TODO: Use path class
     LibraryHandle LoadSharedLibrary(const char *path, int flags)
     {
         return {dlopen(path, flags)};
@@ -42,10 +45,10 @@ namespace SSSEngine::Platform
         libraryHandle.handle = nullptr;
     }
 
-    functionPtr GetFunctionAddressFromLibrary(LibraryHandle libraryHandle, const char *funcName)
+    functionPtr GetFunctionAddressFromLibrary(LibraryHandle libraryHandle, Text::Utf8View funcName)
     {
         SSSENGINE_ASSERT(libraryHandle.handle);
 
-        return reinterpret_cast<functionPtr>(dlsym(libraryHandle.handle, funcName));
+        return reinterpret_cast<functionPtr>(dlsym(libraryHandle.handle, funcName.RawData()));
     }
 } // namespace SSSEngine::Platform

@@ -19,29 +19,24 @@
 
 /**
  * @file
- * @brief
+ * @brief Helper for formatting strings
  */
 
 #pragma once
 
-#include "HelperMacros.h"
-#include "Attributes.h"
+#include "String.h"
+#include "StringView.h"
 
-namespace SSSEngine::Platform
+namespace SSSEngine::Text
 {
-// TODO: This is a temporary macro. Remove this once we have UTF-8 for the title
-#define SSSENGINE_WINDOW_TITLE SSSEngine
+    template<typename... Args>
+    Utf8 Format(Utf8View format, Args &&...args)
+    {
+        // Find replacement fields: {} which can have an Id and/or a format spec {id:spec}
+        // Ignore escape sequence {{ and }} => replaced by {} in the output string
+        // Convert the type into string
+        // All args and replacement fields must be used
 
-#ifdef SSSENGINE_WIN32
-    using WindowTitle = const wchar_t *;
-    SSSENGINE_MAYBE_UNUSED constexpr WindowTitle MainWindowName = SSSENGINE_WIDE_STRING(WINDOW_TITLE);
-#else
-    using WindowTitle = const char *;
-    SSSENGINE_MAYBE_UNUSED constexpr WindowTitle MainWindowName = SSSENGINE_STRING(WINDOW_TITLE);
-#endif
+        int a[sizeof...(args)];
 
-#undef SSSENGINE_WINDOW_TITLE
-
-    // TODO: Here we can receive an actual array
-    void RunApplication(int argc, char *argv[]);
-} // namespace SSSEngine::Platform
+    } // namespace SSSEngine::Text

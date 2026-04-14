@@ -173,19 +173,19 @@ namespace SSSEngine::Platform
     concept WriteFileConcept = (HasBitSet(F::AccessPermissions, FilePermissions::Write));
 
     SSSENGINE_STATIC_ASSERT(WriteFileConcept<File<FilePermissions::Write>>, "File with write permissions is a "
-                                                                            "WriteFileConcept")
+                                                                            "WriteFileConcept");
     SSSENGINE_STATIC_ASSERT(WriteFileConcept<File<FilePermissions::ReadWrite>>, "File with read and write permissions "
                                                                                 "is a "
-                                                                                "WriteFileConcept")
+                                                                                "WriteFileConcept");
 
     template<typename F>
     concept ReadFileConcept = (HasBitSet(F::AccessPermissions, FilePermissions::Read));
 
     SSSENGINE_STATIC_ASSERT(ReadFileConcept<File<FilePermissions::Read>>, "File with read permissions is a "
-                                                                          "ReadFileConcept")
+                                                                          "ReadFileConcept");
     SSSENGINE_STATIC_ASSERT(ReadFileConcept<File<FilePermissions::ReadWrite>>, "File with read and write permissions "
                                                                                "is a "
-                                                                               "ReadFileConcept")
+                                                                               "ReadFileConcept");
 
     SSSENGINE_FORCE_INLINE bool WriteFile(WriteFileConcept auto &file, void *data, Size size)
     {

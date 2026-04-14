@@ -36,3 +36,8 @@
 #define SSSENGINE_FUNCTION_LOCAL static
 
 #define SSSENGINE_LIB(library) SSSENGINE_PRAGMA(comment(lib, #library))
+
+#ifdef SSSENGINE_MSVC
+#elif SSSENGINE_GCC || SSSENGINE_CLANG
+    #define SSSENGINE_PACKED(name) struct __attribute__((packed)) name
+#endif

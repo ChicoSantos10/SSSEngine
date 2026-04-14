@@ -27,9 +27,8 @@
 #include "Concepts.h"
 #include "Debug.h"
 #include "HelperMacros.h"
+#include "SignTraits.h"
 #include "Types.h"
-
-#include <cfloat>
 
 namespace SSSEngine::Math::Limits
 {
@@ -39,7 +38,7 @@ namespace SSSEngine::Math::Limits
      * @tparam T The Type to check the size of
      */
     template<typename T>
-    SSSENGINE_GLOBAL constexpr int Bits = sizeof(T) * 8;
+    SSSENGINE_GLOBAL constexpr u64 Bits = sizeof(T) * 8;
 
     /**
      * @brief A lambda that when instatiated results in a compile time error
@@ -63,7 +62,7 @@ namespace SSSEngine::Math::Limits
      * @brief The amount of radix digits meaningful for Integer Types. That is to say the bits that represent the actual
      * number excluding sign and padding bits if present.
      *
-     * This means that for unsigned types the value is Bits - 1, otherwise its Bits
+     * This means that for signed types the value is Bits - 1, otherwise its Bits
      *
      * @see Bits
      *
@@ -78,7 +77,7 @@ namespace SSSEngine::Math::Limits
      * This equals the base 2 digits that can be represented without losing precision
      */
     template<>
-    SSSENGINE_GLOBAL constexpr int Digits<f32> = FLT_MANT_DIG;
+    SSSENGINE_GLOBAL constexpr int Digits<f32> = __FLT_MANT_DIG__;
 
     /**
      * @brief The amount of radix digits for 64-bit floating point number.
@@ -86,7 +85,7 @@ namespace SSSEngine::Math::Limits
      * This equals the base 2 digits that can be represented without losing precision
      */
     template<>
-    SSSENGINE_GLOBAL constexpr int Digits<f64> = DBL_MANT_DIG;
+    SSSENGINE_GLOBAL constexpr int Digits<f64> = __DBL_MANT_DIG__;
 
     /**
      * @brief The amount of radix digits for 128-bit floating point number.
@@ -94,7 +93,7 @@ namespace SSSEngine::Math::Limits
      * This equals the base 2 digits that can be represented without losing precision
      */
     template<>
-    SSSENGINE_GLOBAL constexpr int Digits<long double> = LDBL_MANT_DIG;
+    SSSENGINE_GLOBAL constexpr int Digits<f128> = __LDBL_MANT_DIG__;
 
     template<NumberConcept N>
     SSSENGINE_GLOBAL constexpr N Max = NotSupportedError<N>();
@@ -109,19 +108,19 @@ namespace SSSEngine::Math::Limits
      * @brief The maximum number that can be represented by a 32-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f32 Max<f32> = FLT_MAX;
+    SSSENGINE_GLOBAL constexpr f32 Max<f32> = __FLT_MAX__;
 
     /**
      * @brief The maximum number that can be represented by a 64-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f64 Max<f64> = DBL_MAX;
+    SSSENGINE_GLOBAL constexpr f64 Max<f64> = __DBL_MAX__;
 
     /**
      * @brief The maximum number that can be represented by a 128-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f128 Max<f128> = LDBL_MAX;
+    SSSENGINE_GLOBAL constexpr f128 Max<f128> = __LDBL_MAX__;
 
     template<NumberConcept N>
     SSSENGINE_GLOBAL constexpr N Min = NotSupportedError<N>();
@@ -147,19 +146,19 @@ namespace SSSEngine::Math::Limits
      * @brief The closest number to 0 possible to represent with a 32-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f32 SmallestPositive<f32> = FLT_MIN;
+    SSSENGINE_GLOBAL constexpr f32 SmallestPositive<f32> = __FLT_MIN__;
 
     /**
      * @brief The closest number to 0 possible to represent with a 64-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f64 SmallestPositive<f64> = DBL_MIN;
+    SSSENGINE_GLOBAL constexpr f64 SmallestPositive<f64> = __DBL_MIN__;
 
     /**
      * @brief The closest number to 0 possible to represent with a 128-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f128 SmallestPositive<f128> = LDBL_MIN;
+    SSSENGINE_GLOBAL constexpr f128 SmallestPositive<f128> = __LDBL_MIN__;
 
     template<RealConcept N>
     SSSENGINE_GLOBAL constexpr N Epsilon = NotSupportedError<N>();
@@ -168,17 +167,17 @@ namespace SSSEngine::Math::Limits
      * @brief The difference between 1.0f and the next number representable by a 32-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f32 Epsilon<f32> = FLT_EPSILON;
+    SSSENGINE_GLOBAL constexpr f32 Epsilon<f32> = __FLT_EPSILON__;
 
     /**
      * @brief The difference between 1.0f and the next number representable by a 64-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f64 Epsilon<f64> = DBL_EPSILON;
+    SSSENGINE_GLOBAL constexpr f64 Epsilon<f64> = __DBL_EPSILON__;
 
     /**
      * @brief The difference between 1.0f and the next number representable by a 128-bit floating point number
      */
     template<>
-    SSSENGINE_GLOBAL constexpr f128 Epsilon<f128> = LDBL_EPSILON;
+    SSSENGINE_GLOBAL constexpr f128 Epsilon<f128> = __LDBL_EPSILON__;
 } // namespace SSSEngine::Math::Limits

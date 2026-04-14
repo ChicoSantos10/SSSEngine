@@ -23,7 +23,12 @@
  */
 
 #include "Renderer.h"
+#include "Attributes.h"
+#include "Debug.h"
+#include "HelperMacros.h"
 #include "Library.h"
+#include "Path.h"
+#include "StringView.h"
 
 namespace SSSEngine::Renderer
 {
@@ -37,25 +42,49 @@ namespace SSSEngine::Renderer
         Platform::UnloadSharedLibrary(Module);
     }
 
-    void LoadDirectx()
+    // TODO: Return a path instead
+
+    /**
+     * @brief Get's the path to the renderer dll
+     *
+     * @param renderer The renderer library to get the path of
+     * @return The file path
+     */
+    SSSENGINE_FORCE_INLINE constexpr const char *GetRendererPath(Renderer renderer)
+    {
+        switch(renderer)
+        {
+#ifdef SSSENGINE_WIN32
+            case Renderer::Directx12:
+#endif // SSSENGINE_WIN32
+            case Renderer::Vulkan:
+                return R"(Vulkan/Vulkan.dll)";
+        }
+    }
+
+    void LoadRenderer(Renderer renderer)
     {
         if(Module)
             Unload();
 
         // constexpr auto RelativePath = LR"(Directx12\Directx12.dll)";
-        constexpr auto RelativePath = R"(Directx12\Directx12.dll)";
-        Module = Platform::LoadSharedLibrary(RelativePath, 0);
+        // TODO: Use path
+        const char *relativePath = GetRendererPath(renderer);
+        Module = Platform::LoadSharedLibrary(relativePath, 0);
 
         // TODO: Proper handling / exception throwing
         if(!Module)
-            throw std::exception();
+        {
+            // TODO: Handle Error
+            SSSENGINE_ASSERT(false);
+        }
 
-        Platform::LoadFunction<Init_t>(Module, "Initialize")();
-        LoadAssetsTest = Platform::LoadFunction<LoadAssetsTest_t>(Module, "LoadAssetsTest");
-        BeginFrame = Platform::LoadFunction<BeginFrame_t>(Module, "BeginFrame");
-        CreateSwapChain = Platform::LoadFunction<CreateSwapChain_t>(Module, "CreateSwapChain");
-        ResizeSwapChain = Platform::LoadFunction<ResizeSwapChain_t>(Module, "ResizeSwapChain");
-        Render = Platform::LoadFunction<Render_t>(Module, "Render");
-        Terminate = Platform::LoadFunction<Terminate_t>(Module, "Terminate");
+        Platform::LoadFunction<Init_t>(Module, u8"Initialize")();
+        LoadAssetsTest = Platform::LoadFunction<LoadAssetsTest_t>(Module, u8"LoadAssetsTest");
+        BeginFrame = Platform::LoadFunction<BeginFrame_t>(Module, u8"BeginFrame");
+        CreateSwapChain = Platform::LoadFunction<CreateSwapChain_t>(Module, u8"CreateSwapChain");
+        ResizeSwapChain = Platform::LoadFunction<ResizeSwapChain_t>(Module, u8"ResizeSwapChain");
+        Render = Platform::LoadFunction<Render_t>(Module, u8"Render");
+        Terminate = Platform::LoadFunction<Terminate_t>(Module, u8"Terminate");
     }
 } // namespace SSSEngine::Renderer

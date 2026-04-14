@@ -23,14 +23,17 @@
  *
  */
 
+#include "Buffer.h"
 #include "Debug.h"
+#include "HelperMacros.h"
 #include "Memory.h"
 #include "MemorySize.h"
 
 #include <sys/sysinfo.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
-namespace SSSEngine::Platform
+namespace SSSEngine::Memory
 {
     MemorySnapshot GetSystemMemoryInfo()
     {
@@ -43,22 +46,39 @@ namespace SSSEngine::Platform
         return {.totalSize = {info.totalram * info.mem_unit}, .available = {info.freeram * info.mem_unit}};
     }
 
-    void *AllocateMemory(Math::Bytes bytes, void *startingAddress)
+    Math::Bytes GetSystemPageSize()
     {
-        void *mem = mmap(startingAddress, bytes.value, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+        SSSENGINE_FUNCTION_LOCAL Math::Bytes pageSize = {static_cast<Math::Bytes::ValueType>(getpagesize())};
+        return pageSize;
+    }
+
+    Math::Bytes GetSystemLargePageSize()
+    {
+        // TODO: Scan the /proc/meminfo for the correct value
+        return Math::Bytes(2_MiB);
+    }
+
+    Buffer ReserveMemory(Math::Bytes size, void *startingAddress)
+    {
+        void *mem = mmap(startingAddress, size.value, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
         if(mem == MAP_FAILED)
         {
             // TODO: Handle Error
-            return nullptr;
+            return {.address = nullptr, .capacity = 0_B};
         }
 
-        return mem;
+        return {.address = mem, .capacity = size};
     }
 
-    bool FreeMemory(void *address, Math::Bytes size)
+    void CommitMemory(Buffer buffer)
     {
-        int success = munmap(address, size.value);
+        mprotect(buffer.address, buffer.capacity.value, PROT_READ | PROT_WRITE);
+    }
+
+    bool ReleaseMemory(Buffer buffer)
+    {
+        int success = madvise(buffer.address, buffer.capacity.value, MADV_DONTNEED);
 
         if(success == -1)
         {
@@ -68,4 +88,17 @@ namespace SSSEngine::Platform
 
         return true;
     }
-} // namespace SSSEngine::Platform
+
+    bool FreeMemory(Buffer buffer)
+    {
+        int success = munmap(buffer.address, buffer.capacity.value);
+
+        if(success == -1)
+        {
+            // TODO: Handle Error
+            return false;
+        }
+
+        return true;
+    }
+} // namespace SSSEngine::Memory

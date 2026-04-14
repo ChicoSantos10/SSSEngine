@@ -19,20 +19,26 @@
 
 /**
  * @file
- * @brief
+ * @brief Internal Threading utilities
  */
 
-#pragma once
-
+#include "HelperMacros.h"
 #include "TimeDuration.h"
+#include "Thread.h"
 
-// INVESTIGATE: Should be in the platform namespace instead of a time namespace?
-namespace SSSEngine::Platform
+namespace SSSEngine::Threading
 {
-    /**
-     *
-     * @return Gets the time, in nanoseconds, since an arbitrary point in time
-     */
-    Nanoseconds GetCurrentTime();
+#ifdef SSSENGINE_WIN32
+    constexpr Nanoseconds SleepGranularity(1_ms);
+#elif SSSENGINE_LINUX
+    constexpr Nanoseconds SleepGranularity(1_ms);
+#endif
 
-} // namespace SSSEngine::Platform
+    void PlatformSleep(Nanoseconds duration) noexcept;
+
+    SSSENGINE_GLOBAL u32 ThreadStart() noexcept
+    {
+        return 0;
+    }
+
+} // namespace SSSEngine::Threading

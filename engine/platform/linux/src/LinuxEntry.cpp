@@ -26,6 +26,7 @@
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 #include <wayland-client.h>
+
 #include "Platform.h"
 #include "Types.h"
 #include "WaylandWindow.h"

@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Concepts.h"
+#include "SignTraits.h"
 
 namespace SSSEngine::Math
 {

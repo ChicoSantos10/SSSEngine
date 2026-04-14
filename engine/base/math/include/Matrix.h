@@ -24,14 +24,13 @@
 
 #pragma once
 
+#include "ConversionTraits.h"
 #include "HelperMacros.h"
 #include "Types.h"
 #include "Concepts.h"
 #include "Debug.h"
-
-#include <concepts>
-#include <type_traits>
-#include <utility>
+#include "ValueConstant.h"
+#include "Utility.h"
 
 namespace SSSEngine::Math
 {
@@ -71,7 +70,7 @@ namespace SSSEngine::Math
             SSSENGINE_ASSERT(row < R);
             SSSENGINE_ASSERT(col < C);
 
-            return std::forward<Self>(self).data[row * C + col];
+            return Forward<Self>(self).data[row * C + col];
         }
 
         template<class Self>
@@ -79,29 +78,29 @@ namespace SSSEngine::Math
         {
             SSSENGINE_ASSERT(index < NumberElements());
 
-            return std::forward<Self>(self).data[index];
+            return Forward<Self>(self).data[index];
         }
     };
 
-    using Mat4x4f = Matrix<float, 4, 4>;
+    using Float4x4 = Matrix<float, 4, 4>;
 
     /**
      * @brief Checks if type T is a matrix
      *
-     * @tparam T [TODO:tparam]
+     * @tparam T Type to check
      */
     template<typename T>
-    struct IsMatrix : std::false_type
+    struct IsMatrix : FalseType
     {
     };
 
     /**
      * @brief Checks if is a Matrix
      *
-     * @tparam U [TODO:tparam]
+     * @tparam T Type to check
      */
     template<typename T, MatrixSize C, MatrixSize R>
-    struct IsMatrix<Matrix<T, C, R>> : std::true_type
+    struct IsMatrix<Matrix<T, C, R>> : TrueType
     {
     };
 
@@ -111,10 +110,10 @@ namespace SSSEngine::Math
      * @tparam T The type to check
      */
     template<typename T>
-    concept MatrixTypeConcept = IsMatrix<T>::value;
+    concept MatrixTypeConcept = IsMatrix<T>::Value;
 
-    SSSENGINE_STATIC_ASSERT(MatrixTypeConcept<Mat4x4f>, "Mat4x4f is a matrix")
-    SSSENGINE_STATIC_ASSERT(!MatrixTypeConcept<int>, "int is not a matrix")
+    SSSENGINE_STATIC_ASSERT(MatrixTypeConcept<Float4x4>, "Mat4x4f is a matrix");
+    SSSENGINE_STATIC_ASSERT(!MatrixTypeConcept<int>, "int is not a matrix");
 
     /**
      * @brief Concept of a Matrix where Columns are the same as Rows
@@ -128,7 +127,7 @@ namespace SSSEngine::Math
     SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
 
     template<MatrixTypeConcept T, MatrixTypeConcept V>
-        requires(SameType<T, V>) && (T::Columns() == V::Rows())
+        requires(IsSameType<T, V>) && (T::Columns() == V::Rows())
     SSSENGINE_GLOBAL constexpr auto operator*(const T &lhs, const V &rhs)
     {
         using Type = typename T::Type;
@@ -208,5 +207,5 @@ namespace SSSEngine::Math
         return m;
     }
 
-    constexpr auto Identity4x4f = IdentityMatrix<Mat4x4f>();
+    constexpr auto Identity4x4f = IdentityMatrix<Float4x4>();
 } // namespace SSSEngine::Math

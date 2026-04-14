@@ -5,28 +5,29 @@ add_library(SSSLinux STATIC
   src/LinuxLibrary.cpp
   src/LinuxMemory.cpp
   src/LinuxTimer.cpp
+  src/LinuxThreading.cpp
 )
+add_library(SSSLinuxInternal INTERFACE)
 
-add_library(SSSLinuxInterface INTERFACE)
-target_include_directories(SSSLinuxInterface INTERFACE internal)
+target_include_directories(SSSLinuxInternal INTERFACE internal)
 
 target_link_libraries(SSSLinux 
-  PRIVATE 
-    SSSPlatform
-  PUBLIC
-    SSSLinuxInterface
+  PUBLIC 
+  SSSPlatformCommon
+  PRIVATE
+  SSSLinuxInternal
+  SSSPlatformCommonInternal
 ) 
-
-target_link_libraries(SSSPlatform 
-    INTERFACE SSSLinux
-)
 
 setup_wayland(SSSLinux)
 
+add_library(SSSPlatform ALIAS SSSLinux)
+
 function(CREATE_GUI_APP name)
   add_executable(${name} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/src/LinuxEntry.cpp)
-    target_link_libraries(${name}
+  target_link_libraries(${name}
       PRIVATE
-        SSSLinuxInterface
+      SSSLinux
+      SSSLinuxInternal
       )
 endfunction()

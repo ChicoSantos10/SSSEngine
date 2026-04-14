@@ -26,6 +26,7 @@
 
 #include "Attributes.h"
 #include "Concepts.h"
+#include "CopyAndMoveTraits.h"
 #include "EnumHelpers.h"
 
 namespace SSSEngine
@@ -115,7 +116,7 @@ namespace SSSEngine
     }
 
     template<typename To, typename From>
-        requires(sizeof(To) == sizeof(From) && TriviallyCopyable<To> && TriviallyCopyable<From>)
+        requires(sizeof(To) == sizeof(From) && IsTriviallyCopyable<To> && IsTriviallyCopyable<From>)
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr To BitCopy(const From &from) noexcept
     {
 #ifdef SSSENGINE_MSVC

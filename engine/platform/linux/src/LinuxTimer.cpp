@@ -30,7 +30,7 @@
 
 namespace SSSEngine::Platform
 {
-    Nanoseconds GetCurrentTime()
+    Nanoseconds GetCurrentTime() noexcept
     {
         timespec time{};
         // INVESTIGATE: What clock to use

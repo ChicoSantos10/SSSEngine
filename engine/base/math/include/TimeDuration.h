@@ -25,10 +25,11 @@
 #pragma once
 
 #include "Concepts.h"
-#include "Math.h"
 #include "Quantity.h"
 #include "Types.h"
 #include "Ratio.h"
+
+#include <compare>
 
 namespace SSSEngine
 {

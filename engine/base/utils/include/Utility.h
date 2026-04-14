@@ -24,17 +24,55 @@
 
 #pragma once
 
-#include "Concepts.h"
-
-#include <utility>
+#include "ConversionTraits.h"
+#include "CopyAndMoveTraits.h"
+#include "QualifierTraits.h"
+#include "Attributes.h"
+#include "Traits.h"
 
 namespace SSSEngine
 {
     template<typename T>
-    constexpr void Swap(T &first, T &second) noexcept(NoThrowMoveConstructible<T> && NoThrowMoveAssignable<T>)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr RemoveReferenceType<T> &&
+    Move(T &&value) // NOLINT(cppcoreguidelines-missing-std-forward)
     {
-        T tmp = std::move(first);
-        first = std::move(second);
-        second = std::move(tmp);
+        return static_cast<RemoveReferenceType<T> &&>(value);
     }
+
+    template<typename T>
+    constexpr void Swap(T &first, T &second) noexcept(IsNoThrowMoveConstructible<T> && IsNoThrowMoveAssignable<T>)
+    {
+        T tmp = Move(first);
+        first = Move(second);
+        second = Move(tmp);
+    }
+
+    template<typename T>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T &&Forward(RemoveReferenceType<T> &value) noexcept
+    {
+        return static_cast<T &&>(value);
+    }
+
+    template<typename T>
+        requires(!IsLValueReference<T>)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T &&
+    Forward(RemoveReferenceType<T> &&value) noexcept // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+    {
+        return static_cast<T &&>(value);
+    }
+
+    /**
+     * @brief Changes the provenance of the pointer. This tells the compiler that the underlying Type changed
+     *
+     * @tparam T The new Type of the pointer
+     * @param ptr The pointer to change
+     * @return The same pointer but with the new type associated to it
+     */
+    template<typename T>
+        requires(!IsSameType<const volatile T, const volatile void> && !IsFunction<T>)
+    SSSENGINE_PURE constexpr T *Launder(T *ptr)
+    {
+        return __builtin_launder(ptr);
+    }
+
 } // namespace SSSEngine

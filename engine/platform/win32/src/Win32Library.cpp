@@ -24,6 +24,7 @@
 
 #include <Windows.h>
 #include "Library.h"
+#include "StringView.h"
 #include "Types.h"
 
 namespace SSSEngine::Platform
@@ -38,7 +39,7 @@ namespace SSSEngine::Platform
         FreeLibrary(static_cast<HMODULE>(handle));
     }
 
-    functionPtr GetFunctionAddressFromLibrary(void *handle, const char *funcName)
+    functionPtr GetFunctionAddressFromLibrary(void *handle, Text::Utf8View funcName)
     {
         // INVESTIGATE: Consider exporting by ordinals using .def files instead to make the loading process faster
         //      https://learn.microsoft.com/en-us/cpp/build/exporting-from-a-dll-using-def-files?view=msvc-170

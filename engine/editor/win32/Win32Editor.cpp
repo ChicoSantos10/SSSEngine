@@ -25,9 +25,10 @@
 #include "Platform.h"
 #include "Application.h"
 
+#include "String.h"
 #include "Win32Entry.h"
 
-void SSSEngine::Platform::RunApplication(int argc, char *argv[])
+void SSSEngine::Platform::RunApplication(int argc, const Text::Utf8 &argv[])
 {
     Editor::Application app;
     app.Run();

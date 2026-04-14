@@ -24,8 +24,8 @@
 
 #pragma once
 
+#include "StringView.h"
 #include "WindowHandle.h"
-#include "Platform.h"
 #include "Attributes.h"
 
 namespace SSSEngine::Core
@@ -38,7 +38,7 @@ namespace SSSEngine::Core
     class Window final
     {
         public:
-        Window(Platform::WindowPos position, Platform::WindowSize size, const Platform::WindowTitle &title,
+        Window(Platform::WindowPos position, Platform::WindowSize size, const Text::Utf8View &title,
                const Window *parent = nullptr);
         ~Window();
         Window(const Window &other) = delete;
@@ -62,7 +62,7 @@ namespace SSSEngine::Core
             return Platform::GetWindowRect(m_handle);
         }
 
-        SSSENGINE_FORCE_INLINE void SetWindowTitle(Platform::WindowTitle &title) const
+        SSSENGINE_FORCE_INLINE void SetWindowTitle(Text::Utf8View &title) const
         {
             Platform::SetWindowTitle(m_handle, title);
         }

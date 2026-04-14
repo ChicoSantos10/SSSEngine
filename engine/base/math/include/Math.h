@@ -29,6 +29,7 @@
 #include "Concepts.h"
 #include "Debug.h"
 #include "Limits.h"
+#include "Types.h"
 #include "Utility.h"
 
 namespace SSSEngine::Math
@@ -67,7 +68,13 @@ namespace SSSEngine::Math
     /**
      * @brief Counts the zero bits from the least significant bit until a one bit is found
      *
-     * @tparam T A number like type
+     * Example:
+     * @code
+     * CountRightZeros(8) -> 3
+     *
+     * Explanation:
+     * 8 is 0b1000
+     *
      * @tparam Fallback true if the function should fallback to 0 if the mask is 0 or false if the mask is guaranteed to
      * be non zero. If fallback is false and mask is zero result is undefined.
      * @param num The mask to count
@@ -102,17 +109,20 @@ namespace SSSEngine::Math
     }
 
     /**
-     * @brief Counts the zeros to the right of the fist non 0 bit
+     * @brief Counts the zero bits from the most significant bit until a one bit is found
      *
      * Example:
      * @code
-     * CountRightZeros(8) -> 3
+     * CountLeftZeros(u8(8)) -> 4
      *
      * Explanation:
-     * 8 is 0b1000
+     * 8 is 0b00001000
      *
-     * @param num The number to check
-     * @return The amount of zeros after the first non 0 bit
+     * @tparam Fallback true if the function should fallback to 0 if the mask is 0 or false if the mask is guaranteed to
+     * be non zero. If fallback is false and mask is zero result is undefined.
+     * @param num The mask to count
+     * @return The count if the mask is non zero and 0 if the mask is zero and fallback is true. Undefined if mask is 0
+     * and fallback is false
      */
     template<bool Fallback = false>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr char CountLeftZeros(IntegralConcept auto num) noexcept
@@ -281,4 +291,42 @@ namespace SSSEngine::Math
 
         return (num >> Shift) | (-static_cast<UnsignedType>(num) >> Shift);
     };
+
+    /**
+     * @brief Checks if a number is a power of 2
+     *
+     * @param multiple The number to check
+     * @return True if the number is a power of 2
+     */
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr bool IsPowerOf2(IntegralConcept auto multiple)
+    {
+        return multiple > 0 && (multiple & (multiple - 1)) == 0;
+    }
+
+    /**
+     * @brief Calculates the next number that is a multiple
+     *
+     * @param number The number to get the next multiple of
+     * @param multiple The multiple to get. Must be a power of 2
+     * @return The next number after that is a multiple
+     */
+    template<IntegralConcept T>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T NextMultiplePowerOf2(T number, T multiple)
+    {
+        SSSENGINE_ASSERT(IsPowerOf2(multiple));
+        return (number + multiple - 1) & -multiple;
+    }
+
+    /**
+     * @brief Calculates the number of bits needed to store the value
+     *
+     * @param number The number to calculate
+     * @return The number of bits needed to store the value
+     */
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr IntegralConcept auto BitWidth(IntegralConcept auto value)
+    {
+        using Type = decltype(value);
+        return Limits::Digits<Type> - CountLeftZeros(value);
+    }
+
 } // namespace SSSEngine::Math

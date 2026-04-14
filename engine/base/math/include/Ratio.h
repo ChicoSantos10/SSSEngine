@@ -27,6 +27,7 @@
 #include "Math.h"
 #include "HelperMacros.h"
 #include "Types.h"
+#include "ValueConstant.h"
 
 namespace SSSEngine::Math
 {
@@ -36,7 +37,7 @@ namespace SSSEngine::Math
      * simplified when instantiated
      */
     template<maxint Num, maxint Den = 1>
-        requires(Den != 0 && Num != INTMAX_MIN && Den != INTMAX_MIN) // TODO: Numeric limits
+        requires(Den != 0 && Num != Math::Limits::Min<maxint> && Den != Math::Limits::Max<maxint>)
     struct Ratio
     {
         static constexpr maxint Gcd = GreatestCommonDivisor(Num, Den);
@@ -47,17 +48,17 @@ namespace SSSEngine::Math
     };
 
     template<typename T>
-    struct IsRatio : std::false_type
+    struct IsRatio : FalseType
     {
     };
 
     template<maxint N, maxint D>
-    struct IsRatio<Ratio<N, D>> : std::true_type
+    struct IsRatio<Ratio<N, D>> : TrueType
     {
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsRatioValue = IsRatio<T>::value;
+    SSSENGINE_GLOBAL constexpr bool IsRatioValue = IsRatio<T>::Value;
 
     template<typename T>
     concept RatioConcept = IsRatioValue<T>;
@@ -107,15 +108,11 @@ namespace SSSEngine::Math
 
 } // namespace SSSEngine::Math
 
-namespace std
+template<SSSEngine::Math::RatioConcept R1, SSSEngine::Math::RatioConcept R2>
+struct SSSEngine::CommonTypeChecker<R1, R2>
 {
-    // TODO: Should we create a struct that does the implementation and then only have this inherit from it?
-    template<SSSEngine::Math::RatioConcept R1, SSSEngine::Math::RatioConcept R2>
-    struct common_type<R1, R2> // NOLINT(cert-dcl58-cpp)
-    {
-        static constexpr auto Gcd = SSSEngine::Math::GreatestCommonDivisor(R1::Numerator, R2::Numerator);
-        static constexpr auto Lcm = SSSEngine::Math::LeastCommonMultiple(R1::Denominator, R2::Denominator);
+    static constexpr auto Gcd = SSSEngine::Math::GreatestCommonDivisor(R1::Numerator, R2::Numerator);
+    static constexpr auto Lcm = SSSEngine::Math::LeastCommonMultiple(R1::Denominator, R2::Denominator);
 
-        using type = SSSEngine::Math::Ratio<Gcd, Lcm>;
-    };
-} // namespace std
+    using Type = SSSEngine::Math::Ratio<Gcd, Lcm>;
+};

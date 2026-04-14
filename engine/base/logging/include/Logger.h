@@ -50,7 +50,7 @@ namespace SSSEngine::Logging
 
     /**
      * @brief Formats a string using the arguments. Use {} or {n} where n is the 0-based position in the arguments
-     * passed. Useful when wanting to repeat on value across multiple positions
+     * passed. Useful when wanting to repeat a value across multiple positions
      *
      * @tparam Args [TODO:tparam]
      * @param fmt [TODO:parameter]

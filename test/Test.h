@@ -91,6 +91,7 @@ namespace SSSTest
     else                                                                                                               \
     {                                                                                                                  \
         std::cerr << "Failed at " << __FILE__ << " " << __LINE__ << "\n";                                              \
+        std::cerr << SSSENGINE_STRING(value) << "\n";                                                                  \
         Succeeded = false;                                                                                             \
     }
 

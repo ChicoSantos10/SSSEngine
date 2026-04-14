@@ -24,8 +24,8 @@
 
 #pragma once
 
-#include "Platform.h"
 #include "Rect.h"
+#include "StringView.h"
 #include "Vector.h"
 #include "Attributes.h"
 
@@ -55,7 +55,7 @@ namespace SSSEngine::Platform
      * @param parent A window handle. Can be set to null if the window should not have a parent
      * @return A handle to the opened window
      */
-    WindowId OpenWindow(WindowPos pos, WindowSize size, const WindowTitle &title, WindowId parent);
+    WindowId OpenWindow(WindowPos pos, WindowSize size, const Text::Utf8View &title, WindowId parent);
 
     /**
      * @brief Gets the window rect
@@ -79,7 +79,7 @@ namespace SSSEngine::Platform
      * @param handle The handle of the window to change the title
      * @param title The new title
      */
-    void SetWindowTitle(WindowId handle, const WindowTitle &title);
+    void SetWindowTitle(WindowId handle, const Text::Utf8View &title);
 
     /**
      * @brief Either sets the window to a borderlessfullscreen mode or back to window mode

@@ -24,63 +24,72 @@
 
 #pragma once
 
-#include <cstdint>
 #include "Debug.h"
 
-using i8 = int8_t;
-using i16 = int16_t;
-using i32 = int32_t;
-using i64 = int64_t;
-using u8 = uint8_t;
-using u16 = uint16_t;
-using u32 = uint32_t;
-using u64 = uint64_t;
+#ifdef SSSENGINE_WIN32
+using i64 = signed long long;
+using u64 = unsigned long long;
+#else
+using i64 = signed long;
+using u64 = unsigned long;
+#endif
+
+using i8 = signed char;
+using i16 = signed short;
+using i32 = signed int;
+using u8 = unsigned char;
+using u16 = unsigned short;
+using u32 = unsigned int;
 using f32 = float;
 using f64 = double;
 using f128 = long double;
 using byte = unsigned char;
 
-using min8i = int_least8_t;
-using min16i = int_least16_t;
-using min32i = int_least32_t;
-using min64i = int_least64_t;
-using min8u = uint_least8_t;
-using min16u = uint_least16_t;
-using min32u = uint_least32_t;
-using min64u = uint_least64_t;
+using min8i = i8;
+using min16i = i16;
+using min32i = i32;
+using min64i = i64;
+using min8u = u8;
+using min16u = u16;
+using min32u = u32;
+using min64u = u64;
 
-using fast8i = int_fast8_t;
-using fast16i = int_fast16_t;
-using fast32i = int_fast32_t;
-using fast64i = int_fast64_t;
-using fast8u = uint_fast8_t;
-using fast16u = uint_fast16_t;
-using fast32u = uint_fast32_t;
-using fast64u = uint_fast64_t;
+using fast8i = i8;
+using fast16i = i32;
+using fast32i = i32;
+using fast64i = i64;
+using fast8u = u8;
+using fast16u = u32;
+using fast32u = u32;
+using fast64u = u64;
 
-using maxint = intmax_t;
-using intptr = intptr_t;
-using maxuint = uintmax_t;
-using uintptr = uintptr_t;
+using maxint = i64;
+using maxuint = u64;
 
 using functionPtr = void (*)();
 using objPtr = void *;
 
-#ifdef SSSENGINE_MSVC
-using Size = size_t;
-#else
-using Size = std::size_t;
-#endif // SSSENGINE_MSVC
+using Size = __SIZE_TYPE__;
+
+using char8 = char8_t;
+using char16 = char16_t;
+using char32 = char32_t;
+
+using ptrdiff = decltype(static_cast<int *>(nullptr) - static_cast<int *>(nullptr));
+using uintptr = u64;
+using intptr = i64;
 
 // Size assertions
-SSSENGINE_STATIC_ASSERT(sizeof(u8) == 1, "u8 must be 1 byte")
-SSSENGINE_STATIC_ASSERT(sizeof(u16) == 2, "u16 must be 2 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(u32) == 4, "u32 must be 4 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(u64) == 8, "u64 must be 8 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(i8) == 1, "i8 must be 1 byte")
-SSSENGINE_STATIC_ASSERT(sizeof(i16) == 2, "i16 must be 2 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(i32) == 4, "i32 must be 4 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(i64) == 8, "i64 must be 8 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(f32) == 4, "f32 must be 4 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(f64) == 8, "f64 must be 8 bytes")
-SSSENGINE_STATIC_ASSERT(sizeof(byte) == 1, "byte must be 1 byte")
+SSSENGINE_STATIC_ASSERT(sizeof(u8) == 1, "u8 must be 1 byte");
+SSSENGINE_STATIC_ASSERT(sizeof(u16) == 2, "u16 must be 2 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(u32) == 4, "u32 must be 4 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(u64) == 8, "u64 must be 8 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(i8) == 1, "i8 must be 1 byte");
+SSSENGINE_STATIC_ASSERT(sizeof(i16) == 2, "i16 must be 2 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(i32) == 4, "i32 must be 4 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(i64) == 8, "i64 must be 8 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(f32) == 4, "f32 must be 4 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(f64) == 8, "f64 must be 8 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(byte) == 1, "byte must be 1 byte");
+SSSENGINE_STATIC_ASSERT(sizeof(uintptr) == sizeof(void *), "uintptr should be the size of a pointer");
+SSSENGINE_STATIC_ASSERT(sizeof(intptr) == sizeof(void *), "intptr should be the size of a pointer");

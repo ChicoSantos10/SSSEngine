@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "Concepts.h"
 #include "ValueConstant.h"
 #include "HelperMacros.h"
 

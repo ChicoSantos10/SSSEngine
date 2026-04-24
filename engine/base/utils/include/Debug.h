@@ -22,6 +22,7 @@
  * @brief
  */
 
+// NOLINTBEGIN(*-macro-usage)
 #pragma once
 
 #ifdef SSSENGINE_MSVC
@@ -83,3 +84,5 @@ namespace SSSEngine
 
 #define SSSENGINE_STATIC_ASSERT(expression, message) static_assert(expression, message)
 #define SSSENGINE_NOT_IMPLEMENTED SSSENGINE_STATIC_ASSERT(false, "Not Implemented")
+
+// NOLINTEND(*-macro-usage)

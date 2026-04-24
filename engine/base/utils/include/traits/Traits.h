@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "HelperMacros.h"
 #include "ValueConstant.h"
 
 namespace SSSEngine
@@ -45,10 +46,10 @@ namespace SSSEngine
     };
 
     template<typename T, typename RValue = T &&>
-    RValue DeclVal(int);
+    consteval RValue DeclVal(int);
 
     template<typename T>
-    T DeclVal(long);
+    consteval T DeclVal(long);
 
     template<typename T>
     consteval auto DeclVal() noexcept -> decltype(DeclVal<T>(0))
@@ -104,4 +105,56 @@ namespace SSSEngine
     template<typename...>
     using VoidType = void;
 
+    template<bool, typename T, typename U>
+    struct Conditional
+    {
+        using Type = T;
+    };
+
+    template<typename T, typename U>
+    struct Conditional<false, T, U>
+    {
+        using Type = U;
+    };
+
+    template<bool Cond, typename T, typename U>
+    using ConditionalType = Conditional<Cond, T, U>::Type;
+
+    template<typename... Args>
+    struct MaxAlign;
+
+    template<typename T>
+    struct MaxAlign<T>
+    {
+        static constexpr auto Value = alignof(T);
+    };
+
+    template<typename T, typename... Rest>
+    struct MaxAlign<T, Rest...>
+    {
+        static constexpr auto Value = (alignof(T) > MaxAlign<Rest...>::Value) ? alignof(T) : MaxAlign<Rest...>::Value;
+    };
+
+    template<typename... Args>
+    SSSENGINE_GLOBAL
+    constexpr auto MaxAlignmentValue = MaxAlign<Args...>::Value;
+
+    template<typename... Args>
+    struct MaxSize;
+
+    template<typename T>
+    struct MaxSize<T>
+    {
+        static constexpr auto Value = sizeof(T);
+    };
+
+    template<typename T, typename... Rest>
+    struct MaxSize<T, Rest...>
+    {
+        static constexpr auto Value = (sizeof(T) > MaxSize<Rest...>::Value) ? sizeof(T) : MaxSize<Rest...>::Value;
+    };
+
+    template<typename... Args>
+    SSSENGINE_GLOBAL
+    constexpr auto MaxSizeValue = MaxSize<Args...>::Value;
 } // namespace SSSEngine

@@ -19,7 +19,6 @@
 
 #include "String.h"
 #include "ArrayTraits.h"
-#include "Bits.h"
 #include "MemoryUtility.h"
 #include "Test.h"
 #include "Types.h"

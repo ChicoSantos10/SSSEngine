@@ -3,6 +3,7 @@
 ---
 AccessModifierOffset: '0'
 AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Right
 AlignConsecutiveMacros: 'false'
 AlignConsecutiveAssignments: 'false'
 AlignConsecutiveDeclarations: 'false'
@@ -24,6 +25,7 @@ AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'false'
 # BinPackLongBracedList: 'true'
 BinPackParameters: 'true'
+BreakAfterAttributes: Always
 BreakAfterJavaFieldAnnotations: 'false'
 BreakBeforeBinaryOperators: None
 BreakBeforeBraces: Allman
@@ -39,12 +41,17 @@ Cpp11BracedListStyle: 'true'
 DerivePointerAlignment: 'false'
 FixNamespaceComments: 'true'
 IncludeBlocks: Preserve
+IndentAccessModifiers: 'false'
 IndentCaseLabels: 'true'
 IndentPPDirectives: BeforeHash
 IndentWidth: '4'
 IndentWrappedFunctionNames: 'false'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
 Language: Cpp
+Macros: 
+  - SSSENGINE_PURE=[[nodiscard]]
+  - SSSENGINE_FORCE_INLINE=[[nodiscard]]
+  - SSSENGINE_GLOBAL=[[nodiscard]]
 MaxEmptyLinesToKeep: '1'
 NamespaceIndentation: All
 PenaltyBreakAssignment: '3'

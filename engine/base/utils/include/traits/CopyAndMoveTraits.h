@@ -26,6 +26,7 @@
 
 #include "HelperMacros.h"
 #include "QualifierTraits.h"
+#include "Traits.h"
 #include "ValueConstant.h"
 
 namespace SSSEngine
@@ -38,10 +39,20 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsTriviallyCopyable = TriviallyCopyableChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyCopyable = TriviallyCopyableChecker<T>::Value;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsBitwiseCopyable = __is_bitwise_cloneable(T);
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyMoveConstructible = __is_trivially_constructible(T, AddRValueRefType<T>);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyMoveAssignable = __is_trivially_assignable(T, AddRValueRefType<T>);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsBitwiseCopyable = __is_bitwise_cloneable(T);
 
     template<typename T, typename... Args>
     struct NoThrowAssignableChecker : BoolConstant<__is_nothrow_assignable(T, Args...)>
@@ -60,7 +71,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsNoThrowMoveConstructible = NoThrowMoveConstructibleChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowMoveConstructible = NoThrowMoveConstructibleChecker<T>::Value;
 
     template<typename T>
         requires(IsCompleteOrUnbounded<T>)
@@ -69,7 +81,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsNoThrowMoveAssignable = NoThrowMoveAssignableChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowMoveAssignable = NoThrowMoveAssignableChecker<T>::Value;
 
     template<typename T>
         requires(IsCompleteOrUnbounded<T>)
@@ -78,7 +91,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsNoThrowCopyConstructible = NoThrowCopyConstructibleChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowCopyConstructible = NoThrowCopyConstructibleChecker<T>::Value;
 
     template<typename T>
         requires(IsCompleteOrUnbounded<T>)
@@ -87,24 +101,60 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsNoThrowCopyAssignable = NoThrowCopyAssignableChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowCopyAssignable = NoThrowCopyAssignableChecker<T>::Value;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsNoThrowDefaultConstructible = __is_nothrow_constructible(T);
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowDefaultConstructible = __is_nothrow_constructible(T);
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsCopyConstructible = __is_constructible(T, AddLValueRefType<const T>);
+    SSSENGINE_GLOBAL
+    constexpr bool IsCopyConstructible = __is_constructible(T, AddLValueRefType<const T>);
+
+    template<typename T, typename... Args>
+    SSSENGINE_GLOBAL
+    constexpr bool IsConstructible = __is_constructible(T, Args...);
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsMoveConstructible = __is_constructible(T, AddRValueRefType<T>);
+    SSSENGINE_GLOBAL
+    constexpr bool IsMoveConstructible = __is_constructible(T, AddRValueRefType<T>);
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsDefaultConstructible = __is_constructible(T);
+    SSSENGINE_GLOBAL
+    constexpr bool IsDefaultConstructible = __is_constructible(T);
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsCopyAssignable = __is_assignable(AddLValueRefType<T>, AddLValueRefType<const T>);
+    SSSENGINE_GLOBAL
+    constexpr bool IsCopyAssignable = __is_assignable(AddLValueRefType<T>, AddLValueRefType<const T>);
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsMoveAssignable = __is_assignable(AddLValueRefType<T>, AddRValueRefType<T>);
+    SSSENGINE_GLOBAL
+    constexpr bool IsMoveAssignable = __is_assignable(AddLValueRefType<T>, AddRValueRefType<T>);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyDestructible = __is_trivially_destructible(T);
+
+    struct IsNoThrowDestructibleChecker
+    {
+        template<typename T>
+        constexpr static BoolConstant<noexcept(DeclVal<T &>().~T())> Test(int);
+
+        template<typename>
+        constexpr static FalseType Test(...);
+    };
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowDestructible = __is_nothrow_destructible(T);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsDestructible = __is_destructible(T);
+
+    template<typename T, typename... Args>
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowConstructible = __is_nothrow_constructible(T, Args...);
 
 } // namespace SSSEngine

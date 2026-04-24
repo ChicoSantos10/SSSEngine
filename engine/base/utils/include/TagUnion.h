@@ -24,25 +24,25 @@
 
 #pragma once
 
-#define SSSENGINE_WIDE_STRING_(x) L##x
-#define SSSENGINE_WIDE_STRING(x) SSSENGINE_WIDE_STRING_(#x)
-#define SSSENGINE_WIDE(x) SSSENGINE_WIDE_STRING_(x)
-#define SSSENGINE_STRING(x) #x
+#include "Debug.h"
+#include "Traits.h"
+#include "Types.h"
 
-#define SSSENGINE_UTF8(message) u8##message
-#define SSSENGINE_UTF16(message) u##message
-#define SSSENGINE_UTF32(message) U##message
-#define SSSENGINE_ASCII(message) message
+namespace SSSEngine
+{
+    template<typename... Args>
+        requires(sizeof...(Args) > 1)
+    class TagUnion
+    {
+        public:
+        static constexpr auto Alignment = MaxAlignmentValue<Args...>;
+        static constexpr auto Size = MaxSizeValue<Args...>;
 
-#define SSSENGINE_PRAGMA(x) _Pragma(#x)
+        private:
+        alignas(Alignment) byte m_storage[Size];
+        i8 m_tag = -1;
+    };
 
-#define SSSENGINE_GLOBAL inline
-#define SSSENGINE_INTERNAL static
-#define SSSENGINE_FUNCTION_LOCAL static
-
-#define SSSENGINE_LIB(library) SSSENGINE_PRAGMA(comment(lib, #library))
-
-#ifdef SSSENGINE_MSVC
-#elif SSSENGINE_GCC || SSSENGINE_CLANG
-    #define SSSENGINE_PACKED(name) struct __attribute__((packed)) name
-#endif
+    SSSENGINE_STATIC_ASSERT(alignof(TagUnion<u8, u16, u32, u64>) == 8, "");
+    SSSENGINE_STATIC_ASSERT(sizeof(TagUnion<u8, u16, u32, u64>) == 16, "");
+} // namespace SSSEngine

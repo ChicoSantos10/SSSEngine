@@ -46,7 +46,8 @@ namespace SSSEngine::Math
      */
     template<IntegralConcept T>
         requires(IsSigned<T>)
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T Absolute(T num) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T Absolute(T num) noexcept
     {
         SSSENGINE_ASSERT(num != Limits::Min<T>);
 
@@ -60,7 +61,8 @@ namespace SSSEngine::Math
      * @param num The number to get it's absolute representation
      * @return The absolute value of num
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr auto Absolute(RealConcept auto num) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Absolute(RealConcept auto num) noexcept
     {
         return num < 0 ? -num : num;
     }
@@ -82,7 +84,8 @@ namespace SSSEngine::Math
      * and fallback is false
      */
     template<bool Fallback = false>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr byte CountRightZeros(IntegralConcept auto mask) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr byte CountRightZeros(IntegralConcept auto mask) noexcept
     {
         if constexpr(!Fallback)
         {
@@ -125,7 +128,8 @@ namespace SSSEngine::Math
      * and fallback is false
      */
     template<bool Fallback = false>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr char CountLeftZeros(IntegralConcept auto num) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr char CountLeftZeros(IntegralConcept auto num) noexcept
     {
         if constexpr(Fallback)
         {
@@ -172,7 +176,8 @@ namespace SSSEngine::Math
      */
     template<typename T, typename U>
         requires LessThanComparableConcept<T, U>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr auto Min(const T &x, const U &y) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Min(const T &x, const U &y) noexcept
     {
         using ReturnType = CommonType<T, U>;
         auto first = static_cast<ReturnType>(x);
@@ -189,7 +194,8 @@ namespace SSSEngine::Math
      */
     template<typename T, typename U>
         requires GreaterThanComparableConcept<T, U>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr auto Max(const T &x, const U &y) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Max(const T &x, const U &y) noexcept
     {
         using ReturnType = CommonType<T, U>;
         auto first = static_cast<ReturnType>(x);
@@ -207,7 +213,8 @@ namespace SSSEngine::Math
      */
     template<IntegralConcept T>
         requires IsUnsigned<T>
-    SSSENGINE_PURE SSSENGINE_GLOBAL constexpr T GreatestCommonDivisor(T x, T y) noexcept
+    SSSENGINE_PURE SSSENGINE_GLOBAL
+    constexpr T GreatestCommonDivisor(T x, T y) noexcept
     {
         if(x == 0)
         {
@@ -255,7 +262,8 @@ namespace SSSEngine::Math
      */
     template<IntegralConcept T>
         requires IsSigned<T>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T GreatestCommonDivisor(T x, T y) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T GreatestCommonDivisor(T x, T y) noexcept
     {
         using Unsigned = UnsignedType<T>;
         auto unsignedX = static_cast<Unsigned>(Absolute(x));
@@ -272,7 +280,9 @@ namespace SSSEngine::Math
      * @return The least common multiple between the x and y
      */
     template<IntegralConcept T>
-    SSSENGINE_PURE SSSENGINE_GLOBAL constexpr auto LeastCommonMultiple(T x, T y) noexcept
+    SSSENGINE_PURE
+    SSSENGINE_GLOBAL
+    constexpr auto LeastCommonMultiple(T x, T y) noexcept
     {
         return x / GreatestCommonDivisor(x, y) * y;
     }
@@ -282,7 +292,8 @@ namespace SSSEngine::Math
      *
      * @param num The number to get the sign of
      * @return Returns 1 if positive, 0 if 0, -1 if negative */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr int SignOf(NumberConcept auto num) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr int SignOf(NumberConcept auto num) noexcept
     {
         using Type = decltype(num);
         using UnsignedType = UnsignedType<Type>;
@@ -298,7 +309,8 @@ namespace SSSEngine::Math
      * @param multiple The number to check
      * @return True if the number is a power of 2
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr bool IsPowerOf2(IntegralConcept auto multiple)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr bool IsPowerOf2(IntegralConcept auto multiple)
     {
         return multiple > 0 && (multiple & (multiple - 1)) == 0;
     }
@@ -311,7 +323,8 @@ namespace SSSEngine::Math
      * @return The next number after that is a multiple
      */
     template<IntegralConcept T>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T NextMultiplePowerOf2(T number, T multiple)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T NextMultiplePowerOf2(T number, T multiple)
     {
         SSSENGINE_ASSERT(IsPowerOf2(multiple));
         return (number + multiple - 1) & -multiple;
@@ -323,10 +336,50 @@ namespace SSSEngine::Math
      * @param number The number to calculate
      * @return The number of bits needed to store the value
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr IntegralConcept auto BitWidth(IntegralConcept auto value)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr IntegralConcept auto BitWidth(IntegralConcept auto value)
     {
         using Type = decltype(value);
-        return Limits::Digits<Type> - CountLeftZeros(value);
+        return Limits::BinaryDigits<Type> - CountLeftZeros(value);
+    }
+
+    SSSENGINE_PURE SSSENGINE_GLOBAL
+    constexpr f32 Log10(f32 value)
+    {
+        if(value <= 0)
+        {
+            // TODO: Proper infinity
+            return -1.0f / 0;
+        }
+
+        constexpr float Log10of2 = 0.30102999566f;
+        constexpr f32 P0 = 1.4426950408889634f;
+        constexpr f32 P1 = -0.7213475204444817f;
+        constexpr f32 P2 = 0.4808983469629878f;
+        constexpr f32 P3 = -0.36067376022224085f;
+        constexpr f32 P4 = 0.2885390081777927f;
+        constexpr f32 P5 = -0.2402265069591013f;
+        constexpr f32 P6 = 0.20625209037634344f;
+
+        u32 bits = BitCopy<u32>(value);
+
+        int e = static_cast<int>((bits >> 23) & 0xFF) - 127;
+
+        bits = (bits & 0x007FFFFFU) | (0x3F800000U);
+
+        f32 m = BitCopy<f32>(bits);
+        if(m < 0.7071067811865476f)
+        {
+            m *= 2.0f;
+            e -= 1;
+        }
+
+        f32 t = m - 1.0f;
+
+        // TODO: Use SIMD fmadd
+        f32 log2ofM = t * (P0 + t * (P1 + t * (P2 + t * (P3 + t * (P4 + t * (P5 + t * P6))))));
+
+        return (static_cast<f32>(e) + log2ofM) * Log10of2;
     }
 
 } // namespace SSSEngine::Math

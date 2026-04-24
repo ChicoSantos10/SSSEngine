@@ -1,6 +1,7 @@
 add_subdirectory(utils)
 add_subdirectory(system)
 add_subdirectory(math)
+add_subdirectory(storage)
 add_subdirectory(memory)
 add_subdirectory(threading)
 add_subdirectory(text)

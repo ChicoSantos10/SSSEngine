@@ -4,6 +4,7 @@ add_executable(SSSUtilsTest
 )
 
 target_link_libraries(SSSUtilsTest PRIVATE
+  SSSStorage
   SSSUtils
   SSSTest
 )

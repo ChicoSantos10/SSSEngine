@@ -17,17 +17,90 @@
     USA
 */
 
+#include "CopyAndMoveTraits.h"
+#include "Debug.h"
 #include "Test.h"
 
 #include "Storage.h"
 
 namespace SSSTest
 {
+    using namespace SSSEngine;
+    using Storage = Storage<int>;
+
+    SSSTEST_TEST(TConstructor)
+    {
+        Storage s(10);
+
+        SSSTEST_EXPECT_EQ(s, 10);
+    }
+
+    SSSTEST_TEST(CopyConstructor)
+    {
+        Storage s(10);
+        Storage t(s);
+
+        SSSTEST_EXPECT_EQ(t, 10);
+    }
+
+    SSSTEST_TEST(MoveConstructor)
+    {
+        Storage s(Storage(10));
+
+        SSSTEST_EXPECT_EQ(s, 10);
+    }
+
+    SSSTEST_TEST(CopyTConstructor)
+    {
+        int value = 10;
+        Storage s(value);
+
+        SSSTEST_EXPECT_EQ(s, 10);
+    }
+
+    SSSTEST_TEST(MoveTConstructor)
+    {
+        Storage s(10);
+
+        SSSTEST_EXPECT_EQ(s, 10);
+    }
+
+    SSSTEST_TEST(CopyAssignment)
+    {
+        Storage s(10);
+        Storage t;
+        t = s;
+
+        SSSTEST_EXPECT_EQ(t, 10);
+    }
+
+    SSSTEST_TEST(CopyTAssignment)
+    {
+        int value = 5;
+        Storage s;
+        s = value;
+
+        SSSTEST_EXPECT_EQ(s, 5);
+    }
+
+    SSSTEST_TEST(MoveAssignment)
+    {
+        Storage t;
+        t = Storage(10);
+
+        SSSTEST_EXPECT_EQ(t, 10);
+    }
+
+    SSSTEST_TEST(MoveTAssignment)
+    {
+        Storage s;
+        s = 10;
+
+        SSSTEST_EXPECT_EQ(s, 10);
+    }
+
     SSSTEST_TEST(StorageTest)
     {
-        using namespace SSSEngine;
-        using Storage = Storage<int>;
-
         Storage s(10);
         Storage i = 15;
 
@@ -44,4 +117,16 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(s * i, 50);
         SSSTEST_EXPECT_EQ(s / i, 12);
     }
+
+    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, int>);
+    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, int &>);
+    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, int &&>);
+    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, Storage>);
+    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, Storage &>);
+    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, Storage &&>);
+    SSSENGINE_STATIC_ASSERT(IsNoThrowMoveConstructible<Storage>, "");
+    SSSENGINE_STATIC_ASSERT(IsNoThrowMoveAssignable<Storage>, "");
+    SSSENGINE_STATIC_ASSERT(IsNoThrowCopyConstructible<Storage>, "");
+    SSSENGINE_STATIC_ASSERT(IsNoThrowCopyAssignable<Storage>, "");
+    SSSENGINE_STATIC_ASSERT(IsNoThrowCopyAssignable<Storage>, "");
 } // namespace SSSTest

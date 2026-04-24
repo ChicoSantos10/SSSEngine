@@ -26,7 +26,6 @@
 
 #include "AsciiEncoding.h"
 #include "Attributes.h"
-#include "Concepts.h"
 #include "Debug.h"
 #include "Encoding.h"
 #include "Types.h"
@@ -35,6 +34,38 @@
 
 namespace SSSEngine::Text
 {
+    // INVESTIGATE: What file should this be in
+    /**
+     * @brief Counts how many code units a string contains, not counting the null terminator
+     *
+     * @param string The string to count
+     * @return The number of code units until the null terminator
+     */
+    template<StringTypeConcept CharType>
+    SSSENGINE_PURE SSSENGINE_GLOBAL constexpr Size Length(const CharType *const string) noexcept
+    {
+        if consteval
+        {
+            Size index = 0;
+            for(; string[index] != CharType('\0'); ++index)
+            {
+            };
+
+            return index;
+        }
+
+        if constexpr(sizeof(CharType) == sizeof(char))
+        {
+            const auto *data = reinterpret_cast<const char *>(string);
+            return __builtin_strlen(data);
+        }
+
+        if constexpr(IsSameType<CharType, wchar_t>)
+        {
+            const auto *data = reinterpret_cast<const wchar_t *>(string);
+            return __builtin_wcslen(data);
+        }
+    }
 
     /**
      * @brief Represents a lightweight and read-only view into a string
@@ -54,7 +85,14 @@ namespace SSSEngine::Text
         constexpr StringView() = delete;
 
         template<Size N>
-        constexpr StringView(const CharType (&data)[N]) : m_data{data}, m_size{N} // NOLINT(*-explicit-constructor)
+        constexpr StringView(const CharType (&data)[N]) : m_data{data}, m_size{N - 1} // NOLINT(*-explicit-constructor)
+        {
+        }
+
+        constexpr StringView(const CharType *data, const Size size) : m_data{data}, m_size{size} {}
+
+        constexpr StringView(const CharType *data) : // NOLINT(*-explicit-constructor)
+        m_data(data), m_size(Length(data))
         {
         }
 
@@ -75,7 +113,7 @@ namespace SSSEngine::Text
          *
          * @return The number of code units
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE const char *RawData() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr const char *RawData() const noexcept
             requires(sizeof(CharType) == sizeof(char))
         {
             return BitCopy<const char *>(m_data);

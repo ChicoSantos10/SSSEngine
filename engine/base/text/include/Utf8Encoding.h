@@ -119,7 +119,7 @@ namespace SSSEngine::Text
             switch(size)
             {
                 case 1:
-                    return data[0];
+                    return CodePointType(data[0]);
                 case 2:
                     return ((data[0] & 0x1F) << 6) | (data[1] & 0x3F);
                 case 3:

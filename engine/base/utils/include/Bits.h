@@ -38,7 +38,8 @@ namespace SSSEngine
      * @param bits The bits to join
      * @return A new number with the 1 bits from every parameter
      */
-    SSSENGINE_FORCE_INLINE constexpr auto Join(IntegralConcept auto... bits)
+    SSSENGINE_FORCE_INLINE
+    constexpr auto Join(IntegralConcept auto... bits)
     {
         return (bits | ...);
     }
@@ -51,7 +52,8 @@ namespace SSSEngine
      * @return A new flag with all bits common to flag and args
      */
     template<EnumConcept T, SameAsConcept<T>... U>
-    SSSENGINE_FORCE_INLINE constexpr auto Join(T flag, U... args)
+    SSSENGINE_FORCE_INLINE
+    constexpr auto Join(T flag, U... args)
     {
         return static_cast<T>(Join(AsNumber(flag), AsNumber(args)...));
     }
@@ -63,7 +65,8 @@ namespace SSSEngine
      * @param second The number to check against
      * @return True if all bits are set, false otherwise
      */
-    SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(IntegralConcept auto first, IntegralConcept auto second)
+    SSSENGINE_FORCE_INLINE
+    constexpr bool HasBitSet(IntegralConcept auto first, IntegralConcept auto second)
     {
         return (first & second) != 0;
     }
@@ -83,7 +86,8 @@ namespace SSSEngine
      * @return True if all bits are set, false otherwise
      */
     template<EnumConcept Flag>
-    SSSENGINE_FORCE_INLINE constexpr bool HasBitSet(Flag first, Flag second)
+    SSSENGINE_FORCE_INLINE
+    constexpr bool HasBitSet(Flag first, Flag second)
     {
         return HasBitSet(AsNumber(first), AsNumber(second));
     }
@@ -97,7 +101,8 @@ namespace SSSEngine
      * @return A number without the bits that are set in args
      */
     template<IntegralConcept T, SameAsConcept<T>... Bits>
-    SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, Bits... bits)
+    SSSENGINE_FORCE_INLINE
+    constexpr T WithoutBits(T first, Bits... bits)
     {
         return first & ~Join(bits...);
     }
@@ -110,14 +115,16 @@ namespace SSSEngine
      * @return A number without the bits that are set in args
      */
     template<EnumConcept T, SameAsConcept<T>... Bits>
-    SSSENGINE_FORCE_INLINE constexpr T WithoutBits(T first, Bits... bits)
+    SSSENGINE_FORCE_INLINE
+    constexpr T WithoutBits(T first, Bits... bits)
     {
         return static_cast<T>(AsNumber(first) & ~Join(AsNumber(bits)...));
     }
 
     template<typename To, typename From>
         requires(sizeof(To) == sizeof(From) && IsTriviallyCopyable<To> && IsTriviallyCopyable<From>)
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr To BitCopy(const From &from) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr To BitCopy(const From &from) noexcept
     {
 #ifdef SSSENGINE_MSVC
 #elif SSSENGINE_GCC | SSSENGINE_CLANG

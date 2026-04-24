@@ -24,22 +24,22 @@
 
 #pragma once
 
+#include "Attributes.h"
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
 #include "QualifierTraits.h"
-#include "Attributes.h"
-#include "Traits.h"
 
 namespace SSSEngine
 {
     template<typename T>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr RemoveReferenceType<T> &&
-    Move(T &&value) // NOLINT(cppcoreguidelines-missing-std-forward)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr RemoveReferenceType<T> &&Move(T &&value) noexcept
     {
         return static_cast<RemoveReferenceType<T> &&>(value);
     }
 
     template<typename T>
+    SSSENGINE_FORCE_INLINE
     constexpr void Swap(T &first, T &second) noexcept(IsNoThrowMoveConstructible<T> && IsNoThrowMoveAssignable<T>)
     {
         T tmp = Move(first);
@@ -48,21 +48,23 @@ namespace SSSEngine
     }
 
     template<typename T>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T &&Forward(RemoveReferenceType<T> &value) noexcept
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T &&Forward(RemoveReferenceType<T> &value) noexcept
     {
         return static_cast<T &&>(value);
     }
 
     template<typename T>
         requires(!IsLValueReference<T>)
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr T &&
-    Forward(RemoveReferenceType<T> &&value) noexcept // NOLINT(cppcoreguidelines-rvalue-reference-param-not-moved)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T &&Forward(RemoveReferenceType<T> &&value) noexcept
     {
         return static_cast<T &&>(value);
     }
 
     /**
-     * @brief Changes the provenance of the pointer. This tells the compiler that the underlying Type changed
+     * @brief Changes the provenance of the pointer. This tells the compiler that
+     * the underlying Type changed
      *
      * @tparam T The new Type of the pointer
      * @param ptr The pointer to change
@@ -70,9 +72,54 @@ namespace SSSEngine
      */
     template<typename T>
         requires(!IsSameType<const volatile T, const volatile void> && !IsFunction<T>)
-    SSSENGINE_PURE constexpr T *Launder(T *ptr)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T *Launder(T *ptr) noexcept
     {
         return __builtin_launder(ptr);
     }
 
+    /**
+     * @brief Constructs an Object of Type T at address
+     *
+     * @tparam T The type of object to construct
+     * @param address The address to construct the object at
+     * @param value The value to construct
+     */
+    template<typename T>
+        requires(IsDefaultConstructible<T>)
+    SSSENGINE_FORCE_INLINE
+    void ConstructAt(void *address) noexcept(IsNoThrowDefaultConstructible<T>)
+    {
+        new(address) T();
+    }
+
+    /**
+     * @brief Constructs an Object of Type T at address
+     *
+     * @tparam T The type of object to construct
+     * @param address The address to construct the object at
+     * @param value The value to construct
+     */
+    template<typename T>
+        requires(IsCopyConstructible<T>)
+    SSSENGINE_FORCE_INLINE
+    void ConstructAt(void *address, const T &value) noexcept(IsNoThrowCopyConstructible<T>)
+    {
+        new(address) T(value);
+    }
+
+    /**
+     * @brief Constructs an Object of Type T at address with arguments Args
+     *
+     * @tparam T The type of object to construct
+     * @param address The address to construct the object at
+     * @param args The args to use in the constructor
+     */
+    template<typename T, typename... Args>
+        requires(IsConstructible<T, Args...>)
+    SSSENGINE_FORCE_INLINE
+    void ConstructAt(void *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
+    {
+        new(address) T(Forward<Args>(args)...);
+    }
 } // namespace SSSEngine

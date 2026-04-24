@@ -28,6 +28,7 @@ namespace SSSTest
 {
     // INVESTIGATE: Logging system or just keep std? Use vector or custom container when created?
     // TODO: Meaningful messages
+    // TODO: Test Allocator
 
     struct TestData
     {

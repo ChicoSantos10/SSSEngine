@@ -82,7 +82,7 @@ namespace SSSEngine
     #define SSSENGINE_UNREACHABLE SSSENGINE_UNREACHABLE_IMPL
 #endif
 
-#define SSSENGINE_STATIC_ASSERT(expression, message) static_assert(expression, message)
+#define SSSENGINE_STATIC_ASSERT(...) static_assert(__VA_ARGS__)
 #define SSSENGINE_NOT_IMPLEMENTED SSSENGINE_STATIC_ASSERT(false, "Not Implemented")
 
 // NOLINTEND(*-macro-usage)

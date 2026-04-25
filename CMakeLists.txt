@@ -7,7 +7,7 @@ project(SSSEngine)
 
 # TODO: This works for now but we shouldn't specify it here. Instead we should tell cmake what features we need for each
 # target
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -75,6 +75,8 @@ if (MSVC)
     )
 else ()
     add_compile_options(-Wall -Wextra -Wpedantic)
+    # TODO: Remove std library:
+    # add_link_options(-nodefaultlibs)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CLANG TRUE)
         add_compile_definitions(SSSENGINE_CLANG)

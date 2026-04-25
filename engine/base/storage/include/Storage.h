@@ -25,6 +25,7 @@
 
 #include "Attributes.h"
 #include "CopyAndMoveTraits.h"
+#include "Debug.h"
 #include "Utility.h"
 #include "AlignedStorage.h"
 
@@ -43,79 +44,100 @@ namespace SSSEngine
     class alignas(T) Storage
     {
         public:
-        Storage() = default;
-
         SSSENGINE_FORCE_INLINE
-        Storage(const T &value) noexcept(IsNoThrowCopyConstructible<T>)
+        constexpr Storage(const T &value) noexcept(IsNoThrowCopyConstructible<T>)
             requires(IsCopyConstructible<T>)
         {
-            m_value.Construct(value);
+            Construct(value);
         }
 
         SSSENGINE_FORCE_INLINE
-        Storage(T &&value) noexcept(IsNoThrowMoveConstructible<T>)
+        constexpr Storage(T &&value) noexcept(IsNoThrowMoveConstructible<T>)
             requires(IsMoveConstructible<T>)
         {
-            m_value.Construct(Move(value));
+            Construct(Move(value));
         }
 
         SSSENGINE_FORCE_INLINE
-        Storage &operator=(const T &value) noexcept(IsNoThrowCopyAssignable<T>)
+        constexpr Storage &operator=(const T &value) noexcept(IsNoThrowCopyAssignable<T>)
             requires(IsCopyAssignable<T>)
         {
-            m_value.Construct(value);
+            Construct(value);
             return *this;
         }
 
         SSSENGINE_FORCE_INLINE
-        Storage &operator=(T &&value) noexcept(IsNoThrowMoveAssignable<T>)
+        constexpr Storage &operator=(T &&value) noexcept(IsNoThrowMoveAssignable<T>)
             requires(IsMoveAssignable<T>)
         {
-            m_value.Construct(Move(value));
+            UnderlyingObject() = Move(value);
             return *this;
         }
 
-        Storage(const Storage &storage) = default;
-        Storage(Storage &&storage) = default;
-        Storage &operator=(const Storage &storage) = default;
-        Storage &operator=(Storage &&storage) = default;
-        ~Storage() = default;
+        Storage() = default;
+        constexpr Storage(const Storage &storage) = default;
+        constexpr Storage(Storage &&storage) = default;
+        constexpr Storage &operator=(const Storage &storage) = default;
+        constexpr Storage &operator=(Storage &&storage) = default;
+        constexpr ~Storage() = default;
 
         SSSENGINE_FORCE_INLINE
-        Storage(const Storage &storage) noexcept(IsNoThrowCopyConstructible<T>)
+        constexpr Storage(const Storage &storage) noexcept(IsNoThrowCopyConstructible<T>)
             requires(IsCopyConstructible<T> && !IsTriviallyCopyable<T>)
         {
-            m_value.Construct(storage.m_value);
+            Construct(storage.UnderlyingObject());
         }
 
         SSSENGINE_FORCE_INLINE
-        Storage(Storage &&storage) noexcept(IsNoThrowMoveConstructible<T>)
+        constexpr Storage(Storage &&storage) noexcept(IsNoThrowMoveConstructible<T>)
             requires(IsMoveConstructible<T> && !IsTriviallyMoveConstructible<T>)
         {
-            m_value.Construct(storage.m_value);
+            Construct(storage.UnderlyingObject());
         }
 
         SSSENGINE_FORCE_INLINE
-        Storage &operator=(const Storage &storage) noexcept(IsNoThrowCopyAssignable<T>)
+        constexpr Storage &operator=(const Storage &storage) noexcept(IsNoThrowCopyAssignable<T>)
             requires(IsCopyAssignable<T> && !IsTriviallyCopyable<T>)
         {
-            m_value.Construct(storage.UnderlyingObject());
+            UnderlyingObject() = storage.UnderlyingObject();
             return *this;
         }
 
         SSSENGINE_FORCE_INLINE
-        Storage &operator=(Storage &&storage) noexcept(IsNoThrowMoveAssignable<T>)
-            requires(IsMoveAssignable<T> && IsTriviallyMoveAssignable<T>)
+        constexpr Storage &operator=(Storage &&storage) noexcept(IsNoThrowMoveAssignable<T>)
+            requires(IsMoveAssignable<T> && !IsTriviallyMoveAssignable<T>)
         {
-            m_value.Construct(Move(storage.UnderlyingObject()));
+            UnderlyingObject() = Move(storage.UnderlyingObject());
             return *this;
         }
 
         SSSENGINE_FORCE_INLINE
-        ~Storage() noexcept(IsNoThrowDestructible<T>)
+        constexpr T *Construct() noexcept(IsNoThrowDefaultConstructible<T>)
+            requires(IsDefaultConstructible<T>)
+        {
+            m_value.template Construct<T>();
+        }
+
+        template<typename... Args>
+        SSSENGINE_FORCE_INLINE
+        constexpr T *Construct(Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
+            requires(IsConstructible<T, Args...>)
+        {
+            m_value.template Construct<T>(Forward<Args...>(args)...);
+        }
+
+        SSSENGINE_FORCE_INLINE
+        constexpr void Destroy() noexcept(IsNoThrowDestructible<T>)
             requires(IsDestructible<T> && !IsTriviallyDestructible<T>)
         {
             m_value.template Destroy<T>();
+        }
+
+        template<typename Self>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr auto &&Get(this Self &&self) noexcept
+        {
+            return Forward<Self>(self).UnderlyingObject();
         }
 
         /**
@@ -124,7 +146,7 @@ namespace SSSEngine
          * @return The underlying T Object
          */
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        operator T &()
+        constexpr operator T &()
         {
             return UnderlyingObject();
         }
@@ -135,7 +157,7 @@ namespace SSSEngine
          * @return The underlying const T Object
          */
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        operator const T &() const
+        constexpr operator const T &() const
         {
             return UnderlyingObject();
         }
@@ -150,7 +172,7 @@ namespace SSSEngine
          */
         template<typename Self>
         SSSENGINE_FORCE_INLINE
-        auto &&UnderlyingObject(this Self &&self)
+        constexpr auto &&UnderlyingObject(this Self &&self)
         {
             return Forward<Self>(self).m_value.template Get<T>();
         }

@@ -24,6 +24,7 @@
 
 #include "Application.h"
 
+#include "Allocator.h"
 #include "Debug.h"
 #include "Platform.h"
 #include "Audio.h"
@@ -31,20 +32,21 @@
 #include "String.h"
 #include "Timer.h"
 #include "Input.h"
+#include "Window.h"
 #include "WindowHandle.h"
 
 #include <iostream>
 
 namespace SSSEngine::Editor
 {
-    Application::Application()
+    Application::Application() :
+    // TODO: Manage memory
+    m_Window(reinterpret_cast<Core::Window *>(
+        Memory::Allocators->Allocate(Math::Bytes(sizeof(Core::Window)), alignof(Core::Window))))
     {
         // TODO: Allow user to define the renderer to use
         Renderer::LoadRenderer(Renderer::Renderer::Vulkan);
         Audio::Init();
-
-        // TODO: Manage memory
-        m_Window = std::make_unique<Core::Window>(Platform::WindowPos{0, 0}, Platform::WindowSize{3440, 1440}, u8"Editor");
     }
 
     void Application::Run()

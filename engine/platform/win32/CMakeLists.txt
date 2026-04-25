@@ -19,7 +19,8 @@ target_link_libraries(SSSWin32
 ) 
 
 target_link_libraries(SSSPlatform 
-    INTERFACE SSSWin32
+    INTERFACE 
+    SSSWin32
 )
 
 function(CREATE_GUI_APP name)

@@ -26,31 +26,49 @@
 namespace SSSTest
 {
     using namespace SSSEngine;
+
+    struct TestNonTrivial
+    {
+        // NOLINTBEGIN(modernize-use-equals-default)
+        explicit TestNonTrivial(int value) :
+        value(value) {
+
+        };
+
+        TestNonTrivial(const TestNonTrivial &test) :
+        value(test.value) {
+
+        };
+
+        TestNonTrivial(TestNonTrivial &&test) noexcept : value(Move(test.value)) {};
+
+        TestNonTrivial &operator=(const TestNonTrivial &test) noexcept
+        {
+            value = test.value;
+            return *this;
+        };
+
+        TestNonTrivial &operator=(TestNonTrivial &&test) noexcept
+        {
+            value = Move(test.value);
+            return *this;
+        };
+
+        ~TestNonTrivial()
+        {
+            value = 0;
+        };
+
+        int value{0};
+
+        // NOLINTEND(modernize-use-equals-default)
+    };
+
+    using NonTrivialStorage = Storage<TestNonTrivial>;
     using Storage = Storage<int>;
 
-    SSSTEST_TEST(TConstructor)
-    {
-        Storage s(10);
-
-        SSSTEST_EXPECT_EQ(s, 10);
-    }
-
-    SSSTEST_TEST(CopyConstructor)
-    {
-        Storage s(10);
-        Storage t(s);
-
-        SSSTEST_EXPECT_EQ(t, 10);
-    }
-
-    SSSTEST_TEST(MoveConstructor)
-    {
-        Storage s(Storage(10));
-
-        SSSTEST_EXPECT_EQ(s, 10);
-    }
-
     SSSTEST_TEST(CopyTConstructor)
+
     {
         int value = 10;
         Storage s(value);
@@ -65,15 +83,6 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(s, 10);
     }
 
-    SSSTEST_TEST(CopyAssignment)
-    {
-        Storage s(10);
-        Storage t;
-        t = s;
-
-        SSSTEST_EXPECT_EQ(t, 10);
-    }
-
     SSSTEST_TEST(CopyTAssignment)
     {
         int value = 5;
@@ -81,14 +90,6 @@ namespace SSSTest
         s = value;
 
         SSSTEST_EXPECT_EQ(s, 5);
-    }
-
-    SSSTEST_TEST(MoveAssignment)
-    {
-        Storage t;
-        t = Storage(10);
-
-        SSSTEST_EXPECT_EQ(t, 10);
     }
 
     SSSTEST_TEST(MoveTAssignment)
@@ -99,31 +100,53 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(s, 10);
     }
 
-    SSSTEST_TEST(StorageTest)
+    SSSTEST_TEST(CopyConstructor)
+    {
+        NonTrivialStorage s(TestNonTrivial(10));
+        NonTrivialStorage t(s);
+
+        SSSTEST_EXPECT_EQ(t.Get().value, 10);
+    }
+
+    SSSTEST_TEST(MoveConstructor)
+    {
+        NonTrivialStorage s(NonTrivialStorage(TestNonTrivial(10)));
+
+        SSSTEST_EXPECT_EQ(s.Get().value, 10);
+    }
+
+    SSSTEST_TEST(CopyAssignment)
+    {
+        NonTrivialStorage s(NonTrivialStorage(TestNonTrivial(10)));
+        NonTrivialStorage t;
+        t = s;
+
+        SSSTEST_EXPECT_EQ(t.Get().value, 10);
+    }
+
+    SSSTEST_TEST(MoveAssignment)
+    {
+        NonTrivialStorage t;
+        t = NonTrivialStorage(NonTrivialStorage(TestNonTrivial(10)));
+
+        SSSTEST_EXPECT_EQ(t.Get().value, 10);
+    }
+
+    SSSTEST_TEST(Get)
     {
         Storage s(10);
-        Storage i = 15;
+        int v = s.Get();
 
-        SSSTEST_EXPECT_EQ(s + i, 25);
-        SSSTEST_EXPECT_EQ(s - i, -5);
-        SSSTEST_EXPECT_EQ(s * i, 150);
-        SSSTEST_EXPECT_EQ(i / s, 1);
-
-        s = 25;
-        i = 2;
-
-        SSSTEST_EXPECT_EQ(s + i, 27);
-        SSSTEST_EXPECT_EQ(s - i, 23);
-        SSSTEST_EXPECT_EQ(s * i, 50);
-        SSSTEST_EXPECT_EQ(s / i, 12);
+        SSSTEST_EXPECT_EQ(s, 10);
+        SSSTEST_EXPECT_EQ(v, 10);
     }
 
     SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, int>);
     SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, int &>);
     SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, int &&>);
     SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, Storage>);
-    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, Storage &>);
-    SSSENGINE_STATIC_ASSERT(IsNoThrowConstructible<Storage, Storage &&>);
+    SSSENGINE_STATIC_ASSERT(IsNoThrowCopyConstructible<Storage>, "");
+    SSSENGINE_STATIC_ASSERT(IsNoThrowMoveConstructible<Storage>, "");
     SSSENGINE_STATIC_ASSERT(IsNoThrowMoveConstructible<Storage>, "");
     SSSENGINE_STATIC_ASSERT(IsNoThrowMoveAssignable<Storage>, "");
     SSSENGINE_STATIC_ASSERT(IsNoThrowCopyConstructible<Storage>, "");

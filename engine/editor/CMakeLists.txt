@@ -1,6 +1,7 @@
 add_library(SSSEditor STATIC src/Application.cpp)
 
 target_link_libraries(SSSEditor PUBLIC 
+    SSSBase
     SSSCore
     SSSRenderer
     SSSAudio

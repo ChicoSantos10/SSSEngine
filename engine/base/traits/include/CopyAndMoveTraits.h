@@ -48,7 +48,7 @@ namespace SSSEngine
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsTriviallyMoveAssignable = __is_trivially_assignable(T, AddRValueRefType<T>);
+    constexpr bool IsTriviallyMoveAssignable = __is_trivially_assignable(AddLValueRefType<T>, AddRValueRefType<T>);
 
     template<typename T>
     SSSENGINE_GLOBAL

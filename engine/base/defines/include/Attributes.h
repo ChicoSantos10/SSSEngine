@@ -110,7 +110,7 @@
 #define SSSENGINE_LIKELY [[likely]]
 #define SSSENGINE_UNLIKELY [[unlikely]]
 #define SSSENGINE_NO_UNIQUE_ADDRESS [[no_unique_address]]
-/** Tells the compiler that the pointer is not aliased by a different pointer **/
+/** NOTE: Tells the compiler that the pointer is not aliased by a different pointer **/
 #define SSSENGINE_RESTRICT __restrict
 
 #ifdef SSSENGINE_MSVC

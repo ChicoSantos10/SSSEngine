@@ -117,4 +117,16 @@ namespace SSSTest
         SSSTEST_EXPECT(MemoryCompare(testCopy2.CString(), String, Count) == 0);
         SSSTEST_EXPECT_EQ(testCopy2.Count(), Count - 1);
     }
+
+    SSSTEST_TEST(SelfAssignment)
+    {
+        Utf8 test(u8"Hello");
+        test = test;
+
+        SSSTEST_EXPECT_EQ(MemoryCompare(test.CString(), u8"Hello", 6), 0);
+
+        test = Move(test);
+
+        SSSTEST_EXPECT_EQ(MemoryCompare(test.CString(), u8"Hello", 6), 0);
+    }
 } // namespace SSSTest

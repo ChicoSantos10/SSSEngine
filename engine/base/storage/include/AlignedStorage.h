@@ -29,6 +29,7 @@
 #include "Types.h"
 #include "CopyAndMoveTraits.h"
 #include "Utility.h"
+#include "Address.h"
 
 namespace SSSEngine
 {
@@ -64,23 +65,9 @@ namespace SSSEngine
         template<typename T>
             requires(CanConstruct<T> && IsDefaultConstructible<T>)
         SSSENGINE_FORCE_INLINE
-        void Construct() noexcept(IsNoThrowDefaultConstructible<T>)
+        constexpr T *Construct() noexcept(IsNoThrowDefaultConstructible<T>)
         {
-            ConstructAt(m_value);
-        }
-
-        /**
-         * @brief Copy constructs a T
-         *
-         * @tparam T The type to construct
-         * @param value The value to construct
-         */
-        template<typename T>
-            requires(CanConstruct<T> && IsCopyConstructible<T>)
-        SSSENGINE_FORCE_INLINE
-        void Construct(const T &value) noexcept(IsNoThrowCopyConstructible<T>)
-        {
-            ConstructAt(m_value, value);
+            return ConstructAt<T>(AddressOf(m_value));
         }
 
         /**
@@ -93,15 +80,15 @@ namespace SSSEngine
         template<typename T, typename... Args>
             requires(CanConstruct<T> && IsConstructible<T, Args...>)
         SSSENGINE_FORCE_INLINE
-        void Construct(Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
+        constexpr T *Construct(Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
         {
-            ConstructAt<T>(m_value, Forward<Args>(args)...);
+            return ConstructAt<T>(AddressOf(m_value), Forward<Args>(args)...);
         }
 
         template<typename T>
             requires(CanConstruct<T> && !IsTriviallyDestructible<T>)
         SSSENGINE_FORCE_INLINE
-        void Destroy() noexcept(IsNoThrowDefaultConstructible<T>)
+        constexpr void Destroy() noexcept(IsNoThrowDefaultConstructible<T>)
         {
             Get<T>().~T();
         }
@@ -109,7 +96,7 @@ namespace SSSEngine
         template<typename T>
             requires(CanConstruct<T>)
         SSSENGINE_FORCE_INLINE
-        T &Get() noexcept
+        constexpr T &Get() noexcept
         {
             return *Launder(reinterpret_cast<T *>(m_value));
         }
@@ -117,7 +104,7 @@ namespace SSSEngine
         template<typename T>
             requires(CanConstruct<T>)
         SSSENGINE_FORCE_INLINE
-        const T &Get() const noexcept
+        constexpr const T &Get() const noexcept
         {
             return *Launder(reinterpret_cast<const T *>(m_value));
         }

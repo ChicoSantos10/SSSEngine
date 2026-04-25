@@ -11,6 +11,7 @@ endif ()
 
 target_link_libraries(SSSPlatformCommon
     PUBLIC
+    SSSBase
     SSSMath
     SSSUtils
     SSSLogging

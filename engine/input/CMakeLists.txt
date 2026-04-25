@@ -10,5 +10,6 @@ endif()
 add_subdirectory(ihi)
 
 target_link_libraries(SSSInput PUBLIC
+  SSSBase
   SSSPlatform
 )

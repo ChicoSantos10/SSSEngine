@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "Renderer.h"
 #include "Window.h"
 
@@ -55,7 +53,7 @@ namespace SSSEngine::Editor
         void Run();
 
         private:
-        std::unique_ptr<Core::Window> m_Window;
+        Core::Window *m_Window;
         bool m_Running = false;
     };
 

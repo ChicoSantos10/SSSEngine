@@ -29,7 +29,8 @@
 namespace SSSEngine
 {
     template<typename T>
-    SSSENGINE_FORCE_INLINE constexpr T *AddressOf(T &value) noexcept
+    SSSENGINE_FORCE_INLINE
+    constexpr T *AddressOf(T &value) noexcept
     {
 #ifdef SSSENGINE_MSVC
 #elif SSSENGINE_CLANG || SSSENGINE_GCC

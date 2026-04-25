@@ -123,6 +123,11 @@ namespace SSSEngine::Text
 
         constexpr String &operator=(const String &string) noexcept
         {
+            if(this == &string)
+            {
+                return *this;
+            }
+
             if(!IsStackString())
             {
                 DeleteHeapString();
@@ -142,6 +147,11 @@ namespace SSSEngine::Text
 
         constexpr String &operator=(String &&string) noexcept
         {
+            if(this == &string)
+            {
+                return *this;
+            }
+
             if(!IsStackString())
             {
                 DeleteHeapString();

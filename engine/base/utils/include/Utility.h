@@ -29,6 +29,14 @@
 #include "CopyAndMoveTraits.h"
 #include "QualifierTraits.h"
 
+#include <new>
+
+// TODO: Remove std library and implement placement new functions
+// SSSENGINE_FORCE_INLINE
+// constexpr void *operator new(Size, void *) noexcept;
+// SSSENGINE_FORCE_INLINE
+// constexpr void operator delete(void *, void *) noexcept;
+
 namespace SSSEngine
 {
     template<typename T>
@@ -78,6 +86,8 @@ namespace SSSEngine
         return __builtin_launder(ptr);
     }
 
+    // FIXME: These construct at functions should check if T is an array type
+
     /**
      * @brief Constructs an Object of Type T at address
      *
@@ -88,24 +98,9 @@ namespace SSSEngine
     template<typename T>
         requires(IsDefaultConstructible<T>)
     SSSENGINE_FORCE_INLINE
-    void ConstructAt(void *address) noexcept(IsNoThrowDefaultConstructible<T>)
+    constexpr T *ConstructAt(void *address) noexcept(IsNoThrowDefaultConstructible<T>)
     {
-        new(address) T();
-    }
-
-    /**
-     * @brief Constructs an Object of Type T at address
-     *
-     * @tparam T The type of object to construct
-     * @param address The address to construct the object at
-     * @param value The value to construct
-     */
-    template<typename T>
-        requires(IsCopyConstructible<T>)
-    SSSENGINE_FORCE_INLINE
-    void ConstructAt(void *address, const T &value) noexcept(IsNoThrowCopyConstructible<T>)
-    {
-        new(address) T(value);
+        return ::new(address) T();
     }
 
     /**
@@ -118,8 +113,8 @@ namespace SSSEngine
     template<typename T, typename... Args>
         requires(IsConstructible<T, Args...>)
     SSSENGINE_FORCE_INLINE
-    void ConstructAt(void *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
+    constexpr T *ConstructAt(void *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
     {
-        new(address) T(Forward<Args>(args)...);
+        return ::new(address) T(Forward<Args>(args)...);
     }
 } // namespace SSSEngine

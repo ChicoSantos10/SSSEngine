@@ -14,6 +14,7 @@ endif ()
 
 target_link_libraries(SSSRenderer 
     PUBLIC
+        SSSBase
         SSSPlatform
         SSSMath
         SSSText

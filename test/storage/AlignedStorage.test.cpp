@@ -17,31 +17,36 @@
     USA
 */
 
-/**
- * @file
- * @brief
- */
+#include "AlignedStorage.h"
+#include "Test.h"
 
-#pragma once
-
-#include <exception>
-#include "Attributes.h"
-#if defined(SSSENGINE_DEBUG) || defined(SSSENGINE_INTERNAL)
-
-/**
- * @class NotImplementedException
- * @brief Represents code that was not implemented. Only works in builds with debug capabilities.
- *
- */
-class NotImplementedException final : public std::exception
+namespace SSSTest
 {
-    static constexpr auto Reason = "Not implemented";
+    using namespace SSSEngine;
+    using AlignedStorage = AlignedStorage<4, 4>;
 
-    public:
-    SSSENGINE_PURE const char *what() const noexcept override
+    SSSTEST_TEST(DefaultConstruct)
     {
-        return Reason;
-    }
-};
+        AlignedStorage a;
+        a.Construct<int>();
 
-#endif
+        SSSTEST_EXPECT_EQ(a.Get<int>(), 0);
+    }
+
+    SSSTEST_TEST(CopyConstruct)
+    {
+        AlignedStorage a;
+        int b = 10;
+        a.Construct<int>(b);
+
+        SSSTEST_EXPECT_EQ(a.Get<int>(), 10);
+    }
+
+    SSSTEST_TEST(MoveConstruct)
+    {
+        AlignedStorage a;
+        a.Construct<int>(10);
+
+        SSSTEST_EXPECT_EQ(a.Get<int>(), 10);
+    }
+} // namespace SSSTest

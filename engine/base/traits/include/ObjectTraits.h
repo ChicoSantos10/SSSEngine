@@ -24,9 +24,24 @@
 
 #pragma once
 
+#include "HelperMacros.h"
+
 namespace SSSEngine
 {
     template<typename T>
-    static constexpr bool HasUniqueObjectRepresentation = __has_unique_object_representations(T);
+    SSSENGINE_GLOBAL
+    constexpr bool HasUniqueObjectRepresentation = __has_unique_object_representations(T);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsObject = __is_object(T);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsClass = __is_class(T);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsUnion = __is_union(T);
 
 } // namespace SSSEngine

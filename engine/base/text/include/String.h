@@ -52,9 +52,9 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding>
     class String
     {
-        using CharType = Encoding::CharType;
+        using CharType = Encoding::CodeUnitType;
 
-        public:
+      public:
         constexpr String() noexcept
         {
             ZeroMemory(&stackString, sizeof(*this));
@@ -232,7 +232,7 @@ namespace SSSEngine::Text
             return {Forward(self).CString(), Forward(self).Count()};
         }
 
-        private:
+      private:
         struct HeapString
         {
             CharType *data;

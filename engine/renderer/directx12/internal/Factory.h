@@ -30,5 +30,6 @@
 
 namespace SSSEngine::Renderer::DirectX12
 {
-    SSSENGINE_GLOBAL Microsoft::WRL::ComPtr<IDXGIFactory6> Factory;
+    SSSENGINE_GLOBAL
+    Microsoft::WRL::ComPtr<IDXGIFactory6> Factory;
 } // namespace SSSEngine::Renderer::DirectX12

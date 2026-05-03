@@ -24,10 +24,12 @@
 
 #pragma once
 
+#include "ArrayTraits.h"
 #include "HelperMacros.h"
 #include "QualifierTraits.h"
 #include "Traits.h"
 #include "ValueConstant.h"
+#include <type_traits>
 
 namespace SSSEngine
 {
@@ -156,5 +158,9 @@ namespace SSSEngine
     template<typename T, typename... Args>
     SSSENGINE_GLOBAL
     constexpr bool IsNoThrowConstructible = __is_nothrow_constructible(T, Args...);
+
+    template<typename From, typename To>
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowConvertible = __is_nothrow_convertible(From, To);
 
 } // namespace SSSEngine

@@ -83,7 +83,8 @@ namespace SSSEngine::Platform
      * @return The function casted to the appropriate type
      */
     template<FunctionPointerConcept T>
-    SSSENGINE_FORCE_INLINE T LoadFunction(LibraryHandle libraryHandle, Text::Utf8View name)
+    SSSENGINE_FORCE_INLINE
+    T LoadFunction(LibraryHandle libraryHandle, Text::Utf8View name)
     {
         T type = reinterpret_cast<T>(GetFunctionAddressFromLibrary(libraryHandle, name));
         if(!type)

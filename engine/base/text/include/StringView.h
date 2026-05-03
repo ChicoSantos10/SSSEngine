@@ -42,7 +42,8 @@ namespace SSSEngine::Text
      * @return The number of code units until the null terminator
      */
     template<StringTypeConcept CharType>
-    SSSENGINE_PURE SSSENGINE_GLOBAL constexpr Size Length(const CharType *const string) noexcept
+    SSSENGINE_PURE SSSENGINE_GLOBAL
+    constexpr Size Length(const CharType *const string) noexcept
     {
         if consteval
         {
@@ -74,9 +75,9 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding>
     class StringView
     {
-        using CharType = Encoding::CharType;
+        using CharType = Encoding::CodeUnitType;
 
-        public:
+      public:
         constexpr StringView(const StringView &literal) = default;
         constexpr StringView(StringView &&literal) noexcept = default;
         constexpr StringView &operator=(const StringView &literal) = default;
@@ -103,7 +104,8 @@ namespace SSSEngine::Text
          *
          * @return A pointer to the array of characters
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr const CharType *Data() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr const CharType *Data() const noexcept
         {
             return m_data;
         }
@@ -113,7 +115,8 @@ namespace SSSEngine::Text
          *
          * @return The number of code units
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr const char *RawData() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr const char *RawData() const noexcept
             requires(sizeof(CharType) == sizeof(char))
         {
             return BitCopy<const char *>(m_data);
@@ -124,12 +127,13 @@ namespace SSSEngine::Text
          *
          * @return The number of code units
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE constexpr Size Count() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr Size Count() const noexcept
         {
             return m_size;
         }
 
-        private:
+      private:
         const CharType *m_data;
         Size m_size;
     };

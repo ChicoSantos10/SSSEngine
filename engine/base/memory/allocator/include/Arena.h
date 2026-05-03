@@ -36,7 +36,7 @@ namespace SSSEngine::Memory
 {
     class Arena
     {
-        public:
+      public:
         Arena(const Arena &) = delete;
         Arena(Arena &&) = delete;
         Arena &operator=(const Arena &) = delete;
@@ -51,7 +51,8 @@ namespace SSSEngine::Memory
          * @param alignment The alignment of the pointer
          * @return The aligned pointer if the arena has enough space left otherwise nullptr
          */
-        SSSENGINE_PURE void *Allocate(Math::Bytes size, Size alignment) noexcept
+        SSSENGINE_PURE
+        void *Allocate(Math::Bytes size, Size alignment) noexcept
         {
             auto start = reinterpret_cast<uintptr>(m_buffer.address);
             auto offset = Math::NextMultiplePowerOf2<uintptr>(m_offset, alignment);
@@ -70,13 +71,17 @@ namespace SSSEngine::Memory
          * @brief In Arenas there are no individual frees so this is a no op
          *
          */
-        SSSENGINE_FORCE_INLINE void Free(Buffer _) const noexcept {}
+        SSSENGINE_FORCE_INLINE
+        void Free(Buffer _) const noexcept
+        {
+        }
 
         /**
          * @brief Resets the arena cleaning all previous allocations
          *
          */
-        SSSENGINE_FORCE_INLINE void Reset() noexcept
+        SSSENGINE_FORCE_INLINE
+        void Reset() noexcept
         {
             m_offset = 0;
         }
@@ -86,7 +91,7 @@ namespace SSSEngine::Memory
             Memory::Release(m_buffer);
         }
 
-        private:
+      private:
         Buffer m_buffer;
         uintptr m_offset{0};
     };

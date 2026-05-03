@@ -33,43 +33,58 @@ namespace std
     template<class E>
     class initializer_list
     {
-        public:
-        using value_type = E;
-        using reference = E &;
-        using const_reference = E &;
-        using size_type = Size;
-        using iterator = E *;
-        using const_iterator = E *;
+      public:
+        using ValueType = E;
+        using Reference = E &;
+        using ConstReference = const E &;
+        using SizeType = Size;
+        using Iterator = E *;
+        using ConstIterator = const E *;
 
-        private:
-        iterator m_array;
-        size_type m_length;
+      private:
+        ConstIterator m_array;
+        SizeType m_count;
 
-        // The compiler can call a private constructor.
-        constexpr initializer_list(const_iterator a, size_type l) : m_array(a), m_length(l) {}
+        constexpr initializer_list(ConstIterator a, SizeType l) : m_array(a), m_count(l) {}
 
-        public:
-        constexpr initializer_list() noexcept : m_array(0), m_length(0) {}
+      public:
+        constexpr initializer_list() noexcept : m_array(0), m_count(0) {}
 
-        // Number of elements.
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr size_type Size() const noexcept
+        constexpr SizeType Count() const noexcept
         {
-            return m_length;
+            return m_count;
         }
 
-        // First element.
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr const_iterator Begin() const noexcept
+        constexpr ConstIterator Begin() const noexcept
         {
             return m_array;
         }
 
-        // One past the last element.
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr const_iterator End() const noexcept
+        constexpr ConstIterator End() const noexcept
         {
-            return Begin() + Size();
+            return Begin() + Count();
+        }
+
+      private:
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr ConstIterator begin(initializer_list<E> list) noexcept
+        {
+            return list.Begin();
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr ConstIterator end(initializer_list<E> list) noexcept
+        {
+            return list.End();
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr ConstIterator Count(initializer_list<E> list) noexcept
+        {
+            return list.Count();
         }
     };
 
@@ -81,5 +96,4 @@ namespace SSSEngine
     template<typename T>
     using InitializerList = std::initializer_list<T>;
 
-    constexpr InitializerList<int> V = {1, 2, 3};
 } // namespace SSSEngine

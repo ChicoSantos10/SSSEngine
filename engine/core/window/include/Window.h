@@ -37,7 +37,7 @@ namespace SSSEngine::Core
      */
     class Window final
     {
-        public:
+      public:
         Window(Platform::WindowPos position, Platform::WindowSize size, const Text::Utf8View &title,
                const Window *parent = nullptr);
         ~Window();
@@ -46,34 +46,40 @@ namespace SSSEngine::Core
         Window &operator=(const Window &other) = delete;
         Window &operator=(Window &&other) = delete;
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowId GetHandle() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        Platform::WindowId GetHandle() const noexcept
         {
             return m_handle;
         }
 
         // INVESTIGATE: Are these really noexcept
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowSize GetSize() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        Platform::WindowSize GetSize() const noexcept
         {
             return Platform::GetWindowSize(m_handle);
         }
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowRect GetRect() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        Platform::WindowRect GetRect() const noexcept
         {
             return Platform::GetWindowRect(m_handle);
         }
 
-        SSSENGINE_FORCE_INLINE void SetWindowTitle(Text::Utf8View &title) const
+        SSSENGINE_FORCE_INLINE
+        void SetWindowTitle(Text::Utf8View &title) const
         {
             Platform::SetWindowTitle(m_handle, title);
         }
 
         // LOW_PRIORITY: Potentially allow other types of fullscreen
-        SSSENGINE_FORCE_INLINE void SetBorderlessFullscreen(bool fullscreen) const
+        SSSENGINE_FORCE_INLINE
+        void SetBorderlessFullscreen(bool fullscreen) const
         {
             Platform::SetBorderlessFullscreen(m_handle, fullscreen);
         }
 
-        SSSENGINE_FORCE_INLINE void ToggleBorderlessFullscreen() const
+        SSSENGINE_FORCE_INLINE
+        void ToggleBorderlessFullscreen() const
         {
             Platform::ToggleBorderlessFullscreen(m_handle);
         }
@@ -87,7 +93,7 @@ namespace SSSEngine::Core
          *  - Add a method to minimize the window
          */
 
-        private:
+      private:
         Platform::WindowId m_handle;
     };
 } // namespace SSSEngine::Core

@@ -43,7 +43,7 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(test.Count(), 5);
 
         constexpr const char8 String[] = u8"This is a big text that needs to be allocated on the heap";
-        constexpr auto Count = Utils::CountOf<decltype(String)>;
+        constexpr auto Count = CountOf<decltype(String)>;
 
         Utf8 test2(String);
         SSSTEST_EXPECT((MemoryCompare(test2.CString(), String, Count) == 0));
@@ -77,7 +77,7 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(testCopy.Count(), 5);
 
         constexpr const char8 String[] = u8"This is a big text that needs to be allocated on the heap";
-        constexpr auto Count = Utils::CountOf<decltype(String)>;
+        constexpr auto Count = CountOf<decltype(String)>;
         Utf8 test2(String);
         Utf8 testCopy2(Move(test2));
         SSSTEST_EXPECT(MemoryCompare(&test2, 0, sizeof(test)) == 0);
@@ -109,7 +109,7 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(testCopy.Count(), 5);
 
         constexpr const char8 String[] = u8"This is a big text that needs to be allocated on the heap";
-        constexpr auto Count = Utils::CountOf<decltype(String)>;
+        constexpr auto Count = CountOf<decltype(String)>;
         Utf8 test2(String);
         Utf8 testCopy2;
         testCopy2 = Move(test2);

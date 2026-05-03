@@ -127,10 +127,12 @@ namespace SSSEngine::Platform
 
         Size fileSize = Win32::Convert32to64<Size>(info.nFileSizeHigh, info.nFileSizeLow);
 
-        return {{.size = fileSize,
-                 .creationTime = ConvertWindowsTimeToPosix(info.ftCreationTime),
-                 .lastAccessTime = ConvertWindowsTimeToPosix(info.ftLastAccessTime),
-                 .lastWriteTime = ConvertWindowsTimeToPosix(info.ftLastWriteTime)}};
+        return {
+            {.size = fileSize,
+             .creationTime = ConvertWindowsTimeToPosix(info.ftCreationTime),
+             .lastAccessTime = ConvertWindowsTimeToPosix(info.ftLastAccessTime),
+             .lastWriteTime = ConvertWindowsTimeToPosix(info.ftLastWriteTime)}
+        };
     }
 
     FileData GetFileData(const FilePath &path)

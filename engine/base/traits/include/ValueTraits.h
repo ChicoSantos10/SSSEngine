@@ -107,7 +107,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsIntegral = Integral<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsIntegral = Integral<T>::Value;
 
     template<typename T>
     struct IsRealImpl : public FalseType
@@ -135,10 +136,12 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsReal = Real<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsReal = Real<T>::Value;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsNumber = IsIntegral<T> || IsReal<T>;
+    SSSENGINE_GLOBAL
+    constexpr bool IsNumber = IsIntegral<T> || IsReal<T>;
 
     template<typename T>
     struct UnicodeTypeCheckerImpl : public FalseType
@@ -166,9 +169,11 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsUnicodeChar = UnicodeTypeChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsUnicodeChar = UnicodeTypeChecker<T>::Value;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsChar = IsAnyType<RemoveCVType<T>, char, unsigned char, wchar_t>;
+    SSSENGINE_GLOBAL
+    constexpr bool IsChar = IsAnyType<RemoveCVType<T>, char, unsigned char, wchar_t>;
 
 } // namespace SSSEngine

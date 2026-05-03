@@ -36,7 +36,8 @@ namespace SSSEngine::Threading
     /**
      * @brief Performs a pause operation on the CPU. Used to reduce power consumption when waiting
      */
-    SSSENGINE_FORCE_INLINE void Pause() noexcept
+    SSSENGINE_FORCE_INLINE
+    void Pause() noexcept
     {
         _mm_pause();
     }

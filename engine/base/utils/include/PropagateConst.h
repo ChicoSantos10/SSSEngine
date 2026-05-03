@@ -26,7 +26,6 @@
 
 #include "Concepts.h"
 #include "QualifierTraits.h"
-#include "Utility.h"
 
 namespace SSSEngine::Utils
 {
@@ -38,7 +37,13 @@ namespace SSSEngine::Utils
     template<PointerConcept T>
     struct PropagateConst
     {
+        // TODO: Implement this class to work for pointer like objects as well
+
         using ElementType = RemovePointerType<T>;
+
+        // INVESTIGATE: Where should we put this?
+        template<typename From, PointerConcept To>
+        using PointerMatchCV = AddPointerType<MatchCVQualifiersType<From, RemovePointerType<To>>>;
 
         // NOLINTBEGIN(google-explicit-constructor)
         constexpr PropagateConst() noexcept = default;
@@ -46,14 +51,24 @@ namespace SSSEngine::Utils
         constexpr PropagateConst(const ElementType *ptr) noexcept :
         m_ptr{const_cast<T>(ptr)} {}; // NOLINT(*-const-cast, We still keep const correctness)
 
-        constexpr auto &&operator*(this auto &&self) noexcept
+        constexpr ElementType &operator*() noexcept
         {
-            return *Forward<decltype(self)>(self).m_ptr;
+            return m_ptr;
         }
 
-        constexpr auto &&operator->(this auto &&self) noexcept
+        constexpr const ElementType &operator*() const noexcept
         {
-            return Forward<decltype(self)>(self).m_ptr;
+            return m_ptr;
+        }
+
+        constexpr ElementType *operator->() noexcept
+        {
+            return m_ptr;
+        }
+
+        constexpr const ElementType *operator->() const noexcept
+        {
+            return m_ptr;
         }
 
         constexpr operator ElementType *() noexcept
@@ -66,7 +81,7 @@ namespace SSSEngine::Utils
             return m_ptr;
         }
 
-        private:
+      private:
         T m_ptr = nullptr;
 
         // NOLINTEND(google-explicit-constructor)

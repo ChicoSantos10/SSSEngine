@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include "HelperMacros.h"
 #include "ValueConstant.h"
 
 namespace SSSEngine
@@ -45,16 +44,19 @@ namespace SSSEngine
         static const bool False = false;
     };
 
-    template<typename T, typename RValue = T &&>
-    consteval RValue DeclVal(int);
-
-    template<typename T>
-    consteval T DeclVal(long);
-
-    template<typename T>
-    consteval auto DeclVal() noexcept -> decltype(DeclVal<T>(0))
+    namespace Impl
     {
-        return DeclVal<T>(0);
+        template<typename T, typename RValue = T &&>
+        consteval RValue DeclVal(int);
+
+        template<typename T>
+        consteval T DeclVal(long);
+    } // namespace Impl
+
+    template<typename T>
+    consteval auto DeclVal() noexcept -> decltype(Impl::DeclVal<T>(0))
+    {
+        return Impl::DeclVal<T>(0);
     }
 
     template<typename T, typename...>
@@ -120,41 +122,6 @@ namespace SSSEngine
     template<bool Cond, typename T, typename U>
     using ConditionalType = Conditional<Cond, T, U>::Type;
 
-    template<typename... Args>
-    struct MaxAlign;
-
-    template<typename T>
-    struct MaxAlign<T>
-    {
-        static constexpr auto Value = alignof(T);
-    };
-
-    template<typename T, typename... Rest>
-    struct MaxAlign<T, Rest...>
-    {
-        static constexpr auto Value = (alignof(T) > MaxAlign<Rest...>::Value) ? alignof(T) : MaxAlign<Rest...>::Value;
-    };
-
-    template<typename... Args>
-    SSSENGINE_GLOBAL
-    constexpr auto MaxAlignmentValue = MaxAlign<Args...>::Value;
-
-    template<typename... Args>
-    struct MaxSize;
-
-    template<typename T>
-    struct MaxSize<T>
-    {
-        static constexpr auto Value = sizeof(T);
-    };
-
-    template<typename T, typename... Rest>
-    struct MaxSize<T, Rest...>
-    {
-        static constexpr auto Value = (sizeof(T) > MaxSize<Rest...>::Value) ? sizeof(T) : MaxSize<Rest...>::Value;
-    };
-
-    template<typename... Args>
-    SSSENGINE_GLOBAL
-    constexpr auto MaxSizeValue = MaxSize<Args...>::Value;
+    template<typename... Conditions>
+    using Require = EnableIf<And<Conditions...>::Value>;
 } // namespace SSSEngine

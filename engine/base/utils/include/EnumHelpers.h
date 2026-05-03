@@ -31,7 +31,8 @@
 namespace SSSEngine
 {
     template<EnumConcept T>
-    SSSENGINE_FORCE_INLINE constexpr auto AsNumber(T value)
+    SSSENGINE_FORCE_INLINE
+    constexpr auto AsNumber(T value)
     {
         return static_cast<UnderlyingType<T>>(value);
     }

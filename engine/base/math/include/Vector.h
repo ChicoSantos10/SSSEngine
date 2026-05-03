@@ -38,42 +38,50 @@ namespace SSSEngine::Math
         T x{0};
         T y{0};
 
-        SSSENGINE_FORCE_INLINE friend Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs)
         {
             return {lhs.x + rhs.x, lhs.y + rhs.y};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs)
         {
             return {lhs.x - rhs.x, lhs.y - rhs.y};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector2<T> operator*(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector2<T> operator*(const Vector2<T> &lhs, const Vector2<T> &rhs)
         {
             return {lhs.x * rhs.x, lhs.y * rhs.y};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs)
         {
             return {lhs.x / rhs.x, lhs.y / rhs.y};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector2<T> operator*(Vector2<T> lhs, T scalar)
+        SSSENGINE_FORCE_INLINE
+        friend Vector2<T> operator*(Vector2<T> lhs, T scalar)
         {
             return {lhs.x * scalar, lhs.y * scalar};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector2<T> operator/(Vector2<T> vector, T scalar)
+        SSSENGINE_FORCE_INLINE
+        friend Vector2<T> operator/(Vector2<T> vector, T scalar)
         {
             return {vector.x / scalar, vector.y / scalar};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector2<T> operator*(T scalar, Vector2<T> vector)
+        SSSENGINE_FORCE_INLINE
+        friend Vector2<T> operator*(T scalar, Vector2<T> vector)
         {
             return vector * scalar;
         }
 
-        SSSENGINE_FORCE_INLINE friend bool operator==(Vector2<T> lhs, Vector2<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend bool operator==(Vector2<T> lhs, Vector2<T> rhs)
         {
             return lhs.x == rhs.x && lhs.y == rhs.y;
         }
@@ -86,42 +94,50 @@ namespace SSSEngine::Math
         T y{0};
         T z{0};
 
-        SSSENGINE_FORCE_INLINE friend Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
         {
             return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs)
         {
             return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs)
         {
             return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs)
         {
             return {lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector3<T> operator*(Vector3<T> lhs, T scalar)
+        SSSENGINE_FORCE_INLINE
+        friend Vector3<T> operator*(Vector3<T> lhs, T scalar)
         {
             return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector3<T> operator/(Vector3<T> vector, T scalar)
+        SSSENGINE_FORCE_INLINE
+        friend Vector3<T> operator/(Vector3<T> vector, T scalar)
         {
             return {vector.x / scalar, vector.y / scalar, vector.z / scalar};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector3<T> operator*(T scalar, Vector3<T> vector)
+        SSSENGINE_FORCE_INLINE
+        friend Vector3<T> operator*(T scalar, Vector3<T> vector)
         {
             return vector * scalar;
         }
 
-        SSSENGINE_FORCE_INLINE friend bool operator==(Vector3<T> lhs, Vector3<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend bool operator==(Vector3<T> lhs, Vector3<T> rhs)
         {
             return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
         }
@@ -135,42 +151,50 @@ namespace SSSEngine::Math
         T z{0};
         T w{0};
 
-        SSSENGINE_FORCE_INLINE friend Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)
         {
             return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs)
         {
             return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs)
         {
             return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs)
         {
             return {lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z, lhs.w / rhs.w};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector4<T> operator*(Vector4<T> lhs, T scalar)
+        SSSENGINE_FORCE_INLINE
+        friend Vector4<T> operator*(Vector4<T> lhs, T scalar)
         {
             return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar, lhs.w * scalar};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector4<T> operator/(Vector4<T> vector, T scalar)
+        SSSENGINE_FORCE_INLINE
+        friend Vector4<T> operator/(Vector4<T> vector, T scalar)
         {
             return {vector.x / scalar, vector.y / scalar, vector.z / scalar, vector.w / scalar};
         }
 
-        SSSENGINE_FORCE_INLINE friend Vector4<T> operator*(T scalar, Vector4<T> vector)
+        SSSENGINE_FORCE_INLINE
+        friend Vector4<T> operator*(T scalar, Vector4<T> vector)
         {
             return vector * scalar;
         }
 
-        SSSENGINE_FORCE_INLINE friend bool operator==(Vector4<T> lhs, Vector4<T> rhs)
+        SSSENGINE_FORCE_INLINE
+        friend bool operator==(Vector4<T> lhs, Vector4<T> rhs)
         {
             return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w;
         }

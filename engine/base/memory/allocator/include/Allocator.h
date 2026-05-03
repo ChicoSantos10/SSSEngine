@@ -42,7 +42,7 @@ namespace SSSEngine::Memory
 
     class Allocator
     {
-        public:
+      public:
         Allocator() = default;
 
         template<AllocatorConcept T>
@@ -51,17 +51,19 @@ namespace SSSEngine::Memory
         {
         }
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE void *Allocate(Math::Bytes size, Size alignment)
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        void *Allocate(Math::Bytes size, Size alignment)
         {
             return m_allocate(m_allocator, size, alignment);
         }
 
-        SSSENGINE_FORCE_INLINE void Free(Buffer buffer)
+        SSSENGINE_FORCE_INLINE
+        void Free(Buffer buffer)
         {
             return m_free(m_allocator, buffer);
         }
 
-        private:
+      private:
         using AllocateFn = void *(*)(void *, Math::Bytes, Size);
         using FreeFn = void (*)(void *, Buffer);
 
@@ -71,22 +73,28 @@ namespace SSSEngine::Memory
     };
 
     // TODO: Rethink this:
-    SSSENGINE_GLOBAL constexpr Size MaxAllocators = 32;
-    SSSENGINE_GLOBAL thread_local Allocator Allocators[MaxAllocators];
-    SSSENGINE_GLOBAL thread_local Size Index = -1;
+    SSSENGINE_GLOBAL
+    constexpr Size MaxAllocators = 32;
+    SSSENGINE_GLOBAL
+    thread_local Allocator Allocators[MaxAllocators];
+    SSSENGINE_GLOBAL
+    thread_local Size Index = -1;
 
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE Allocator &CurrentAllocator()
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    Allocator &CurrentAllocator()
     {
         return Allocators[Index];
     }
 
-    SSSENGINE_FORCE_INLINE void PushAllocator(AllocatorConcept auto &allocator)
+    SSSENGINE_FORCE_INLINE
+    void PushAllocator(AllocatorConcept auto &allocator)
     {
         SSSENGINE_ASSERT(Index + 1 < MaxAllocators);
         Allocators[++Index] = allocator;
     }
 
-    SSSENGINE_FORCE_INLINE void PopAllocator()
+    SSSENGINE_FORCE_INLINE
+    void PopAllocator()
     {
         SSSENGINE_ASSERT(Index > 0);
         --Index;

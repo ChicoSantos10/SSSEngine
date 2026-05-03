@@ -83,7 +83,7 @@ namespace SSSEngine
     {
         using UnsignedType = typename UnsignedImpl<RemoveCVType<T>>::Type;
 
-        public:
+      public:
         using Type = typename MatchCV<T, UnsignedType>::Type;
     };
 
@@ -94,7 +94,7 @@ namespace SSSEngine
         using Underlying = UnderlyingType<T>;
         using UnsignedType = typename UnsignedImpl<RemoveCVType<Underlying>>::Type;
 
-        public:
+      public:
         using Type = typename MatchCV<Underlying, UnsignedType>::Type;
     };
 
@@ -169,7 +169,7 @@ namespace SSSEngine
     {
         using SignedType = typename SignedImpl<RemoveCVType<T>>::Type;
 
-        public:
+      public:
         using Type = typename MatchCV<T, SignedType>::Type;
     };
 
@@ -180,7 +180,7 @@ namespace SSSEngine
         using Underlying = UnderlyingType<T>;
         using SignedType = typename SignedImpl<RemoveCVType<Underlying>>::Type;
 
-        public:
+      public:
         using Type = typename MatchCV<Underlying, SignedType>::Type;
     };
 
@@ -205,8 +205,10 @@ namespace SSSEngine
     using SignedType = MakeSigned<T>::Type;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsUnsigned = IsSameType<T, UnsignedType<T>>;
+    SSSENGINE_GLOBAL
+    constexpr bool IsUnsigned = IsSameType<T, UnsignedType<T>>;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsSigned = IsSameType<T, SignedType<T>>;
+    SSSENGINE_GLOBAL
+    constexpr bool IsSigned = IsSameType<T, SignedType<T>>;
 } // namespace SSSEngine

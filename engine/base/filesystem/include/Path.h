@@ -28,7 +28,8 @@
 
 namespace SSSEngine::FileSystem
 {
-    SSSENGINE_FORCE_INLINE Text::Utf8 NormalizePath(Text::Utf8View string)
+    SSSENGINE_FORCE_INLINE
+    Text::Utf8 NormalizePath(Text::Utf8View string)
     {
         return {};
     }
@@ -49,10 +50,10 @@ namespace SSSEngine::FileSystem
      */
     class RawPath
     {
-        public:
+      public:
         consteval explicit RawPath(Text::Utf8View path) : m_path{NormalizePath(path)} {};
 
-        private:
+      private:
         Text::Utf8 m_path;
     };
 } // namespace SSSEngine::FileSystem

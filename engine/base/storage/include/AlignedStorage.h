@@ -56,7 +56,7 @@ namespace SSSEngine
         template<typename T>
         static constexpr bool CanConstruct = sizeof(T) <= S && alignof(T) <= Alignment;
 
-        public:
+      public:
         /**
          * @brief Default constructs a T
          *
@@ -109,7 +109,7 @@ namespace SSSEngine
             return *Launder(reinterpret_cast<const T *>(m_value));
         }
 
-        private:
+      private:
         byte m_value[S];
     };
 

@@ -24,9 +24,11 @@
 
 #pragma once
 
+#include "Algorithm.h"
+#include "AlignedStorage.h"
 #include "Debug.h"
-#include "Traits.h"
 #include "Types.h"
+#include "InitializerList.h"
 
 namespace SSSEngine
 {
@@ -34,12 +36,17 @@ namespace SSSEngine
         requires(sizeof...(Args) > 1)
     class TagUnion
     {
-        public:
-        static constexpr auto Alignment = MaxAlignmentValue<Args...>;
-        static constexpr auto Size = MaxSizeValue<Args...>;
+      public:
+        static constexpr InitializerList<Size> TypeAlignments = {alignof(Args)...};
+        static constexpr InitializerList<Size> TypeSizes = {sizeof(Args)...};
 
-        private:
-        alignas(Alignment) byte m_storage[Size];
+        static constexpr auto Alignment = Iterators::Max(TypeAlignments);
+        static constexpr auto Size = Iterators::Max(TypeSizes);
+
+        void S() {}
+
+      private:
+        AlignedStorage<Size, Alignment> m_storage;
         i8 m_tag = -1;
     };
 

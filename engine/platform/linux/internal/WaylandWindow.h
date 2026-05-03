@@ -55,9 +55,14 @@ namespace SSSEngine::Platform
         WaylandWindowState state{};
     };
 
-    SSSENGINE_GLOBAL wl_display *Display;
-    SSSENGINE_GLOBAL wl_registry *Registry;
-    SSSENGINE_GLOBAL wl_compositor *Compositor;
-    SSSENGINE_GLOBAL wl_shell *Shell;
-    SSSENGINE_GLOBAL xdg_wm_base *XdgWmBase;
+    SSSENGINE_GLOBAL
+    wl_display *Display;
+    SSSENGINE_GLOBAL
+    wl_registry *Registry;
+    SSSENGINE_GLOBAL
+    wl_compositor *Compositor;
+    SSSENGINE_GLOBAL
+    wl_shell *Shell;
+    SSSENGINE_GLOBAL
+    xdg_wm_base *XdgWmBase;
 } // namespace SSSEngine::Platform

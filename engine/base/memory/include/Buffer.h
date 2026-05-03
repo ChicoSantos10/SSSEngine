@@ -47,7 +47,8 @@ namespace SSSEngine
      * @param buffer The buffer to get the end
      * @return A pointer to the end of this memory region
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE void *End(const Buffer buffer)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    void *End(const Buffer buffer)
     {
         return reinterpret_cast<byte *>(buffer.address) + buffer.capacity.value;
     }
@@ -58,7 +59,8 @@ namespace SSSEngine
      * @param buffer The buffer to get the end
      * @return A pointer to the end of this memory region
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE void *Offset(const Buffer buffer, uintptr offset)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    void *Offset(const Buffer buffer, uintptr offset)
     {
         return reinterpret_cast<byte *>(buffer.address) + offset;
     }

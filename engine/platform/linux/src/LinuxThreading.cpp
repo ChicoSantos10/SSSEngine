@@ -43,7 +43,8 @@ namespace SSSEngine::Threading
      * @param val3 The other value to watch
      * @return 0 if sucessful, -1 on fail
      */
-    SSSENGINE_FORCE_INLINE auto Futex(u32 *uaddr, int op, u32 val, const struct timespec *timeout, u32 *uaddr2, u32 val3)
+    SSSENGINE_FORCE_INLINE
+    auto Futex(u32 *uaddr, int op, u32 val, const struct timespec *timeout, u32 *uaddr2, u32 val3)
     {
         return syscall(SYS_futex, uaddr, op, val, timeout, uaddr2, val3);
     }
@@ -93,7 +94,8 @@ namespace SSSEngine::Threading
      * @param addr The address where the threads are waiting
      * @param all If it should notify all threads waiting or just one
      */
-    SSSENGINE_FORCE_INLINE void Notify(u32 *addr, bool all)
+    SSSENGINE_FORCE_INLINE
+    void Notify(u32 *addr, bool all)
     {
         if(Futex(addr, FUTEX_WAKE_PRIVATE, all ? Math::Limits::Max<u32> : 1, nullptr, nullptr, 0) == -1)
         {

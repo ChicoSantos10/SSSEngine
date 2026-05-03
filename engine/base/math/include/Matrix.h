@@ -128,7 +128,8 @@ namespace SSSEngine::Math
 
     template<MatrixTypeConcept T, MatrixTypeConcept V>
         requires(IsSameType<T, V>) && (T::Columns() == V::Rows())
-    SSSENGINE_GLOBAL constexpr auto operator*(const T &lhs, const V &rhs)
+    SSSENGINE_GLOBAL
+    constexpr auto operator*(const T &lhs, const V &rhs)
     {
         using Type = typename T::Type;
         constexpr MatrixSize RowsLhs = T::Rows();
@@ -154,7 +155,8 @@ namespace SSSEngine::Math
     }
 
     template<MatrixTypeConcept T>
-    SSSENGINE_GLOBAL constexpr bool operator==(const T &lhs, const T &rhs)
+    SSSENGINE_GLOBAL
+    constexpr bool operator==(const T &lhs, const T &rhs)
     {
         constexpr MatrixSize Rows = T::Rows();
         constexpr MatrixSize Columns = T::Columns();
@@ -172,7 +174,8 @@ namespace SSSEngine::Math
     }
 
     template<MatrixTypeConcept T>
-    SSSENGINE_GLOBAL constexpr bool operator!=(const T &lhs, const T &rhs)
+    SSSENGINE_GLOBAL
+    constexpr bool operator!=(const T &lhs, const T &rhs)
     {
         return !(lhs == rhs);
     }

@@ -19,41 +19,60 @@
 
 /**
  * @file
- * @brief File with utilities for Memory Addresses
+ * @brief
  */
 
 #pragma once
 
 #include "Attributes.h"
 #include "Concepts.h"
+#include "Iterator.h"
+#include "Range.h"
 
-namespace SSSEngine
+namespace SSSEngine::Iterators
 {
-    template<typename T>
+    template<IteratorConcept It>
+        requires ComparableConcept<IteratorValueType<It>>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr T *AddressOf(T &value) noexcept
+    constexpr It FindMaxElement(It begin, It end)
     {
-#ifdef SSSENGINE_MSVC
-#elif SSSENGINE_CLANG || SSSENGINE_GCC
-        return __builtin_addressof(value);
-#endif // SSSENGINE_MSVC
-    }
-
-    template<typename T>
-        requires(!FunctionPointerConcept<T>)
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr T *ToAddress(T *ptr) noexcept
-    {
-        return ptr;
-    }
-
-    template<typename T>
-        requires requires(T &t) {
-            { t.operator->() } -> PointerConcept;
+        if(begin == end)
+        {
+            return begin;
         }
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr auto ToAddress(T &value) noexcept
-    {
-        return ToAddress(value.operator->());
+
+        auto max = begin;
+
+        while(++begin != end)
+        {
+            if(*begin > *max)
+            {
+                max = begin;
+            }
+        }
+
+        return max;
     }
-} // namespace SSSEngine
+
+    template<BorrowedRangeConcept Range>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr IteratorType<Range> FindMaxElement(Range &&range)
+    {
+        return FindMaxElement(Begin(range), End(range));
+    }
+
+    template<IteratorConcept It>
+        requires ComparableConcept<IteratorValueType<It>>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr IteratorValueType<It> Max(It begin, It end)
+    {
+        return *FindMaxElement(begin, end);
+    }
+
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Max(RangeConcept auto &&range)
+    {
+        return *FindMaxElement(Begin(range), End(range));
+    }
+
+} // namespace SSSEngine::Iterators

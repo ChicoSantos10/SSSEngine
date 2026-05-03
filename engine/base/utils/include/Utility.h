@@ -25,17 +25,18 @@
 #pragma once
 
 #include "Attributes.h"
+#include "Concepts.h"
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
+#include "HelperMacros.h"
 #include "QualifierTraits.h"
-
-#include <new>
 
 // TODO: Remove std library and implement placement new functions
 // SSSENGINE_FORCE_INLINE
 // constexpr void *operator new(Size, void *) noexcept;
 // SSSENGINE_FORCE_INLINE
 // constexpr void operator delete(void *, void *) noexcept;
+#include <new>
 
 namespace SSSEngine
 {
@@ -44,15 +45,6 @@ namespace SSSEngine
     constexpr RemoveReferenceType<T> &&Move(T &&value) noexcept
     {
         return static_cast<RemoveReferenceType<T> &&>(value);
-    }
-
-    template<typename T>
-    SSSENGINE_FORCE_INLINE
-    constexpr void Swap(T &first, T &second) noexcept(IsNoThrowMoveConstructible<T> && IsNoThrowMoveAssignable<T>)
-    {
-        T tmp = Move(first);
-        first = Move(second);
-        second = Move(tmp);
     }
 
     template<typename T>

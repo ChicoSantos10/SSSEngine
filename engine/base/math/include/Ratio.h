@@ -58,7 +58,8 @@ namespace SSSEngine::Math
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsRatioValue = IsRatio<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsRatioValue = IsRatio<T>::Value;
 
     template<typename T>
     concept RatioConcept = IsRatioValue<T>;

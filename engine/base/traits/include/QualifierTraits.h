@@ -42,7 +42,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsConst = ConstChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsConst = ConstChecker<T>::Value;
 
     template<typename>
     struct VolatileChecker : FalseType
@@ -55,7 +56,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsVolatile = VolatileChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsVolatile = VolatileChecker<T>::Value;
 
     template<typename T>
     struct RemoveCV
@@ -114,7 +116,7 @@ namespace SSSEngine
     {
         using Match = CVSelector<Unqualified, IsConst<Qualified>, IsVolatile<Qualified>>;
 
-        public:
+      public:
         using Type = typename Match::Type;
     };
 
@@ -160,7 +162,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsReference = ReferenceChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsReference = ReferenceChecker<T>::Value;
 
     template<typename T>
     struct FunctionChecker : public BoolConstant<__is_function(T)>
@@ -168,7 +171,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsFunction = FunctionChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsFunction = FunctionChecker<T>::Value;
 
     template<typename T>
     struct PointerChecker : BoolConstant<__is_pointer(T)>
@@ -176,7 +180,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsPointer = PointerChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsPointer = PointerChecker<T>::Value;
 
     template<typename>
     struct VoidChecker : public FalseType
@@ -204,33 +209,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsVoid = VoidChecker<T>::Value;
-
-    template<typename>
-    struct ArrayKnownBoundsChecker : public FalseType
-    {
-    };
-
-    template<typename T, Size Size>
-    struct ArrayKnownBoundsChecker<T[Size]> : public TrueType
-    {
-    };
-
-    template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsArrayKnownBounds = ArrayKnownBoundsChecker<T>::Value;
-
-    template<typename T>
-    struct ArrayUnknownBoundsChecker : public FalseType
-    {
-    };
-
-    template<typename T>
-    struct ArrayUnknownBoundsChecker<T[]> : public TrueType
-    {
-    };
-
-    template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsArrayUnknownBounds = ArrayUnknownBoundsChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsVoid = VoidChecker<T>::Value;
 
     template<typename T>
     struct Identity
@@ -241,22 +221,6 @@ namespace SSSEngine
     template<typename T>
     using IdentityType = Identity<T>::Type;
 
-    template<typename T, Size = sizeof(T)>
-    constexpr TrueType CompleteOrUnboundedChecker(Identity<T>)
-    {
-        return {};
-    }
-
-    template<typename TypeIdentity, typename NestedType = typename TypeIdentity::Type>
-    constexpr OrType<ReferenceChecker<NestedType>, FunctionChecker<NestedType>, VoidChecker<NestedType>, ArrayUnknownBoundsChecker<NestedType>>
-    CompleteOrUnboundedChecker(TypeIdentity)
-    {
-        return {};
-    }
-
-    template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsCompleteOrUnbounded = decltype(CompleteOrUnboundedChecker(Identity<T>{}))::Value;
-
     template<typename T>
     using AddLValueRefType = __add_lvalue_reference(T);
 
@@ -264,15 +228,57 @@ namespace SSSEngine
     using AddRValueRefType = __add_rvalue_reference(T);
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsLValueReference = false;
+    SSSENGINE_GLOBAL
+    constexpr bool IsLValueReference = false;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsLValueReference<T &> = true;
+    SSSENGINE_GLOBAL
+    constexpr bool IsLValueReference<T &> = true;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsRValueReference = false;
+    SSSENGINE_GLOBAL
+    constexpr bool IsRValueReference = false;
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsRValueReference<T &&> = true;
+    SSSENGINE_GLOBAL
+    constexpr bool IsRValueReference<T &&> = true;
+
+    template<typename From, typename To>
+    using MatchCVQualifiers = CVSelector<To, IsConst<From>, IsVolatile<From>>;
+
+    template<typename From, typename To>
+    using MatchCVQualifiersType = MatchCVQualifiers<From, To>::Type;
+
+    template<typename T, typename = void>
+    struct AddPointerHelper
+    {
+        using Type = T;
+    };
+
+    template<typename T>
+    struct AddPointerHelper<T, VoidType<T *>>
+    {
+        using Type = T *;
+    };
+
+    template<typename T>
+    struct AddPointer : public AddPointerHelper<T>
+    {
+    };
+
+    template<typename T>
+    struct AddPointer<T &>
+    {
+        using Type = T *;
+    };
+
+    template<typename T>
+    struct AddPointer<T &&>
+    {
+        using Type = T *;
+    };
+
+    template<typename T>
+    using AddPointerType = AddPointer<T>::Type;
 
 } // namespace SSSEngine

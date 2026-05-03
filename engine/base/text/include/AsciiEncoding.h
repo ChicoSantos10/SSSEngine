@@ -32,25 +32,29 @@ namespace SSSEngine::Text
 {
     struct AsciiEncoding
     {
-        using CharType = char;
+        using CodeUnitType = char;
         using CodePointType = char;
 
-        SSSENGINE_FORCE_INLINE constexpr static byte CharLength(byte codeUnit)
+        SSSENGINE_FORCE_INLINE
+        constexpr static byte CharLength(byte)
         {
             return 1;
         }
 
-        SSSENGINE_FORCE_INLINE constexpr static bool ValidCodepoint(const CharType *data, byte size)
+        SSSENGINE_FORCE_INLINE
+        constexpr static bool ValidCodepoint(const CodeUnitType *, byte)
         {
             return true;
         }
 
-        SSSENGINE_FORCE_INLINE constexpr static bool ValidString(const CharType *data, Size size)
+        SSSENGINE_FORCE_INLINE
+        constexpr static bool ValidString(const CodeUnitType *, Size)
         {
             return true;
         }
 
-        SSSENGINE_FORCE_INLINE constexpr static CodePointType Decode(const CharType *data, Size size)
+        SSSENGINE_FORCE_INLINE
+        constexpr static CodePointType Decode(const CodeUnitType *data, Size)
         {
             return data[0];
         }

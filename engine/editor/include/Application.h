@@ -37,7 +37,7 @@ namespace SSSEngine::Editor
      */
     class Application final
     {
-        public:
+      public:
         Application();
         Application(const Application &) = delete;
         Application(Application &&) = delete;
@@ -52,7 +52,7 @@ namespace SSSEngine::Editor
 
         void Run();
 
-        private:
+      private:
         Core::Window *m_Window;
         bool m_Running = false;
     };

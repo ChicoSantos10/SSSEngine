@@ -34,16 +34,17 @@ namespace SSSEngine::Text
 {
     struct Utf8Encoding
     {
-        using CharType = char8;
+        using CodeUnitType = char8;
         using CodePointType = char32;
 
         /**
          * @brief Calculates how big the code point
          *
          * @param codeUnit The header of the code point
-         * @return The length in bytes of the code point or 0 if invalid
+         * @return The number of code units, this code point contains
          */
-        SSSENGINE_FORCE_INLINE constexpr static byte CharLength(byte codeUnit)
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr static byte CharLength(CodeUnitType codeUnit) noexcept
         {
             if((codeUnit & 0x80) == 0)
                 return 1;
@@ -67,7 +68,8 @@ namespace SSSEngine::Text
          * @param size The size of the code point.
          * @return True if all bytes are continuation bytes, false otherwise
          */
-        SSSENGINE_GLOBAL constexpr static bool ValidCodepoint(const CharType *data, byte size)
+        SSSENGINE_PURE SSSENGINE_GLOBAL
+        constexpr static bool ValidCodepoint(const CodeUnitType *data, byte size) noexcept
         {
             if(size == 0)
                 return false;
@@ -92,7 +94,8 @@ namespace SSSEngine::Text
          * @param size The size of the string
          * @return True if the string is valid UTF-8, false otherwise
          */
-        SSSENGINE_GLOBAL constexpr static bool ValidString(const CharType *data, Size size)
+        SSSENGINE_PURE SSSENGINE_GLOBAL
+        constexpr static bool ValidString(const CodeUnitType *data, Size size) noexcept
         {
             for(Size i = 0; i < size;)
             {
@@ -114,7 +117,8 @@ namespace SSSEngine::Text
          * @param size The size of the code point. @see CharLength
          * @return A code point
          */
-        SSSENGINE_FORCE_INLINE constexpr static CodePointType Decode(const CharType *data, Size size)
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr static CodePointType Decode(const CodeUnitType *data, Size size) noexcept
         {
             switch(size)
             {
@@ -139,7 +143,8 @@ namespace SSSEngine::Text
          * @param byte The byte to check
          * @return True if the byte is a continuation byte, false otherwise
          */
-        SSSENGINE_FORCE_INLINE constexpr static bool IsContinuationByte(CharType byte)
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr static bool IsContinuationByte(CodeUnitType byte) noexcept
         {
             return (byte & 0xC0) == 0x80;
         }

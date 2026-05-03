@@ -72,7 +72,7 @@ namespace SSSEngine::Platform
     {
         using FileHandle = int;
 
-        public:
+      public:
         static constexpr FilePermissions AccessPermissions = T;
 
         // INVESTIGATE: What happens if we fail to get the file?
@@ -121,7 +121,7 @@ namespace SSSEngine::Platform
          */
         friend ExtendedFileData GetExtendedFileData(File file);
 
-        private:
+      private:
         /**
          * @brief Opens or Creates a file
          *
@@ -187,18 +187,21 @@ namespace SSSEngine::Platform
                                                                                "is a "
                                                                                "ReadFileConcept");
 
-    SSSENGINE_FORCE_INLINE bool WriteFile(WriteFileConcept auto &file, void *data, Size size)
+    SSSENGINE_FORCE_INLINE
+    bool WriteFile(WriteFileConcept auto &file, void *data, Size size)
     {
         file.PlatformWriteFile(data, size);
     }
 
-    SSSENGINE_FORCE_INLINE bool ReadFile(const ReadFileConcept auto &file, void *buffer, Size maxBytes)
+    SSSENGINE_FORCE_INLINE
+    bool ReadFile(const ReadFileConcept auto &file, void *buffer, Size maxBytes)
     {
         file.PlatformReadFile(buffer, maxBytes);
     }
 
     template<FilePermissions T>
-    SSSENGINE_FORCE_INLINE ExtendedFileData GetExtendedFileData(const File<T> &file)
+    SSSENGINE_FORCE_INLINE
+    ExtendedFileData GetExtendedFileData(const File<T> &file)
     {
         file.PlatformFileInformation();
     }

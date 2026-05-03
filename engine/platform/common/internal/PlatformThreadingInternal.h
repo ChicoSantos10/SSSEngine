@@ -36,7 +36,8 @@ namespace SSSEngine::Threading
 
     void PlatformSleep(Nanoseconds duration) noexcept;
 
-    SSSENGINE_GLOBAL u32 ThreadStart() noexcept
+    SSSENGINE_GLOBAL
+    u32 ThreadStart() noexcept
     {
         return 0;
     }

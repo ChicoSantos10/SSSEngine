@@ -102,7 +102,8 @@ namespace SSSEngine::Platform
      *
      * @param handle The handle to the window to chance
      */
-    SSSENGINE_FORCE_INLINE void ToggleBorderlessFullscreen(WindowId handle)
+    SSSENGINE_FORCE_INLINE
+    void ToggleBorderlessFullscreen(WindowId handle)
     {
         SetBorderlessFullscreen(handle, !IsBorderlessFullscreen(handle));
     }

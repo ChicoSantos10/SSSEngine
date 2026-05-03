@@ -227,7 +227,7 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, typename... Args>
     class FormatArgsStorage
     {
-        public:
+      public:
         static constexpr Size ArgCount = sizeof...(Args);
         using Arg = FormatArg<Encoding>;
 
@@ -247,7 +247,7 @@ namespace SSSEngine::Text
             return ArgCount;
         }
 
-        private:
+      private:
         // TODO: What would be a reasonable amount before needing to allocate memory?
         Arg m_args[ArgCount];
     };

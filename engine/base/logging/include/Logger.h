@@ -59,14 +59,16 @@ namespace SSSEngine::Logging
      */
     // TODO: Implement this without std. Also move this a string module
     template<typename... Args>
-    SSSENGINE_PURE String Format(std::wformat_string<Args...> fmt, Args &&...args)
+    SSSENGINE_PURE
+    String Format(std::wformat_string<Args...> fmt, Args &&...args)
     {
         return std::format(fmt, std::forward<Args>(args)...);
     }
 
     // TODO: This should be replaced by just having a logger which should be responsible for knowing how to log (file,
     // console, ...)
-    SSSENGINE_GLOBAL void LogConsole(LogLevel level, const String &message)
+    SSSENGINE_GLOBAL
+    void LogConsole(LogLevel level, const String &message)
     {
         switch(level)
         {

@@ -51,7 +51,8 @@ namespace SSSEngine::Math
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsQuantityValue = IsQuantity<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsQuantityValue = IsQuantity<T>::Value;
 
     template<typename T>
     concept QuantityConcept = IsQuantityValue<T>;

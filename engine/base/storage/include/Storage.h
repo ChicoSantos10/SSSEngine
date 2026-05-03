@@ -43,7 +43,7 @@ namespace SSSEngine
     template<typename T>
     class alignas(T) Storage
     {
-        public:
+      public:
         SSSENGINE_FORCE_INLINE
         constexpr Storage(const T &value) noexcept(IsNoThrowCopyConstructible<T>)
             requires(IsCopyConstructible<T>)
@@ -115,7 +115,7 @@ namespace SSSEngine
         constexpr T *Construct() noexcept(IsNoThrowDefaultConstructible<T>)
             requires(IsDefaultConstructible<T>)
         {
-            m_value.template Construct<T>();
+            return m_value.template Construct<T>();
         }
 
         template<typename... Args>
@@ -123,7 +123,7 @@ namespace SSSEngine
         constexpr T *Construct(Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
             requires(IsConstructible<T, Args...>)
         {
-            m_value.template Construct<T>(Forward<Args...>(args)...);
+            return m_value.template Construct<T>(Forward<Args...>(args)...);
         }
 
         SSSENGINE_FORCE_INLINE
@@ -162,7 +162,7 @@ namespace SSSEngine
             return UnderlyingObject();
         }
 
-        private:
+      private:
         AlignedStorage<sizeof(T), alignof(T)> m_value;
 
         /**

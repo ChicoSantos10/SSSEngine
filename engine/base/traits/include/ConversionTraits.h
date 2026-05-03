@@ -26,6 +26,7 @@
 
 #include "HelperMacros.h"
 #include "QualifierTraits.h"
+#include "Traits.h"
 #include "ValueConstant.h"
 
 namespace SSSEngine
@@ -36,7 +37,8 @@ namespace SSSEngine
     };
 
     template<typename From, typename To>
-    SSSENGINE_GLOBAL constexpr bool IsConvertible = ConvertibleChecker<From, To>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsConvertible = ConvertibleChecker<From, To>::Value;
 
     template<typename... T>
     struct CommonTypeChecker;
@@ -114,9 +116,159 @@ namespace SSSEngine
     using CommonType = typename CommonTypeChecker<Args...>::Type;
 
     template<typename From, typename To>
-    SSSENGINE_GLOBAL constexpr bool IsSameType = __is_same(From, To);
+    SSSENGINE_GLOBAL
+    constexpr bool IsSameType = __is_same(From, To);
 
     template<typename T, typename... Args>
-    SSSENGINE_GLOBAL constexpr bool IsAnyType = (IsSameType<T, Args> || ...);
+    SSSENGINE_GLOBAL
+    constexpr bool IsAnyType = (IsSameType<T, Args> || ...);
+
+    template<typename... T>
+    struct CommonReference;
+
+    template<typename... Args>
+    using CommonReferenceType = typename CommonReference<Args...>::Type;
+
+    template<>
+    struct CommonReference<>
+    {
+    };
+
+    template<typename T0>
+    struct CommonReference<T0>
+    {
+        using Type = T0;
+    };
+
+    template<typename T1, typename T2, int Bullet = 1>
+    struct CommonReferenceImpl : CommonReferenceImpl<T1, T2, Bullet + 1>
+    {
+    };
+
+    template<typename T1, typename T2>
+    struct CommonReference<T1, T2> : CommonReferenceImpl<T1, T2>
+    {
+    };
+
+    template<typename Xp, typename Yp>
+    using CondRes = decltype(false ? DeclVal<Xp (&)()>()() : DeclVal<Yp (&)()>()());
+
+    template<typename Ap, typename Bp, typename = void>
+    struct CommonRefImpl
+    {
+    };
+
+    template<typename Ap, typename Bp>
+    using CommonRef = typename CommonRefImpl<Ap, Bp>::Type;
+
+    template<typename Xp, typename Yp>
+    using CondResCVRef = CondRes<MatchCVQualifiers<Xp, Yp> &, MatchCVQualifiers<Yp, Xp> &>;
+
+    template<typename Xp, typename Yp>
+    struct CommonRefImpl<Xp &, Yp &, VoidType<CondResCVRef<Xp, Yp>>> :
+    EnableChecker<IsReference<CondResCVRef<Xp, Yp>>, CondResCVRef<Xp, Yp>>
+    {
+    };
+
+    template<typename Xp, typename Yp>
+    using CommonRefC = RemoveReferenceType<CommonRef<Xp &, Yp &>> &&;
+
+    template<typename Xp, typename Yp>
+    struct CommonRefImpl<Xp &&, Yp &&,
+                         Require<ConvertibleChecker<Xp &&, CommonRefC<Xp, Yp>>, ConvertibleChecker<Yp &&, CommonRefC<Xp, Yp>>>>
+    {
+        using Type = CommonRefC<Xp, Yp>;
+    };
+
+    template<typename Xp, typename Yp>
+    using CommonRefD = CommonRef<const Xp &, Yp &>;
+
+    template<typename Xp, typename Yp>
+    struct CommonRefImpl<Xp &&, Yp &, Require<ConvertibleChecker<Xp &&, CommonRefD<Xp, Yp>>>>
+    {
+        using Type = CommonRefD<Xp, Yp>;
+    };
+
+    template<typename Xp, typename Yp>
+    struct CommonRefImpl<Xp &, Yp &&> : CommonRefImpl<Yp &&, Xp &>
+    {
+    };
+
+    template<typename Tp, typename Up, template<typename> class TQual, template<typename> class UQual>
+    struct BasicCommonReference
+    {
+    };
+
+    template<typename Tp>
+    struct XRef
+    {
+        template<typename Up>
+        using Type = MatchCVQualifiers<Tp, Up>;
+    };
+
+    template<typename Tp>
+    struct XRef<Tp &>
+    {
+        template<typename Up>
+        using Type = MatchCVQualifiers<Tp, Up> &;
+    };
+
+    template<typename Tp>
+    struct XRef<Tp &&>
+    {
+        template<typename Up>
+        using Type = MatchCVQualifiers<Tp, Up> &&;
+    };
+
+    template<typename Tp1, typename Tp2>
+    using BasicCommonReferenceType =
+        typename BasicCommonReference<RemoveCVReferenceType<Tp1>, RemoveCVReferenceType<Tp2>, XRef<Tp1>::template Type,
+                                      XRef<Tp2>::template Type>::Type;
+
+    template<typename T1, typename T2>
+        requires IsReference<T1> && IsReference<T2> && requires { typename CommonRef<T1, T2>; } &&
+                 IsConvertible<AddPointerType<T1>, AddPointerType<CommonRef<T1, T2>>> &&
+                 IsConvertible<AddPointerType<T2>, AddPointerType<CommonRef<T1, T2>>>
+    struct CommonReferenceImpl<T1, T2, 1>
+    {
+        using Type = CommonRef<T1, T2>;
+    };
+
+    template<typename T1, typename T2>
+        requires requires { typename BasicCommonReferenceType<T1, T2>; }
+    struct CommonReferenceImpl<T1, T2, 2>
+    {
+        using Type = BasicCommonReferenceType<T1, T2>;
+    };
+
+    template<typename T1, typename T2>
+        requires requires { typename CondRes<T1, T2>; }
+    struct CommonReferenceImpl<T1, T2, 3>
+    {
+        using Type = CondRes<T1, T2>;
+    };
+
+    template<typename T1, typename T2>
+        requires requires { typename CommonType<T1, T2>; }
+    struct CommonReferenceImpl<T1, T2, 4>
+    {
+        using Type = CommonType<T1, T2>;
+    };
+
+    template<typename T1, typename T2>
+    struct CommonReferenceImpl<T1, T2, 5>
+    {
+    };
+
+    template<typename T1, typename T2, typename... Rest>
+    struct CommonReference<T1, T2, Rest...> : CommonTypeFold<CommonReference<T1, T2>, CommonTypePack<Rest...>>
+    {
+    };
+
+    template<typename T1, typename T2, typename... Rest>
+    struct CommonTypeFold<CommonReference<T1, T2>, CommonTypePack<Rest...>, VoidType<CommonReferenceType<T1, T2>>> :
+    public CommonReference<CommonReferenceType<T1, T2>, Rest...>
+    {
+    };
 
 } // namespace SSSEngine

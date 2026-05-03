@@ -40,12 +40,18 @@ namespace SSSEngine::Renderer
     using ResizeSwapChain_t = void (*)(const SSSEngine::Platform::WindowId &);
     using BeginFrame_t = void (*)();
 
-    SSSENGINE_GLOBAL CreateSwapChain_t CreateSwapChain;
-    SSSENGINE_GLOBAL Render_t Render;
-    SSSENGINE_GLOBAL Terminate_t Terminate;
-    SSSENGINE_GLOBAL LoadAssetsTest_t LoadAssetsTest;
-    SSSENGINE_GLOBAL ResizeSwapChain_t ResizeSwapChain;
-    SSSENGINE_GLOBAL BeginFrame_t BeginFrame;
+    SSSENGINE_GLOBAL
+    CreateSwapChain_t CreateSwapChain;
+    SSSENGINE_GLOBAL
+    Render_t Render;
+    SSSENGINE_GLOBAL
+    Terminate_t Terminate;
+    SSSENGINE_GLOBAL
+    LoadAssetsTest_t LoadAssetsTest;
+    SSSENGINE_GLOBAL
+    ResizeSwapChain_t ResizeSwapChain;
+    SSSENGINE_GLOBAL
+    BeginFrame_t BeginFrame;
 
     /**
      * @enum Renderer

@@ -30,7 +30,6 @@
 #include "Debug.h"
 #include "Limits.h"
 #include "Types.h"
-#include "Utility.h"
 
 namespace SSSEngine::Math
 {
@@ -175,7 +174,7 @@ namespace SSSEngine::Math
      * @return The smaller of the two numbers
      */
     template<typename T, typename U>
-        requires LessThanComparableConcept<T, U>
+        requires ComparableWithConcept<T, U>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto Min(const T &x, const U &y) noexcept
     {
@@ -193,7 +192,7 @@ namespace SSSEngine::Math
      * @return The bigger of the two numbers
      */
     template<typename T, typename U>
-        requires GreaterThanComparableConcept<T, U>
+        requires ComparableWithConcept<T, U>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto Max(const T &x, const U &y) noexcept
     {
@@ -211,8 +210,7 @@ namespace SSSEngine::Math
      * @param denominator The second number
      * @return The greatest common denominator
      */
-    template<IntegralConcept T>
-        requires IsUnsigned<T>
+    template<UnsignedIntegralConcept T>
     SSSENGINE_PURE SSSENGINE_GLOBAL
     constexpr T GreatestCommonDivisor(T x, T y) noexcept
     {
@@ -260,8 +258,7 @@ namespace SSSEngine::Math
      * @param denominator The second number
      * @return Return the greatest common denominator
      */
-    template<IntegralConcept T>
-        requires IsSigned<T>
+    template<SignedIntegralConcept T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr T GreatestCommonDivisor(T x, T y) noexcept
     {
@@ -280,8 +277,7 @@ namespace SSSEngine::Math
      * @return The least common multiple between the x and y
      */
     template<IntegralConcept T>
-    SSSENGINE_PURE
-    SSSENGINE_GLOBAL
+    SSSENGINE_PURE SSSENGINE_GLOBAL
     constexpr auto LeastCommonMultiple(T x, T y) noexcept
     {
         return x / GreatestCommonDivisor(x, y) * y;

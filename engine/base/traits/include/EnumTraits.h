@@ -35,7 +35,8 @@ namespace SSSEngine
     };
 
     template<typename T>
-    SSSENGINE_GLOBAL constexpr bool IsEnum = EnumChecker<T>::Value;
+    SSSENGINE_GLOBAL
+    constexpr bool IsEnum = EnumChecker<T>::Value;
 
     template<typename T>
         requires IsEnum<T>

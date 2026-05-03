@@ -50,7 +50,8 @@ namespace SSSEngine::Renderer
      * @param renderer The renderer library to get the path of
      * @return The file path
      */
-    SSSENGINE_FORCE_INLINE constexpr const char *GetRendererPath(Renderer renderer)
+    SSSENGINE_FORCE_INLINE
+    constexpr const char *GetRendererPath(Renderer renderer)
     {
         switch(renderer)
         {

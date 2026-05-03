@@ -1,7 +1,7 @@
 # Generated with: https://zed0.co.uk/clang-format-configurator/
 # Check https://clang.llvm.org/docs/ClangFormatStyleOptions.html 
 ---
-AccessModifierOffset: '0'
+AccessModifierOffset: '-2'
 AlignAfterOpenBracket: Align
 AlignArrayOfStructures: Right
 AlignConsecutiveMacros: 'false'

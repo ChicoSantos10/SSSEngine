@@ -45,12 +45,14 @@ namespace SSSTest
         }
     };
 
-    SSSENGINE_GLOBAL std::vector<TestData> Tests{};
-    SSSENGINE_GLOBAL bool Succeeded = true;
+    SSSENGINE_GLOBAL
+    std::vector<TestData> Tests{};
+    SSSENGINE_GLOBAL
+    bool Succeeded = true;
 
     class Test
     {
-        public:
+      public:
         explicit Test(const TestData &data)
         {
             Add(data);

@@ -58,7 +58,7 @@ namespace SSSEngine
     template<typename T>
     class Optional
     {
-        public:
+      public:
         SSSENGINE_FORCE_INLINE
         Optional(const T &value) noexcept(IsNoThrowCopyConstructible<T>)
             requires(IsCopyConstructible<T>)
@@ -228,7 +228,7 @@ namespace SSSEngine
             return &Forward<Self>(self).m_value.Get();
         }
 
-        private:
+      private:
         Storage<T> m_value{};
         bool m_exists{};
     };

@@ -80,7 +80,8 @@ namespace SSSEngine::Threading
      * @param order The memory order to check
      * @return True if it's valid, false otherwise
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE bool constexpr IsValidStoreMemoryOrder(MemoryOrder order)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    bool constexpr IsValidStoreMemoryOrder(MemoryOrder order)
     {
         using enum MemoryOrder;
         return order != Acquire && order != AcquireRelease;
@@ -92,7 +93,8 @@ namespace SSSEngine::Threading
      * @param order The memory order to check
      * @return True if it's valid, false otherwise
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE bool constexpr IsValidLoadMemoryOrder(MemoryOrder order)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    bool constexpr IsValidLoadMemoryOrder(MemoryOrder order)
     {
         using enum MemoryOrder;
         return order != Release && order != AcquireRelease;
@@ -108,7 +110,8 @@ namespace SSSEngine::Threading
      * @param order The memory order to check
      * @return True if it's valid, false otherwise
      */
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE bool constexpr IsValidFailureMemoryOrder(MemoryOrder success, MemoryOrder failure)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    bool constexpr IsValidFailureMemoryOrder(MemoryOrder success, MemoryOrder failure)
     {
         using enum MemoryOrder;
         return failure != Release && failure != AcquireRelease && int(success) >= int(failure);
@@ -147,7 +150,8 @@ namespace SSSEngine::Threading
      * @return True if the type has padding and it's possible to clear it, false otherwise
      */
     template<typename T>
-    SSSENGINE_GLOBAL consteval bool CanClearPadding()
+    SSSENGINE_GLOBAL
+    consteval bool CanClearPadding()
     {
 #ifdef SSSENGINE_MSVC
 #elif SSSENGINE_CLANG || SSSENGINE_GCC
@@ -171,7 +175,8 @@ namespace SSSEngine::Threading
      * @return The memory address of the type with the padding its cleared if possible
      */
     template<typename T>
-    SSSENGINE_FORCE_INLINE constexpr T *ClearPadding(T &value) noexcept
+    SSSENGINE_FORCE_INLINE
+    constexpr T *ClearPadding(T &value) noexcept
     {
         auto *ptr = AddressOf(value);
 #ifdef SSSENGINE_MSVC
@@ -200,7 +205,7 @@ namespace SSSEngine::Threading
         static constexpr bool IsPointerType = IsPointer<T>;
         using UnderlyingType = RemovePointerType<T>;
 
-        public:
+      public:
         using Type = T;
 
         constexpr Atomic() noexcept(IsNoThrowDefaultConstructible<T>)
@@ -359,7 +364,8 @@ namespace SSSEngine::Threading
          *
          * @return True if is lock free, false otherwise
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE bool IsLockFree(this auto &self) noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        bool IsLockFree(this auto &self) noexcept
         {
             if constexpr(IsAlwaysLockFree)
             {
@@ -378,7 +384,8 @@ namespace SSSEngine::Threading
          * @param value The value to store
          * @param memoryOrder The memory order to use
          */
-        SSSENGINE_FORCE_INLINE void Store(this auto &self, T value, MemoryOrder memoryOrder) noexcept
+        SSSENGINE_FORCE_INLINE
+        void Store(this auto &self, T value, MemoryOrder memoryOrder) noexcept
             requires(!IsIntegralType)
         {
             SSSENGINE_ASSERT(IsValidStoreMemoryOrder(memoryOrder));
@@ -394,7 +401,8 @@ namespace SSSEngine::Threading
          * @param value The value to store
          * @param memoryOrder The memory order to use
          */
-        SSSENGINE_FORCE_INLINE void Store(this auto &self, T value, MemoryOrder memoryOrder) noexcept
+        SSSENGINE_FORCE_INLINE
+        void Store(this auto &self, T value, MemoryOrder memoryOrder) noexcept
             requires(IsIntegralType)
         {
             SSSENGINE_ASSERT(IsValidStoreMemoryOrder(memoryOrder));
@@ -409,7 +417,8 @@ namespace SSSEngine::Threading
          *
          * @param memoryOrder The memory order to use
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE T Load(this auto &self, MemoryOrder memoryOrder) noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        T Load(this auto &self, MemoryOrder memoryOrder) noexcept
         {
             SSSENGINE_ASSERT(IsValidLoadMemoryOrder(memoryOrder));
 #ifdef SSSENGINE_MSVC
@@ -426,7 +435,8 @@ namespace SSSEngine::Threading
          *
          * @param memoryOrder The memory order to use
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE T Load(this auto &self, MemoryOrder memoryOrder) noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        T Load(this auto &self, MemoryOrder memoryOrder) noexcept
             requires(IsIntegralType)
         {
             SSSENGINE_ASSERT(IsValidLoadMemoryOrder(memoryOrder));
@@ -443,7 +453,8 @@ namespace SSSEngine::Threading
          * @param order The memory order to use
          * @return The original value before the add
          */
-        SSSENGINE_FORCE_INLINE T FetchAdd(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        T FetchAdd(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
             requires(IsIntegralType)
         {
             return __atomic_fetch_add(&self.m_value, value, int(order));
@@ -456,7 +467,8 @@ namespace SSSEngine::Threading
          * @param order The memory order to use
          * @return The original value before the add
          */
-        SSSENGINE_FORCE_INLINE T FetchAdd(this NotConstConcept auto &self, ptrdiff value, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        T FetchAdd(this NotConstConcept auto &self, ptrdiff value, MemoryOrder order) noexcept
             requires(IsPointerType)
         {
             return __atomic_fetch_add(&self.m_value, value * sizeof(UnderlyingType), int(order));
@@ -469,7 +481,8 @@ namespace SSSEngine::Threading
          * @param order The memory order to use
          * @return The original value before the subtraction
          */
-        SSSENGINE_FORCE_INLINE T FetchSub(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        T FetchSub(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
             requires(IsIntegralType)
         {
             return __atomic_fetch_sub(&self.m_value, value, int(order));
@@ -482,7 +495,8 @@ namespace SSSEngine::Threading
          * @param order The memory order to use
          * @return The original value before the subtract
          */
-        SSSENGINE_FORCE_INLINE T FetchSub(this NotConstConcept auto &self, ptrdiff value, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        T FetchSub(this NotConstConcept auto &self, ptrdiff value, MemoryOrder order) noexcept
             requires(IsPointerType)
         {
             return __atomic_fetch_sub(&self.m_value, value * sizeof(UnderlyingType), int(order));
@@ -495,7 +509,8 @@ namespace SSSEngine::Threading
          * @param order The memory order to use
          * @return The original value before the AND
          */
-        SSSENGINE_FORCE_INLINE T FetchAnd(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        T FetchAnd(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
             requires(IsIntegralType)
         {
             return __atomic_fetch_and(&self.m_value, value, int(order));
@@ -508,7 +523,8 @@ namespace SSSEngine::Threading
          * @param order The memory order to use
          * @return The original value before the OR
          */
-        SSSENGINE_FORCE_INLINE T FetchOr(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        T FetchOr(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
             requires(IsIntegralType)
         {
             return __atomic_fetch_or(&self.m_value, value, int(order));
@@ -521,7 +537,8 @@ namespace SSSEngine::Threading
          * @param order The memory order to use
          * @return The original value before the XOR
          */
-        SSSENGINE_FORCE_INLINE T FetchXor(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        T FetchXor(this NotConstConcept auto &self, T value, MemoryOrder order) noexcept
             requires(IsIntegralType)
         {
             return __atomic_fetch_xor(&self.m_value, value, int(order));
@@ -534,7 +551,8 @@ namespace SSSEngine::Threading
          * @param memoryOrder The memory order to use
          * @return The original value before the change
          */
-        SSSENGINE_FORCE_INLINE T Exchange(this NotConstConcept auto &self, T value, MemoryOrder memoryOrder) noexcept
+        SSSENGINE_FORCE_INLINE
+        T Exchange(this NotConstConcept auto &self, T value, MemoryOrder memoryOrder) noexcept
         {
 #ifdef SSSENGINE_MSVC
 #elif SSSENGINE_CLANG || SSSENGINE_GCC
@@ -558,7 +576,8 @@ namespace SSSEngine::Threading
          * @return True if the values are equal, false otherwise
          */
         template<bool AtomicRef = false>
-        SSSENGINE_FORCE_INLINE bool
+        SSSENGINE_FORCE_INLINE
+        bool
         CompareExchange(this NotConstConcept auto &self, RemoveVolatileType<T> &expected, RemoveVolatileType<T> &desired,
                         bool isWeak, MemoryOrder orderSuccess, MemoryOrder orderFailure) noexcept
             requires(!IsIntegralType)
@@ -628,8 +647,9 @@ namespace SSSEngine::Threading
          * @param orderFailure The memory order to use when the values are different
          * @return True if the values are equal, false otherwise
          */
-        SSSENGINE_FORCE_INLINE bool CompareExchange(this NotConstConcept auto &self, T &expected, T desired, bool isWeak,
-                                                    MemoryOrder successOrder, MemoryOrder failureOrder) noexcept
+        SSSENGINE_FORCE_INLINE
+        bool CompareExchange(this NotConstConcept auto &self, T &expected, T desired, bool isWeak,
+                             MemoryOrder successOrder, MemoryOrder failureOrder) noexcept
             requires(IsIntegralType)
         {
             SSSENGINE_ASSERT(IsValidFailureMemoryOrder(successOrder, failureOrder));
@@ -665,8 +685,9 @@ namespace SSSEngine::Threading
          * @param orderFailure The memory order to use when the values are different
          * @return True if the values are equal, false otherwise
          */
-        SSSENGINE_FORCE_INLINE bool CompareExchangeWeak(this NotConstConcept auto &self, T &expected, T desired,
-                                                        MemoryOrder successOrder, MemoryOrder failureOrder) noexcept
+        SSSENGINE_FORCE_INLINE
+        bool CompareExchangeWeak(this NotConstConcept auto &self, T &expected, T desired, MemoryOrder successOrder,
+                                 MemoryOrder failureOrder) noexcept
         {
             return self.CompareExchange(expected, desired, true, successOrder, failureOrder);
         }
@@ -700,8 +721,9 @@ namespace SSSEngine::Threading
          * @param orderFailure The memory order to use when the values are different
          * @return True if the values are equal, false otherwise
          */
-        SSSENGINE_FORCE_INLINE bool CompareExchangeStrong(this NotConstConcept auto &self, T &expected, T desired,
-                                                          MemoryOrder successOrder, MemoryOrder failureOrder) noexcept
+        SSSENGINE_FORCE_INLINE
+        bool CompareExchangeStrong(this NotConstConcept auto &self, T &expected, T desired, MemoryOrder successOrder,
+                                   MemoryOrder failureOrder) noexcept
         {
             return self.CompareExchange(expected, desired, false, successOrder, failureOrder);
         }
@@ -717,8 +739,8 @@ namespace SSSEngine::Threading
          * @param orderSuccess The memory order to use when the values are equal
          * @return True if the values are equal, false otherwise
          */
-        SSSENGINE_FORCE_INLINE bool
-        CompareExchangeStrong(this NotConstConcept auto &self, T &expected, T desired, MemoryOrder order) noexcept
+        SSSENGINE_FORCE_INLINE
+        bool CompareExchangeStrong(this NotConstConcept auto &self, T &expected, T desired, MemoryOrder order) noexcept
         {
             return self.CompareExchange(expected, desired, false, order, FailureOrder(order));
         }
@@ -754,7 +776,7 @@ namespace SSSEngine::Threading
             Threading::NotifyAll(&self.m_value);
         }
 
-        private:
+      private:
         static constexpr int MinAlignment = (sizeof(T) & (sizeof(T) - 1)) || sizeof(T) > 16 ? 0 : sizeof(T);
         static constexpr int Alignment = MinAlignment > alignof(T) ? MinAlignment : alignof(T);
 

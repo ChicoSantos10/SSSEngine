@@ -40,7 +40,7 @@ namespace SSSEngine::Threading
      */
     class Mutex
     {
-        public:
+      public:
         /**
          * @brief Tries to obtain the lock and if failed waits until notified by another thread to try again
          */
@@ -88,7 +88,8 @@ namespace SSSEngine::Threading
          *
          * @return True if successful
          */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE bool TryLock() noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        bool TryLock() noexcept
         {
             return m_flag.Exchange(Locked, MemoryOrder::Acquire) == 0;
         }
@@ -105,7 +106,7 @@ namespace SSSEngine::Threading
             m_flag.NotifyOne();
         }
 
-        private:
+      private:
         Atomic<u32, MemoryOrder::Relaxed> m_flag;
 
         enum State : u8
@@ -125,7 +126,7 @@ namespace SSSEngine::Threading
     template<LockStrategy Strategy>
     class MutexLock
     {
-        public:
+      public:
         explicit MutexLock(Mutex &mutex) : m_mutex(mutex)
         {
             if constexpr(Strategy == LockStrategy::Lock)
@@ -152,7 +153,7 @@ namespace SSSEngine::Threading
         MutexLock &operator=(const MutexLock &) = delete;
         MutexLock &operator=(MutexLock &&) = delete;
 
-        private:
+      private:
         Mutex &m_mutex; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members)
     };
 

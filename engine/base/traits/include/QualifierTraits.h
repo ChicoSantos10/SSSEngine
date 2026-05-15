@@ -26,7 +26,6 @@
 
 #include "HelperMacros.h"
 #include "Traits.h"
-#include "Types.h"
 #include "ValueConstant.h"
 
 namespace SSSEngine
@@ -173,6 +172,65 @@ namespace SSSEngine
     template<typename T>
     SSSENGINE_GLOBAL
     constexpr bool IsFunction = FunctionChecker<T>::Value;
+
+    template<typename>
+    struct IsMemberPointerHelper : public FalseType
+    {
+    };
+
+    template<typename T, typename U>
+    struct IsMemberPointerHelper<T U::*> : public TrueType
+    {
+    };
+
+    template<typename T>
+    struct MemberPointerChecker : public IsMemberPointerHelper<RemoveCVType<T>>::Type
+    {
+    };
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsMemberPointer = MemberPointerChecker<T>::Value;
+
+    template<typename>
+    struct IsMemberObjectPointerHelper : public FalseType
+    {
+    };
+
+    template<typename T, typename U>
+        requires(!IsFunction<T>)
+    struct IsMemberObjectPointerHelper<T U::*> : public TrueType
+    {
+    };
+
+    template<typename T>
+    struct IsMemberObjectPointerChecker : public IsMemberObjectPointerHelper<RemoveCVType<T>>::Type
+    {
+    };
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsMemberObjectPointer = IsMemberObjectPointerChecker<T>::Value;
+
+    template<typename>
+    struct IsMemberFunctionPointerHelper : public FalseType
+    {
+    };
+
+    template<typename T, typename U>
+        requires(IsFunction<T>)
+    struct IsMemberFunctionPointerHelper<T U::*> : public TrueType
+    {
+    };
+
+    template<typename T>
+    struct IsMemberFunctionPointerChecker : public IsMemberFunctionPointerHelper<RemoveCVType<T>>::Type
+    {
+    };
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsMemberFunctionPointer = IsMemberFunctionPointerChecker<T>::Value;
 
     template<typename T>
     struct PointerChecker : BoolConstant<__is_pointer(T)>

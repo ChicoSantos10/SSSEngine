@@ -42,7 +42,7 @@ namespace SSSEngine::Platform
 
     struct FileData
     {
-        Size size;
+        SizeType size;
 
         struct Time
         {
@@ -97,7 +97,7 @@ namespace SSSEngine::Platform
          * @param size The amount of bytes to write from data
          * @return True if the write was successful, false otherwise
          */
-        friend bool WriteFile(File file, void *data, Size size);
+        friend bool WriteFile(File file, void *data, SizeType size);
 
         /**
          * @brief Reads maxBytes from file into a buffer
@@ -107,7 +107,7 @@ namespace SSSEngine::Platform
          * @param maxBytes The maximum amount of bytes to read
          * @return True if successful, false otherwise
          */
-        friend bool ReadFile(File file, void *buffer, Size maxBytes);
+        friend bool ReadFile(File file, void *buffer, SizeType maxBytes);
 
         /**
          * @brief Get's the extended file information
@@ -146,7 +146,7 @@ namespace SSSEngine::Platform
          * @return True if the write was successful, false otherwise
          */
         // TODO: Pass a buffer instead (address, size)
-        bool PlatformWriteFile(const void *data, Size size);
+        bool PlatformWriteFile(const void *data, SizeType size);
 
         /**
          * @brief Reads a file into a buffer. Can only happen if the file was opened with read permissions
@@ -157,7 +157,7 @@ namespace SSSEngine::Platform
          * @return True if successful, false otherwise
          */
         // TODO: Should pass a buffer and assert that buffersize >= maxBytes
-        bool PlatformReadFile(void *buffer, Size maxBytes) const;
+        bool PlatformReadFile(void *buffer, SizeType maxBytes) const;
 
         /**
          * @brief Platform specific way to get the file information
@@ -172,29 +172,33 @@ namespace SSSEngine::Platform
     template<typename F>
     concept WriteFileConcept = (HasBitSet(F::AccessPermissions, FilePermissions::Write));
 
-    SSSENGINE_STATIC_ASSERT(WriteFileConcept<File<FilePermissions::Write>>, "File with write permissions is a "
-                                                                            "WriteFileConcept");
-    SSSENGINE_STATIC_ASSERT(WriteFileConcept<File<FilePermissions::ReadWrite>>, "File with read and write permissions "
-                                                                                "is a "
-                                                                                "WriteFileConcept");
+    SSSENGINE_STATIC_ASSERT(WriteFileConcept<File<FilePermissions::Write>>,
+                            "File with write permissions is a "
+                            "WriteFileConcept");
+    SSSENGINE_STATIC_ASSERT(WriteFileConcept<File<FilePermissions::ReadWrite>>,
+                            "File with read and write permissions "
+                            "is a "
+                            "WriteFileConcept");
 
     template<typename F>
     concept ReadFileConcept = (HasBitSet(F::AccessPermissions, FilePermissions::Read));
 
-    SSSENGINE_STATIC_ASSERT(ReadFileConcept<File<FilePermissions::Read>>, "File with read permissions is a "
-                                                                          "ReadFileConcept");
-    SSSENGINE_STATIC_ASSERT(ReadFileConcept<File<FilePermissions::ReadWrite>>, "File with read and write permissions "
-                                                                               "is a "
-                                                                               "ReadFileConcept");
+    SSSENGINE_STATIC_ASSERT(ReadFileConcept<File<FilePermissions::Read>>,
+                            "File with read permissions is a "
+                            "ReadFileConcept");
+    SSSENGINE_STATIC_ASSERT(ReadFileConcept<File<FilePermissions::ReadWrite>>,
+                            "File with read and write permissions "
+                            "is a "
+                            "ReadFileConcept");
 
     SSSENGINE_FORCE_INLINE
-    bool WriteFile(WriteFileConcept auto &file, void *data, Size size)
+    bool WriteFile(WriteFileConcept auto &file, void *data, SizeType size)
     {
         file.PlatformWriteFile(data, size);
     }
 
     SSSENGINE_FORCE_INLINE
-    bool ReadFile(const ReadFileConcept auto &file, void *buffer, Size maxBytes)
+    bool ReadFile(const ReadFileConcept auto &file, void *buffer, SizeType maxBytes)
     {
         file.PlatformReadFile(buffer, maxBytes);
     }

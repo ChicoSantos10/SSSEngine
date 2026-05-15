@@ -41,7 +41,7 @@ namespace SSSEngine::Logging
 {
     using String = std::wstring;
 
-    enum class LogLevel : byte
+    enum class LogLevel : u8
     {
         Info,
         Warning,

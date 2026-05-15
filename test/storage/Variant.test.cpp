@@ -17,28 +17,11 @@
     USA
 */
 
-/**
- * @file
- * @brief
- */
+#include "Variant.h"
 
-#pragma once
-
-#include "Attributes.h"
-
-namespace SSSEngine::Containers
+namespace SSSEngine::Test
 {
-    template<typename T>
-    struct Span
-    {
-        T *begin;
-        T *end;
+    using namespace SSSEngine;
+    using TrivialUnion = Variant<int, float, char, double>;
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        operator Span<const T>() const noexcept // NOLINT(*-explicit-constructor)
-        {
-            return {begin, end};
-        }
-    };
-
-} // namespace SSSEngine::Containers
+} // namespace SSSEngine::Test

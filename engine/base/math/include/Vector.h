@@ -35,8 +35,8 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T>
     struct Vector2
     {
-        T x{0};
-        T y{0};
+        T x;
+        T y;
 
         SSSENGINE_FORCE_INLINE
         friend Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs)
@@ -90,9 +90,9 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T>
     struct Vector3
     {
-        T x{0};
-        T y{0};
-        T z{0};
+        T x;
+        T y;
+        T z;
 
         SSSENGINE_FORCE_INLINE
         friend Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
@@ -146,10 +146,10 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T>
     struct Vector4
     {
-        T x{0};
-        T y{0};
-        T z{0};
-        T w{0};
+        T x;
+        T y;
+        T z;
+        T w;
 
         SSSENGINE_FORCE_INLINE
         friend Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)

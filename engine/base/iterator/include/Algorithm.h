@@ -26,11 +26,14 @@
 
 #include "Attributes.h"
 #include "Concepts.h"
+#include "InitializerList.h"
 #include "Iterator.h"
 #include "Range.h"
 
 namespace SSSEngine::Iterators
 {
+    // TODO: Add noexcept where applicable
+
     template<IteratorConcept It>
         requires ComparableConcept<IteratorValueType<It>>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
@@ -75,4 +78,63 @@ namespace SSSEngine::Iterators
         return *FindMaxElement(Begin(range), End(range));
     }
 
+    template<typename T>
+        requires ComparableConcept<T>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Max(InitializerList<T> list)
+    {
+        return *FindMaxElement(list);
+    }
+
+    template<IteratorConcept It>
+        requires ComparableConcept<IteratorValueType<It>>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr It FindMinElement(It begin, It end)
+    {
+        if(begin == end)
+        {
+            return begin;
+        }
+
+        auto max = begin;
+
+        while(++begin != end)
+        {
+            if(*begin < *max)
+            {
+                max = begin;
+            }
+        }
+
+        return max;
+    }
+
+    template<BorrowedRangeConcept Range>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr IteratorType<Range> FindMinElement(Range &&range)
+    {
+        return FindMinElement(Begin(range), End(range));
+    }
+
+    template<IteratorConcept It>
+        requires ComparableConcept<IteratorValueType<It>>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr IteratorValueType<It> Min(It begin, It end)
+    {
+        return *FindMinElement(begin, end);
+    }
+
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Min(RangeConcept auto &&range)
+    {
+        return *FindMinElement(Begin(range), End(range));
+    }
+
+    template<typename T>
+        requires ComparableConcept<T>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Min(InitializerList<T> list)
+    {
+        return *FindMinElement(list);
+    }
 } // namespace SSSEngine::Iterators

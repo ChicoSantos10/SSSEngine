@@ -81,7 +81,7 @@ namespace SSSEngine::Platform
     }
 
     template<FilePermissions T>
-    bool File<T>::PlatformWriteFile(const void *data, Size size)
+    bool File<T>::PlatformWriteFile(const void *data, SizeType size)
     {
         ssize_t writtenBytes = write(m_fileHandle, data, size);
 
@@ -102,7 +102,7 @@ namespace SSSEngine::Platform
     }
 
     template<FilePermissions T>
-    bool File<T>::PlatformReadFile(void *buffer, Size maxBytes) const
+    bool File<T>::PlatformReadFile(void *buffer, SizeType maxBytes) const
     {
         ssize_t bytesRead = read(m_fileHandle, buffer, maxBytes);
 
@@ -120,7 +120,7 @@ namespace SSSEngine::Platform
         constexpr auto Time = [](timespec time) -> ExtendedFileData::Time
         { return {.seconds = time.tv_sec, .nanoseconds = static_cast<u32>(time.tv_nsec)}; };
 
-        return {.size = static_cast<Size>(data.st_size),
+        return {.size = static_cast<SizeType>(data.st_size),
                 .creationTime = Time(data.st_ctim), // FIX: This is actually not the creation time!!!
                 .lastAccessTime = Time(data.st_atim),
                 .lastWriteTime = Time(data.st_mtim)};

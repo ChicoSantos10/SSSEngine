@@ -27,6 +27,7 @@
 #include "HelperMacros.h"
 #include "QualifierTraits.h"
 #include "Traits.h"
+#include "Types.h"
 #include "ValueConstant.h"
 
 namespace SSSEngine
@@ -103,7 +104,7 @@ namespace SSSEngine
 
     template<typename T0, typename... Args>
     struct CommonTypeFold<T0, CommonTypePack<Args...>, VoidType<typename T0::Type>> :
-    public CommonTypeChecker<typename T0::Type, Args...>
+        public CommonTypeChecker<typename T0::Type, Args...>
     {
     };
 
@@ -122,6 +123,81 @@ namespace SSSEngine
     template<typename T, typename... Args>
     SSSENGINE_GLOBAL
     constexpr bool IsAnyType = (IsSameType<T, Args> || ...);
+
+    template<typename T, typename... Args>
+    SSSENGINE_GLOBAL
+    constexpr bool AllSameType = (IsSameType<T, Args> && ...);
+
+    template<typename...>
+    struct AllUniqueChecker;
+
+    template<>
+    struct AllUniqueChecker<>
+    {
+        static constexpr bool Value = true;
+    };
+
+    template<typename T, typename... Args>
+    struct AllUniqueChecker<T, Args...>
+    {
+        static constexpr bool Value = AllUniqueChecker<Args...>::Value && !IsAnyType<T, Args...>;
+    };
+
+    template<typename... Args>
+    SSSENGINE_GLOBAL
+    constexpr bool AreAllUnique = AllUniqueChecker<Args...>::Value;
+
+    template<typename Base, typename Derived>
+    SSSENGINE_GLOBAL
+    constexpr bool IsBaseOf = __is_base_of(Base, Derived);
+
+    /**
+     * @brief Finds a Type from a variadic list of arguments and returns its index
+     *
+     * @tparam ReturnType The type of the return count
+     * @tparam Find The Type to find
+     * @tparam Args The Variadic list of arguments to search in
+     */
+    template<typename ReturnType, typename Find, typename... Args>
+    SSSENGINE_GLOBAL
+    constexpr ReturnType FindPackedArgIndex = []()
+    {
+        ReturnType count{0};
+        auto _ = ((IsSameType<Find, Args> || (++count, false)) || ...);
+        return count;
+    }();
+
+    template<SizeType N, typename... Types>
+    struct NthTypeFinder
+    {
+    };
+
+    template<typename First, typename... Rest>
+    struct NthTypeFinder<0, First, Rest...>
+    {
+        using Type = First;
+    };
+
+    template<typename First, typename Second, typename... Rest>
+    struct NthTypeFinder<1, First, Second, Rest...>
+    {
+        using Type = Second;
+    };
+
+    template<typename First, typename Second, typename Third, typename... Rest>
+    struct NthTypeFinder<2, First, Second, Third, Rest...>
+    {
+        using Type = Third;
+    };
+
+    template<SizeType N, typename First, typename Second, typename Third, typename... Rest>
+        requires(N >= 3)
+    struct NthTypeFinder<N, First, Second, Third, Rest...> : NthTypeFinder<N - 3, Rest...>
+    {
+    };
+
+    template<SizeType N, typename... Types>
+    using NthType = NthTypeFinder<N, Types...>::Type;
 
     template<typename... T>
     struct CommonReference;
@@ -166,7 +242,7 @@ namespace SSSEngine
 
     template<typename Xp, typename Yp>
     struct CommonRefImpl<Xp &, Yp &, VoidType<CondResCVRef<Xp, Yp>>> :
-    EnableChecker<IsReference<CondResCVRef<Xp, Yp>>, CondResCVRef<Xp, Yp>>
+        EnableChecker<IsReference<CondResCVRef<Xp, Yp>>, CondResCVRef<Xp, Yp>>
     {
     };
 
@@ -174,8 +250,7 @@ namespace SSSEngine
     using CommonRefC = RemoveReferenceType<CommonRef<Xp &, Yp &>> &&;
 
     template<typename Xp, typename Yp>
-    struct CommonRefImpl<Xp &&, Yp &&,
-                         Require<ConvertibleChecker<Xp &&, CommonRefC<Xp, Yp>>, ConvertibleChecker<Yp &&, CommonRefC<Xp, Yp>>>>
+    struct CommonRefImpl<Xp &&, Yp &&, Require<ConvertibleChecker<Xp &&, CommonRefC<Xp, Yp>>, ConvertibleChecker<Yp &&, CommonRefC<Xp, Yp>>>>
     {
         using Type = CommonRefC<Xp, Yp>;
     };
@@ -222,8 +297,7 @@ namespace SSSEngine
 
     template<typename Tp1, typename Tp2>
     using BasicCommonReferenceType =
-        typename BasicCommonReference<RemoveCVReferenceType<Tp1>, RemoveCVReferenceType<Tp2>, XRef<Tp1>::template Type,
-                                      XRef<Tp2>::template Type>::Type;
+        typename BasicCommonReference<RemoveCVReferenceType<Tp1>, RemoveCVReferenceType<Tp2>, XRef<Tp1>::template Type, XRef<Tp2>::template Type>::Type;
 
     template<typename T1, typename T2>
         requires IsReference<T1> && IsReference<T2> && requires { typename CommonRef<T1, T2>; } &&
@@ -267,7 +341,7 @@ namespace SSSEngine
 
     template<typename T1, typename T2, typename... Rest>
     struct CommonTypeFold<CommonReference<T1, T2>, CommonTypePack<Rest...>, VoidType<CommonReferenceType<T1, T2>>> :
-    public CommonReference<CommonReferenceType<T1, T2>, Rest...>
+        public CommonReference<CommonReferenceType<T1, T2>, Rest...>
     {
     };
 

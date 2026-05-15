@@ -29,10 +29,12 @@
 #include "QualifierTraits.h"
 #include "Traits.h"
 #include "ValueConstant.h"
-#include <type_traits>
 
 namespace SSSEngine
 {
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyDefaultConstructible = __is_trivially_constructible(T);
 
     template<typename T>
         requires(IsCompleteOrUnbounded<T>)
@@ -46,7 +48,15 @@ namespace SSSEngine
 
     template<typename T>
     SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyCopyConstructible = __is_trivially_constructible(T, AddLValueRefType<const T>);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
     constexpr bool IsTriviallyMoveConstructible = __is_trivially_constructible(T, AddRValueRefType<T>);
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyCopyAssignable = __is_trivially_assignable(AddLValueRefType<T>, AddLValueRefType<const T>);
 
     template<typename T>
     SSSENGINE_GLOBAL
@@ -134,6 +144,10 @@ namespace SSSEngine
     SSSENGINE_GLOBAL
     constexpr bool IsMoveAssignable = __is_assignable(AddLValueRefType<T>, AddRValueRefType<T>);
 
+    template<typename T, typename U>
+    SSSENGINE_GLOBAL
+    constexpr bool IsAssignable = __is_assignable(T, U);
+
     template<typename T>
     SSSENGINE_GLOBAL
     constexpr bool IsTriviallyDestructible = __is_trivially_destructible(T);
@@ -162,5 +176,9 @@ namespace SSSEngine
     template<typename From, typename To>
     SSSENGINE_GLOBAL
     constexpr bool IsNoThrowConvertible = __is_nothrow_convertible(From, To);
+
+    template<typename From, typename To>
+    SSSENGINE_GLOBAL
+    constexpr bool IsNoThrowAssignable = __is_nothrow_assignable(From, To);
 
 } // namespace SSSEngine

@@ -31,14 +31,14 @@ namespace SSSTest
     {
         // NOLINTBEGIN(modernize-use-equals-default)
         explicit TestNonTrivial(int value) :
-        value(value) {
+            value(value) {
 
-        };
+            };
 
         TestNonTrivial(const TestNonTrivial &test) :
-        value(test.value) {
+            value(test.value) {
 
-        };
+            };
 
         TestNonTrivial(TestNonTrivial &&test) noexcept : value(Move(test.value)) {};
 

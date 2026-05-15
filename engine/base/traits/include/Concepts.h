@@ -25,6 +25,7 @@
 #pragma once
 
 #include "ArrayTraits.h"
+#include "Attributes.h"
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
 #include "EnumTraits.h"
@@ -37,6 +38,10 @@ namespace SSSEngine
 {
     template<typename From, typename To>
     concept ConvertibleToConcept = IsConvertible<From, To>;
+
+    // TODO: Use Forward instead of static_cast. For that we can't have utility.h depend on concepts.
+    template<typename From, typename To>
+    concept NonNarrowingConvertibleToConcept = requires(To &&to) { From{static_cast<To &&>(to)}; };
 
     template<typename T>
     concept BooleanTestableConcept = ConvertibleToConcept<T, bool> && requires(T &&t) {
@@ -196,7 +201,7 @@ namespace SSSEngine
         { *t } -> ReferenceableConcept;
     };
 
-    namespace Impl
+    namespace SSSENGINE_HIDDEN Impl
     {
         template<typename T>
         constexpr bool DestructibleImpl = false;
@@ -212,9 +217,9 @@ namespace SSSEngine
         constexpr bool Destructible<T &> = true;
         template<typename T>
         constexpr bool Destructible<T &&> = true;
-        template<typename T, Size N>
+        template<typename T, SizeType N>
         constexpr bool Destructible<T[N]> = DestructibleImpl<T>;
-    } // namespace Impl
+    } // namespace SSSENGINE_HIDDEN Impl
 
     template<typename T>
     concept DestructibleConcept = Impl::Destructible<T>;
@@ -230,81 +235,6 @@ namespace SSSEngine
 
     template<typename T>
     concept ClassOrEnumConcept = IsClass<T> || IsUnion<T> || IsEnum<T>;
-
-    namespace InternalSwap
-    {
-        template<typename T>
-        void Swap(T &, T &) = delete;
-
-        template<typename T, typename U>
-        concept AdlSwapConcept =
-            (ClassOrEnumConcept<RemoveReferenceType<T>> || ClassOrEnumConcept<RemoveReferenceType<U>>) &&
-            requires(T &&t, U &&u) { Swap(static_cast<T &&>(t), static_cast<U &&>(u)); };
-
-        class SwapImpl
-        {
-          private:
-            template<typename T, typename U>
-            static constexpr bool IsNoexcept()
-            {
-                if constexpr(AdlSwapConcept<T, U>)
-                {
-                    return noexcept(Swap(DeclVal<T>(), DeclVal<U>()));
-                }
-                return IsNoThrowMoveConstructible<RemoveReference<T>> && IsNoThrowMoveConstructible<RemoveReference<U>>;
-            }
-
-          public:
-            template<typename T, typename U>
-                requires AdlSwapConcept<T, U> ||
-                         (IsSameType<T, U> && IsLValueReference<T> && IsMoveConstructible<RemoveReferenceType<T>> &&
-                          AssignableFromConcept<T, RemoveReferenceType<T>>)
-            constexpr void operator()(T &&t, U &&u) const noexcept(IsNoexcept<T, U>())
-            {
-                if constexpr(AdlSwapConcept<T, U>)
-                {
-                    Swap(static_cast<T &&>(t), static_cast<U &&>(u));
-                }
-                else
-                {
-                    auto tmp = static_cast<RemoveReferenceType<T> &&>(t);
-                    t = static_cast<RemoveReferenceType<T> &&>(u);
-                    u = static_cast<RemoveReferenceType<T> &&>(tmp);
-                }
-            }
-
-            template<typename T, typename U, Size Num>
-                requires requires(const SwapImpl &swap, T &first, U &second) { swap(first, second); }
-            constexpr void operator()(T (&first)[Num], U (&second)[Num]) const
-                noexcept(noexcept(DeclVal<const SwapImpl &>()(*first, *second)))
-            {
-                for(Size i = 0; i < Num; ++i)
-                {
-                    (*this)(first[i], second[i]);
-                }
-            }
-        };
-    } // namespace InternalSwap
-
-    SSSENGINE_GLOBAL
-    constexpr InternalSwap::SwapImpl Swap{};
-
-    template<typename T>
-    concept SwappableConcept = requires(T &a, T &b) { Swap(a, b); };
-
-    template<typename T>
-    concept MovableConcept =
-        IsObject<T> && MoveConstructibleConcept<T> && AssignableFromConcept<T &, T> && SwappableConcept<T>;
-
-    template<typename T>
-    concept CopyableConcept = CopyConstructibleConcept<T> && MovableConcept<T> && AssignableFromConcept<T &, T &> &&
-                              AssignableFromConcept<T &, const T &> && AssignableFromConcept<T &, const T>;
-
-    template<typename T>
-    concept SemiregularConcept = CopyableConcept<T> && DefaultInitializableConcept<T>;
-
-    template<typename T>
-    concept RegularConcept = SemiregularConcept<T> && EqualityComparableWithConcept<T, T>;
 
     template<typename T>
     concept HasValueTypeConcept = requires { typename T::ValueType; };

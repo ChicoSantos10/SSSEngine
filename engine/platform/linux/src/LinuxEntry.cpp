@@ -33,8 +33,6 @@
 #include "Logger.h"
 #include "xdg-shell-client-protocol.h"
 
-#include "Iterator.h"
-
 int main(int argc, char *argv[])
 {
     using namespace SSSEngine::Platform;

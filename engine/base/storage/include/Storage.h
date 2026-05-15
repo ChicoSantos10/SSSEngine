@@ -25,7 +25,6 @@
 
 #include "Attributes.h"
 #include "CopyAndMoveTraits.h"
-#include "Debug.h"
 #include "Utility.h"
 #include "AlignedStorage.h"
 
@@ -177,6 +176,8 @@ namespace SSSEngine
             return Forward<Self>(self).m_value.template Get<T>();
         }
     };
+
+    // INVESTIGATE: What happens if the type T is an array of not trivial types? Is it a memory leak?
 
     // NOLINTEND(*-explicit-constructor, cppcoreguidelines-pro-type-member-init)
 } // namespace SSSEngine

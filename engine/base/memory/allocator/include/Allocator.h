@@ -35,7 +35,7 @@ namespace SSSEngine::Memory
 {
 
     template<typename T>
-    concept AllocatorConcept = requires(T allocator, Math::Bytes size, Size align, Buffer buffer) {
+    concept AllocatorConcept = requires(T allocator, Math::Bytes size, SizeType align, Buffer buffer) {
         { allocator.Allocate(size, align) } -> ConvertibleToConcept<void *>;
         { allocator.Free(buffer) } -> SameAsConcept<void>;
     };
@@ -47,12 +47,12 @@ namespace SSSEngine::Memory
 
         template<AllocatorConcept T>
         explicit Allocator(T allocator) :
-        m_allocator(&allocator), m_allocate{&allocator.Allocate}, m_free{&allocator.Free}
+            m_allocator(&allocator), m_allocate{&allocator.Allocate}, m_free{&allocator.Free}
         {
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        void *Allocate(Math::Bytes size, Size alignment)
+        void *Allocate(Math::Bytes size, SizeType alignment)
         {
             return m_allocate(m_allocator, size, alignment);
         }
@@ -64,7 +64,7 @@ namespace SSSEngine::Memory
         }
 
       private:
-        using AllocateFn = void *(*)(void *, Math::Bytes, Size);
+        using AllocateFn = void *(*)(void *, Math::Bytes, SizeType);
         using FreeFn = void (*)(void *, Buffer);
 
         void *m_allocator{};
@@ -74,11 +74,11 @@ namespace SSSEngine::Memory
 
     // TODO: Rethink this:
     SSSENGINE_GLOBAL
-    constexpr Size MaxAllocators = 32;
+    constexpr SizeType MaxAllocators = 32;
     SSSENGINE_GLOBAL
     thread_local Allocator Allocators[MaxAllocators];
     SSSENGINE_GLOBAL
-    thread_local Size Index = -1;
+    thread_local SizeType Index = -1;
 
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     Allocator &CurrentAllocator()

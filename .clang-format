@@ -21,10 +21,10 @@ AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: 'false'
-AlwaysBreakTemplateDeclarations: 'Yes'
+# AlwaysBreakTemplateDeclarations: 'Yes'
 BinPackArguments: 'false'
 # BinPackLongBracedList: 'true'
-BinPackParameters: 'true'
+BinPackParameters: 'OnePerLine'
 BreakAfterAttributes: Always
 BreakAfterJavaFieldAnnotations: 'false'
 BreakBeforeBinaryOperators: None
@@ -33,10 +33,11 @@ BreakBeforeTernaryOperators: 'false'
 BreakConstructorInitializers: AfterColon
 BreakInheritanceList: AfterColon
 BreakStringLiterals: 'true'
+BreakTemplateDeclarations: Yes
 ColumnLimit: '120'
 CompactNamespaces: 'false'
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
-ConstructorInitializerIndentWidth: '0'
+ConstructorInitializerIndentWidth: '4'
 Cpp11BracedListStyle: 'true'
 DerivePointerAlignment: 'false'
 FixNamespaceComments: 'true'
@@ -52,6 +53,8 @@ Macros:
   - SSSENGINE_PURE=[[nodiscard]]
   - SSSENGINE_FORCE_INLINE=[[nodiscard]]
   - SSSENGINE_GLOBAL=[[nodiscard]]
+  - SSSENGINE_LIKELY=[[likely]]
+  - SSSENGINE_UNLIKELY=[[unlikely]]
 MaxEmptyLinesToKeep: '1'
 NamespaceIndentation: All
 PenaltyBreakAssignment: '3'

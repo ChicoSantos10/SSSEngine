@@ -43,11 +43,11 @@ namespace SSSEngine::Text
      */
     template<StringTypeConcept CharType>
     SSSENGINE_PURE SSSENGINE_GLOBAL
-    constexpr Size Length(const CharType *const string) noexcept
+    constexpr SizeType Length(const CharType *const string) noexcept
     {
         if consteval
         {
-            Size index = 0;
+            SizeType index = 0;
             for(; string[index] != CharType('\0'); ++index)
             {
             };
@@ -85,15 +85,15 @@ namespace SSSEngine::Text
 
         constexpr StringView() = delete;
 
-        template<Size N>
+        template<SizeType N>
         constexpr StringView(const CharType (&data)[N]) : m_data{data}, m_size{N - 1} // NOLINT(*-explicit-constructor)
         {
         }
 
-        constexpr StringView(const CharType *data, const Size size) : m_data{data}, m_size{size} {}
+        constexpr StringView(const CharType *data, const SizeType size) : m_data{data}, m_size{size} {}
 
         constexpr StringView(const CharType *data) : // NOLINT(*-explicit-constructor)
-        m_data(data), m_size(Length(data))
+            m_data(data), m_size(Length(data))
         {
         }
 
@@ -128,14 +128,14 @@ namespace SSSEngine::Text
          * @return The number of code units
          */
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr Size Count() const noexcept
+        constexpr SizeType Count() const noexcept
         {
             return m_size;
         }
 
       private:
         const CharType *m_data;
-        Size m_size;
+        SizeType m_size;
     };
 
     using Utf8View = StringView<Utf8Encoding>;

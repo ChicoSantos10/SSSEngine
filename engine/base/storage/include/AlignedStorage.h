@@ -49,7 +49,7 @@ namespace SSSEngine
      * @see Storage for a similar storage that can only hold 1 type or TagUnion for a class that keeps track of the
      * current type stored
      */
-    template<Size S, Size Alignment>
+    template<SizeType S, SizeType Alignment>
         requires(S > 0 && Alignment > 0)
     class alignas(Alignment) AlignedStorage
     {

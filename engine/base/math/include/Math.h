@@ -30,6 +30,7 @@
 #include "Debug.h"
 #include "Limits.h"
 #include "Types.h"
+#include "Swap.h"
 
 namespace SSSEngine::Math
 {
@@ -84,7 +85,7 @@ namespace SSSEngine::Math
      */
     template<bool Fallback = false>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr byte CountRightZeros(IntegralConcept auto mask) noexcept
+    constexpr u8 CountRightZeros(IntegralConcept auto mask) noexcept
     {
         if constexpr(!Fallback)
         {
@@ -155,11 +156,26 @@ namespace SSSEngine::Math
 #endif
     }
 
-    // PERF: This min and max implementations could be bad for types with expensive copies. This way we do the casting
-    // once for both which means we do not need to cast again in case the operator casts it. But if the operator does
-    // not need to cast, it will cause 2 copies to happen instead of potentially one. For types like that is probably
-    // better to specialize the max and min function
-    // Benchmark it
+    // PERF: This common min and max implementations could be bad for types with expensive copies. This way we do the
+    // casting once for both which means we do not need to cast again in case the operator casts it. But if the operator
+    // does not need to cast, it will cause 2 copies to happen instead of potentially one. For types like that is
+    // probably better to specialize the max and min function Benchmark it
+
+    /**
+     * @brief Returns the minimum value between 2 values
+     *
+     * @tparam T The Type of values to compare
+     * @param first A value to compare
+     * @param second The other value to compare to
+     * @return first if first < second is true; second otherwise
+     */
+    template<typename T>
+        requires ComparableConcept<T>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Min(const T &first, const T &second) noexcept
+    {
+        return first < second ? first : second;
+    }
 
     /**
      * @brief Computes the minimum of two values
@@ -167,7 +183,10 @@ namespace SSSEngine::Math
      * The values do not need to be of the same type, in which case they will be casted to their common type.
      *
      * @important This may copy the values if the common type is different than their respective types! Avoid with
-     * expensive copies!
+     * expensive copies! Also if the comparison is between a signed and unsigned type, if the signed number is negative
+     * it will overflow and possibly become the bigger number
+     *
+     * @see Min(first, second)
      *
      * @param x The first number
      * @param y The seconds number
@@ -176,30 +195,54 @@ namespace SSSEngine::Math
     template<typename T, typename U>
         requires ComparableWithConcept<T, U>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr auto Min(const T &x, const U &y) noexcept
+    constexpr auto CommonMin(const T &x, const U &y) noexcept
     {
         using ReturnType = CommonType<T, U>;
         auto first = static_cast<ReturnType>(x);
         auto second = static_cast<ReturnType>(y);
-        return first < second ? first : second;
+        return Min(first, second);
+    }
+
+    /**
+     * @brief Returns the maximum value between 2 values
+     *
+     * @tparam T Any type that implements the ComparableConcept
+     * @param first A value to compare
+     * @param second The other value to compare to
+     * @return first if first > second is true; second otherwise
+     */
+    template<typename T>
+        requires ComparableConcept<T>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto Max(const T &first, const T &second) noexcept
+    {
+        return first > second ? first : second;
     }
 
     /**
      * @brief Computes the maximum of two values
      *
+     * The values do not need to be of the same type, in which case they will be casted to their common type.
+     *
+     * @important This may copy the values if the common type is different than their respective types! Avoid with
+     * expensive copies! Also if the comparison is between a signed and unsigned type, if the signed number is negative
+     * it will overflow and possibly become the bigger number
+     *
+     * @see Max(first, second)
+     *
      * @param x The first number
      * @param y The second number
-     * @return The bigger of the two numbers
+     * @return The Max(first, second) of the two numbers
      */
     template<typename T, typename U>
         requires ComparableWithConcept<T, U>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr auto Max(const T &x, const U &y) noexcept
+    constexpr auto CommonMax(const T &x, const U &y) noexcept
     {
         using ReturnType = CommonType<T, U>;
         auto first = static_cast<ReturnType>(x);
         auto second = static_cast<ReturnType>(y);
-        return first > second ? first : second;
+        return Max(first, second);
     }
 
     /**

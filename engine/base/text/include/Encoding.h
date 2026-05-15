@@ -30,11 +30,12 @@
 namespace SSSEngine::Text
 {
     template<typename T>
-    concept EncodingConcept = requires(byte b, const typename T::CodeUnitType *data, Size size) {
+    concept EncodingConcept = requires {
         typename T::CodeUnitType;
         typename T::CodePointType;
-        { T::CharLength(b) } -> IntegralConcept;
-        { T::ValidCodepoint(data, b) } -> ConvertibleToConcept<bool>;
+    } && requires(typename T::CodeUnitType codeUnit, const typename T::CodeUnitType *data, SizeType size) {
+        { T::CharLength(codeUnit) } -> IntegralConcept;
+        { T::ValidCodepoint(data, codeUnit) } -> ConvertibleToConcept<bool>;
         { T::ValidString(data, size) } -> ConvertibleToConcept<bool>;
         { T::Decode(data, size) } -> SameAsConcept<typename T::CodePointType>;
     };

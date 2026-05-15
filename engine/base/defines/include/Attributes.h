@@ -122,12 +122,28 @@
 // #define SSSENGINE_OPTIMIZE_FOR_SYNCHRONIZED [[optimize_for_synchronized]]
 #define SSSENGINE_MAYBE_UNUSED [[maybe_unused]]
 
+#ifdef SSSENGINE_MSVC
+
+#elif SSSENGINE_CLANG || SSSENGINE_GCC
+    #define SSSENGINE_HIDDEN __attribute__((visibility("hidden")))
+#endif
+
 #pragma endregion
 
 // INVESTIGATE: Pragmas
 #define SSSENGINE_PACK_PUSH(command) SSSENGINE_PRAGMA(pack(push, command))
 #define SSSENGINE_PACK_SHOW SSSENGINE_PRAGMA(pack(show))
 #define SSSENGINE_PACK_POP SSSENGINE_PRAGMA(pack(pop))
+
+#ifdef SSSENGINE_MSVC
+    #define SSSENGINE_SUPRESS_DIAG_IGNORE_QUALIFIERS SSSENGINE_NOT_IMPLEMENTED
+    #define SSSENGINE_POP_SUPPRESS_DIAGNOSTIC SSSENGINE_NOT_IMPLEMENTED
+#elif SSSENGINE_CLANG || SSSENGINE_GCC
+    #define SSSENGINE_SUPRESS_DIAG_IGNORE_QUALIFIERS                                                                   \
+        SSSENGINE_PRAGMA(GCC diagnostic push)                                                                          \
+        SSSENGINE_PRAGMA(GCC diagnostic ignored "-Wignored-qualifiers")
+    #define SSSENGINE_POP_SUPPRESS_DIAGNOSTIC SSSENGINE_PRAGMA(GCC diagnostic pop)
+#endif
 
 // LOW_PRIORITY: assume_aligned -> https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1007r3.pdf
 

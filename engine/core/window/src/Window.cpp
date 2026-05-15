@@ -29,9 +29,11 @@
 
 namespace SSSEngine::Core
 {
-    Window::Window(const Platform::WindowPos position, const Platform::WindowSize size, const Text::Utf8View &title,
+    Window::Window(const Platform::WindowPos position,
+                   const Platform::WindowSize size,
+                   const Text::Utf8View &title,
                    const Window *parent) :
-    m_handle{Platform::OpenWindow(position, size, title, parent ? parent->m_handle : Platform::WindowId(-1))}
+        m_handle{Platform::OpenWindow(position, size, title, parent ? parent->m_handle : Platform::WindowId(-1))}
     {
         Renderer::CreateSwapChain(m_handle);
     }

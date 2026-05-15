@@ -40,9 +40,9 @@
 namespace SSSEngine::Editor
 {
     Application::Application() :
-    // TODO: Manage memory
-    m_Window(reinterpret_cast<Core::Window *>(
-        Memory::Allocators->Allocate(Math::Bytes(sizeof(Core::Window)), alignof(Core::Window))))
+        // TODO: Manage memory
+        m_Window(reinterpret_cast<Core::Window *>(
+            Memory::Allocators->Allocate(Math::Bytes(sizeof(Core::Window)), alignof(Core::Window))))
     {
         // TODO: Allow user to define the renderer to use
         Renderer::LoadRenderer(Renderer::Renderer::Vulkan);

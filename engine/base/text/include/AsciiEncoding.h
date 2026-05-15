@@ -36,25 +36,25 @@ namespace SSSEngine::Text
         using CodePointType = char;
 
         SSSENGINE_FORCE_INLINE
-        constexpr static byte CharLength(byte)
+        constexpr static u8 CharLength(CodeUnitType)
         {
             return 1;
         }
 
         SSSENGINE_FORCE_INLINE
-        constexpr static bool ValidCodepoint(const CodeUnitType *, byte)
+        constexpr static bool ValidCodepoint(const CodeUnitType *, CodeUnitType)
         {
             return true;
         }
 
         SSSENGINE_FORCE_INLINE
-        constexpr static bool ValidString(const CodeUnitType *, Size)
+        constexpr static bool ValidString(const CodeUnitType *, SizeType)
         {
             return true;
         }
 
         SSSENGINE_FORCE_INLINE
-        constexpr static CodePointType Decode(const CodeUnitType *data, Size)
+        constexpr static CodePointType Decode(const CodeUnitType *data, SizeType)
         {
             return data[0];
         }

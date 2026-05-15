@@ -36,8 +36,7 @@ namespace SSSEngine::Platform
         // INVESTIGATE: Is this necessary?? It currently does not do anything useful
         //  A better alternative would be to have a method to update the window and poll there
         LRESULT
-        WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass,
-                        const DWORD_PTR dwRefData)
+        WindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam, UINT_PTR idSubclass, const DWORD_PTR dwRefData)
         {
             const auto *window = reinterpret_cast<WindowHandle *>(dwRefData); // NOLINT(*-no-int-to-ptr)
 

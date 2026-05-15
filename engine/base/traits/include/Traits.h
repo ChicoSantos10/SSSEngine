@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "Debug.h"
 #include "ValueConstant.h"
 
 namespace SSSEngine
@@ -38,25 +39,29 @@ namespace SSSEngine
     {
     };
 
-    template<typename>
-    struct Protector
-    {
-        static const bool False = false;
-    };
-
     namespace Impl
     {
         template<typename T, typename RValue = T &&>
-        consteval RValue DeclVal(int);
+        RValue DeclValImpl(int);
 
         template<typename T>
-        consteval T DeclVal(long);
+        T DeclValImpl(long);
+
+        template<typename T>
+        struct DeclValProtector
+        {
+            static const bool Stop = false;
+        };
     } // namespace Impl
 
     template<typename T>
-    consteval auto DeclVal() noexcept -> decltype(Impl::DeclVal<T>(0))
+    auto DeclVal() noexcept -> decltype(Impl::DeclValImpl<T>(0));
+
+    template<typename T>
+    auto DeclVal() noexcept -> decltype(Impl::DeclValImpl<T>(0))
     {
-        return Impl::DeclVal<T>(0);
+        SSSENGINE_STATIC_ASSERT(Impl::DeclValProtector<T>::Stop, "DeclVal must not be used in runtime context!");
+        return Impl::DeclValImpl<T>(0);
     }
 
     template<typename T, typename...>
@@ -77,13 +82,13 @@ namespace SSSEngine
     using EnableIf = typename EnableChecker<Cond, T>::Type;
 
     template<typename... T>
-    auto OrFunction(int) -> FirstType<FalseType, EnableIf<!bool(T::value)>...>;
+    auto OrFunction(int) -> FirstType<FalseType, EnableIf<!bool(T::Value)>...>;
 
     template<typename... T>
     auto OrFunction(...) -> TrueType;
 
     template<typename... T>
-    auto AndFunction(int) -> FirstType<TrueType, EnableIf<bool(T::value)>...>;
+    auto AndFunction(int) -> FirstType<TrueType, EnableIf<bool(T::Value)>...>;
 
     template<typename... T>
     auto AndFunction(...) -> FalseType;

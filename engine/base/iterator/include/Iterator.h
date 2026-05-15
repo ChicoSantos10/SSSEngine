@@ -27,6 +27,7 @@
 #include "ArrayTraits.h"
 #include "Concepts.h"
 #include "HelperMacros.h"
+#include "ObjectConcepts.h"
 #include "QualifierTraits.h"
 #include "SignTraits.h"
 #include "Traits.h"

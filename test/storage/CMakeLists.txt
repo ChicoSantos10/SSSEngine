@@ -1,6 +1,7 @@
 add_executable(SSSStorageTest
   Storage.test.cpp
   AlignedStorage.test.cpp
+  Variant.test.cpp
 )
 
 target_link_libraries(SSSStorageTest PRIVATE

@@ -62,8 +62,10 @@ namespace SSSEngine::Renderer::DirectX12
         void Signal();
         void WaitForFenceValue();
         void Render(const Microsoft::WRL::ComPtr<ID3D12PipelineState> &,
-                    const Microsoft::WRL::ComPtr<ID3D12RootSignature> &, const D3D12_VERTEX_BUFFER_VIEW &,
-                    const D3D12_INDEX_BUFFER_VIEW &, const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> &);
+                    const Microsoft::WRL::ComPtr<ID3D12RootSignature> &,
+                    const D3D12_VERTEX_BUFFER_VIEW &,
+                    const D3D12_INDEX_BUFFER_VIEW &,
+                    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> &);
         void BeginFrame();
         // INVESTIGATE: This could be the destructor instead but only if we manage the memory explicitly so that the
         // destructor gets called before the dll gets deleted

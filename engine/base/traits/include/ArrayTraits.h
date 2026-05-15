@@ -39,7 +39,7 @@ namespace SSSEngine
     SSSENGINE_GLOBAL
     constexpr bool IsArray<T[]> = true;
 
-    template<typename T, Size N>
+    template<typename T, SizeType N>
     SSSENGINE_GLOBAL
     constexpr bool IsArray<T[N]> = true;
 
@@ -49,30 +49,30 @@ namespace SSSEngine
      */
     template<typename Array>
     SSSENGINE_GLOBAL
-    constexpr Size Dimensions = __array_rank(Array);
+    constexpr SizeType Dimensions = __array_rank(Array);
 
     /**
      * @brief Base case. Not array or index out of range
      */
     template<typename T, unsigned Dim = 0>
     SSSENGINE_GLOBAL
-    constexpr Size CountOf = 0;
+    constexpr SizeType CountOf = 0;
 
     /**
      * @brief Return the count for dimension 0
      *
      */
-    template<typename T, Size N>
+    template<typename T, SizeType N>
     SSSENGINE_GLOBAL
-    constexpr Size CountOf<T[N], 0> = N;
+    constexpr SizeType CountOf<T[N], 0> = N;
 
     /**
      * @brief Go one dimension lower until we find the count
      *
      */
-    template<typename T, unsigned Dim, Size N>
+    template<typename T, unsigned Dim, SizeType N>
     SSSENGINE_GLOBAL
-    constexpr Size CountOf<T[N], Dim> = CountOf<T, Dim - 1>;
+    constexpr SizeType CountOf<T[N], Dim> = CountOf<T, Dim - 1>;
 
     /**
      * @brief Unknown size array
@@ -80,7 +80,7 @@ namespace SSSEngine
      */
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr Size CountOf<T[], 0> = 0;
+    constexpr SizeType CountOf<T[], 0> = 0;
 
     /**
      * @brief Unknown size array in this dimension. Recursing into previous dimensions
@@ -88,7 +88,7 @@ namespace SSSEngine
      */
     template<typename T, unsigned Dim>
     SSSENGINE_GLOBAL
-    constexpr Size CountOf<T[], Dim> = CountOf<T, Dim - 1>;
+    constexpr SizeType CountOf<T[], Dim> = CountOf<T, Dim - 1>;
 
     template<typename T>
     struct RemoveExtent
@@ -96,7 +96,7 @@ namespace SSSEngine
         using Type = T;
     };
 
-    template<typename T, Size S>
+    template<typename T, SizeType S>
     struct RemoveExtent<T[S]>
     {
         using Type = T;
@@ -116,7 +116,7 @@ namespace SSSEngine
     {
     };
 
-    template<typename T, Size Size>
+    template<typename T, SizeType Size>
     struct ArrayKnownBoundsChecker<T[Size]> : public TrueType
     {
     };
@@ -139,7 +139,7 @@ namespace SSSEngine
     SSSENGINE_GLOBAL
     constexpr bool IsArrayUnknownBounds = ArrayUnknownBoundsChecker<T>::Value;
 
-    template<typename T, Size = sizeof(T)>
+    template<typename T, SizeType = sizeof(T)>
     constexpr TrueType CompleteOrUnboundedChecker(Identity<T>)
     {
         return {};

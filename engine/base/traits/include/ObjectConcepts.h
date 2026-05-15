@@ -24,32 +24,24 @@
 
 #pragma once
 
-#include "Algorithm.h"
-#include "AlignedStorage.h"
-#include "Debug.h"
-#include "Types.h"
-#include "InitializerList.h"
+#include "Concepts.h"
+#include "ObjectTraits.h"
+#include "Swap.h"
 
 namespace SSSEngine
 {
-    template<typename... Args>
-        requires(sizeof...(Args) > 1)
-    class TagUnion
-    {
-      public:
-        static constexpr InitializerList<Size> TypeAlignments = {alignof(Args)...};
-        static constexpr InitializerList<Size> TypeSizes = {sizeof(Args)...};
 
-        static constexpr auto Alignment = Iterators::Max(TypeAlignments);
-        static constexpr auto Size = Iterators::Max(TypeSizes);
+    template<typename T>
+    concept MovableConcept =
+        IsObject<T> && MoveConstructibleConcept<T> && AssignableFromConcept<T &, T> && SwappableConcept<T>;
 
-        void S() {}
+    template<typename T>
+    concept CopyableConcept = CopyConstructibleConcept<T> && MovableConcept<T> && AssignableFromConcept<T &, T &> &&
+                              AssignableFromConcept<T &, const T &> && AssignableFromConcept<T &, const T>;
 
-      private:
-        AlignedStorage<Size, Alignment> m_storage;
-        i8 m_tag = -1;
-    };
+    template<typename T>
+    concept SemiregularConcept = CopyableConcept<T> && DefaultInitializableConcept<T>;
 
-    SSSENGINE_STATIC_ASSERT(alignof(TagUnion<u8, u16, u32, u64>) == 8, "");
-    SSSENGINE_STATIC_ASSERT(sizeof(TagUnion<u8, u16, u32, u64>) == 16, "");
+    template<typename T>
+    concept RegularConcept = SemiregularConcept<T> && EqualityComparableWithConcept<T, T>;
 } // namespace SSSEngine

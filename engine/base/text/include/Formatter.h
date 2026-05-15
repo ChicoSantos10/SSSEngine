@@ -124,7 +124,7 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding>
     struct FormatArg
     {
-        using CharType = Encoding::CharType;
+        using CharType = Encoding::CodeUnitType;
 
         ArgType type;
 
@@ -228,7 +228,7 @@ namespace SSSEngine::Text
     class FormatArgsStorage
     {
       public:
-        static constexpr Size ArgCount = sizeof...(Args);
+        static constexpr SizeType ArgCount = sizeof...(Args);
         using Arg = FormatArg<Encoding>;
 
         explicit constexpr FormatArgsStorage(Args &&...args) : m_args{MakeArg<EncodingConcept>(Forward<Args>(args))...}
@@ -242,7 +242,7 @@ namespace SSSEngine::Text
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        Size Count() const noexcept
+        SizeType Count() const noexcept
         {
             return ArgCount;
         }
@@ -297,14 +297,14 @@ namespace SSSEngine::Text
         bool isNegative = value < 0;
         Unsigned unsignedValue = isNegative ? static_cast<Unsigned>(-value) : static_cast<Unsigned>(value);
 
-        Size i = 0;
+        SizeType i = 0;
         for(; unsignedValue > 0; ++i)
         {
             tmp[i] = CharType('0') + (unsignedValue % 10);
             unsignedValue /= 10;
         }
 
-        Size out = 0;
+        SizeType out = 0;
         if(isNegative)
         {
             buffer[out++] = CharType('-');
@@ -331,12 +331,12 @@ namespace SSSEngine::Text
 
         template<typename... Args>
         constexpr FormatArgs(const Storage<Args...> &storage) : // NOLINT(*-explicit-constructor)
-        data{storage.Data()}, size{storage.Count()}
+            data{storage.Data()}, size{storage.Count()}
         {
         }
 
         const Arg *data;
-        Size size;
+        SizeType size;
     };
 
     template<EncodingConcept Encoding>

@@ -26,7 +26,6 @@
 
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
-#include "QualifierTraits.h"
 #include "Storage.h"
 #include "Utility.h"
 #include "Attributes.h"
@@ -62,14 +61,14 @@ namespace SSSEngine
         SSSENGINE_FORCE_INLINE
         Optional(const T &value) noexcept(IsNoThrowCopyConstructible<T>)
             requires(IsCopyConstructible<T>)
-        : m_value{value}, m_exists(true)
+            : m_value{value}, m_exists(true)
         {
         }
 
         SSSENGINE_FORCE_INLINE
         Optional(T &&value) noexcept(IsNoThrowMoveConstructible<T>)
             requires(IsMoveConstructible<T>)
-        : m_value(Move(value)), m_exists(true)
+            : m_value(Move(value)), m_exists(true)
         {
         }
 
@@ -110,7 +109,7 @@ namespace SSSEngine
         SSSENGINE_FORCE_INLINE
         Optional(const Optional &opt) noexcept(IsNoThrowCopyConstructible<T>)
             requires(!IsTriviallyCopyable<T>)
-        : m_exists(opt.m_exists)
+            : m_exists(opt.m_exists)
         {
             if(opt)
             {
@@ -121,7 +120,7 @@ namespace SSSEngine
         SSSENGINE_FORCE_INLINE
         Optional(Optional &&opt) noexcept(IsNoThrowMoveConstructible<T>)
             requires(!IsTriviallyCopyable<T>)
-        : m_exists(opt.m_exists)
+            : m_exists(opt.m_exists)
         {
             if(opt)
             {
@@ -232,6 +231,8 @@ namespace SSSEngine
         Storage<T> m_value{};
         bool m_exists{};
     };
+
+    // TODO: Specialize pointers and references
 
     // NOLINTEND(*-explicit-constructor)
 

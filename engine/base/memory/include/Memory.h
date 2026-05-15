@@ -33,9 +33,9 @@ namespace SSSEngine::Memory
     // INVESTIGATE: Should we just assume 64 always? What should we name this? Do we need both?
 #if defined(__GCC_CONSTRUCTIVE_SIZE) && defined(__GCC_DESTRUCTIVE_SIZE)
     SSSENGINE_GLOBAL
-    constexpr Size CacheLineConstructive = __GCC_CONSTRUCTIVE_SIZE;
+    constexpr SizeType CacheLineConstructive = __GCC_CONSTRUCTIVE_SIZE;
     SSSENGINE_GLOBAL
-    constexpr Size CacheLineDestructive = __GCC_DESTRUCTIVE_SIZE;
+    constexpr SizeType CacheLineDestructive = __GCC_DESTRUCTIVE_SIZE;
 #else
     SSSENGINE_GLOBAL
     Size CacheLineConstructive = 64;

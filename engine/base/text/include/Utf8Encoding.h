@@ -44,7 +44,7 @@ namespace SSSEngine::Text
          * @return The number of code units, this code point contains
          */
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr static byte CharLength(CodeUnitType codeUnit) noexcept
+        constexpr static u8 CharLength(CodeUnitType codeUnit) noexcept
         {
             if((codeUnit & 0x80) == 0)
                 return 1;
@@ -69,7 +69,7 @@ namespace SSSEngine::Text
          * @return True if all bytes are continuation bytes, false otherwise
          */
         SSSENGINE_PURE SSSENGINE_GLOBAL
-        constexpr static bool ValidCodepoint(const CodeUnitType *data, byte size) noexcept
+        constexpr static bool ValidCodepoint(const CodeUnitType *data, u8 size) noexcept
         {
             if(size == 0)
                 return false;
@@ -77,9 +77,9 @@ namespace SSSEngine::Text
             if(size == 1)
                 return true;
 
-            for(byte i = 1; i < size; ++i)
+            for(char8 i = 1; i < size; ++i)
             {
-                byte b = data[i];
+                char8 b = data[i];
                 if(!IsContinuationByte(b))
                     return false;
             }
@@ -95,11 +95,12 @@ namespace SSSEngine::Text
          * @return True if the string is valid UTF-8, false otherwise
          */
         SSSENGINE_PURE SSSENGINE_GLOBAL
-        constexpr static bool ValidString(const CodeUnitType *data, Size size) noexcept
+        constexpr static bool ValidString(const CodeUnitType *data, SizeType size) noexcept
         {
-            for(Size i = 0; i < size;)
+            // TODO: This does not need to be here. Instead should be in iterators or string free functions
+            for(SizeType i = 0; i < size;)
             {
-                byte byte = data[i];
+                u8 byte = data[i];
                 auto codePointSize = CharLength(byte);
                 if(!ValidCodepoint(&data[i], codePointSize))
                     return false;
@@ -118,7 +119,7 @@ namespace SSSEngine::Text
          * @return A code point
          */
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr static CodePointType Decode(const CodeUnitType *data, Size size) noexcept
+        constexpr static CodePointType Decode(const CodeUnitType *data, SizeType size) noexcept
         {
             switch(size)
             {

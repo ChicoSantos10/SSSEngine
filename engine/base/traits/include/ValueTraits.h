@@ -25,9 +25,13 @@
 #pragma once
 
 #include "ConversionTraits.h"
+#include "EnumTraits.h"
 #include "QualifierTraits.h"
+#include "Traits.h"
+#include "Types.h"
 #include "ValueConstant.h"
 #include "HelperMacros.h"
+#include <cstddef>
 
 namespace SSSEngine
 {
@@ -140,6 +144,11 @@ namespace SSSEngine
     constexpr bool IsReal = Real<T>::Value;
 
     template<typename T>
+    struct NumberChecker : Or<Integral<T>, Real<T>>
+    {
+    };
+
+    template<typename T>
     SSSENGINE_GLOBAL
     constexpr bool IsNumber = IsIntegral<T> || IsReal<T>;
 
@@ -176,4 +185,42 @@ namespace SSSEngine
     SSSENGINE_GLOBAL
     constexpr bool IsChar = IsAnyType<RemoveCVType<T>, char, unsigned char, wchar_t>;
 
+    template<typename T>
+    struct NullPointerChecker : FalseType
+    {
+    };
+
+    template<>
+    struct NullPointerChecker<NullPtrType> : TrueType
+    {
+    };
+
+    template<>
+    struct NullPointerChecker<const NullPtrType> : TrueType
+    {
+    };
+
+    template<>
+    struct NullPointerChecker<volatile NullPtrType> : TrueType
+    {
+    };
+
+    template<>
+    struct NullPointerChecker<const volatile NullPtrType> : TrueType
+    {
+    };
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsNullPointer = NullPointerChecker<T>::Value;
+
+    template<typename T>
+    struct ScalarChecker :
+        Or<NumberChecker<T>, EnumChecker<T>, PointerChecker<T>, MemberPointerChecker<T>, NullPointerChecker<T>>
+    {
+    };
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsScalar = ScalarChecker<T>::Value;
 } // namespace SSSEngine

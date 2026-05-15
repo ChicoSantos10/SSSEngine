@@ -49,7 +49,7 @@ namespace SSSEngine::Utils
         constexpr PropagateConst() noexcept = default;
         constexpr PropagateConst(T ptr) noexcept : m_ptr{ptr} {};
         constexpr PropagateConst(const ElementType *ptr) noexcept :
-        m_ptr{const_cast<T>(ptr)} {}; // NOLINT(*-const-cast, We still keep const correctness)
+            m_ptr{const_cast<T>(ptr)} {}; // NOLINT(*-const-cast, We still keep const correctness)
 
         constexpr ElementType &operator*() noexcept
         {

@@ -24,12 +24,13 @@
 
 #pragma once
 
+#include "ArrayTraits.h"
 #include "Attributes.h"
 #include "Concepts.h"
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
-#include "HelperMacros.h"
 #include "QualifierTraits.h"
+#include "Types.h"
 
 // TODO: Remove std library and implement placement new functions
 // SSSENGINE_FORCE_INLINE
@@ -78,7 +79,32 @@ namespace SSSEngine
         return __builtin_launder(ptr);
     }
 
-    // FIXME: These construct at functions should check if T is an array type
+    template<IntegralConcept T, T... Indices>
+    struct IntegerSequence
+    {
+        using ValueType = T;
+
+        static constexpr SizeType Size() noexcept
+        {
+            return sizeof...(Indices);
+        }
+    };
+
+    template<IntegralConcept T, T Indices>
+#if __has_builtin(__make_integer_seq)
+    using MakeIntegerSequence = __make_integer_seq<IntegerSequence, T, Indices>;
+#endif
+
+    template<SizeType... Indices>
+    using IndexSequence = IntegerSequence<SizeType, Indices...>;
+
+    template<SizeType Indices>
+    using MakeIndexSequence = MakeIntegerSequence<SizeType, Indices>;
+
+    // TODO: Add other variants for construction
+    //  Array -> foreach element ConstructAt() | Should be in iterators namespace since it will iterate over the array
+    //  List Initialization -> new(a) T{a, b, ...}
+    //  Move to Construct.h file or similar
 
     /**
      * @brief Constructs an Object of Type T at address
@@ -88,11 +114,11 @@ namespace SSSEngine
      * @param value The value to construct
      */
     template<typename T>
-        requires(IsDefaultConstructible<T>)
+        requires(!IsArray<T> && IsDefaultConstructible<T>)
     SSSENGINE_FORCE_INLINE
     constexpr T *ConstructAt(void *address) noexcept(IsNoThrowDefaultConstructible<T>)
     {
-        return ::new(address) T();
+        return ::new(address) T{};
     }
 
     /**
@@ -103,10 +129,19 @@ namespace SSSEngine
      * @param args The args to use in the constructor
      */
     template<typename T, typename... Args>
-        requires(IsConstructible<T, Args...>)
+        requires(!IsArray<T> && IsConstructible<T, Args...>)
     SSSENGINE_FORCE_INLINE
     constexpr T *ConstructAt(void *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
     {
         return ::new(address) T(Forward<Args>(args)...);
     }
+
+    template<typename T>
+        requires(!IsArray<T> && IsDestructible<T>)
+    SSSENGINE_FORCE_INLINE
+    constexpr void DestroyAt(T *address) noexcept(IsNoThrowDestructible<T>)
+    {
+        return address->~T();
+    }
+
 } // namespace SSSEngine

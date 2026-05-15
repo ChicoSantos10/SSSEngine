@@ -33,7 +33,7 @@
 namespace SSSEngine
 {
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    bool PointersOverlap(const void *first, const void *second, Size bytes) noexcept
+    bool PointersOverlap(const void *first, const void *second, SizeType bytes) noexcept
     {
         auto ptr1 = reinterpret_cast<const byte *>(first);
         auto ptr2 = reinterpret_cast<const byte *>(second);
@@ -55,7 +55,7 @@ namespace SSSEngine
     template<typename From, typename To>
         requires(IsBitwiseCopyable<From> && IsBitwiseCopyable<To>)
     SSSENGINE_FORCE_INLINE
-    void MemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, Size bytes) noexcept
+    void MemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
     {
         SSSENGINE_ASSERT(!PointersOverlap(from, to, bytes));
 
@@ -77,7 +77,7 @@ namespace SSSEngine
     template<typename From, typename To>
         requires(IsBitwiseCopyable<From> && IsBitwiseCopyable<To>)
     SSSENGINE_FORCE_INLINE
-    void ReverseMemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, Size bytes) noexcept
+    void ReverseMemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
     {
         SSSENGINE_ASSERT(!PointersOverlap(from, to, bytes));
 
@@ -102,7 +102,7 @@ namespace SSSEngine
     template<typename T>
         requires(IsBitwiseCopyable<T>)
     SSSENGINE_FORCE_INLINE
-    void MemorySet(T *to, i8 value, Size bytes) noexcept
+    void MemorySet(T *to, i8 value, SizeType bytes) noexcept
     {
 #ifdef SSSENGINE_MSVC
 #elif SSSENGINE_CLANG || SSSENGINE_GCC
@@ -120,7 +120,7 @@ namespace SSSEngine
     template<typename T>
         requires(IsBitwiseCopyable<T>)
     SSSENGINE_FORCE_INLINE
-    void ZeroMemory(T *to, Size bytes) noexcept
+    void ZeroMemory(T *to, SizeType bytes) noexcept
     {
         MemorySet(to, 0, bytes);
     }
@@ -137,7 +137,7 @@ namespace SSSEngine
      */
     template<typename From, typename To>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    int MemoryCompare(const From *from, const To *to, Size bytes) noexcept
+    int MemoryCompare(const From *from, const To *to, SizeType bytes) noexcept
     {
 #ifdef SSSENGINE_MSVC
 #elif SSSENGINE_CLANG || SSSENGINE_GCC
@@ -156,11 +156,11 @@ namespace SSSEngine
      */
     template<typename From>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    int MemoryCompare(const From *from, const u8 compareValue, Size bytes) noexcept
+    int MemoryCompare(const From *from, const u8 compareValue, SizeType bytes) noexcept
     {
         // TODO: SIMD instructions?
         u8 *fromBytes = BitCopy<u8 *>(from);
-        for(Size i = 0; i < bytes; ++i, ++fromBytes)
+        for(SizeType i = 0; i < bytes; ++i, ++fromBytes)
         {
             if(*fromBytes < compareValue)
                 return -1;

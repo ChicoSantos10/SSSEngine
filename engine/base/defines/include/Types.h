@@ -43,7 +43,10 @@ using u32 = unsigned int;
 using f32 = float;
 using f64 = double;
 using f128 = long double;
-using byte = unsigned char;
+
+enum class byte : u8
+{
+};
 
 using min8i = i8;
 using min16i = i16;
@@ -68,8 +71,9 @@ using maxuint = u64;
 
 using functionPtr = void (*)();
 using objPtr = void *;
+using NullPtrType = decltype(nullptr);
 
-using Size = __SIZE_TYPE__;
+using SizeType = __SIZE_TYPE__;
 
 using char8 = char8_t;
 using char16 = char16_t;

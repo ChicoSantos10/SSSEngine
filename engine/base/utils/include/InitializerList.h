@@ -37,7 +37,7 @@ namespace std
         using ValueType = E;
         using Reference = E &;
         using ConstReference = const E &;
-        using SizeType = Size;
+        using SizeType = SizeType;
         using Iterator = E *;
         using ConstIterator = const E *;
 

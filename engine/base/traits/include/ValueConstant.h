@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "Types.h"
+
 namespace SSSEngine
 {
     template<typename T, T V>
@@ -48,4 +50,7 @@ namespace SSSEngine
     using BoolConstant = ValueConstant<bool, V>;
     using TrueType = BoolConstant<true>;
     using FalseType = BoolConstant<false>;
+
+    template<SizeType N>
+    using IntegralConstant = ValueConstant<SizeType, N>;
 } // namespace SSSEngine

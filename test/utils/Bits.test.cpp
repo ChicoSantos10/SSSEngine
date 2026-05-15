@@ -17,8 +17,6 @@
     USA
 */
 
-#pragma once
-
 #include "Test.h"
 #include "Bits.h"
 

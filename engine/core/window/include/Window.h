@@ -38,8 +38,7 @@ namespace SSSEngine::Core
     class Window final
     {
       public:
-        Window(Platform::WindowPos position, Platform::WindowSize size, const Text::Utf8View &title,
-               const Window *parent = nullptr);
+        Window(Platform::WindowPos position, Platform::WindowSize size, const Text::Utf8View &title, const Window *parent = nullptr);
         ~Window();
         Window(const Window &other) = delete;
         Window(Window &&other) = delete;

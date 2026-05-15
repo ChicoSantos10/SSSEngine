@@ -40,6 +40,8 @@
 #define SSSENGINE_INTERNAL static
 #define SSSENGINE_FUNCTION_LOCAL static
 
+#define SSSENGINE_DISCARD (void)
+
 #define SSSENGINE_LIB(library) SSSENGINE_PRAGMA(comment(lib, #library))
 
 #ifdef SSSENGINE_MSVC

@@ -210,7 +210,7 @@ namespace SSSEngine::Threading
 
         constexpr Atomic() noexcept(IsNoThrowDefaultConstructible<T>)
             requires IsDefaultConstructible<T>
-        : m_value()
+            : m_value()
         {
         }
 
@@ -577,9 +577,12 @@ namespace SSSEngine::Threading
          */
         template<bool AtomicRef = false>
         SSSENGINE_FORCE_INLINE
-        bool
-        CompareExchange(this NotConstConcept auto &self, RemoveVolatileType<T> &expected, RemoveVolatileType<T> &desired,
-                        bool isWeak, MemoryOrder orderSuccess, MemoryOrder orderFailure) noexcept
+        bool CompareExchange(this NotConstConcept auto &self,
+                             RemoveVolatileType<T> &expected,
+                             RemoveVolatileType<T> &desired,
+                             bool isWeak,
+                             MemoryOrder orderSuccess,
+                             MemoryOrder orderFailure) noexcept
             requires(!IsIntegralType)
         {
 #ifdef SSSENGINE_MSVC
@@ -648,8 +651,12 @@ namespace SSSEngine::Threading
          * @return True if the values are equal, false otherwise
          */
         SSSENGINE_FORCE_INLINE
-        bool CompareExchange(this NotConstConcept auto &self, T &expected, T desired, bool isWeak,
-                             MemoryOrder successOrder, MemoryOrder failureOrder) noexcept
+        bool CompareExchange(this NotConstConcept auto &self,
+                             T &expected,
+                             T desired,
+                             bool isWeak,
+                             MemoryOrder successOrder,
+                             MemoryOrder failureOrder) noexcept
             requires(IsIntegralType)
         {
             SSSENGINE_ASSERT(IsValidFailureMemoryOrder(successOrder, failureOrder));
@@ -686,7 +693,10 @@ namespace SSSEngine::Threading
          * @return True if the values are equal, false otherwise
          */
         SSSENGINE_FORCE_INLINE
-        bool CompareExchangeWeak(this NotConstConcept auto &self, T &expected, T desired, MemoryOrder successOrder,
+        bool CompareExchangeWeak(this NotConstConcept auto &self,
+                                 T &expected,
+                                 T desired,
+                                 MemoryOrder successOrder,
                                  MemoryOrder failureOrder) noexcept
         {
             return self.CompareExchange(expected, desired, true, successOrder, failureOrder);
@@ -722,7 +732,10 @@ namespace SSSEngine::Threading
          * @return True if the values are equal, false otherwise
          */
         SSSENGINE_FORCE_INLINE
-        bool CompareExchangeStrong(this NotConstConcept auto &self, T &expected, T desired, MemoryOrder successOrder,
+        bool CompareExchangeStrong(this NotConstConcept auto &self,
+                                   T &expected,
+                                   T desired,
+                                   MemoryOrder successOrder,
                                    MemoryOrder failureOrder) noexcept
         {
             return self.CompareExchange(expected, desired, false, successOrder, failureOrder);

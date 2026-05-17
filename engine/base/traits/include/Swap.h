@@ -85,8 +85,11 @@ namespace SSSEngine
         };
     } // namespace SSSENGINE_HIDDEN InternalSwap
 
-    SSSENGINE_GLOBAL
-    constexpr InternalSwap::SwapImpl Swap{};
+    inline namespace Utility
+    {
+        SSSENGINE_GLOBAL
+        constexpr InternalSwap::SwapImpl Swap{};
+    }
 
     template<typename T>
     concept SwappableConcept = requires(T &a, T &b) { Swap(a, b); };
@@ -97,6 +100,6 @@ namespace SSSEngine
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsNoThrowSwappable = InternalSwap::SwapImpl::IsNoexcept<T>();
+    constexpr bool IsNoThrowSwappable = InternalSwap::SwapImpl::IsNoexcept<T, T>();
 
 } // namespace SSSEngine

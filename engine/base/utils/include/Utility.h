@@ -29,6 +29,7 @@
 #include "Concepts.h"
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
+#include "HelperMacros.h"
 #include "QualifierTraits.h"
 #include "Types.h"
 
@@ -78,6 +79,25 @@ namespace SSSEngine
     {
         return __builtin_launder(ptr);
     }
+
+    struct InPlaceType
+    {
+        explicit InPlaceType() = default;
+    };
+
+    SSSENGINE_GLOBAL
+    constexpr InPlaceType InPlace{};
+
+    template<typename T>
+    struct TypeTag
+    {
+        explicit TypeTag() = default;
+    };
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr TypeTag<T>
+        Tag{};
 
     template<IntegralConcept T, T... Indices>
     struct IntegerSequence

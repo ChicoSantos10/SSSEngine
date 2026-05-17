@@ -54,17 +54,6 @@ namespace SSSEngine
         requires(sizeof...(Types) > 1) && (ValidVariantMemberConcept<Types> && ...) && AreAllUnique<Types...>
     class Variant;
 
-    template<typename T>
-    struct TypeTag
-    {
-        explicit TypeTag() = default;
-    };
-
-    template<typename T>
-    SSSENGINE_GLOBAL
-    constexpr TypeTag<T>
-        Tag{};
-
     SSSENGINE_GLOBAL
     constexpr SizeType InvalidTag = -1;
 
@@ -325,7 +314,6 @@ namespace SSSEngine
 
     template<SizeType N>
     struct IndexType
-
     {
         explicit IndexType() = default;
     };
@@ -1263,6 +1251,9 @@ namespace SSSEngine
         GetImpl<N>(Move(tagUnion));
     }
 
+    // TODO: Improve with more modern C++:
+    //  - Remove the Enable Copy Move structs inheritance
+    //  - ...
     // TODO: Hash function/object for Variant
 
 } // namespace SSSEngine

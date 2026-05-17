@@ -68,12 +68,11 @@ namespace SSSTest
     using Storage = Storage<int>;
 
     SSSTEST_TEST(CopyTConstructor)
-
     {
         int value = 10;
         Storage s(value);
 
-        SSSTEST_EXPECT_EQ(s, 10);
+        SSSTEST_EXPECT_EQ(s, value);
     }
 
     SSSTEST_TEST(MoveTConstructor)
@@ -89,7 +88,7 @@ namespace SSSTest
         Storage s;
         s = value;
 
-        SSSTEST_EXPECT_EQ(s, 5);
+        SSSTEST_EXPECT_EQ(s, value);
     }
 
     SSSTEST_TEST(MoveTAssignment)
@@ -102,7 +101,7 @@ namespace SSSTest
 
     SSSTEST_TEST(CopyConstructor)
     {
-        NonTrivialStorage s(TestNonTrivial(10));
+        NonTrivialStorage s{TestNonTrivial(10)};
         NonTrivialStorage t(s);
 
         SSSTEST_EXPECT_EQ(t.Get().value, 10);
@@ -113,23 +112,6 @@ namespace SSSTest
         NonTrivialStorage s(NonTrivialStorage(TestNonTrivial(10)));
 
         SSSTEST_EXPECT_EQ(s.Get().value, 10);
-    }
-
-    SSSTEST_TEST(CopyAssignment)
-    {
-        NonTrivialStorage s(NonTrivialStorage(TestNonTrivial(10)));
-        NonTrivialStorage t;
-        t = s;
-
-        SSSTEST_EXPECT_EQ(t.Get().value, 10);
-    }
-
-    SSSTEST_TEST(MoveAssignment)
-    {
-        NonTrivialStorage t;
-        t = NonTrivialStorage(NonTrivialStorage(TestNonTrivial(10)));
-
-        SSSTEST_EXPECT_EQ(t.Get().value, 10);
     }
 
     SSSTEST_TEST(Get)

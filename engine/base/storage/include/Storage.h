@@ -23,24 +23,51 @@
 
 #pragma once
 
+#include "Address.h"
 #include "Attributes.h"
 #include "CopyAndMoveTraits.h"
 #include "Utility.h"
-#include "AlignedStorage.h"
 
 namespace SSSEngine
 {
     // NOLINTBEGIN(*-explicit-constructor, cppcoreguidelines-pro-type-member-init)
 
+    template<typename T>
+    union StorageData
+    {
+        T data;
+
+        StorageData() = default;
+        StorageData(const StorageData &) = default;
+        StorageData(StorageData &&) = default;
+        StorageData &operator=(const StorageData &) = default;
+        StorageData &operator=(StorageData &&) = default;
+        ~StorageData() = default;
+
+        StorageData()
+            requires(!IsTriviallyDefaultConstructible<T>)
+        {
+        }
+
+        ~StorageData()
+            requires(!IsTriviallyDestructible<T>)
+        {
+        }
+    };
+
     /**
-     * @brief Represents a block of memory big enough to hold 1 T and aligned as T
+     * @brief Wrapper around an object of Type T
      *
      * The memory will not be initialized by default and as such is useful to avoid unnecessary object constructions
+     *
+     * @important This object does not track lifetimes and as such should be used from other objects or manually keep
+     * track of lifetime. This object is trivially destructible even if T is not. This means that the user must manually
+     * destroy T otherwise resources will be leaked.
      *
      * @tparam T The Type to be held
      */
     template<typename T>
-    class alignas(T) Storage
+    class Storage
     {
       public:
         SSSENGINE_FORCE_INLINE
@@ -57,20 +84,12 @@ namespace SSSEngine
             Construct(Move(value));
         }
 
+        template<typename... Args>
         SSSENGINE_FORCE_INLINE
-        constexpr Storage &operator=(const T &value) noexcept(IsNoThrowCopyAssignable<T>)
-            requires(IsCopyAssignable<T>)
+        constexpr Storage(Args... args) noexcept(IsNoThrowConstructible<T, Args...>)
+            requires(IsConstructible<T, Args...>)
         {
-            Construct(value);
-            return *this;
-        }
-
-        SSSENGINE_FORCE_INLINE
-        constexpr Storage &operator=(T &&value) noexcept(IsNoThrowMoveAssignable<T>)
-            requires(IsMoveAssignable<T>)
-        {
-            UnderlyingObject() = Move(value);
-            return *this;
+            Construct(Forward<Args>(args)...);
         }
 
         Storage() = default;
@@ -84,37 +103,14 @@ namespace SSSEngine
         constexpr Storage(const Storage &storage) noexcept(IsNoThrowCopyConstructible<T>)
             requires(IsCopyConstructible<T> && !IsTriviallyCopyable<T>)
         {
-            Construct(storage.UnderlyingObject());
+            Construct(storage.Get());
         }
 
         SSSENGINE_FORCE_INLINE
         constexpr Storage(Storage &&storage) noexcept(IsNoThrowMoveConstructible<T>)
             requires(IsMoveConstructible<T> && !IsTriviallyMoveConstructible<T>)
         {
-            Construct(storage.UnderlyingObject());
-        }
-
-        SSSENGINE_FORCE_INLINE
-        constexpr Storage &operator=(const Storage &storage) noexcept(IsNoThrowCopyAssignable<T>)
-            requires(IsCopyAssignable<T> && !IsTriviallyCopyable<T>)
-        {
-            UnderlyingObject() = storage.UnderlyingObject();
-            return *this;
-        }
-
-        SSSENGINE_FORCE_INLINE
-        constexpr Storage &operator=(Storage &&storage) noexcept(IsNoThrowMoveAssignable<T>)
-            requires(IsMoveAssignable<T> && !IsTriviallyMoveAssignable<T>)
-        {
-            UnderlyingObject() = Move(storage.UnderlyingObject());
-            return *this;
-        }
-
-        SSSENGINE_FORCE_INLINE
-        constexpr T *Construct() noexcept(IsNoThrowDefaultConstructible<T>)
-            requires(IsDefaultConstructible<T>)
-        {
-            return m_value.template Construct<T>();
+            Construct(Move(storage.Get()));
         }
 
         template<typename... Args>
@@ -122,60 +118,49 @@ namespace SSSEngine
         constexpr T *Construct(Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
             requires(IsConstructible<T, Args...>)
         {
-            return m_value.template Construct<T>(Forward<Args...>(args)...);
+            return ConstructAt<T>(AddressOf(m_storage.data), Forward<Args>(args)...);
         }
 
         SSSENGINE_FORCE_INLINE
         constexpr void Destroy() noexcept(IsNoThrowDestructible<T>)
             requires(IsDestructible<T> && !IsTriviallyDestructible<T>)
         {
-            m_value.template Destroy<T>();
+            DestroyAt<T>(AddressOf(m_storage.data));
         }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr T &Get() & noexcept
+        {
+            return m_storage.data;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr const T &Get() const & noexcept
+        {
+            return m_storage.data;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr T &&Get() && noexcept
+        {
+            return Move(m_storage.data);
+        }
+
+        constexpr const T &&Get() const && = delete; // NOLINT(modernize-use-nodiscard, Its deleted no use marking
+                                                     // nodiscard)
 
         template<typename Self>
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr auto &&Get(this Self &&self) noexcept
+        constexpr operator T(this Self &&self) noexcept
         {
-            return Forward<Self>(self).UnderlyingObject();
-        }
-
-        /**
-         * @brief Conversion operator from Storage of T to T
-         *
-         * @return The underlying T Object
-         */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr operator T &()
-        {
-            return UnderlyingObject();
-        }
-
-        /**
-         * @brief Conversion operator from Storage of T to T
-         *
-         * @return The underlying const T Object
-         */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr operator const T &() const
-        {
-            return UnderlyingObject();
+            return Forward<Self>(self).Get();
         }
 
       private:
-        AlignedStorage<sizeof(T), alignof(T)> m_value;
-
-        /**
-         * @brief Get's the underlying T Object
-         *
-         * @return A reference to the underlying T Object
-         */
-        template<typename Self>
-        SSSENGINE_FORCE_INLINE
-        constexpr auto &&UnderlyingObject(this Self &&self)
-        {
-            return Forward<Self>(self).m_value.template Get<T>();
-        }
+        StorageData<T> m_storage;
     };
+
+    constexpr Storage<int> A{10};
+    constexpr int B(Storage<int>(10).Get());
 
     // INVESTIGATE: What happens if the type T is an array of not trivial types? Is it a memory leak?
 

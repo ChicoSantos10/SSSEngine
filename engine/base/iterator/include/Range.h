@@ -223,14 +223,18 @@ namespace SSSEngine::Iterators
         };
     } // namespace Impl
 
-    SSSENGINE_GLOBAL
-    constexpr Impl::BeginImpl Begin{};
+    inline namespace Utility
+    {
 
-    SSSENGINE_GLOBAL
-    constexpr Impl::EndImpl End{};
+        SSSENGINE_GLOBAL
+        constexpr Impl::BeginImpl Begin{};
 
-    SSSENGINE_GLOBAL
-    constexpr Impl::CountImpl Count{};
+        SSSENGINE_GLOBAL
+        constexpr Impl::EndImpl End{};
+
+        SSSENGINE_GLOBAL
+        constexpr Impl::CountImpl Count{};
+    } // namespace Utility
 
     template<typename R>
     concept RangeConcept = requires(R &r) {

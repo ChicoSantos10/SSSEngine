@@ -170,7 +170,7 @@ namespace SSSEngine::Math
      * @return first if first < second is true; second otherwise
      */
     template<typename T>
-        requires ComparableConcept<T>
+        requires OrderableConcept<T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto Min(const T &first, const T &second) noexcept
     {
@@ -193,7 +193,7 @@ namespace SSSEngine::Math
      * @return The smaller of the two numbers
      */
     template<typename T, typename U>
-        requires ComparableWithConcept<T, U>
+        requires OrderableWithConcept<T, U>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto CommonMin(const T &x, const U &y) noexcept
     {
@@ -212,7 +212,7 @@ namespace SSSEngine::Math
      * @return first if first > second is true; second otherwise
      */
     template<typename T>
-        requires ComparableConcept<T>
+        requires OrderableConcept<T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto Max(const T &first, const T &second) noexcept
     {
@@ -235,7 +235,7 @@ namespace SSSEngine::Math
      * @return The Max(first, second) of the two numbers
      */
     template<typename T, typename U>
-        requires ComparableWithConcept<T, U>
+        requires OrderableWithConcept<T, U>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto CommonMax(const T &x, const U &y) noexcept
     {

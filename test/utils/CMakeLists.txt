@@ -1,5 +1,6 @@
 add_executable(SSSUtilsTest
   Bits.test.cpp
+  Ordering.test.cpp
 )
 
 target_link_libraries(SSSUtilsTest PRIVATE

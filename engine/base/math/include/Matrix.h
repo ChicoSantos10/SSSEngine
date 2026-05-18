@@ -45,24 +45,13 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T, MatrixSize C, MatrixSize R>
     struct Matrix
     {
-        static consteval MatrixSize Rows()
-        {
-            return R;
-        }
-
-        static consteval MatrixSize Columns()
-        {
-            return C;
-        }
-
-        static consteval MatrixSize NumberElements()
-        {
-            return R * C;
-        }
+        static constexpr MatrixSize Rows = R;
+        static constexpr MatrixSize Columns = C;
+        static constexpr MatrixSize NumberElements = R * C;
 
         using Type = T;
 
-        T data[NumberElements()]{0};
+        T data[NumberElements]{0};
 
         template<class Self>
         constexpr auto &&operator[](this Self &&self, MatrixSize row, MatrixSize col)
@@ -76,7 +65,7 @@ namespace SSSEngine::Math
         template<class Self>
         constexpr auto &&operator[](this Self &&self, MatrixSize index)
         {
-            SSSENGINE_ASSERT(index < NumberElements());
+            SSSENGINE_ASSERT(index < NumberElements);
 
             return Forward<Self>(self).data[index];
         }
@@ -121,7 +110,7 @@ namespace SSSEngine::Math
      * @tparam T A type of matrix
      */
     template<typename T>
-    concept SquareMatrixConcept = MatrixTypeConcept<T> && T::Rows() == T::Columns();
+    concept SquareMatrixConcept = MatrixTypeConcept<T> && T::Rows == T::Columns;
 
     SSSENGINE_STATIC_ASSERT((SquareMatrixConcept<Matrix<float, 4, 4>>), "A 4x4 matrix is a square matrix");
     SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
@@ -132,9 +121,9 @@ namespace SSSEngine::Math
     constexpr auto operator*(const T &lhs, const V &rhs)
     {
         using Type = typename T::Type;
-        constexpr MatrixSize RowsLhs = T::Rows();
-        constexpr MatrixSize RowsRhs = V::Rows();
-        constexpr MatrixSize ColumnsRhs = V::Columns();
+        constexpr MatrixSize RowsLhs = T::Rows;
+        constexpr MatrixSize RowsRhs = V::Rows;
+        constexpr MatrixSize ColumnsRhs = V::Columns;
 
         Matrix<Type, ColumnsRhs, RowsRhs> result;
 
@@ -189,7 +178,7 @@ namespace SSSEngine::Math
     template<SquareMatrixConcept M>
     consteval M IdentityMatrix()
     {
-        constexpr MatrixSize Size = M::Rows();
+        constexpr MatrixSize Size = M::Rows;
 
         M m;
 

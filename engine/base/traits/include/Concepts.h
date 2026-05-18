@@ -49,7 +49,7 @@ namespace SSSEngine
     };
 
     template<typename T, typename U>
-    concept ComparableWithConcept = requires(const RemoveReferenceType<T> &x, const RemoveReferenceType<U> &y) {
+    concept OrderableWithConcept = requires(const RemoveReferenceType<T> &x, const RemoveReferenceType<U> &y) {
         { x < y } -> BooleanTestableConcept;
         { x <= y } -> BooleanTestableConcept;
         { x > y } -> BooleanTestableConcept;
@@ -61,7 +61,7 @@ namespace SSSEngine
     };
 
     template<typename T>
-    concept ComparableConcept = ComparableWithConcept<T, T>;
+    concept OrderableConcept = OrderableWithConcept<T, T>;
 
     template<typename T, typename U>
     concept EqualityComparableWithConcept = requires(const RemoveReferenceType<T> &t, const RemoveReferenceType<U> &u) {
@@ -75,7 +75,7 @@ namespace SSSEngine
     concept EqualityComparableConcept = EqualityComparableWithConcept<T, T>;
 
     template<typename T, typename U>
-    concept TotallyComparableWithConcept = EqualityComparableWithConcept<T, U> && ComparableWithConcept<T, U>;
+    concept TotallyComparableWithConcept = EqualityComparableWithConcept<T, U> && OrderableWithConcept<T, U>;
 
     template<typename T>
     concept TotallyComparableConcept = TotallyComparableWithConcept<T, T>;

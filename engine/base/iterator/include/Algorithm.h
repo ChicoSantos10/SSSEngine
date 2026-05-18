@@ -35,7 +35,7 @@ namespace SSSEngine::Iterators
     // TODO: Add noexcept where applicable
 
     template<IteratorConcept It>
-        requires ComparableConcept<IteratorValueType<It>>
+        requires OrderableConcept<IteratorValueType<It>>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr It FindMaxElement(It begin, It end)
     {
@@ -65,7 +65,7 @@ namespace SSSEngine::Iterators
     }
 
     template<IteratorConcept It>
-        requires ComparableConcept<IteratorValueType<It>>
+        requires OrderableConcept<IteratorValueType<It>>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr IteratorValueType<It> Max(It begin, It end)
     {
@@ -79,7 +79,7 @@ namespace SSSEngine::Iterators
     }
 
     template<typename T>
-        requires ComparableConcept<T>
+        requires OrderableConcept<T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto Max(InitializerList<T> list)
     {
@@ -87,7 +87,7 @@ namespace SSSEngine::Iterators
     }
 
     template<IteratorConcept It>
-        requires ComparableConcept<IteratorValueType<It>>
+        requires OrderableConcept<IteratorValueType<It>>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr It FindMinElement(It begin, It end)
     {
@@ -117,7 +117,7 @@ namespace SSSEngine::Iterators
     }
 
     template<IteratorConcept It>
-        requires ComparableConcept<IteratorValueType<It>>
+        requires OrderableConcept<IteratorValueType<It>>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr IteratorValueType<It> Min(It begin, It end)
     {
@@ -131,7 +131,7 @@ namespace SSSEngine::Iterators
     }
 
     template<typename T>
-        requires ComparableConcept<T>
+        requires OrderableConcept<T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto Min(InitializerList<T> list)
     {

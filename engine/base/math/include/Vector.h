@@ -39,49 +39,49 @@ namespace SSSEngine::Math
         T y;
 
         SSSENGINE_FORCE_INLINE
-        friend Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        constexpr friend Vector2<T> operator+(const Vector2<T> &lhs, const Vector2<T> &rhs) noexcept
         {
             return {lhs.x + rhs.x, lhs.y + rhs.y};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs)
+        constexpr friend Vector2<T> operator-(Vector2<T> lhs, Vector2<T> rhs) noexcept
         {
             return {lhs.x - rhs.x, lhs.y - rhs.y};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector2<T> operator*(const Vector2<T> &lhs, const Vector2<T> &rhs)
+        constexpr friend Vector2<T> operator*(const Vector2<T> &lhs, const Vector2<T> &rhs) noexcept
         {
             return {lhs.x * rhs.x, lhs.y * rhs.y};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs)
+        constexpr friend Vector2<T> operator/(Vector2<T> lhs, Vector2<T> rhs) noexcept
         {
             return {lhs.x / rhs.x, lhs.y / rhs.y};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector2<T> operator*(Vector2<T> lhs, T scalar)
+        constexpr friend Vector2<T> operator*(Vector2<T> lhs, T scalar) noexcept
         {
             return {lhs.x * scalar, lhs.y * scalar};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector2<T> operator/(Vector2<T> vector, T scalar)
+        constexpr friend Vector2<T> operator/(Vector2<T> vector, T scalar) noexcept
         {
             return {vector.x / scalar, vector.y / scalar};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector2<T> operator*(T scalar, Vector2<T> vector)
+        constexpr friend Vector2<T> operator*(T scalar, Vector2<T> vector) noexcept
         {
             return vector * scalar;
         }
 
         SSSENGINE_FORCE_INLINE
-        friend bool operator==(Vector2<T> lhs, Vector2<T> rhs)
+        constexpr friend bool operator==(Vector2<T> lhs, Vector2<T> rhs) noexcept
         {
             return lhs.x == rhs.x && lhs.y == rhs.y;
         }
@@ -95,49 +95,49 @@ namespace SSSEngine::Math
         T z;
 
         SSSENGINE_FORCE_INLINE
-        friend Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs)
+        constexpr friend Vector3<T> operator+(Vector3<T> lhs, Vector3<T> rhs) noexcept
         {
             return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs)
+        constexpr friend Vector3<T> operator-(Vector3<T> lhs, Vector3<T> rhs) noexcept
         {
             return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs)
+        constexpr friend Vector3<T> operator*(Vector3<T> lhs, Vector3<T> rhs) noexcept
         {
             return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs)
+        constexpr friend Vector3<T> operator/(Vector3<T> lhs, Vector3<T> rhs) noexcept
         {
             return {lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector3<T> operator*(Vector3<T> lhs, T scalar)
+        constexpr friend Vector3<T> operator*(Vector3<T> lhs, T scalar) noexcept
         {
             return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector3<T> operator/(Vector3<T> vector, T scalar)
+        constexpr friend Vector3<T> operator/(Vector3<T> vector, T scalar) noexcept
         {
             return {vector.x / scalar, vector.y / scalar, vector.z / scalar};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector3<T> operator*(T scalar, Vector3<T> vector)
+        constexpr friend Vector3<T> operator*(T scalar, Vector3<T> vector) noexcept
         {
             return vector * scalar;
         }
 
         SSSENGINE_FORCE_INLINE
-        friend bool operator==(Vector3<T> lhs, Vector3<T> rhs)
+        constexpr friend bool operator==(Vector3<T> lhs, Vector3<T> rhs) noexcept
         {
             return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
         }
@@ -152,49 +152,49 @@ namespace SSSEngine::Math
         T w;
 
         SSSENGINE_FORCE_INLINE
-        friend Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs)
+        constexpr friend Vector4<T> operator+(Vector4<T> lhs, Vector4<T> rhs) noexcept
         {
             return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs)
+        constexpr friend Vector4<T> operator-(Vector4<T> lhs, Vector4<T> rhs) noexcept
         {
             return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs)
+        constexpr friend Vector4<T> operator*(Vector4<T> lhs, Vector4<T> rhs) noexcept
         {
             return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs)
+        constexpr friend Vector4<T> operator/(Vector4<T> lhs, Vector4<T> rhs) noexcept
         {
             return {lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z, lhs.w / rhs.w};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector4<T> operator*(Vector4<T> lhs, T scalar)
+        constexpr friend Vector4<T> operator*(Vector4<T> lhs, T scalar) noexcept
         {
             return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar, lhs.w * scalar};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector4<T> operator/(Vector4<T> vector, T scalar)
+        constexpr friend Vector4<T> operator/(Vector4<T> vector, T scalar) noexcept
         {
             return {vector.x / scalar, vector.y / scalar, vector.z / scalar, vector.w / scalar};
         }
 
         SSSENGINE_FORCE_INLINE
-        friend Vector4<T> operator*(T scalar, Vector4<T> vector)
+        constexpr friend Vector4<T> operator*(T scalar, Vector4<T> vector) noexcept
         {
             return vector * scalar;
         }
 
         SSSENGINE_FORCE_INLINE
-        friend bool operator==(Vector4<T> lhs, Vector4<T> rhs)
+        constexpr friend bool operator==(Vector4<T> lhs, Vector4<T> rhs) noexcept
         {
             return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w;
         }
@@ -210,4 +210,5 @@ namespace SSSEngine::Math
     using Float2 = Vector2<f32>;
     using Float3 = Vector3<f32>;
     using Float4 = Vector4<f32>;
+
 } // namespace SSSEngine::Math

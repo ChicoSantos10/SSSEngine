@@ -116,7 +116,7 @@ namespace SSSEngine::Math
     SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
 
     template<MatrixTypeConcept T, MatrixTypeConcept V>
-        requires(IsSameType<T, V>) && (T::Columns() == V::Rows())
+        requires(IsSameType<T, V>) && (T::Columns == V::Rows)
     SSSENGINE_GLOBAL
     constexpr auto operator*(const T &lhs, const V &rhs)
     {
@@ -147,8 +147,8 @@ namespace SSSEngine::Math
     SSSENGINE_GLOBAL
     constexpr bool operator==(const T &lhs, const T &rhs)
     {
-        constexpr MatrixSize Rows = T::Rows();
-        constexpr MatrixSize Columns = T::Columns();
+        constexpr MatrixSize Rows = T::Rows;
+        constexpr MatrixSize Columns = T::Columns;
         constexpr MatrixSize Size = Rows * Columns;
 
         for(MatrixSize i = 0; i < Size; ++i)

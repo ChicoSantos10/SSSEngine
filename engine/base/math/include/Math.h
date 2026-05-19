@@ -27,13 +27,65 @@
 #include "Attributes.h"
 #include "Bits.h"
 #include "Concepts.h"
+#include "ConversionTraits.h"
 #include "Debug.h"
+#include "HelperMacros.h"
 #include "Limits.h"
+#include "SignTraits.h"
+#include "Traits.h"
 #include "Types.h"
 #include "Swap.h"
 
 namespace SSSEngine::Math
 {
+    SSSENGINE_FORCE_INLINE
+    constexpr auto AsBits(RealConcept auto value) noexcept
+    {
+        if constexpr(sizeof(value) == 4)
+        {
+            return BitCopy<u32>(value);
+        }
+        else if constexpr(sizeof(value) == 8)
+        {
+            return BitCopy<u64>(value);
+        }
+        else
+        {
+            SSSENGINE_NOT_IMPLEMENTED;
+        }
+    }
+
+    SSSENGINE_FORCE_INLINE
+    constexpr auto AsSignedBits(RealConcept auto value) noexcept
+    {
+        auto num = AsBits(value);
+        return static_cast<SignedType<decltype(num)>>(num);
+    }
+
+    template<RealConcept R>
+    SSSENGINE_GLOBAL
+    constexpr u64 ExponentMask = 0;
+
+    template<RealConcept R>
+    SSSENGINE_GLOBAL
+    constexpr u64 FractionMask = 0;
+
+    template<>
+    SSSENGINE_GLOBAL
+    constexpr u32 ExponentMask<f32> = 0x7F800000U;
+
+    template<>
+    SSSENGINE_GLOBAL
+    constexpr u32 FractionMask<f32> = 0x007FFFFFU;
+
+    template<>
+    SSSENGINE_GLOBAL
+    constexpr u64 ExponentMask<f64> = 0x7FF0000000000000ULL;
+
+    template<>
+    SSSENGINE_GLOBAL
+    constexpr u64 FractionMask<f64> = 0x000FFFFFFFFFFFFFULL;
+
     /**
      * @brief Get's the absolute representation of a signed integer
      *
@@ -335,11 +387,22 @@ namespace SSSEngine::Math
     constexpr int SignOf(NumberConcept auto num) noexcept
     {
         using Type = decltype(num);
-        using UnsignedType = UnsignedType<Type>;
+        auto value = [num]()
+        {
+            if constexpr(IsReal<Type>)
+            {
+                return AsSignedBits(num);
+            }
+            else
+            {
+                return num;
+            }
+        }();
+        using UnsignedType = UnsignedType<decltype(value)>;
 
         constexpr auto Shift = Limits::Bits<Type> - 1;
 
-        return (num >> Shift) | (-static_cast<UnsignedType>(num) >> Shift);
+        return (value >> Shift) | (-static_cast<UnsignedType>(value) >> Shift);
     };
 
     /**
@@ -419,6 +482,18 @@ namespace SSSEngine::Math
         f32 log2ofM = t * (P0 + t * (P1 + t * (P2 + t * (P3 + t * (P4 + t * (P5 + t * P6))))));
 
         return (static_cast<f32>(e) + log2ofM) * Log10of2;
+    }
+
+    template<RealConcept R>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr bool IsNaN(R value) noexcept
+    {
+        auto bits = AsBits(value);
+
+        auto exponent = bits & ExponentMask<R>;
+        auto fraction = bits & FractionMask<R>;
+
+        return exponent == ExponentMask<R> && fraction != 0;
     }
 
 } // namespace SSSEngine::Math

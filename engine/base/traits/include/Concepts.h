@@ -43,43 +43,6 @@ namespace SSSEngine
     template<typename From, typename To>
     concept NonNarrowingConvertibleToConcept = requires(To &&to) { From{static_cast<To &&>(to)}; };
 
-    template<typename T>
-    concept BooleanTestableConcept = ConvertibleToConcept<T, bool> && requires(T &&t) {
-        { !static_cast<T &&>(t) } -> ConvertibleToConcept<bool>;
-    };
-
-    template<typename T, typename U>
-    concept OrderableWithConcept = requires(const RemoveReferenceType<T> &x, const RemoveReferenceType<U> &y) {
-        { x < y } -> BooleanTestableConcept;
-        { x <= y } -> BooleanTestableConcept;
-        { x > y } -> BooleanTestableConcept;
-        { x >= y } -> BooleanTestableConcept;
-        { y < x } -> BooleanTestableConcept;
-        { y <= x } -> BooleanTestableConcept;
-        { y > x } -> BooleanTestableConcept;
-        { y >= x } -> BooleanTestableConcept;
-    };
-
-    template<typename T>
-    concept OrderableConcept = OrderableWithConcept<T, T>;
-
-    template<typename T, typename U>
-    concept EqualityComparableWithConcept = requires(const RemoveReferenceType<T> &t, const RemoveReferenceType<U> &u) {
-        { t == u } -> BooleanTestableConcept;
-        { t != u } -> BooleanTestableConcept;
-        { u == t } -> BooleanTestableConcept;
-        { u != t } -> BooleanTestableConcept;
-    };
-
-    template<typename T>
-    concept EqualityComparableConcept = EqualityComparableWithConcept<T, T>;
-
-    template<typename T, typename U>
-    concept TotallyComparableWithConcept = EqualityComparableWithConcept<T, U> && OrderableWithConcept<T, U>;
-
-    template<typename T>
-    concept TotallyComparableConcept = TotallyComparableWithConcept<T, T>;
-
     /**
      * @brief Concept of a Integral of Floating point number
      *
@@ -201,7 +164,7 @@ namespace SSSEngine
         { *t } -> ReferenceableConcept;
     };
 
-    namespace SSSENGINE_HIDDEN Impl
+    namespace Impl
     {
         template<typename T>
         constexpr bool DestructibleImpl = false;
@@ -219,7 +182,7 @@ namespace SSSEngine
         constexpr bool Destructible<T &&> = true;
         template<typename T, SizeType N>
         constexpr bool Destructible<T[N]> = DestructibleImpl<T>;
-    } // namespace SSSENGINE_HIDDEN Impl
+    } // namespace Impl
 
     template<typename T>
     concept DestructibleConcept = Impl::Destructible<T>;
@@ -241,5 +204,50 @@ namespace SSSEngine
 
     template<typename T>
     concept HasElementTypeConcept = requires { typename T::ElementType; };
+
+    template<typename T>
+    concept BooleanTestableConcept = ConvertibleToConcept<T, bool> && requires(T &&t) {
+        { !static_cast<T &&>(t) } -> ConvertibleToConcept<bool>;
+    };
+
+    template<typename T, typename U, typename CommonRef = CommonReferenceType<const T &, const U &>>
+    concept ComparisonCommonTypeConcept =
+        SameAsConcept<CommonReferenceType<const T &, const U &>, CommonReferenceType<const U &, const T &>> && requires {
+            requires ConvertibleToConcept<const T &, const CommonRef &> || ConvertibleToConcept<T, const CommonRef &>;
+            requires ConvertibleToConcept<const U &, const CommonRef &> || ConvertibleToConcept<U, const CommonRef &>;
+        };
+
+    template<typename T, typename U>
+    concept OrderableWithConcept = requires(const RemoveReferenceType<T> &x, const RemoveReferenceType<U> &y) {
+        { x < y } -> BooleanTestableConcept;
+        { x <= y } -> BooleanTestableConcept;
+        { x > y } -> BooleanTestableConcept;
+        { x >= y } -> BooleanTestableConcept;
+        { y < x } -> BooleanTestableConcept;
+        { y <= x } -> BooleanTestableConcept;
+        { y > x } -> BooleanTestableConcept;
+        { y >= x } -> BooleanTestableConcept;
+    };
+
+    template<typename T>
+    concept OrderableConcept = OrderableWithConcept<T, T>;
+
+    template<typename T, typename U>
+    concept EqualityComparableWithConcept = requires(const RemoveReferenceType<T> &t, const RemoveReferenceType<U> &u) {
+        { t == u } -> BooleanTestableConcept;
+        { t != u } -> BooleanTestableConcept;
+        { u == t } -> BooleanTestableConcept;
+        { u != t } -> BooleanTestableConcept;
+    };
+
+    template<typename T>
+    concept EqualityComparableConcept = EqualityComparableWithConcept<T, T>;
+
+    template<typename T>
+    concept TotallyComparableConcept = EqualityComparableConcept<T> && OrderableConcept<T>;
+
+    template<typename T, typename U>
+    concept TotallyComparableWithConcept = TotallyComparableConcept<T> && TotallyComparableConcept<U> &&
+                                           EqualityComparableWithConcept<T, U> && OrderableWithConcept<T, U>;
 
 } // namespace SSSEngine

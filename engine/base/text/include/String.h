@@ -158,12 +158,12 @@ namespace SSSEngine::Text
                 return *this;
             }
 
-            if(!IsStackString())
+            if(!m_isSmall)
             {
                 DeleteHeapString();
             }
 
-            if(string.IsStackString())
+            if(string.m_isSmall)
             {
                 CopySmallString(string);
             }
@@ -182,12 +182,12 @@ namespace SSSEngine::Text
                 return *this;
             }
 
-            if(!IsStackString())
+            if(!m_isSmall)
             {
                 DeleteHeapString();
             }
 
-            if(string.IsStackString())
+            if(string.m_isSmall)
             {
                 CopySmallString(string);
             }
@@ -202,7 +202,7 @@ namespace SSSEngine::Text
 
         constexpr ~String()
         {
-            if(!IsStackString())
+            if(!m_isSmall)
             {
                 DeleteHeapString();
             }
@@ -216,7 +216,7 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr CharType *CString() noexcept
         {
-            if(IsStackString())
+            if(m_isSmall)
             {
                 return m_data.stackString;
             }
@@ -231,7 +231,7 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr const CharType *CString() const noexcept
         {
-            if(IsStackString())
+            if(m_isSmall)
             {
                 return m_data.stackString;
             }
@@ -263,7 +263,7 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr u32 Capacity() const noexcept
         {
-            if(IsStackString())
+            if(m_isSmall)
             {
                 return MaxSmallSize;
             }
@@ -294,7 +294,7 @@ namespace SSSEngine::Text
                 // INVESTIGATE: What do we do here?
             }
 
-            if(IsStackString())
+            if(m_isSmall)
             {
                 MemoryCopy(m_data.stackString, address, Count());
             }
@@ -303,7 +303,7 @@ namespace SSSEngine::Text
                 MemoryCopy(m_data.heapString.m_data, address, Count());
             }
 
-            SSSENGINE_ASSERT(!IsStackString());
+            SSSENGINE_ASSERT(!m_isSmall);
             m_data.heapString.m_capacity = newCapacity;
         }
 
@@ -312,7 +312,7 @@ namespace SSSEngine::Text
         {
             using It = ConditionalType<IsConst<RemoveReferenceType<Self>>, ConstIterator, Iterator>;
 
-            if(self.IsStackString())
+            if(self.m_isSmall)
             {
                 return It{self.m_data.stackString.Begin()};
             }
@@ -380,22 +380,13 @@ namespace SSSEngine::Text
         /**
          * @brief Creates but does not initialize the small string
          *
+         * Essentially starts the lifetime of the small string without constructing the chars underneath
+         *
          */
         SSSENGINE_FORCE_INLINE
         constexpr void CreateSmallString()
         {
             DefaultConstructAt(AddressOf(m_data.stackString));
-        }
-
-        /**
-         * @brief Checks if this string is a stack allocated string or a heap allocated string
-         *
-         * @return True if is stack allocated string, false if is a heap allocated string
-         */
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr bool IsStackString() const noexcept
-        {
-            return m_isSmall;
         }
 
         /**

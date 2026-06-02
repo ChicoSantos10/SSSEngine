@@ -183,7 +183,7 @@ namespace SSSEngine::Math
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr char CountLeftZeros(IntegralConcept auto num) noexcept
     {
-        if constexpr(Fallback)
+        if constexpr(!Fallback)
         {
             SSSENGINE_ASSERT(num != 0);
         }
@@ -297,6 +297,30 @@ namespace SSSEngine::Math
         return Max(first, second);
     }
 
+    // TODO: Reword this:
+    /**
+     * @brief Gets the next integer greater or equal to num
+     *
+     * @tparam ReturnType The type to return
+     * @param num The number to check
+     * @return The next integer greater or equal to num
+     */
+    template<NumberConcept ReturnType = f32, RealConcept T>
+    constexpr ReturnType Ceil(T num) noexcept
+    {
+        SSSENGINE_STATIC_ASSERT(IsAnyType<T, f32, f64>);
+
+        using TruncateType = ConditionalType<IsSameType<T, f32>, i32, i64>;
+
+        auto truncated = TruncateType(num);
+        if(truncated < num)
+        {
+            return ReturnType(truncated + 1);
+        }
+
+        return ReturnType(truncated);
+    }
+
     /**
      * @brief Calculates the greatest common divisor
      *
@@ -400,7 +424,7 @@ namespace SSSEngine::Math
         }();
         using UnsignedType = UnsignedType<decltype(value)>;
 
-        constexpr auto Shift = Limits::Bits<Type> - 1;
+        static constexpr auto Shift = Limits::Bits<Type> - 1;
 
         return (value >> Shift) | (-static_cast<UnsignedType>(value) >> Shift);
     };
@@ -433,7 +457,7 @@ namespace SSSEngine::Math
     }
 
     /**
-     * @brief Calculates the number of bits needed to store the value
+     * @brief Calculates the number of bits needed to store the value. In others the amount of bits the value occupies
      *
      * @param number The number to calculate
      * @return The number of bits needed to store the value
@@ -454,14 +478,14 @@ namespace SSSEngine::Math
             return -1.0f / 0;
         }
 
-        constexpr float Log10of2 = 0.30102999566f;
-        constexpr f32 P0 = 1.4426950408889634f;
-        constexpr f32 P1 = -0.7213475204444817f;
-        constexpr f32 P2 = 0.4808983469629878f;
-        constexpr f32 P3 = -0.36067376022224085f;
-        constexpr f32 P4 = 0.2885390081777927f;
-        constexpr f32 P5 = -0.2402265069591013f;
-        constexpr f32 P6 = 0.20625209037634344f;
+        static constexpr float Log10of2 = 0.30102999566f;
+        static constexpr f32 P0 = 1.4426950408889634f;
+        static constexpr f32 P1 = -0.7213475204444817f;
+        static constexpr f32 P2 = 0.4808983469629878f;
+        static constexpr f32 P3 = -0.36067376022224085f;
+        static constexpr f32 P4 = 0.2885390081777927f;
+        static constexpr f32 P5 = -0.2402265069591013f;
+        static constexpr f32 P6 = 0.20625209037634344f;
 
         u32 bits = BitCopy<u32>(value);
 

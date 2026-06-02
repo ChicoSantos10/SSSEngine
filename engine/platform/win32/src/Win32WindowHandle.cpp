@@ -89,7 +89,8 @@ namespace SSSEngine::Platform
         SSSENGINE_ASSERT((x >= 0 || x == CW_USEDEFAULT) && (y >= 0 || y == CW_USEDEFAULT) && width > 0 && height > 0 &&
                          "Window size is invalid");
 
-        constexpr int ChildStyle = WS_CHILD | (WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
+        static constexpr int ChildStyle =
+            WS_CHILD | (WS_OVERLAPPEDWINDOW & ~(WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU));
         const int style = parent ? ChildStyle : WS_OVERLAPPEDWINDOW;
 
         using namespace Win32;
@@ -166,7 +167,7 @@ namespace SSSEngine::Platform
             if(GetMonitorInfo(monitor, &monitorInfo) && GetWindowPlacement(static_cast<HWND>(handle), &window))
             {
                 SetWindowLongPtr(static_cast<HWND>(handle), GWL_STYLE, WithoutBits(styles, WS_OVERLAPPEDWINDOW));
-                constexpr auto Flags = SWP_FRAMECHANGED | SWP_NOOWNERZORDER;
+                static constexpr auto Flags = SWP_FRAMECHANGED | SWP_NOOWNERZORDER;
                 const auto [left, top, right, bottom] = monitorInfo.rcMonitor;
                 SetWindowPos(static_cast<HWND>(handle), HWND_TOP, left, top, right - left, bottom - top, Flags);
 
@@ -178,7 +179,7 @@ namespace SSSEngine::Platform
             SetWindowLongPtr(static_cast<HWND>(handle), GWL_STYLE, styles | WS_OVERLAPPEDWINDOW);
             SetWindowPlacement(static_cast<HWND>(handle), &window);
 
-            constexpr auto Flags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED;
+            static constexpr auto Flags = SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED;
             SetWindowPos(static_cast<HWND>(handle), nullptr, 0, 0, 0, 0, Flags);
 
             // ShowWindow(static_cast<HWND>(m_handle), SW_SHOWNORMAL);

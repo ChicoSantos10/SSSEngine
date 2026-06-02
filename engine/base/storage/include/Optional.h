@@ -63,7 +63,6 @@ namespace SSSEngine
     {
         using Base = Storage<T>;
         using Base::Construct;
-        using DestroyStorage = Base::Destroy;
         using Base::Get;
 
       public:
@@ -170,7 +169,7 @@ namespace SSSEngine
                 {
                     if constexpr(!IsTriviallyDestructible<T>)
                     {
-                        DestroyStorage();
+                        Base::Destroy();
                     }
                     m_exists = false;
                 }
@@ -192,7 +191,7 @@ namespace SSSEngine
                 {
                     if constexpr(!IsTriviallyDestructible<T>)
                     {
-                        DestroyStorage();
+                        Base::Destroy();
                     }
                     m_exists = false;
                 }
@@ -263,7 +262,7 @@ namespace SSSEngine
             {
                 if(m_exists)
                 {
-                    DestroyStorage();
+                    Base::Destroy();
                 }
             }
             Construct(Forward<Args>(args)...);
@@ -280,7 +279,7 @@ namespace SSSEngine
             {
                 if(m_exists)
                 {
-                    DestroyStorage();
+                    Base::Destroy();
                 }
             }
             Construct(list, Forward<Args>(args)...);
@@ -297,7 +296,7 @@ namespace SSSEngine
 
         template<typename Self>
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr auto &&operator*(this Self &&self) noexcept
+        constexpr decltype(auto) operator*(this Self &&self) noexcept
         {
             SSSENGINE_ASSERT(Forward<Self>(self).m_exists);
             return Forward<Self>(self).Get();
@@ -376,7 +375,7 @@ namespace SSSEngine
         {
             SSSENGINE_ASSERT(m_exists);
 
-            DestroyStorage();
+            Base::Destroy();
             m_exists = false;
         }
 

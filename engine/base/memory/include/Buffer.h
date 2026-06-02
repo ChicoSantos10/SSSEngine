@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Attributes.h"
+#include "Byte.h"
 #include "MemorySize.h"
 #include "Types.h"
 
@@ -50,19 +51,20 @@ namespace SSSEngine
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     void *End(const Buffer buffer)
     {
-        return reinterpret_cast<byte *>(buffer.address) + buffer.capacity.value;
+        return reinterpret_cast<Byte *>(buffer.address) + buffer.capacity.value;
     }
 
     /**
-     * @brief Gets the end of this buffer
+     * @brief Gets an address which is the buffer addressed offset by an amount
      *
-     * @param buffer The buffer to get the end
-     * @return A pointer to the end of this memory region
+     * @param buffer The buffer whose address to get the offset of
+     * @param offset The amount to offset the address
+     * @return A pointer that is the buffer address + offset
      */
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     void *Offset(const Buffer buffer, uintptr offset)
     {
-        return reinterpret_cast<byte *>(buffer.address) + offset;
+        return reinterpret_cast<Byte *>(buffer.address) + offset;
     }
 
 } // namespace SSSEngine

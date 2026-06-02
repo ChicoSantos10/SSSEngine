@@ -83,6 +83,7 @@ namespace SSSEngine::Memory
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     Allocator &CurrentAllocator()
     {
+        SSSENGINE_ASSERT(Index >= 0 && Index < MaxAllocators);
         return Allocators[Index];
     }
 

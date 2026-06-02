@@ -107,7 +107,7 @@ namespace SSSEngine::Threading
         }
 
       private:
-        Atomic<u32, MemoryOrder::Relaxed> m_flag;
+        Atomic<u32> m_flag;
 
         enum State : u8
         {

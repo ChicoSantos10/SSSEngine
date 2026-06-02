@@ -26,6 +26,7 @@
 
 #include "Attributes.h"
 #include "Bits.h"
+#include "Byte.h"
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "Types.h"
@@ -33,11 +34,19 @@
 namespace SSSEngine
 {
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    bool PointersOverlap(const void *first, const void *second, SizeType bytes) noexcept
+    constexpr bool PointersOverlap(const void *first, const void *second, SizeType bytes) noexcept
     {
-        auto ptr1 = reinterpret_cast<const byte *>(first);
-        auto ptr2 = reinterpret_cast<const byte *>(second);
-        return (ptr1 < ptr2 + bytes) && (ptr2 < ptr1 + bytes);
+        if consteval
+        {
+            // INVESTIGATE: How can we check during compile time?
+            return false;
+        }
+        else
+        {
+            auto ptr1 = static_cast<const Byte *>(first);
+            auto ptr2 = static_cast<const Byte *>(second);
+            return (ptr1 < ptr2 + bytes) && (ptr2 < ptr1 + bytes);
+        }
     }
 
     // FIXME: This functions are not safe. Find a better way to do it by either passing buffers, arrays, or
@@ -55,7 +64,7 @@ namespace SSSEngine
     template<typename From, typename To>
         requires(IsBitwiseCopyable<From> && IsBitwiseCopyable<To>)
     SSSENGINE_FORCE_INLINE
-    void MemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
+    constexpr void MemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
     {
         SSSENGINE_ASSERT(!PointersOverlap(from, to, bytes));
 
@@ -81,13 +90,11 @@ namespace SSSEngine
     {
         SSSENGINE_ASSERT(!PointersOverlap(from, to, bytes));
 
-        auto current = from + bytes;
+        auto current = from + bytes - 1;
         auto end = from - 1;
         while(current != end)
         {
-            --current;
-            *to = *current;
-            ++to;
+            *to++ = *current--;
         }
     }
 

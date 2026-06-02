@@ -111,7 +111,6 @@ namespace SSSEngine
 
     template<typename Qualified, typename Unqualified>
     class MatchCV
-
     {
         using Match = CVSelector<Unqualified, IsConst<Qualified>, IsVolatile<Qualified>>;
 
@@ -121,6 +120,21 @@ namespace SSSEngine
 
     template<typename T>
     using DecayType = __decay(T);
+
+    template<typename T>
+    struct RemoveConst
+    {
+        using Type = T;
+    };
+
+    template<typename T>
+    struct RemoveConst<const T>
+    {
+        using Type = T;
+    };
+
+    template<typename T>
+    using RemoveConstType = RemoveConst<T>::Type;
 
     template<typename T>
     struct RemoveReference

@@ -24,10 +24,13 @@
 
 #pragma once
 
+#include "Algorithm.h"
 #include "AsciiEncoding.h"
 #include "Attributes.h"
 #include "Debug.h"
 #include "Encoding.h"
+#include "HelperMacros.h"
+#include "Range.h"
 #include "Types.h"
 #include "Bits.h"
 #include "Utf8Encoding.h"
@@ -54,17 +57,19 @@ namespace SSSEngine::Text
 
             return index;
         }
-
-        if constexpr(sizeof(CharType) == sizeof(char))
+        else
         {
-            const auto *data = reinterpret_cast<const char *>(string);
-            return __builtin_strlen(data);
-        }
+            if constexpr(sizeof(CharType) == sizeof(char))
+            {
+                const auto *data = reinterpret_cast<const char *>(string);
+                return __builtin_strlen(data);
+            }
 
-        if constexpr(IsSameType<CharType, wchar_t>)
-        {
-            const auto *data = reinterpret_cast<const wchar_t *>(string);
-            return __builtin_wcslen(data);
+            if constexpr(IsSameType<CharType, wchar_t>)
+            {
+                const auto *data = reinterpret_cast<const wchar_t *>(string);
+                return __builtin_wcslen(data);
+            }
         }
     }
 
@@ -75,9 +80,10 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding>
     class StringView
     {
-        using CharType = Encoding::CodeUnitType;
-
       public:
+        using CharType = Encoding::CodeUnitType;
+        using Iterator = const CharType *; // TODO: Iterator that wraps a T*
+
         constexpr StringView(const StringView &literal) = default;
         constexpr StringView(StringView &&literal) noexcept = default;
         constexpr StringView &operator=(const StringView &literal) = default;
@@ -133,9 +139,48 @@ namespace SSSEngine::Text
             return m_size;
         }
 
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr Iterator Begin() const noexcept
+        {
+            return m_data;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr Iterator End() const noexcept
+        {
+            return m_data + m_size;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr SizeType FindIndex(CharType value) const noexcept;
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr const CharType &operator[](SizeType index) const noexcept
+        {
+            SSSENGINE_ASSERT(index < m_size);
+
+            return m_data[index];
+        }
+
       private:
         const CharType *m_data;
         SizeType m_size;
+
+        // NOLINTBEGIN(readability-identifier-naming)
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr friend Iterator begin(StringView view) noexcept
+        {
+            return view.Begin();
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr friend Iterator end(StringView view) noexcept
+        {
+            return view.End();
+        }
+
+        // NOLINTEND(readability-identifier-naming)
     };
 
     using Utf8View = StringView<Utf8Encoding>;
@@ -143,4 +188,24 @@ namespace SSSEngine::Text
 
     SSSENGINE_STATIC_ASSERT(IsTriviallyCopyable<Utf8View>, "StringView must be trivially copyable");
     SSSENGINE_STATIC_ASSERT(IsTriviallyCopyable<AsciiView>, "StringView must be trivially copyable");
+
+} // namespace SSSEngine::Text
+
+namespace SSSEngine::Iterators
+{
+    template<Text::EncodingConcept Encoding>
+    SSSENGINE_GLOBAL
+    constexpr bool EnableBorrowRange<Text::StringView<Encoding>> = true;
+
+} // namespace SSSEngine::Iterators
+
+namespace SSSEngine::Text
+{
+    template<EncodingConcept Encoding>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr SizeType StringView<Encoding>::FindIndex(typename Encoding::CodeUnitType value) const noexcept
+    {
+        return Iterators::FindIndex(*this, value);
+    }
+
 } // namespace SSSEngine::Text

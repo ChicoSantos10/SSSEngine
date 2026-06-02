@@ -118,7 +118,7 @@ namespace SSSEngine
         constexpr T *Construct(Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
             requires(IsConstructible<T, Args...>)
         {
-            return ConstructAt<T>(AddressOf(m_storage.data), Forward<Args>(args)...);
+            return BraceConstructAt<T>(AddressOf(m_storage.data), Forward<Args>(args)...);
         }
 
         SSSENGINE_FORCE_INLINE
@@ -158,9 +158,6 @@ namespace SSSEngine
       private:
         StorageData<T> m_storage;
     };
-
-    constexpr Storage<int> A{10};
-    constexpr int B(Storage<int>(10).Get());
 
     // INVESTIGATE: What happens if the type T is an array of not trivial types? Is it a memory leak?
 

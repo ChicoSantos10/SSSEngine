@@ -225,7 +225,6 @@ namespace SSSEngine::Iterators
 
     inline namespace Utility
     {
-
         SSSENGINE_GLOBAL
         constexpr Impl::BeginImpl Begin{};
 

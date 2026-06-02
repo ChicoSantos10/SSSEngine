@@ -24,15 +24,19 @@
 
 #pragma once
 
+#include "Address.h"
 #include "Attributes.h"
 #include "Concepts.h"
+#include "CopyAndMoveTraits.h"
 #include "InitializerList.h"
 #include "Iterator.h"
+#include "MemoryUtility.h"
 #include "Range.h"
+#include "Utility.h"
 
 namespace SSSEngine::Iterators
 {
-    // TODO: Add noexcept where applicable
+    // TODO: Add noexcept where applicable and proper iterator and range concepts
 
     template<IteratorConcept It>
         requires OrderableConcept<IteratorValueType<It>>
@@ -130,11 +134,96 @@ namespace SSSEngine::Iterators
         return *FindMinElement(Begin(range), End(range));
     }
 
-    template<typename T>
-        requires OrderableConcept<T>
+    template<OrderableConcept T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto Min(InitializerList<T> list)
     {
         return *FindMinElement(list);
     }
+
+    template<InputIteratorConcept Begin, SentinelForConcept<Begin> End, OutputIteratorConcept<IteratorValueType<Begin>> To>
+        requires SameAsConcept<IteratorValueType<Begin>, IteratorValueType<To>>
+    constexpr void Copy(Begin start, End end, To to)
+    {
+        using Type = IteratorValueType<Begin>;
+        static constexpr bool AreContiguous = ContiguousMemoryIteratorConcept<Begin> && ContiguousMemoryIteratorConcept<To>;
+        static constexpr bool TriviallyCopyable = IsTriviallyCopyable<Type>;
+
+        if constexpr(AreContiguous && TriviallyCopyable)
+        {
+            SizeType amount = end - start;
+            MemoryCopy(ToAddress(start), ToAddress(to), amount);
+        }
+        else
+        {
+            // TODO: Optimize with SIMD
+            while(start != end)
+            {
+                *to++ = *start++;
+            }
+        }
+    }
+
+    // TODO: Copy for InitializerList? and Ranges. noexcept if applicable
+
+    // TODO: Move
+
+    template<InputIteratorConcept It, SentinelForConcept<It> Sentinel>
+    constexpr It Find(It begin, Sentinel end, const IteratorValueType<It> &value) noexcept
+    {
+        while(begin != end)
+        {
+            if(*begin == value)
+            {
+                return begin;
+            }
+            ++begin;
+        }
+
+        return begin;
+    }
+
+    template<BorrowedRangeConcept Range>
+    constexpr IteratorType<Range> Find(const Range &range, const RangeValueType<Range> &value) noexcept
+    {
+        return Find(Begin(range), End(range), value);
+    }
+
+    template<InputIteratorConcept It, SentinelForConcept<It> Sentinel>
+    constexpr SizeType FindIndex(It begin, Sentinel end, const IteratorValueType<It> &value) noexcept
+    {
+        SizeType count = 0;
+        while(begin != end)
+        {
+            if(*begin++ == value)
+            {
+                return count;
+            }
+            ++count;
+        }
+
+        return count;
+    }
+
+    template<BorrowedRangeConcept Range>
+    constexpr SizeType FindIndex(const Range &range, const RangeValueType<Range> &value) noexcept
+    {
+        return FindIndex(Begin(range), End(range), value);
+    }
+
+    template<typename T, OutputIteratorConcept<T> Out, SentinelForConcept<Out> End>
+    constexpr void Fill(Out begin, End end, const T &value) noexcept
+    {
+        while(begin != end)
+        {
+            *begin++ = value;
+        }
+    }
+
+    template<typename T, BorrowedRangeConcept Range>
+    constexpr void Fill(Range &range, const T &value) noexcept
+    {
+        Fill(Begin(range), End(range), value);
+    }
+
 } // namespace SSSEngine::Iterators

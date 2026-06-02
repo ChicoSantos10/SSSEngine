@@ -44,10 +44,6 @@ using f32 = float;
 using f64 = double;
 using f128 = long double;
 
-enum class byte : u8
-{
-};
-
 using min8i = i8;
 using min16i = i16;
 using min32i = i32;
@@ -94,6 +90,5 @@ SSSENGINE_STATIC_ASSERT(sizeof(i32) == 4, "i32 must be 4 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(i64) == 8, "i64 must be 8 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(f32) == 4, "f32 must be 4 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(f64) == 8, "f64 must be 8 bytes");
-SSSENGINE_STATIC_ASSERT(sizeof(byte) == 1, "byte must be 1 byte");
 SSSENGINE_STATIC_ASSERT(sizeof(uintptr) == sizeof(void *), "uintptr should be the size of a pointer");
 SSSENGINE_STATIC_ASSERT(sizeof(intptr) == sizeof(void *), "intptr should be the size of a pointer");

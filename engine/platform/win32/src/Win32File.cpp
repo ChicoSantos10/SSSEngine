@@ -102,8 +102,9 @@ namespace SSSEngine::Platform
     {
         using Seconds_t = decltype(FileData::Time::seconds);
         using Nanoseconds_t = decltype(FileData::Time::nanoseconds);
-        constexpr char WindowsInterval = 100;
-        constexpr i64 SecondsDifferenceWindowsToEpoch = 11644473600LL; // How many seconds from 01/01/1601 to 01/01/1970
+        static constexpr char WindowsInterval = 100;
+        static constexpr i64 SecondsDifferenceWindowsToEpoch = 11644473600LL; // How many seconds from 01/01/1601 to
+                                                                              // 01/01/1970
 
         auto time = Win32::Convert32to64<Seconds_t>(windowsTime.dwHighDateTime, windowsTime.dwLowDateTime);
 

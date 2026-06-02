@@ -126,19 +126,27 @@ namespace SSSEngine
     //  List Initialization -> new(a) T{a, b, ...}
     //  Move to Construct.h file or similar
 
+    template<typename T>
+        requires(!IsArray<T> && IsDefaultConstructible<T>)
+    SSSENGINE_FORCE_INLINE
+    constexpr T *DefaultConstructAt(T *address) noexcept(IsNoThrowDefaultConstructible<T>)
+    {
+        return ::new(address) T;
+    }
+
     /**
-     * @brief Constructs an Object of Type T at address
+     * @brief Constructs an Object of Type T at address by brace initializing it. Similar to T{args}
      *
      * @tparam T The type of object to construct
      * @param address The address to construct the object at
      * @param value The value to construct
      */
-    template<typename T>
-        requires(!IsArray<T> && IsDefaultConstructible<T>)
+    template<typename T, typename... Args>
+        requires(!IsArray<T> && BraceInitializableConcept<T, Args...>)
     SSSENGINE_FORCE_INLINE
-    constexpr T *ConstructAt(void *address) noexcept(IsNoThrowDefaultConstructible<T>)
+    constexpr T *BraceConstructAt(T *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
     {
-        return ::new(address) T{};
+        return ::new(address) T{Forward<Args>(args)...};
     }
 
     /**
@@ -151,7 +159,7 @@ namespace SSSEngine
     template<typename T, typename... Args>
         requires(!IsArray<T> && IsConstructible<T, Args...>)
     SSSENGINE_FORCE_INLINE
-    constexpr T *ConstructAt(void *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
+    constexpr T *ConstructAt(T *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
     {
         return ::new(address) T(Forward<Args>(args)...);
     }
@@ -162,6 +170,19 @@ namespace SSSEngine
     constexpr void DestroyAt(T *address) noexcept(IsNoThrowDestructible<T>)
     {
         return address->~T();
+    }
+
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr bool IsConstantEvaluated() noexcept
+    {
+        if consteval
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
 } // namespace SSSEngine

@@ -413,20 +413,20 @@ namespace SSSEngine
         }
         else if constexpr(N == 1)
         {
-            ConstructAt<decltype(u.rest)>(AdressOf(u.rest));
+            BraceConstructAt<decltype(u.rest)>(AdressOf(u.rest));
             return &u.rest.first;
         }
         else if constexpr(N == 2)
         {
-            ConstructAt<decltype(u.rest)>(AdressOf(u.rest));
-            ConstructAt<decltype(u.rest.rest)>(AdressOf(u.rest.rest));
+            BraceConstructAt<decltype(u.rest)>(AdressOf(u.rest));
+            BraceConstructAt<decltype(u.rest.rest)>(AdressOf(u.rest.rest));
             return &u.rest.rest.first;
         }
         else if constexpr(N >= 3)
         {
-            ConstructAt<decltype(u.rest)>(AdressOf(u.rest));
-            ConstructAt<decltype(u.rest.rest)>(AdressOf(u.rest.rest));
-            ConstructAt<decltype(u.rest.rest.rest)>(AdressOf(u.rest.rest.rest));
+            BraceConstructAt<decltype(u.rest)>(AdressOf(u.rest));
+            BraceConstructAt<decltype(u.rest.rest)>(AdressOf(u.rest.rest));
+            BraceConstructAt<decltype(u.rest.rest.rest)>(AdressOf(u.rest.rest.rest));
             return ConstructElementsUntil<N - 3>(u.rest.rest.rest);
         }
     }
@@ -730,7 +730,7 @@ namespace SSSEngine
             storage.Reset();
 
             auto *address = ConstructElementsUntil<N>(storage.types);
-            ConstructAt(address, Index<0>, Forward<Args>(args)...);
+            BraceConstructAt(address, Index<0>, Forward<Args>(args)...);
 
             storage.index = N;
         }
@@ -749,7 +749,7 @@ namespace SSSEngine
                         constexpr SizeType I = index;
                         if constexpr(I != InvalidTag)
                         {
-                            ConstructAt(AddressOf(this->types), Index<I>, type);
+                            BraceConstructAt(AddressOf(this->types), Index<I>, type);
                         }
                     },
                     VariantCast<Types...>(rhs));
@@ -786,7 +786,7 @@ namespace SSSEngine
                         constexpr SizeType I = index;
                         if constexpr(I != InvalidTag)
                         {
-                            ConstructAt(AddressOf(this->types), Index<I>, Forward<decltype(type)>(type));
+                            BraceConstructAt(AddressOf(this->types), Index<I>, Forward<decltype(type)>(type));
                         }
                     },
                     VariantCast<Types...>(Move(rhs)));

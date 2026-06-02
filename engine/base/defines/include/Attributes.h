@@ -89,7 +89,7 @@
 
 #ifdef SSSENGINE_ALLOW_NO_INLINE_STATEMENT
     #ifdef SSSENGINE_MSVC
-        // NOTE: As fas as I know there is no support for it from MSVC
+        // NOTE: As far as I know there is no support for it from MSVC
         #define SSSENGINE_NO_INLINE_STATEMENT
     #else
         #define SSSENGINE_NO_INLINE_STATEMENT SSSENGINE_PRAGMA(NOINLINE)
@@ -109,7 +109,12 @@
 #define SSSENGINE_CARRIES_DEPENDENCY [[carries_dependency]]
 #define SSSENGINE_LIKELY [[likely]]
 #define SSSENGINE_UNLIKELY [[unlikely]]
-#define SSSENGINE_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#ifdef SSSENGINE_MSVC
+    #define SSSENGINE_OVERLAP [[msvc::no_unique_address]]
+#else
+    #define SSSENGINE_OVERLAP [[no_unique_address]]
+#endif
+
 /** NOTE: Tells the compiler that the pointer is not aliased by a different pointer **/
 #define SSSENGINE_RESTRICT __restrict
 

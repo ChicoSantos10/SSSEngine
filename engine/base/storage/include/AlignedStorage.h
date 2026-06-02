@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Attributes.h"
+#include "Byte.h"
 #include "Debug.h"
 #include "Types.h"
 #include "CopyAndMoveTraits.h"
@@ -67,7 +68,7 @@ namespace SSSEngine
         SSSENGINE_FORCE_INLINE
         constexpr T *Construct() noexcept(IsNoThrowDefaultConstructible<T>)
         {
-            return ConstructAt<T>(AddressOf(m_value));
+            return BraceConstructAt<T>(AddressOf(m_value));
         }
 
         /**
@@ -82,7 +83,7 @@ namespace SSSEngine
         SSSENGINE_FORCE_INLINE
         constexpr T *Construct(Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
         {
-            return ConstructAt<T>(AddressOf(m_value), Forward<Args>(args)...);
+            return BraceConstructAt<T>(AddressOf(m_value), Forward<Args>(args)...);
         }
 
         template<typename T>
@@ -110,7 +111,7 @@ namespace SSSEngine
         }
 
       private:
-        byte m_value[S];
+        Byte m_value[S];
     };
 
     SSSENGINE_STATIC_ASSERT((IsTriviallyCopyable<AlignedStorage<2, 2>>), "Aligned Storage must be trivially copyable");

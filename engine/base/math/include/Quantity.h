@@ -77,7 +77,6 @@ namespace SSSEngine::Math
     template<typename T, NumberConcept V, Math::RatioConcept P>
         requires(P::Numerator > 0)
     struct Quantity
-
     {
         using ValueType = V;
         using Ratio = P;
@@ -172,7 +171,7 @@ namespace SSSEngine::Math
 
         static consteval Quantity Max() noexcept
         {
-            return Quantity{Limits::Max<ValueType>};
+            return {Limits::Max<ValueType>};
         }
 
         static consteval Quantity Min() noexcept

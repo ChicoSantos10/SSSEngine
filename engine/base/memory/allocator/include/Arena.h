@@ -52,7 +52,7 @@ namespace SSSEngine::Memory
          * @return The aligned pointer if the arena has enough space left otherwise nullptr
          */
         SSSENGINE_PURE
-        void *Allocate(Math::Bytes size, Size alignment) noexcept
+        void *Allocate(Math::Bytes size, SizeType alignment) noexcept
         {
             auto start = reinterpret_cast<uintptr>(m_buffer.address);
             auto offset = Math::NextMultiplePowerOf2<uintptr>(m_offset, alignment);
@@ -60,6 +60,7 @@ namespace SSSEngine::Memory
 
             if(pointer + size > start + m_buffer.capacity)
             {
+                // INVESTIGATE: What to do? Grow?
                 return nullptr;
             }
 
@@ -72,7 +73,7 @@ namespace SSSEngine::Memory
          *
          */
         SSSENGINE_FORCE_INLINE
-        void Free(Buffer _) const noexcept
+        void Free(Buffer) const noexcept
         {
         }
 

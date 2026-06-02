@@ -22,6 +22,7 @@
  * @brief Linux implementation for file system
  */
 
+#include "Attributes.h"
 #include "Bits.h"
 #include "File.h"
 
@@ -70,7 +71,7 @@ namespace SSSEngine::Platform
     {
         int success = close(m_fileHandle);
 
-        if(success == -1)
+        if(success == -1) SSSENGINE_UNLIKELY
         {
             // TODO: Handle Error. Note that this error may be related to previous writing operations and not
             // necessarily with the closing
@@ -85,7 +86,7 @@ namespace SSSEngine::Platform
     {
         ssize_t writtenBytes = write(m_fileHandle, data, size);
 
-        if(writtenBytes == -1)
+        if(writtenBytes == -1) SSSENGINE_UNLIKELY
         {
             // TODO: Handle Error
             return false;
@@ -95,6 +96,7 @@ namespace SSSEngine::Platform
         {
             // INVESTIGATE: Operation did not fail, but did not write all the data
             // What should we do? Try again? Let the caller decide?
+            // Should we just return the written bytes and let the called decide?
             return false;
         }
 
@@ -106,7 +108,7 @@ namespace SSSEngine::Platform
     {
         ssize_t bytesRead = read(m_fileHandle, buffer, maxBytes);
 
-        if(bytesRead == -1)
+        if(bytesRead == -1) SSSENGINE_UNLIKELY
         {
             // TODO: Handle Error
             return false;
@@ -117,7 +119,7 @@ namespace SSSEngine::Platform
 
     FileData FromStat(struct stat &data)
     {
-        constexpr auto Time = [](timespec time) -> ExtendedFileData::Time
+        static constexpr auto Time = [](timespec time) -> ExtendedFileData::Time
         { return {.seconds = time.tv_sec, .nanoseconds = static_cast<u32>(time.tv_nsec)}; };
 
         return {.size = static_cast<SizeType>(data.st_size),
@@ -132,7 +134,7 @@ namespace SSSEngine::Platform
         struct stat data{};
         int success = fstat(m_fileHandle, &data);
 
-        if(success == -1)
+        if(success == -1) SSSENGINE_UNLIKELY
         {
             // TODO: Handle Error
             return {};
@@ -146,7 +148,7 @@ namespace SSSEngine::Platform
         struct stat data{};
         int success = stat(path, &data);
 
-        if(success == -1)
+        if(success == -1) SSSENGINE_UNLIKELY
         {
             // TODO: Handle error
             return {};

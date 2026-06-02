@@ -25,7 +25,6 @@
 #pragma once
 
 #include "ArrayTraits.h"
-#include "Attributes.h"
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
 #include "EnumTraits.h"
@@ -42,6 +41,9 @@ namespace SSSEngine
     // TODO: Use Forward instead of static_cast. For that we can't have utility.h depend on concepts.
     template<typename From, typename To>
     concept NonNarrowingConvertibleToConcept = requires(To &&to) { From{static_cast<To &&>(to)}; };
+
+    template<typename T, typename... Args>
+    concept BraceInitializableConcept = requires(Args &&...args) { T{Forward<Args>(args)...}; };
 
     /**
      * @brief Concept of a Integral of Floating point number

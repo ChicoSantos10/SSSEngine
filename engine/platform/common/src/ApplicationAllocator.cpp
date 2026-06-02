@@ -6,6 +6,7 @@
 #include "Memory.h"
 #include "MemorySize.h"
 #include "Types.h"
+#include "Byte.h"
 
 namespace SSSEngine::Memory
 {
@@ -28,7 +29,7 @@ namespace SSSEngine::Memory
             Reserve(Math::NextMultiplePowerOf2(bytes.value, PageSize.value) / PageSize.value);
         }
 
-        void *startAddress = static_cast<byte *>(Memory.address) + CurrentPageOffset * PageSize.value;
+        void *startAddress = static_cast<Byte *>(Memory.address) + CurrentPageOffset * PageSize.value;
         ++CurrentPageOffset;
 
         Buffer buffer{.address = startAddress, .capacity = bytes};

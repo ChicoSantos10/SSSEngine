@@ -28,6 +28,7 @@
 #include "Attributes.h"
 #include "Concepts.h"
 #include "CopyAndMoveTraits.h"
+#include "Debug.h"
 #include "InitializerList.h"
 #include "Iterator.h"
 #include "MemoryUtility.h"
@@ -256,6 +257,38 @@ namespace SSSEngine::Iterators
     constexpr void ZeroFill(Range &&range) noexcept(noexcept(T{0}))
     {
         Fill(Begin(range), End(range), T{0});
+    }
+
+    template<InputIteratorConcept T, InputIteratorConcept U, SentinelForConcept<T> End>
+        requires EqualityComparableWithConcept<IteratorValueType<T>, IteratorValueType<U>>
+    constexpr bool Equals(T begin, End end, U other) noexcept
+    {
+        for(; begin != end; ++begin, ++other)
+        {
+            if(*begin != *other)
+            {
+                return false;
+            }
+        }
+    }
+
+    template<RangeConcept R1, RangeConcept R2>
+        requires EqualityComparableWithConcept<RangeValueType<R1>, RangeValueType<R2>>
+    constexpr bool Equals(R1 &&first, R2 &&other) noexcept
+    {
+        if constexpr(ContiguousRangeConcept<R1> && ContiguousRangeConcept<R2>)
+        {
+            if(Count(first) != Count(other))
+            {
+                return false;
+            }
+
+            Equals(Begin(first), End(first), Begin(other));
+        }
+        else
+        {
+            SSSENGINE_NOT_IMPLEMENTED;
+        }
     }
 
 } // namespace SSSEngine::Iterators

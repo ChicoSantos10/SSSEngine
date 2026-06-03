@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "Address.h"
 #include "ArrayTraits.h"
 #include "Attributes.h"
 #include "Concepts.h"
@@ -221,6 +222,64 @@ namespace SSSEngine::Iterators
                 }
             }
         };
+
+        template<typename T>
+        using DataResult = AddPointerType<RemoveReferenceType<T>>;
+
+        template<typename T>
+        concept AdlDataConcept = ClassOrEnumConcept<RemoveReferenceType<T>> && requires(T &t) {
+            { DecayCopy(Data(t)) } -> SameAsConcept<DataResult<T>>;
+        };
+
+        template<typename T>
+        concept HasDataConcept = requires(T &t) {
+            { t.Data() } -> SameAsConcept<DataResult<T>>;
+        };
+
+        template<typename T>
+        concept DataFromBeginConcept = ContiguousMemoryIteratorConcept<RangeIteratorType<T>>;
+
+        class DataImpl
+        {
+          private:
+            template<typename T>
+            SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            static constexpr bool IsNoExcept()
+            {
+                if constexpr(HasDataConcept<T>)
+                {
+                    return noexcept(DecayCopy(DeclVal<T &>().Data()));
+                }
+                else if(AdlDataConcept<T>)
+                {
+                    return noexcept(DecayCopy(Data(DeclVal<T &>())));
+                }
+                else
+                {
+                    return noexcept(BeginImpl{}(DeclVal<T &>()));
+                }
+            }
+
+          public:
+            template<typename T>
+                requires HasDataConcept<T> || AdlDataConcept<T> || DataFromBeginConcept<T>
+            SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&t) const noexcept(IsNoExcept<T &>())
+            {
+                if constexpr(HasDataConcept<T>)
+                {
+                    return t.Data();
+                }
+                else if(AdlDataConcept<T>)
+                {
+                    return data(t);
+                }
+                else
+                {
+                    return ToAddress(BeginImpl{}(t));
+                }
+            }
+        };
     } // namespace Impl
 
     inline namespace Utility
@@ -233,6 +292,9 @@ namespace SSSEngine::Iterators
 
         SSSENGINE_GLOBAL
         constexpr Impl::CountImpl Count{};
+
+        SSSENGINE_GLOBAL
+        constexpr Impl::DataImpl Data{};
     } // namespace Utility
 
     template<typename R>
@@ -274,7 +336,22 @@ namespace SSSEngine::Iterators
     concept BorrowedRangeConcept =
         RangeConcept<R> && (IsLValueReference<R> || EnableBorrowRange<RemoveCVReferenceType<R>>);
 
-    // TODO: Extra traits like contiguous, bidirectional...
-    //      Reverse Ranges/Iterators
+    template<typename R>
+    concept InputRangeConcept = RangeConcept<R> && InputIteratorConcept<IteratorType<R>>;
+
+    template<typename R>
+    concept MultiPassRangeConcept = InputRangeConcept<R> && MultiPassIteratorConcept<IteratorType<R>>;
+
+    template<typename R>
+    concept BidirectionalRangeConcept = MultiPassRangeConcept<R> && BidirectionalIteratorConcept<IteratorType<R>>;
+
+    template<typename R>
+    concept RandomAccessRangeConcept = BidirectionalIteratorConcept<R> && RandomAccessIteratorConcept<IteratorType<R>>;
+
+    template<typename R>
+    concept ContiguousRangeConcept =
+        RandomAccessRangeConcept<R> && ContiguousMemoryIteratorConcept<IteratorType<R>> && requires(T &t) {
+            { Iterators::Data(t) } -> SameAsConcept<AddPointerType<RangeReferenceType<R>>>;
+        };
 
 } // namespace SSSEngine::Iterators

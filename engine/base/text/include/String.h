@@ -442,6 +442,12 @@ namespace SSSEngine::Text
             Memory::CurrentAllocator().Free(
                 {.address = m_data.heapString.m_data, .capacity = {m_data.heapString.m_capacity}});
         }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend bool operator==(String lhs, String rhs) noexcept
+        {
+            Iterators::Equals(lhs, rhs);
+        }
     };
 
     using Utf8 = String<Utf8Encoding>;

@@ -73,81 +73,56 @@ namespace SSSEngine::Text
     class String
     {
         using CharType = Encoding::CodeUnitType;
+        using View = StringView<Encoding>;
 
       public:
         using Iterator = CharType *;
         using ConstIterator = const CharType *;
 
-        constexpr String() noexcept : m_data(), m_count(0), m_isSmall(true)
+        constexpr String() noexcept : m_count(0), m_isSmall(true)
         {
             BraceConstructAt<ArrayType>(AddressOf(m_data.stackString));
         }
 
-        explicit constexpr String(StringView<Encoding> string) : m_data(), m_count(string.Count())
+        explicit constexpr String(View string) : m_count(string.Count())
         {
             SSSENGINE_ASSERT(string.Data());
 
-            u32 count = static_cast<u32>(string.Count());
-
-            if(count <= MaxCountSmall)
+            if(m_count <= MaxCountSmall)
             {
-                CreateSmallString();
-
-                u32 bytes = count * sizeof(CharType);
-                MemoryCopy(string.Data(), m_data.stackString.data, bytes);
-
-                auto begin = m_data.stackString.Begin() + bytes;
-                auto end = m_data.stackString.End();
-                Iterators::Fill(begin, end, CharType(0));
-
+                CreateSmallString(string);
                 m_isSmall = true;
             }
             else
             {
-                u32 bytes = (count + 1) * sizeof(CharType);
-
-                CreateHeapString(Math::Bytes(bytes), count + 1, count);
-                MemoryCopy(string.Data(), m_data.heapString.m_data, bytes);
-                m_data.heapString.m_data[count] = CharType(0);
-
-                SSSENGINE_ASSERT(!m_isSmall);
+                CreateHeapString(string);
+                m_isSmall = false;
             }
         }
 
-        constexpr String(const String<Encoding> &string) :
-            m_data(), m_count(string.m_count), m_isSmall(string.m_isSmall)
-        {
-            if(string.m_isSmall)
-            {
-                CreateSmallString();
-                CopySmallString(string);
-            }
-            else
-            {
-                CopyHeapString(string);
-            }
-        }
+        constexpr String(const String &string) : String(View{string}) {}
 
         template<EncodingConcept E>
         constexpr explicit String(const String<E> &string) :
-            m_data(), m_count(string.m_count), m_isSmall(m_count <= MaxCountSmall)
+            m_count(string.m_count), m_isSmall(m_count <= MaxCountSmall)
         {
             // TODO: Implement when conversion between different encodings is implemented
             SSSENGINE_NOT_IMPLEMENTED;
         }
 
-        constexpr String(String &&string) noexcept : m_data(), m_count(string.m_count), m_isSmall(string.m_isSmall)
+        constexpr String(String &&string) noexcept : m_count(string.m_count), m_isSmall(string.m_isSmall)
         {
             if(m_isSmall)
             {
-                CopySmallString(string);
+                CreateSmallString(string);
             }
             else
             {
                 m_data.heapString = string.m_data.heapString;
 
-                string.m_data.heapString = nullptr;
-                string.m_data.m_count = 0;
+                // INVESTIGATE: Do we make the moved from string, an ordinary stack string by zero init the stack
+                //  string?
+                string.m_data.heapString = {};
             }
         }
 
@@ -172,6 +147,9 @@ namespace SSSEngine::Text
                 CopyHeapString(string);
             }
 
+            m_isSmall = string.m_isSmall;
+            m_count = string.m_count;
+
             return *this;
         }
 
@@ -194,8 +172,10 @@ namespace SSSEngine::Text
             else
             {
                 m_data.heapString = string.m_data.heapString;
+
+                // INVESTIGATE: Same doubts as above in move constructor
+                string.m_data.heapString = {};
             }
-            ZeroMemory(&string, sizeof(string));
 
             return *this;
         }
@@ -233,7 +213,7 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return m_data.stackString;
+                return m_data.stackString.data;
             }
             return m_data.heapString.m_data;
         }
@@ -272,12 +252,12 @@ namespace SSSEngine::Text
         }
 
         template<typename Self>
-        constexpr operator StringView<Encoding>(this Self &self) noexcept // NOLINT(*-explicit-constructor)
+        constexpr operator View(this Self &self) noexcept // NOLINT(*-explicit-constructor)
         {
             return {self.CString(), self.Count()};
         }
 
-        void Reserve(SizeType amount)
+        constexpr void Reserve(SizeType amount)
         {
             SSSENGINE_ASSERT(amount < MaxCountBig);
 
@@ -321,19 +301,19 @@ namespace SSSEngine::Text
         }
 
         SSSENGINE_PURE
-        ConstIterator ConstBegin() const noexcept
+        constexpr ConstIterator ConstBegin() const noexcept
         {
             return Begin();
         }
 
         template<typename Self>
-        auto End(this Self &self) noexcept
+        constexpr auto End(this Self &self) noexcept
         {
             return self.Begin() + self.Count();
         }
 
         SSSENGINE_PURE
-        ConstIterator ConstEnd() const noexcept
+        constexpr ConstIterator ConstEnd() const noexcept
         {
             return End();
         }
@@ -341,9 +321,9 @@ namespace SSSEngine::Text
         // TODO: Reverse Iterators and ranges
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        bool IsEmpty() const noexcept
+        constexpr bool IsEmpty() const noexcept
         {
-            return Count() > 0;
+            return m_count == 0;
         }
 
       private:
@@ -367,8 +347,6 @@ namespace SSSEngine::Text
 
         union Data
         {
-            char dummy;
-
             ArrayType stackString;
             SSSENGINE_OVERLAP HeapString heapString;
         };
@@ -378,15 +356,18 @@ namespace SSSEngine::Text
         bool m_isSmall : 1;
 
         /**
-         * @brief Creates but does not initialize the small string
-         *
-         * Essentially starts the lifetime of the small string without constructing the chars underneath
+         * @brief Starts the lifetime of the small string, copies the data from the string view and fills the rest with
+         * 0 bytes
          *
          */
         SSSENGINE_FORCE_INLINE
-        constexpr void CreateSmallString()
+        constexpr void CreateSmallString(View view)
         {
+            m_isSmall = true;
+
             DefaultConstructAt(AddressOf(m_data.stackString));
+            const auto [_, last] = Iterators::Copy(view, m_data.stackString.Begin());
+            Iterators::ZeroFill<CharType>(last, m_data.stackString.End());
         }
 
         /**
@@ -394,10 +375,12 @@ namespace SSSEngine::Text
          *
          * @param string A string to copy from
          */
-        constexpr void CopySmallString(const String &string)
+        constexpr void CopySmallString(View string)
         {
             SSSENGINE_ASSERT(m_isSmall);
-            MemoryCopy(string.m_data.stackString.data, m_data.stackString.data, string.m_count * sizeof(CharType));
+            SSSENGINE_ASSERT(string.Count() <= MaxCountSmall);
+
+            Iterators::Copy(string, m_data.stackString.Begin());
             m_count = string.m_count;
         }
 
@@ -406,15 +389,21 @@ namespace SSSEngine::Text
          *
          * @param string The string to copy from
          */
-        constexpr void CopyHeapString(const String &string)
+        constexpr void CopyHeapString(View string)
         {
             SSSENGINE_ASSERT(!m_isSmall);
+            SSSENGINE_ASSERT(m_data.heapString.m_capacity > string.Count());
 
-            u32 size = (m_count + 1) * sizeof(CharType);
-            CreateHeapString(Math::Bytes(size), size, string.m_count);
-            MemoryCopy(string.m_data.heapString.m_data, m_data.heapString.m_data, size);
+            Iterators::Copy(string, m_data.heapString.m_data);
         }
 
+        /**
+         * @brief Creates and allocates enough memory for the string.
+         *
+         * @param size The amount of bytes the string occupies
+         * @param capacity The amount of code units that the memory allocated allows for
+         * @param count The amount of code units currently in the string
+         */
         constexpr void CreateHeapString(Math::Bytes size, u32 capacity, u32 count)
         {
             m_data.heapString = {};
@@ -425,6 +414,23 @@ namespace SSSEngine::Text
             m_count = count;
 
             m_isSmall = false;
+        }
+
+        /**
+         * @brief Creates a Heap string from another string, by first allocating enough memory and then copy from the
+         * string to the newly allocated memory
+         *
+         * @param string The string to create from
+         */
+        constexpr void CreateHeapString(View string)
+        {
+            auto count = string.Count();
+            auto capacity = count + 1;
+            auto bytes = Math::Bytes(capacity * sizeof(CharType));
+            CreateHeapString(bytes, capacity, count);
+
+            MemoryCopy(string.Data(), m_data.heapString.m_data, bytes);
+            m_data.heapString.m_data[m_count] = CharType(0);
         }
 
         /**

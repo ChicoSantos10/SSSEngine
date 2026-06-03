@@ -141,9 +141,16 @@ namespace SSSEngine::Iterators
         return *FindMinElement(list);
     }
 
+    template<IteratorConcept In, IteratorConcept Out>
+    struct CopyResult
+    {
+        In in;
+        Out out;
+    };
+
     template<InputIteratorConcept Begin, SentinelForConcept<Begin> End, OutputIteratorConcept<IteratorValueType<Begin>> To>
         requires SameAsConcept<IteratorValueType<Begin>, IteratorValueType<To>>
-    constexpr void Copy(Begin start, End end, To to)
+    constexpr CopyResult<Begin, To> Copy(Begin start, End end, To to) noexcept
     {
         using Type = IteratorValueType<Begin>;
         static constexpr bool AreContiguous = ContiguousMemoryIteratorConcept<Begin> && ContiguousMemoryIteratorConcept<To>;
@@ -151,8 +158,11 @@ namespace SSSEngine::Iterators
 
         if constexpr(AreContiguous && TriviallyCopyable)
         {
-            SizeType amount = end - start;
+            SizeType count = end - start;
+            SizeType amount = count * sizeof(Type);
             MemoryCopy(ToAddress(start), ToAddress(to), amount);
+
+            return {end, to + count};
         }
         else
         {
@@ -161,7 +171,15 @@ namespace SSSEngine::Iterators
             {
                 *to++ = *start++;
             }
+
+            return {start, to};
         }
+    }
+
+    template<BorrowedRangeConcept Range, OutputIteratorConcept<RangeValueType<Range>> To>
+    constexpr CopyResult<IteratorType<Range>, To> Copy(Range &&range, To to) noexcept
+    {
+        return Copy(Begin(range), End(range), to);
     }
 
     // TODO: Copy for InitializerList? and Ranges. noexcept if applicable
@@ -184,7 +202,7 @@ namespace SSSEngine::Iterators
     }
 
     template<BorrowedRangeConcept Range>
-    constexpr IteratorType<Range> Find(const Range &range, const RangeValueType<Range> &value) noexcept
+    constexpr IteratorType<Range> Find(const Range &&range, const RangeValueType<Range> &value) noexcept
     {
         return Find(Begin(range), End(range), value);
     }
@@ -206,7 +224,7 @@ namespace SSSEngine::Iterators
     }
 
     template<BorrowedRangeConcept Range>
-    constexpr SizeType FindIndex(const Range &range, const RangeValueType<Range> &value) noexcept
+    constexpr SizeType FindIndex(const Range &&range, const RangeValueType<Range> &value) noexcept
     {
         return FindIndex(Begin(range), End(range), value);
     }
@@ -221,9 +239,23 @@ namespace SSSEngine::Iterators
     }
 
     template<typename T, BorrowedRangeConcept Range>
-    constexpr void Fill(Range &range, const T &value) noexcept
+    constexpr void Fill(Range &&range, const T &value) noexcept
     {
         Fill(Begin(range), End(range), value);
+    }
+
+    template<typename T, OutputIteratorConcept<T> Out, SentinelForConcept<Out> End>
+        requires requires { T{0}; }
+    constexpr void ZeroFill(Out begin, End end) noexcept(noexcept(T{0}))
+    {
+        Fill(begin, end, T{0});
+    }
+
+    template<typename T, BorrowedRangeConcept Range>
+        requires requires { T{0}; }
+    constexpr void ZeroFill(Range &&range) noexcept(noexcept(T{0}))
+    {
+        Fill(Begin(range), End(range), T{0});
     }
 
 } // namespace SSSEngine::Iterators

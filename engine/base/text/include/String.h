@@ -366,8 +366,8 @@ namespace SSSEngine::Text
             m_isSmall = true;
 
             DefaultConstructAt(AddressOf(m_data.stackString));
-            const auto [_, last] = Iterators::Copy(view, m_data.stackString.Begin());
-            Iterators::ZeroFill<CharType>(last, m_data.stackString.End());
+            const auto [_, last] = Ranges::Copy(view, m_data.stackString.Begin());
+            Ranges::ZeroFill<CharType>(last, m_data.stackString.End());
         }
 
         /**
@@ -380,7 +380,7 @@ namespace SSSEngine::Text
             SSSENGINE_ASSERT(m_isSmall);
             SSSENGINE_ASSERT(string.Count() <= MaxCountSmall);
 
-            Iterators::Copy(string, m_data.stackString.Begin());
+            Ranges::Copy(string, m_data.stackString.Begin());
             m_count = string.m_count;
         }
 
@@ -394,7 +394,7 @@ namespace SSSEngine::Text
             SSSENGINE_ASSERT(!m_isSmall);
             SSSENGINE_ASSERT(m_data.heapString.m_capacity > string.Count());
 
-            Iterators::Copy(string, m_data.heapString.m_data);
+            Ranges::Copy(string, m_data.heapString.m_data);
         }
 
         /**
@@ -446,7 +446,7 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         friend bool operator==(String lhs, String rhs) noexcept
         {
-            Iterators::Equals(lhs, rhs);
+            Ranges::Equals(lhs, rhs);
         }
     };
 

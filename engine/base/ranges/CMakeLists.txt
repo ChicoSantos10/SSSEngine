@@ -1,0 +1,2 @@
+add_library(SSSRanges INTERFACE)
+target_include_directories(SSSRanges INTERFACE include)

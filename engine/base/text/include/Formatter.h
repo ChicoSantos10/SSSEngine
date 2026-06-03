@@ -157,7 +157,7 @@ namespace SSSEngine::Text
         StringView<Encoding> string;
     };
 
-    template<EncodingConcept Encoding, Iterators::OutputIteratorConcept<typename Encoding::CodeUnitType> Out>
+    template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<typename Encoding::CodeUnitType> Out>
     struct FormatContext
     {
         Out output;

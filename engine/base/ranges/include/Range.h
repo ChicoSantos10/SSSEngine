@@ -35,7 +35,7 @@
 #include "SignTraits.h"
 #include "Traits.h"
 
-namespace SSSEngine::Iterators
+namespace SSSEngine::Ranges
 {
     namespace Impl
     {
@@ -299,8 +299,8 @@ namespace SSSEngine::Iterators
 
     template<typename R>
     concept RangeConcept = requires(R &r) {
-        Iterators::Begin(r);
-        Iterators::End(r);
+        Ranges::Begin(r);
+        Ranges::End(r);
     };
 
     template<typename R>
@@ -326,7 +326,7 @@ namespace SSSEngine::Iterators
     constexpr bool EnableSizedRange = true;
 
     template<typename R>
-    concept SizedRangeConcept = EnableSizedRange<R> && RangeConcept<R> && requires(R &r) { Iterators::Count(r); };
+    concept SizedRangeConcept = EnableSizedRange<R> && RangeConcept<R> && requires(R &r) { Ranges::Count(r); };
 
     template<typename R>
     SSSENGINE_GLOBAL
@@ -350,8 +350,8 @@ namespace SSSEngine::Iterators
 
     template<typename R>
     concept ContiguousRangeConcept =
-        RandomAccessRangeConcept<R> && ContiguousMemoryIteratorConcept<IteratorType<R>> && requires(T &t) {
-            { Iterators::Data(t) } -> SameAsConcept<AddPointerType<RangeReferenceType<R>>>;
+        RandomAccessRangeConcept<R> && ContiguousMemoryIteratorConcept<IteratorType<R>> && requires(R &t) {
+            { Ranges::Data(t) } -> SameAsConcept<AddPointerType<RangeReferenceType<R>>>;
         };
 
-} // namespace SSSEngine::Iterators
+} // namespace SSSEngine::Ranges

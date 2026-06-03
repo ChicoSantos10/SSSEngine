@@ -39,7 +39,7 @@ namespace SSSEngine::Text
     template<typename T>
     concept SinkConcept = requires(T &sink, SizeType n) {
         { sink.Reserve(n) } -> SameAsConcept<bool>;
-        { sink.Current() } -> Iterators::IteratorConcept;
+        { sink.Current() } -> Ranges::IteratorConcept;
         { Move(sink).Get() };
         { sink.Advance(n) };
     };
@@ -123,7 +123,7 @@ namespace SSSEngine::Text
     {
       public:
         using SinkOutput = T;
-        using SinkIterator = Iterators::IteratorType<T>;
+        using SinkIterator = Ranges::IteratorType<T>;
 
         bool Reserve(SizeType amount)
         {

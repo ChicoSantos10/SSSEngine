@@ -205,7 +205,7 @@ namespace SSSEngine::Text
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr SizeType StringView<Encoding>::FindIndex(typename Encoding::CodeUnitType value) const noexcept
     {
-        return Iterators::FindIndex(*this, value);
+        return Ranges::FindIndex(*this, value);
     }
 
 } // namespace SSSEngine::Text

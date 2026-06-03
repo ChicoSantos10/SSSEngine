@@ -3,7 +3,7 @@ add_subdirectory(utils)
 add_subdirectory(traits)
 add_subdirectory(system)
 add_subdirectory(math)
-add_subdirectory(iterator)
+add_subdirectory(ranges)
 add_subdirectory(storage)
 add_subdirectory(memory)
 add_subdirectory(threading)
@@ -25,6 +25,6 @@ target_link_libraries(SSSBase INTERFACE
   SSSText
   SSSLogging
   SSSFileSystem
-  SSSIterators
+  SSSRanges
   SSSContainers
 )

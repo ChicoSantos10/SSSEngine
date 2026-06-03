@@ -1,2 +1,0 @@
-add_library(SSSIterators INTERFACE)
-target_include_directories(SSSIterators INTERFACE include)

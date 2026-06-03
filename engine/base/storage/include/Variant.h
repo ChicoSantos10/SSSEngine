@@ -517,7 +517,7 @@ namespace SSSEngine
     template<typename... Types>
     struct VariantStorage // NOLINT(cppcoreguidelines-special-member-functions)
     {
-        using TagType = TypeSelector<Iterators::Max({alignof(Types)...}), sizeof...(Types)>::Type;
+        using TagType = TypeSelector<Ranges::Max({alignof(Types)...}), sizeof...(Types)>::Type;
         using Traits = VariadicUnionTypesCommonTraits<Types...>;
 
         constexpr VariantStorage() : index(static_cast<TagType>(InvalidTag)) {}

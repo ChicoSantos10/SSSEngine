@@ -35,7 +35,7 @@
 #include "Range.h"
 #include "Utility.h"
 
-namespace SSSEngine::Iterators
+namespace SSSEngine::Ranges
 {
     // TODO: Add noexcept where applicable and proper iterator and range concepts
 
@@ -291,4 +291,4 @@ namespace SSSEngine::Iterators
         }
     }
 
-} // namespace SSSEngine::Iterators
+} // namespace SSSEngine::Ranges

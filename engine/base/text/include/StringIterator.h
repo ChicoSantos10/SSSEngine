@@ -92,7 +92,7 @@ namespace SSSEngine::Text
         }
     };
 
-    SSSENGINE_STATIC_ASSERT(Iterators::MultiPassIteratorConcept<Utf8Iterator>);
-    SSSENGINE_STATIC_ASSERT(Iterators::SentinelForConcept<NullTerminatorSentinel, Utf8Iterator>);
+    SSSENGINE_STATIC_ASSERT(Ranges::MultiPassIteratorConcept<Utf8Iterator>);
+    SSSENGINE_STATIC_ASSERT(Ranges::SentinelForConcept<NullTerminatorSentinel, Utf8Iterator>);
 
 } // namespace SSSEngine::Text

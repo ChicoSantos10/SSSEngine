@@ -35,7 +35,7 @@
 #include "Utility.h"
 #include "Address.h"
 
-namespace SSSEngine::Iterators
+namespace SSSEngine::Ranges
 {
     template<typename T>
     concept WeaklyIncrementableConcept = MovableConcept<T> && requires(T i) {
@@ -319,4 +319,4 @@ namespace SSSEngine::Iterators
     concept WriteableContiguousMemoryIteratorConcept =
         ContiguousMemoryIteratorConcept<Iterator> && WriteIteratorConcept<Iterator, T>;
 
-} // namespace SSSEngine::Iterators
+} // namespace SSSEngine::Ranges

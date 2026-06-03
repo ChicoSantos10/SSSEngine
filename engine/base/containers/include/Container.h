@@ -29,7 +29,7 @@
 namespace SSSEngine::Containers
 {
     template<typename T>
-    concept ContainerConcept = Iterators::RangeConcept<T> && requires(T &t) {
+    concept ContainerConcept = Ranges::RangeConcept<T> && requires(T &t) {
         { t.IsEmpty() } -> SameAsConcept<bool>;
         { t.Count() } -> ConvertibleToConcept<SizeType>;
         { t.Capacity() } -> ConvertibleToConcept<SizeType>;

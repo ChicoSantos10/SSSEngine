@@ -37,8 +37,15 @@
 
 namespace SSSEngine::Ranges
 {
+    template<typename R>
+    SSSENGINE_GLOBAL
+    constexpr bool EnableBorrowRange = false;
+
     namespace Impl
     {
+        template<typename R>
+        concept CanBorrowRangeConcept = (IsLValueReference<R> || EnableBorrowRange<RemoveCVReferenceType<R>>);
+
         template<typename T>
         concept AdlBeginConcept = ClassOrEnumConcept<RemoveReferenceType<T>> && requires(T &t) {
             { DecayCopy(begin(t)) } -> IteratorConcept;
@@ -261,7 +268,7 @@ namespace SSSEngine::Ranges
             }
 
           public:
-            template<typename T>
+            template<CanBorrowRangeConcept T>
                 requires HasDataConcept<T> || AdlDataConcept<T> || DataFromBeginConcept<T>
             SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             constexpr auto operator()(T &&t) const noexcept(IsNoExcept<T &>())
@@ -329,12 +336,7 @@ namespace SSSEngine::Ranges
     concept SizedRangeConcept = EnableSizedRange<R> && RangeConcept<R> && requires(R &r) { Ranges::Count(r); };
 
     template<typename R>
-    SSSENGINE_GLOBAL
-    constexpr bool EnableBorrowRange = false;
-
-    template<typename R>
-    concept BorrowedRangeConcept =
-        RangeConcept<R> && (IsLValueReference<R> || EnableBorrowRange<RemoveCVReferenceType<R>>);
+    concept BorrowedRangeConcept = RangeConcept<R> && Impl::CanBorrowRangeConcept<R>;
 
     template<typename R>
     concept InputRangeConcept = RangeConcept<R> && InputIteratorConcept<IteratorType<R>>;

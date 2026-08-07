@@ -27,12 +27,11 @@
 #include "Algorithm.h"
 #include "AsciiEncoding.h"
 #include "Attributes.h"
-#include "Bits.h"
 #include "Concepts.h"
 #include "ConversionTraits.h"
+#include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "EnumHelpers.h"
-#include "Iterator.h"
 #include "Limits.h"
 #include "Math.h"
 #include "MemoryUtility.h"
@@ -47,6 +46,7 @@
 #include "Address.h"
 #include "Utf8Encoding.h"
 #include "HelperMacros.h"
+#include "ValueTraits.h"
 
 #define SSSENGINE_ENCODING_SELECTOR(charType, message)                                                                 \
     []() -> auto                                                                                                       \
@@ -72,7 +72,8 @@
 
 namespace SSSEngine::Text
 {
-    template<EncodingConcept Encoding, SignedIntegralConcept T>
+    template<EncodingConcept Encoding, IntegralConcept T>
+        requires(!IsSameType<T, char>)
     constexpr void ParseInt(T value, typename Encoding::CodeUnitType *buffer)
     {
         using CharType = Encoding::CodeUnitType;
@@ -84,29 +85,32 @@ namespace SSSEngine::Text
             return;
         }
 
-        if(value == Math::Limits::Min<T>)
+        if constexpr(IsSigned<T>)
         {
-            StringView<Encoding> min = []()
+            if(value == Math::Limits::Min<T>)
             {
-                if constexpr(IsSameType<T, i8>)
+                StringView<Encoding> min = []()
                 {
-                    return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-128"));
-                }
-                else if constexpr(IsSameType<T, i16>)
-                {
-                    return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-32768"));
-                }
-                else if constexpr(IsSameType<T, i32>)
-                {
-                    return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-2147483648"));
-                }
-                else if constexpr(IsSameType<T, i64>)
-                {
-                    return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-9223372036854775808"));
-                }
-            }();
-            MemoryCopy(min.Data(), buffer, min.Count());
-            return;
+                    if constexpr(IsSameType<T, i8>)
+                    {
+                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-128"));
+                    }
+                    else if constexpr(IsSameType<T, i16>)
+                    {
+                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-32768"));
+                    }
+                    else if constexpr(IsSameType<T, i32>)
+                    {
+                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-2147483648"));
+                    }
+                    else if constexpr(IsSameType<T, i64>)
+                    {
+                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-9223372036854775808"));
+                    }
+                }();
+                MemoryCopy(min.Data(), buffer, min.Count());
+                return;
+            }
         }
 
         CharType tmp[Math::Limits::DecimalDigits<T> + 1]; // NOTE: Extra 1 for the sign (-)
@@ -157,7 +161,7 @@ namespace SSSEngine::Text
         StringView<Encoding> string;
     };
 
-    template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<typename Encoding::CodeUnitType> Out>
+    template<EncodingConcept Encoding, SinkConcept Out>
     struct FormatContext
     {
         Out output;
@@ -174,6 +178,38 @@ namespace SSSEngine::Text
         ~Formatter() = delete;
     };
 
+    template<EncodingConcept Encoding>
+    struct Formatter<typename Encoding::CodeUnitType, Encoding>
+    {
+        using CharType = Encoding::CodeUnitType;
+
+        constexpr auto Parse() const noexcept
+        {
+            SSSENGINE_UNREACHABLE;
+        }
+
+        template<typename FmtCtx>
+        constexpr auto Format(CharType value, FmtCtx &ctx) const noexcept
+        {
+            SSSENGINE_UNREACHABLE;
+        }
+    };
+
+    template<EncodingConcept Encoding>
+    struct Formatter<StringView<Encoding>, Encoding>
+    {
+        constexpr auto Parse() const noexcept
+        {
+            SSSENGINE_UNREACHABLE;
+        }
+
+        template<typename FmtCtx>
+        constexpr auto Format(StringView<Encoding> value, FmtCtx &ctx) const noexcept
+        {
+            SSSENGINE_UNREACHABLE;
+        }
+    };
+
     template<IntegralConcept Int, EncodingConcept Encoding>
     struct Formatter<Int, Encoding>
     {
@@ -187,7 +223,7 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
-            ParseInt<Encoding>(value, ctx.output);
+            ParseInt<Encoding>(value, ctx.output.Current());
         }
     };
 
@@ -250,6 +286,19 @@ namespace SSSEngine::Text
         {
             return Identity<CharType>{};
         }
+        else if constexpr(IsConvertible<Type, StringView<Encoding>>)
+        {
+            return Identity<StringView<Encoding>>{};
+        }
+        else if constexpr(IsSameType<DecayType<Type>, CharType *> || IsSameType<DecayType<Type>, const CharType *>)
+        {
+            // TODO: StringView? Shouldn't the IsConvertible already make this never happen?
+            return Identity<const CharType *>{};
+        }
+        else if constexpr(IsChar<RemovePointerType<DecayType<Type>>>)
+        {
+            SSSENGINE_STATIC_ASSERT(false, "Invalid string type to format");
+        }
         else if constexpr(SignedIntegralConcept<Type>)
         {
             if constexpr(sizeof(Type) <= sizeof(i32))
@@ -307,44 +356,49 @@ namespace SSSEngine::Text
     {
         using enum ArgType;
         using CharType = Encoding::CodeUnitType;
+        using Type = NormalizedArgType<Encoding, T>;
 
-        if constexpr(IsSameType<T, bool>)
+        if constexpr(IsSameType<Type, bool>)
         {
             return Bool;
         }
-        else if constexpr(IsSameType<T, CharType>)
+        else if constexpr(IsSameType<Type, CharType>)
         {
             return Char;
         }
-        else if constexpr(IsSameType<T, i32>)
+        else if constexpr(IsConvertible<Type, StringView<Encoding>>)
+        {
+            return String;
+        }
+        else if constexpr(IsSameType<Type, i32>)
         {
             return Int32;
         }
-        else if constexpr(IsSameType<T, i64>)
+        else if constexpr(IsSameType<Type, i64>)
         {
             return Int64;
         }
-        else if constexpr(IsSameType<T, u32>)
+        else if constexpr(IsSameType<Type, u32>)
         {
             return UInt32;
         }
-        else if constexpr(IsSameType<T, u64>)
+        else if constexpr(IsSameType<Type, u64>)
         {
             return UInt64;
         }
-        else if constexpr(IsSameType<T, f32>)
+        else if constexpr(IsSameType<Type, f32>)
         {
             return Float32;
         }
-        else if constexpr(IsSameType<T, f64>)
+        else if constexpr(IsSameType<Type, f64>)
         {
             return Float64;
         }
-        else if constexpr(IsPointer<T>)
+        else if constexpr(IsPointer<Type>)
         {
             return Pointer;
         }
-        else if constexpr(IsSameType<T, CustomType>)
+        else if constexpr(IsSameType<Type, CustomType>)
         {
             return Custom;
         }
@@ -358,45 +412,50 @@ namespace SSSEngine::Text
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr FormatArgValue<Encoding> AsArgValue(T &value)
     {
+        using Type = NormalizedArgType<Encoding, T>;
         using CharType = Encoding::CodeUnitType;
 
-        if constexpr(IsSameType<T, bool>)
+        if constexpr(IsSameType<Type, bool>)
         {
             return {.boolean = value};
         }
-        else if constexpr(IsSameType<T, CharType>)
+        else if constexpr(IsSameType<Type, CharType>)
         {
             return {.character = value};
         }
-        else if constexpr(IsSameType<T, i32>)
+        else if constexpr(IsConvertible<Type, StringView<Encoding>>)
+        {
+            return {.string = value};
+        }
+        else if constexpr(IsSameType<Type, i32>)
         {
             return {.i32 = i32(value)};
         }
-        else if constexpr(IsSameType<T, i64>)
+        else if constexpr(IsSameType<Type, i64>)
         {
             return {.i64 = i64(value)};
         }
-        else if constexpr(IsSameType<T, u32>)
+        else if constexpr(IsSameType<Type, u32>)
         {
             return {.u32 = u32(value)};
         }
-        else if constexpr(IsSameType<T, u64>)
+        else if constexpr(IsSameType<Type, u64>)
         {
             return {.u64 = u64(value)};
         }
-        else if constexpr(IsSameType<T, f32>)
+        else if constexpr(IsSameType<Type, f32>)
         {
             return {.f32 = value};
         }
-        else if constexpr(IsSameType<T, f64>)
+        else if constexpr(IsSameType<Type, f64>)
         {
             return {.f64 = value};
         }
-        else if constexpr(IsPointer<T>)
+        else if constexpr(IsPointer<Type>)
         {
             return {.pointer = value};
         }
-        else if constexpr(IsSameType<T, CustomType>)
+        else if constexpr(IsSameType<Type, CustomType>)
         {
             CustomType c{.data = AddressOf(value), .format = &Formatter<T, Encoding>::Format};
             return {.custom = c};
@@ -418,6 +477,12 @@ namespace SSSEngine::Text
         {
         }
 
+        SSSENGINE_FORCE_INLINE
+        constexpr FormatArg(FormatArgValue<Encoding> value, ArgType type) :
+            m_value{value}, m_type(type)
+        {
+        }
+
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         FormatArgValue<Encoding> Value() const noexcept
         {
@@ -428,6 +493,41 @@ namespace SSSEngine::Text
         ArgType Type() const noexcept
         {
             return m_type;
+        }
+
+        template<typename Visitor>
+        decltype(auto) Visit(Visitor &&visitor)
+        {
+            switch(m_type)
+            {
+                case ArgType::Bool:
+                    return Forward<Visitor>(visitor)(m_value.boolean);
+                case ArgType::Char:
+                    return Forward<Visitor>(visitor)(m_value.character);
+                case ArgType::String:
+                    return Forward<Visitor>(visitor)(m_value.string);
+                case ArgType::Int32:
+                    return Forward<Visitor>(visitor)(m_value.i32);
+                case ArgType::Int64:
+                    return Forward<Visitor>(visitor)(m_value.i64);
+                case ArgType::UInt32:
+                    return Forward<Visitor>(visitor)(m_value.u32);
+                case ArgType::UInt64:
+                    return Forward<Visitor>(visitor)(m_value.u64);
+                case ArgType::Float32:
+                    return Forward<Visitor>(visitor)(m_value.f32);
+                case ArgType::Float64:
+                    return Forward<Visitor>(visitor)(m_value.f64);
+                case ArgType::Pointer:
+                    return Forward<Visitor>(visitor)(m_value.pointer);
+                case ArgType::Custom:
+                    return Forward<Visitor>(visitor)(m_value.custom);
+                case ArgType::Count:
+                    SSSENGINE_FALLTHROUGH;
+                default:
+                    SSSENGINE_ASSERT("Not a valid type");
+                    break;
+            }
         }
 
       private:
@@ -464,14 +564,15 @@ namespace SSSEngine::Text
             {
                 m_packedSize = Size;
 
-                m_packedTypes = 0;
+                u64 types = 0;
                 // TODO: Replace with array and reverse for each
-                constexpr ArgType Types[]{AsArgType<Encoding, Args>()...};
-                for(auto current = Types + Size - 1; current != Types - 1; --current)
+                static constexpr ArgType Types[]{AsArgType<Encoding, Args>()...};
+                for(const ArgType *current = Types + Size - 1; current != Types - 1; --current)
                 {
-                    m_packedTypes = m_packedTypes << PackedTypeBits | AsNumber(*current);
+                    types = (types << PackedTypeBits) | AsNumber(*current);
                 }
 
+                m_packedTypes = types;
                 m_values = storage.elements;
             }
             else
@@ -488,11 +589,27 @@ namespace SSSEngine::Text
             return m_packedSize ? m_packedSize : m_packedTypes;
         }
 
-        SSSENGINE_PURE
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         ArgType GetType(SizeType index) const noexcept
         {
             u64 value = m_packedTypes >> (index * PackedTypeBits);
             return static_cast<ArgType>(value & PackedTypeMask);
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        FormatArg<Encoding> Get(SizeType index) const noexcept
+        {
+            if(index < m_packedSize)
+            {
+                return {m_values[index], GetType(index)};
+            }
+
+            if(m_packedSize == 0 && index < m_packedTypes)
+            {
+                return m_args[index];
+            }
+
+            SSSENGINE_UNREACHABLE;
         }
 
       private:
@@ -525,6 +642,9 @@ namespace SSSEngine::Text
         template<typename T>
         static ElementType MakeElement(T &value) noexcept
         {
+            using Type = NormalizedArgType<Encoding, RemoveConstType<T>>;
+            SSSENGINE_STATIC_ASSERT(IsDefaultConstructible<Formatter<Type, Encoding>>, "Formatter must be specialized");
+
             if constexpr(PackTypes)
             {
                 return AsArgValue<Encoding>(value);
@@ -545,7 +665,7 @@ namespace SSSEngine::Text
 
     template<EncodingConcept Encoding, typename... Args>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr FormatArgs<Encoding> MakeFormatArgs(Args &...args)
+    constexpr auto MakeFormatArgs(Args &...args)
     {
         using Storage = FormatArgStorage<Encoding, NormalizedArgType<Encoding, Args>...>;
         return Storage{Storage::MakeElement(args)...};
@@ -554,13 +674,15 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, SinkConcept Sink>
     void FormatTo(Sink &out, StringView<Encoding> fmt, FormatArgs<Encoding> args)
     {
-        using namespace Iterators;
+        using namespace Ranges;
 
         using CharType = typename Encoding::CodeUnitType;
         using It = StringView<Encoding>::Iterator;
 
         static constexpr auto Left = CharType('{');
         static constexpr auto Right = CharType('}');
+
+        FormatContext<Encoding, Sink> fmtCtx;
 
         const auto end = fmt.End();
         const auto findArgBegin = [end](It begin) -> It
@@ -606,9 +728,32 @@ namespace SSSEngine::Text
 
         It argBegin;
         SizeType argIndex = 0;
+        FormatArg<Encoding> type = args.Get(argIndex);
+        type.Visit(
+            [&fmtCtx](auto &arg)
+            {
+                using Type = RemoveReferenceType<decltype(arg)>;
+                using Formatter = Formatter<Type, Encoding>;
+
+                if constexpr(IsSameType<Type, CustomType>)
+                {
+                    arg.format();
+                }
+                else if constexpr(IsDefaultConstructible<Formatter>)
+                {
+                    Formatter fmt;
+                    fmt.Parse();
+                    fmt.Format(arg, fmtCtx);
+                }
+                else
+                {
+                    SSSENGINE_STATIC_ASSERT("No way to format");
+                }
+            });
         while(argBegin = findArgBegin(fmt.Begin()), argBegin != end)
         {
             const auto argEnd = findArgEnd(argBegin);
+            // LINE 5094
 
             // TODO:
             // - Copy from format to sink
@@ -647,16 +792,24 @@ namespace SSSEngine::Text
         // All args and replacement fields must be used
 
         // LINE: 5394
-        return FormatEngine(fmt.string, MakeFormatArgs<Encoding>(args...));
+        auto fmtArgs = MakeFormatArgs<Encoding>(args...);
+        FormatArgs<Encoding> fa = fmtArgs;
+        return FormatEngine(fmt.string, fa);
     }
 
-    void Test(int b, int a)
+    template<EncodingConcept Encoding>
+    struct Formatter<String<Encoding>, Encoding>
     {
-        int l{};
-        Format<Utf8Encoding>(u8"{}", l);
-        Format<AsciiEncoding>("{}", l);
-    }
+        constexpr auto Parse() const noexcept
+        {
+            SSSENGINE_UNREACHABLE;
+        }
 
-    constexpr Utf8 S(u8"");
+        template<typename FmtCtx>
+        constexpr auto Format(StringView<Encoding> value, FmtCtx &ctx) const noexcept
+        {
+            SSSENGINE_UNREACHABLE;
+        }
+    };
 
 } // namespace SSSEngine::Text

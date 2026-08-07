@@ -24,10 +24,11 @@
 
 #pragma once
 
-#include <wayland-client.h>
 #include "HelperMacros.h"
 #include "WindowHandle.h"
+
 #include "xdg-shell-client-protocol.h"
+#include <wayland-client.h>
 
 namespace SSSEngine::Platform
 {

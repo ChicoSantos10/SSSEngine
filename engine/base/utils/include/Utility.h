@@ -33,12 +33,17 @@
 #include "QualifierTraits.h"
 #include "Types.h"
 
-// TODO: Remove std library and implement placement new functions
-// SSSENGINE_FORCE_INLINE
-// constexpr void *operator new(Size, void *) noexcept;
-// SSSENGINE_FORCE_INLINE
-// constexpr void operator delete(void *, void *) noexcept;
-#include <new>
+SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+constexpr void *operator new(SizeType, void *address) noexcept
+{
+    return address;
+}
+
+SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+constexpr void *operator new[](SizeType, void *address) noexcept
+{
+    return address;
+}
 
 namespace SSSEngine
 {

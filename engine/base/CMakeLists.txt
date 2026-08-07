@@ -27,4 +27,5 @@ target_link_libraries(SSSBase INTERFACE
   SSSFileSystem
   SSSRanges
   SSSContainers
+  std
 )

@@ -22,11 +22,13 @@
  * @brief Linux Entry point
  */
 
-#include <cstring>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 #include <wayland-client.h>
 
+#include "AsciiEncoding.h"
+#include "CString.h"
+#include "Formatter.h"
 #include "Platform.h"
 #include "Types.h"
 #include "WaylandWindow.h"
@@ -47,15 +49,17 @@ int main(int argc, char *argv[])
     Registry = wl_display_get_registry(Display);
     auto registryHandler = [](void *data, wl_registry *registry, u32 id, const char *interface, u32 version)
     {
-        if(strcmp(interface, wl_compositor_interface.name) == 0)
+        using namespace SSSEngine::Text;
+
+        if(StringEqual<AsciiEncoding>(interface, wl_compositor_interface.name))
         {
             Compositor = static_cast<wl_compositor *>(wl_registry_bind(registry, id, &wl_compositor_interface, version));
         }
-        else if(strcmp(interface, wl_shell_interface.name) == 0)
+        else if(StringEqual<AsciiEncoding>(interface, wl_shell_interface.name))
         {
             Shell = static_cast<wl_shell *>(wl_registry_bind(registry, id, &wl_shell_interface, version));
         }
-        else if(strcmp(interface, xdg_wm_base_interface.name) == 0)
+        else if(StringEqual<AsciiEncoding>(interface, xdg_wm_base_interface.name))
         {
             XdgWmBase = static_cast<xdg_wm_base *>(wl_registry_bind(registry, id, &xdg_wm_base_interface, version));
             const xdg_wm_base_listener listener = {.ping = [](void *data, xdg_wm_base *xdg, u32 serial)

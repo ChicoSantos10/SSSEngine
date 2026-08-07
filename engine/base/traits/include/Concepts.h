@@ -43,7 +43,7 @@ namespace SSSEngine
     concept NonNarrowingConvertibleToConcept = requires(To &&to) { From{static_cast<To &&>(to)}; };
 
     template<typename T, typename... Args>
-    concept BraceInitializableConcept = requires(Args &&...args) { T{Forward<Args>(args)...}; };
+    concept BraceInitializableConcept = requires(Args &&...args) { T{static_cast<Args &&>(args)...}; };
 
     /**
      * @brief Concept of a Integral of Floating point number

@@ -24,15 +24,25 @@
 
 #pragma once
 
+#define SSSENGINE_STRING(x) #x
+
 #define SSSENGINE_WIDE_STRING_(x) L##x
 #define SSSENGINE_WIDE_STRING(x) SSSENGINE_WIDE_STRING_(#x)
 #define SSSENGINE_WIDE(x) SSSENGINE_WIDE_STRING_(x)
-#define SSSENGINE_STRING(x) #x
 
 #define SSSENGINE_UTF8(message) u8##message
 #define SSSENGINE_UTF16(message) u##message
 #define SSSENGINE_UTF32(message) U##message
 #define SSSENGINE_ASCII(message) message
+
+#define SSSENGINE_UTF8_FILE_(x) SSSENGINE_UTF8(x)
+#define SSSENGINE_UTF8_FILE SSSENGINE_UTF8_FILE_(__FILE__)
+#define SSSENGINE_UTF8_STRING(x) SSSENGINE_UTF8(#x)
+
+#define SSSENGINE_TEXT(x) SSSENGINE_UTF8(x)
+#define SSSENGINE_TEXT_STRING(x) SSSENGINE_UTF8(#x)
+#define SSSENGINE_FILE SSSENGINE_UTF8_FILE
+#define SSSENGINE_LINE __LINE__
 
 #define SSSENGINE_PRAGMA(x) _Pragma(#x)
 

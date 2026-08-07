@@ -74,8 +74,7 @@ if (MSVC)
             /wd28251
     )
 else ()
-    add_compile_options(-Wall -Wextra -Wpedantic)
-    # TODO: Remove std library:
+    add_compile_options(-Wall -Wextra -Wpedantic -nostdinc++)
     # add_link_options(-nodefaultlibs)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CLANG TRUE)

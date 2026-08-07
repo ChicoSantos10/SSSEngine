@@ -29,8 +29,6 @@
 #include "Types.h"
 #include "Ratio.h"
 
-#include <compare>
-
 namespace SSSEngine
 {
     /**

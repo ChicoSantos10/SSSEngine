@@ -29,8 +29,7 @@
 #include "Encoding.h"
 #include "Iterator.h"
 #include "Utf8Encoding.h"
-
-#include <compare>
+#include "Ordering.h"
 
 namespace SSSEngine::Text
 {
@@ -75,7 +74,7 @@ namespace SSSEngine::Text
 
       private:
         PointerType m_current{};
-        Size m_currentSize{};
+        SizeType m_currentSize{};
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         friend auto operator<=>(const StringIterator &lhs, const StringIterator &rhs) = default;

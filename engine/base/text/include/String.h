@@ -198,7 +198,7 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return m_data.stackString;
+                return m_data.stackString.Begin();
             }
             return m_data.heapString.m_data;
         }
@@ -252,9 +252,9 @@ namespace SSSEngine::Text
         }
 
         template<typename Self>
-        constexpr operator View(this Self &self) noexcept // NOLINT(*-explicit-constructor)
+        constexpr operator View(this Self &&self) noexcept // NOLINT(*-explicit-constructor)
         {
-            return {self.CString(), self.Count()};
+            return {Forward<Self>(self).CString(), Forward<Self>(self).Count()};
         }
 
         constexpr void Reserve(SizeType amount)
@@ -381,7 +381,7 @@ namespace SSSEngine::Text
             SSSENGINE_ASSERT(string.Count() <= MaxCountSmall);
 
             Ranges::Copy(string, m_data.stackString.Begin());
-            m_count = string.m_count;
+            m_count = string.Count();
         }
 
         /**

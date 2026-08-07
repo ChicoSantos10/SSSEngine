@@ -20,6 +20,8 @@
 #include "AlignedStorage.h"
 #include "Test.h"
 
+#if 0
+
 namespace SSSTest
 {
     using namespace SSSEngine;
@@ -50,3 +52,5 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(a.Get<int>(), 10);
     }
 } // namespace SSSTest
+
+#endif

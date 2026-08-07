@@ -31,7 +31,6 @@
 #include "Types.h"
 #include "ValueConstant.h"
 #include "HelperMacros.h"
-#include <cstddef>
 
 namespace SSSEngine
 {

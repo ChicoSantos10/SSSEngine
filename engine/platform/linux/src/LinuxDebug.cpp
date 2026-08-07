@@ -24,8 +24,9 @@
  */
 
 #include "Debug.h"
+#include "Types.h"
 
 namespace SSSEngine
 {
-    void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned int line) {}
+    void ReportAssertionFailure(const char8 *message, const char8 *file, unsigned line) {}
 } // namespace SSSEngine

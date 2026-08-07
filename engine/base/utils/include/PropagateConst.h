@@ -27,7 +27,7 @@
 #include "Concepts.h"
 #include "QualifierTraits.h"
 
-namespace SSSEngine::Utils
+namespace SSSEngine
 {
     /**
      * @brief Propagates the constness to the variable
@@ -86,4 +86,4 @@ namespace SSSEngine::Utils
 
         // NOLINTEND(google-explicit-constructor)
     };
-} // namespace SSSEngine::Utils
+} // namespace SSSEngine

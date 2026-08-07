@@ -34,8 +34,8 @@
 #include "Input.h"
 #include "Window.h"
 #include "WindowHandle.h"
-
-#include <iostream>
+#include "Logger.h"
+#include "Formatter.h"
 
 namespace SSSEngine::Editor
 {
@@ -62,17 +62,20 @@ namespace SSSEngine::Editor
 
             // Render
             {
-                try
-                {
-                    Renderer::BeginFrame();
-                    Renderer::Render();
-                }
-                catch(std::exception &e)
-                {
-                    std::cerr << e.what() << "\n";
-                    SSSENGINE_DEBUG_BREAK;
-                    break;
-                }
+                // try
+                // {
+                //     Renderer::BeginFrame();
+                //     Renderer::Render();
+                // }
+                // catch(std::exception &e)
+                // {
+                //     SSSENGINE_LOG_ERROR(e.what());
+                //     SSSENGINE_DEBUG_BREAK;
+                //     break;
+                // }
+                // TODO: Create exception class and implement try catch
+                Renderer::BeginFrame();
+                Renderer::Render();
             }
 
             auto lastTimestamp = Platform::GetCurrentTime();

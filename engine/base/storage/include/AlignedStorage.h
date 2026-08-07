@@ -50,9 +50,11 @@ namespace SSSEngine
      * @see Storage for a similar storage that can only hold 1 type or TagUnion for a class that keeps track of the
      * current type stored
      */
+
     template<SizeType S, SizeType Alignment>
         requires(S > 0 && Alignment > 0)
-    class alignas(Alignment) AlignedStorage
+
+    class SSSENGINE_DEPRECATED("No reason to use") alignas(Alignment) AlignedStorage
     {
         template<typename T>
         static constexpr bool CanConstruct = sizeof(T) <= S && alignof(T) <= Alignment;
@@ -68,7 +70,7 @@ namespace SSSEngine
         SSSENGINE_FORCE_INLINE
         constexpr T *Construct() noexcept(IsNoThrowDefaultConstructible<T>)
         {
-            return BraceConstructAt<T>(AddressOf(m_value));
+            return BraceConstructAt<T>(AddressOf(m_value[0]));
         }
 
         /**

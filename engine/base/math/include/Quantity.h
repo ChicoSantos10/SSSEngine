@@ -30,6 +30,7 @@
 #include "Limits.h"
 #include "Ratio.h"
 #include "ValueConstant.h"
+#include "Ordering.h"
 
 namespace SSSEngine::Math
 {

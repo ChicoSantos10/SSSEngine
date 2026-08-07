@@ -1,3 +1,6 @@
+add_library(std INTERFACE)
+target_include_directories(std INTERFACE std)
+
 add_subdirectory(base)
 add_subdirectory(platform)
 add_subdirectory(audio)

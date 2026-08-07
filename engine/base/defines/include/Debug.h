@@ -58,7 +58,7 @@ namespace SSSEngine
      * @param file The file that threw the error
      * @param line The line where the error occurred
      */
-    void ReportAssertionFailure(const wchar_t *message, const wchar_t *file, unsigned line);
+    void ReportAssertionFailure(const char8_t *message, const char8_t *file, unsigned line);
 } // namespace SSSEngine
 
     #include "HelperMacros.h"
@@ -68,10 +68,10 @@ namespace SSSEngine
      * @param expression The expression to be tested. Since we assert that it must not be true we can then tell the
      * compiler it can assume to be true, potentially allowing for some optimizations
      */
-    #define SSSENGINE_ASSERT(expression)                                                                                    \
-        (void)((!!(expression)) || (SSSEngine::ReportAssertionFailure(                                                      \
-                                        SSSENGINE_WIDE_STRING(expression), SSSENGINE_WIDE(__FILE__), (unsigned)(__LINE__)), \
-                                    SSSENGINE_DEBUG_BREAK,                                                                  \
+    #define SSSENGINE_ASSERT(expression)                                                                                \
+        (void)((!!(expression)) || (SSSEngine::ReportAssertionFailure(                                                  \
+                                        SSSENGINE_TEXT_STRING(expression), SSSENGINE_FILE, (unsigned)(SSSENGINE_LINE)), \
+                                    SSSENGINE_DEBUG_BREAK,                                                              \
                                     0))
 
     #define SSSENGINE_UNREACHABLE                                                                                      \

@@ -27,11 +27,10 @@
 
 #ifdef SSSENGINE_LOGGING
 
-    #include <format>
-    #include <iostream>
     #include "Attributes.h"
     #include "Types.h"
     #include "Debug.h"
+    #include "String.h"
 
 /**
  * @namespace
@@ -39,7 +38,7 @@
  */
 namespace SSSEngine::Logging
 {
-    using String = std::wstring;
+    using String = Text::Utf8;
 
     enum class LogLevel : u8
     {
@@ -47,23 +46,6 @@ namespace SSSEngine::Logging
         Warning,
         Error,
     };
-
-    /**
-     * @brief Formats a string using the arguments. Use {} or {n} where n is the 0-based position in the arguments
-     * passed. Useful when wanting to repeat a value across multiple positions
-     *
-     * @tparam Args [TODO:tparam]
-     * @param fmt [TODO:parameter]
-     * @param args [TODO:parameter]
-     * @return [TODO:return]
-     */
-    // TODO: Implement this without std. Also move this a string module
-    template<typename... Args>
-    SSSENGINE_PURE
-    String Format(std::wformat_string<Args...> fmt, Args &&...args)
-    {
-        return std::format(fmt, std::forward<Args>(args)...);
-    }
 
     // TODO: This should be replaced by just having a logger which should be responsible for knowing how to log (file,
     // console, ...)
@@ -73,14 +55,15 @@ namespace SSSEngine::Logging
         switch(level)
         {
             using enum LogLevel;
+            // TODO: OS Logging
             case Info:
-                std::wcout << L"[INFO]: " << message << "\n";
+                // std::wcout << L"[INFO]: " << message << "\n";
                 break;
             case Warning:
-                std::wcout << L"[WARNING]: " << message << "\n";
+                // std::wcout << L"[WARNING]: " << message << "\n";
                 break;
             case Error:
-                std::wcerr << L"[ERROR]: " << message << "\n";
+                // std::wcerr << L"[ERROR]: " << message << "\n";
                 break;
             default:
                 SSSENGINE_UNREACHABLE;
@@ -94,11 +77,14 @@ namespace SSSEngine::Logging
     //  - Needs to build logging always
     //  - Can lead to mistakes where calling logging directly instead of macros leaking logs when not intending
     #define SSSENGINE_LOG_INFO(message, ...)                                                                           \
-        LogConsole(SSSEngine::Logging::LogLevel::Info, SSSEngine::Logging::Format(SSSENGINE_WIDE(message), ##__VA_ARGS__))
+        LogConsole(SSSEngine::Logging::LogLevel::Info,                                                                 \
+                   SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
     #define SSSENGINE_LOG_WARNING(message, ...)                                                                        \
-        LogConsole(SSSEngine::Logging::LogLevel::Error, SSSEngine::Logging::Format(SSSENGINE_WIDE(message), ##__VA_ARGS__))
+        LogConsole(SSSEngine::Logging::LogLevel::Error,                                                                \
+                   SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
     #define SSSENGINE_LOG_ERROR(message, ...)                                                                          \
-        LogConsole(SSSEngine::Logging::LogLevel::Error, SSSEngine::Logging::Format(SSSENGINE_WIDE(message), ##__VA_ARGS__))
+        LogConsole(SSSEngine::Logging::LogLevel::Error,                                                                \
+                   SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
 } // namespace SSSEngine::Logging
 
 #else

@@ -17,12 +17,13 @@
     USA
 */
 
-#include <string>
-#include <utility>
-#include <vector>
-#include <iostream>
+#include "Formatter.h"
 #include "HelperMacros.h"
+#include "Logger.h"
 #include "Types.h"
+#include "String.h"
+#include "Utility.h"
+#include "DynamicArray.h"
 
 namespace SSSTest
 {
@@ -32,12 +33,14 @@ namespace SSSTest
 
     struct TestData
     {
+        using String = SSSEngine::Text::Utf8View;
         using function = void();
+
         int line;
-        std::string file;
+        String file;
         function *test;
 
-        TestData(int line, std::string file, function *test) : line{line}, file{std::move(file)}, test{test} {}
+        TestData(int line, const char8 *file, function *test) : line{line}, file{file}, test{test} {}
 
         void operator()() const
         {
@@ -46,7 +49,7 @@ namespace SSSTest
     };
 
     SSSENGINE_GLOBAL
-    std::vector<TestData> Tests{};
+    SSSEngine::Containers::DynamicArray<TestData> Tests{};
     SSSENGINE_GLOBAL
     bool Succeeded = true;
 
@@ -60,7 +63,7 @@ namespace SSSTest
 
         static void Add(const TestData &data)
         {
-            Tests.push_back(data);
+            Tests.PushBack(data);
         }
 
         static void Execute()
@@ -74,7 +77,7 @@ namespace SSSTest
                 catch(...)
                 {
                     // TODO: Test details (name, file, line)
-                    std::cerr << "Exception found while testing in file: " << test.file << " line: " << test.line << "\n";
+                    SSSENGINE_LOG_ERROR("Exception found while testing in file: {} line: {}.\n", test.file, test.line);
 
                     Succeeded = false;
                 }
@@ -84,7 +87,7 @@ namespace SSSTest
 
 #define SSSTEST_TEST(name)                                                                                             \
     void name();                                                                                                       \
-    Test _##name({__LINE__, __FILE__, name});                                                                          \
+    Test _##name({__LINE__, SSSENGINE_UTF8_FILE, name});                                                               \
     void name()
 
 #define SSSTEST_EXPECT_(value)                                                                                         \
@@ -93,8 +96,8 @@ namespace SSSTest
     }                                                                                                                  \
     else                                                                                                               \
     {                                                                                                                  \
-        std::cerr << "Failed at " << __FILE__ << " " << __LINE__ << "\n";                                              \
-        std::cerr << SSSENGINE_STRING(value) << "\n";                                                                  \
+        SSSENGINE_LOG_ERROR("Failed at {}:{}\n", SSSENGINE_UTF8_FILE, __LINE__);                                       \
+        SSSENGINE_LOG_ERROR("{}\n", SSSENGINE_STRING(value));                                                          \
         Succeeded = false;                                                                                             \
     }
 

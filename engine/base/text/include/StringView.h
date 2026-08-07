@@ -91,17 +91,30 @@ namespace SSSEngine::Text
 
         constexpr StringView() = delete;
 
+        // NOLINTBEGIN(*-explicit-constructor)
+
         template<SizeType N>
-        constexpr StringView(const CharType (&data)[N]) : m_data{data}, m_size{N - 1} // NOLINT(*-explicit-constructor)
+        constexpr StringView(const CharType (&data)[N]) noexcept : m_data{data}, m_size{N - 1}
         {
         }
 
-        constexpr StringView(const CharType *data, const SizeType size) : m_data{data}, m_size{size} {}
+        constexpr StringView(const CharType *data, const SizeType size) noexcept : m_data{data}, m_size{size} {}
 
-        constexpr StringView(const CharType *data) : // NOLINT(*-explicit-constructor)
-            m_data(data), m_size(Length(data))
+        constexpr StringView(const CharType *data) noexcept : m_data(data), m_size(Length(data)) {}
+
+        constexpr StringView(const char *data, const SizeType size) noexcept
+            requires IsSameType<Encoding, Utf8Encoding>
+            : m_data{BitCopy<const char8 *>(data)}, m_size{size}
         {
         }
+
+        template<SizeType N>
+            requires IsSameType<Encoding, Utf8Encoding>
+        constexpr StringView(const char (&data)[N]) noexcept : StringView(data, N)
+        {
+        }
+
+        // NOLINTEND(*-explicit-constructor)
 
         ~StringView() = default;
 
@@ -191,13 +204,13 @@ namespace SSSEngine::Text
 
 } // namespace SSSEngine::Text
 
-namespace SSSEngine::Iterators
+namespace SSSEngine::Ranges
 {
     template<Text::EncodingConcept Encoding>
     SSSENGINE_GLOBAL
     constexpr bool EnableBorrowRange<Text::StringView<Encoding>> = true;
 
-} // namespace SSSEngine::Iterators
+} // namespace SSSEngine::Ranges
 
 namespace SSSEngine::Text
 {

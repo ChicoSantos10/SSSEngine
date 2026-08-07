@@ -219,12 +219,12 @@ namespace SSSEngine::Containers
       private:
         // NOLINTBEGIN(readability-identifier-naming)
 
-        friend constexpr auto begin(const Array &array) noexcept
+        friend constexpr decltype(auto) begin(const Array &array) noexcept
         {
             return array.Begin();
         }
 
-        friend constexpr auto end(const Array &array) noexcept
+        friend constexpr decltype(auto) end(const Array &array) noexcept
         {
             return array.End();
         }

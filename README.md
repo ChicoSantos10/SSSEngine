@@ -58,17 +58,20 @@ To run the engine just run the executable created on build folder
 
 There are also presets to use.
 
-Compiler Status:
+### Compiler Status:
 
-| Clang | GCC | MSVC |
-| ----- | --- | ---- |
-| Windows | ❌ | ❌ | ❌ |
-| Linux | ✅ | ⁉️ | ❎ |
+| Status | Meaning        |
+| ------ | -------------- |
+| ✅     | Working        |
+| ❌     | Not Working    |
+| ⁉️     | Not Tested     |
+| ❎     | Not Applicable |
 
-✅ -> Working
-❌ -> Not Working
-⁉️ -> Not Tested 
-❎ -> Not applicable
+| ------- | Clang | GCC | MSVC |
+| ------- | ----- | --- | ---- |
+| Windows | ❌    | ❌  | ❌   |
+| Linux   | ✅    | ⁉️  | ❎   |
+
 
 ## How to contribute
 
@@ -386,7 +389,7 @@ Tags will be lightweight and created for versioning.
 
 Each folder should be lowercase, small and ideally 1 word. Files themselves should be PascalCase.
 
-## Version 1.0 Road cap
+## Version 1.0 Roadmap
 
     **Current Target:** Linux + Clang + Vulkan
     **First Release:** Linux and Windows + Clang, GCC and MSVC + Vulkan

@@ -42,7 +42,7 @@ namespace SSSEngine::Renderer::DirectX12
     template<typename T, bool IsConstantBuffer>
     class UploadBuffer
     {
-        public:
+      public:
         explicit UploadBuffer(u32 count)
         {
             auto heaptype = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
@@ -64,19 +64,21 @@ namespace SSSEngine::Renderer::DirectX12
             m_data = nullptr;
         }
 
-        SSSENGINE_FORCE_INLINE void CopyData(u32 index, const T &data)
+        SSSENGINE_FORCE_INLINE
+        void CopyData(u32 index, const T &data)
         {
             memcpy(&m_data[index * Size], &data, sizeof(T));
         }
 
         static constexpr u64 Size = IsConstantBuffer ? GetConstantBufferByteSize(sizeof(T)) : sizeof(T);
 
-        SSSENGINE_PURE Microsoft::WRL::ComPtr<ID3D12Resource> GetBufferResource() const noexcept
+        SSSENGINE_PURE
+        Microsoft::WRL::ComPtr<ID3D12Resource> GetBufferResource() const noexcept
         {
             return m_uploadBuffer;
         }
 
-        private:
+      private:
         Microsoft::WRL::ComPtr<ID3D12Resource> m_uploadBuffer;
         byte *m_data{};
     };

@@ -24,16 +24,56 @@
 
 #pragma once
 
+#include "ConversionTraits.h"
 #include "HelperMacros.h"
 #include "Types.h"
 #include "Concepts.h"
 #include "Debug.h"
-#include <concepts>
-#include <type_traits>
+#include "ValueConstant.h"
+#include "Utility.h"
 
 namespace SSSEngine::Math
 {
     using MatrixSize = u32;
+
+    template<SSSEngine::NumberConcept T, MatrixSize C, MatrixSize R>
+    struct Matrix;
+
+    /**
+     * @brief Checks if type T is a matrix
+     *
+     * @tparam T Type to check
+     */
+    template<typename T>
+    struct IsMatrix : FalseType
+    {
+    };
+
+    /**
+     * @brief Checks if is a Matrix
+     *
+     * @tparam T Type to check
+     */
+    template<typename T, MatrixSize C, MatrixSize R>
+    struct IsMatrix<Matrix<T, C, R>> : TrueType
+    {
+    };
+
+    /**
+     * @brief Checks if Type T is a Matrix
+     *
+     * @tparam T The type to check
+     */
+    template<typename T>
+    concept MatrixTypeConcept = IsMatrix<T>::Value;
+
+    /**
+     * @brief Concept of a Matrix where Columns are the same as Rows
+     *
+     * @tparam T A type of matrix
+     */
+    template<typename T>
+    concept SquareMatrixConcept = MatrixTypeConcept<T> && T::Rows == T::Columns;
 
     /**
      * @brief A Matrix representation
@@ -44,24 +84,13 @@ namespace SSSEngine::Math
     template<SSSEngine::NumberConcept T, MatrixSize C, MatrixSize R>
     struct Matrix
     {
-        static consteval MatrixSize Rows()
-        {
-            return R;
-        }
-
-        static consteval MatrixSize Columns()
-        {
-            return C;
-        }
-
-        static consteval MatrixSize NumberElements()
-        {
-            return R * C;
-        }
+        static constexpr MatrixSize Rows = R;
+        static constexpr MatrixSize Columns = C;
+        static constexpr MatrixSize NumberElements = R * C;
 
         using Type = T;
 
-        T data[NumberElements()]{0};
+        T data[NumberElements]{0};
 
         template<class Self>
         constexpr auto &&operator[](this Self &&self, MatrixSize row, MatrixSize col)
@@ -69,73 +98,57 @@ namespace SSSEngine::Math
             SSSENGINE_ASSERT(row < R);
             SSSENGINE_ASSERT(col < C);
 
-            return std::forward<Self>(self).data[row * C + col];
+            return Forward<Self>(self).data[row * C + col];
         }
 
         template<class Self>
         constexpr auto &&operator[](this Self &&self, MatrixSize index)
         {
-            SSSENGINE_ASSERT(index < NumberElements());
+            SSSENGINE_ASSERT(index < NumberElements);
 
-            return std::forward<Self>(self).data[index];
+            return Forward<Self>(self).data[index];
+        }
+
+        SSSENGINE_PURE
+        static consteval Matrix Identity() noexcept
+            requires SquareMatrixConcept<Matrix>
+        {
+            static constexpr MatrixSize Size = Matrix::Rows;
+
+            Matrix m;
+
+            for(int i = 0; i < Size; ++i)
+            {
+                for(int j = 0; j < Size; ++j)
+                {
+                    if(i == j)
+                    {
+                        m[i, j] = 1;
+                    }
+                    else
+                    {
+                        m[i, j] = 0;
+                    }
+                }
+            }
+            return m;
         }
     };
 
-    using Mat4x4f = Matrix<float, 4, 4>;
-
-    /**
-     * @brief Checks if type T is a matrix
-     *
-     * @tparam T [TODO:tparam]
-     */
-    template<typename T, template<typename, MatrixSize, MatrixSize> typename V>
-    struct IsMatrix : std::false_type
-    {
-    };
-
-    /**
-     * @brief Checks if is a Matrix
-     *
-     * @tparam U [TODO:tparam]
-     */
-    template<template<typename, MatrixSize, MatrixSize> typename V, typename U, MatrixSize C, MatrixSize R>
-    struct IsMatrix<V<U, C, R>, V> : std::true_type
-    {
-    };
-
-    /**
-     * @brief Checks if Type T is a Matrix
-     *
-     * @tparam T [TODO:tparam]
-     */
-    template<typename T>
-    concept MatrixTypeConcept = IsMatrix<T, Matrix>::value;
-
-    SSSENGINE_STATIC_ASSERT(MatrixTypeConcept<Mat4x4f>, "Mat4x4f is a matrix")
-    SSSENGINE_STATIC_ASSERT(!MatrixTypeConcept<int>, "int is not a matrix")
-
-    /**
-     * @brief Concept of a Matrix where Columns are the same as Rows
-     *
-     * @tparam T A type of matrix
-     */
-    template<typename T>
-    concept SquareMatrixConcept = MatrixTypeConcept<T> && T::Rows() == T::Columns();
-
-    SSSENGINE_STATIC_ASSERT((SquareMatrixConcept<Matrix<float, 4, 4>>), "A 4x4 matrix is a square matrix");
-    SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
-
     template<MatrixTypeConcept T, MatrixTypeConcept V>
-        requires(std::same_as<T, V>) && (T::Columns() == V::Rows())
-    SSSENGINE_GLOBAL constexpr auto operator*(const T &lhs, const V &rhs)
+        requires(IsSameType<T, V>) && (T::Columns == V::Rows)
+    SSSENGINE_GLOBAL
+    constexpr auto operator*(const T &lhs, const V &rhs)
     {
         using Type = typename T::Type;
-        constexpr MatrixSize RowsLhs = T::Rows();
-        constexpr MatrixSize RowsRhs = V::Rows();
-        constexpr MatrixSize ColumnsRhs = V::Columns();
+        static constexpr MatrixSize RowsLhs = T::Rows;
+        static constexpr MatrixSize RowsRhs = V::Rows;
+        static constexpr MatrixSize ColumnsRhs = V::Columns;
 
         Matrix<Type, ColumnsRhs, RowsRhs> result;
 
+        // PERF: Optimize this! Although for most scenarios we should do a simd multiplication. Here we either dont do
+        // it or need to do it unaligned. The other question is column-order vs row-order
         for(MatrixSize i = 0; i < RowsLhs; ++i)
         {
             for(MatrixSize k = 0; k < RowsLhs; ++k)
@@ -151,11 +164,12 @@ namespace SSSEngine::Math
     }
 
     template<MatrixTypeConcept T>
-    SSSENGINE_GLOBAL constexpr bool operator==(const T &lhs, const T &rhs)
+    SSSENGINE_GLOBAL
+    constexpr bool operator==(const T &lhs, const T &rhs)
     {
-        constexpr MatrixSize Rows = T::Rows();
-        constexpr MatrixSize Columns = T::Columns();
-        constexpr MatrixSize Size = Rows * Columns;
+        static constexpr MatrixSize Rows = T::Rows;
+        static constexpr MatrixSize Columns = T::Columns;
+        static constexpr MatrixSize Size = Rows * Columns;
 
         for(MatrixSize i = 0; i < Size; ++i)
         {
@@ -169,7 +183,8 @@ namespace SSSEngine::Math
     }
 
     template<MatrixTypeConcept T>
-    SSSENGINE_GLOBAL constexpr bool operator!=(const T &lhs, const T &rhs)
+    SSSENGINE_GLOBAL
+    constexpr bool operator!=(const T &lhs, const T &rhs)
     {
         return !(lhs == rhs);
     }
@@ -183,24 +198,13 @@ namespace SSSEngine::Math
     template<SquareMatrixConcept M>
     consteval M IdentityMatrix()
     {
-        constexpr MatrixSize Size = M::Rows();
-
-        M m;
-
-        for(int i = 0; i < Size; ++i)
-        {
-            for(int j = 0; j < Size; ++j)
-            {
-                if(i == j)
-                {
-                    m[i, j] = 1;
-                }
-                else
-                {
-                    m[i, j] = 0;
-                }
-            }
-        }
-        return m;
+        return M::Identity();
     }
+
+    using Float4x4 = Matrix<float, 4, 4>;
+
+    SSSENGINE_STATIC_ASSERT(MatrixTypeConcept<Float4x4>, "Mat4x4f is a matrix");
+    SSSENGINE_STATIC_ASSERT(!MatrixTypeConcept<int>, "int is not a matrix");
+    SSSENGINE_STATIC_ASSERT((SquareMatrixConcept<Matrix<float, 4, 4>>), "A 4x4 matrix is a square matrix");
+    SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
 } // namespace SSSEngine::Math

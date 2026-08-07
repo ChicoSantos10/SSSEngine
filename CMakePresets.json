@@ -7,7 +7,7 @@
     },
     "configurePresets": [
         {
-            "name": "default",
+            "name": "MSVC-Ninja",
             "generator": "Ninja",
             "binaryDir": "build/Debug/MSVC",
             "cacheVariables": {
@@ -20,25 +20,59 @@
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
             }
+        },
+        {
+            "name": "Clang-Ninja",
+            "generator": "Ninja",
+            "binaryDir": "build/Debug/Clang",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "BUILD_VULKAN": "ON",
+                "ADDRESS_SANITIZER": "OFF",
+                "MEMORY_SANITIZER": "OFF",
+                "THREAD_SANITIZER": "OFF",
+                "UB_SANITIZER": "OFF"
+            }
+        },
+        {
+            "name": "GCC-Ninja",
+            "generator": "Ninja",
+            "binaryDir": "build/Debug/GCC",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "BUILD_VULKAN": "ON",
+                "ADDRESS_SANITIZER": "OFF",
+                "MEMORY_SANITIZER": "OFF",
+                "THREAD_SANITIZER": "OFF",
+                "UB_SANITIZER": "OFF"
+            }
         }
     ],
     "buildPresets": [
         {
             "name": "default",
-            "configurePreset": "default"
+            "configurePreset": "Clang-Ninja"
+        },
+        {
+            "name": "gcc",
+            "configurePreset": "GCC-Ninja"
         }
     ],
     "testPresets": [
         {
             "name": "default",
-            "configurePreset": "default",
+            "configurePreset": "Clang-Ninja",
             "output": {
                 "outputOnFailure": true
             }
         },
         {
             "name": "verbose",
-            "configurePreset": "default",
+            "configurePreset": "Clang-Ninja",
             "output": {
                 "outputOnFailure": true,
                 "verbosity": "verbose"

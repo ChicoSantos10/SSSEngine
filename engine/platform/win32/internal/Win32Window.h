@@ -33,12 +33,14 @@
 
 namespace SSSEngine::Platform::Win32
 {
-    SSSENGINE_GLOBAL WNDCLASSEXW WindowClass;
+    SSSENGINE_GLOBAL
+    WNDCLASSEXW WindowClass;
 
     // TODO: Move this to its own file responsible for win32 input
     // SSSENGINE_GLOBAL Core::Input::KeyboardCodes MapInput(LPARAM windows);
 
-    SSSENGINE_GLOBAL LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
+    SSSENGINE_GLOBAL
+    LRESULT MainWindowProcedure(HWND hwnd, const UINT msg, const WPARAM wParam, const LPARAM lParam)
     {
         switch(msg)
         {

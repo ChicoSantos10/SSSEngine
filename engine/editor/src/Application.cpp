@@ -22,27 +22,31 @@
  * @brief
  */
 
-#include <iostream>
-#include <memory>
-
 #include "Application.h"
+
+#include "Allocator.h"
 #include "Debug.h"
 #include "Platform.h"
 #include "Audio.h"
+#include "Renderer.h"
+#include "String.h"
 #include "Timer.h"
 #include "Input.h"
+#include "Window.h"
 #include "WindowHandle.h"
+#include "Logger.h"
+#include "Formatter.h"
 
 namespace SSSEngine::Editor
 {
-    Application::Application()
-    {
-        Renderer::LoadDirectx();
-        Audio::Init();
-
+    Application::Application() :
         // TODO: Manage memory
-        m_Window = std::make_unique<Core::Window>(
-            Platform::WindowVec{0, 0}, Platform::WindowVec{3440, 1440}, Platform::MainWindowName);
+        m_Window(reinterpret_cast<Core::Window *>(
+            Memory::Allocators->Allocate(Math::Bytes(sizeof(Core::Window)), alignof(Core::Window))))
+    {
+        // TODO: Allow user to define the renderer to use
+        Renderer::LoadRenderer(Renderer::Renderer::Vulkan);
+        Audio::Init();
     }
 
     void Application::Run()
@@ -51,33 +55,41 @@ namespace SSSEngine::Editor
         m_Running = true;
 
         Renderer::LoadAssetsTest();
-        Platform::Timestamp firstTimestamp = Platform::GetCurrentTime();
+        auto firstTimestamp = Platform::GetCurrentTime();
         while(m_Running)
         {
             m_Running = Input::HandleInput();
 
             // Render
             {
-                try
-                {
-                    Renderer::BeginFrame();
-                    Renderer::Render();
-                }
-                catch(std::exception &e)
-                {
-                    std::cerr << e.what() << "\n";
-                    SSSENGINE_DEBUG_BREAK;
-                    break;
-                }
+                // try
+                // {
+                //     Renderer::BeginFrame();
+                //     Renderer::Render();
+                // }
+                // catch(std::exception &e)
+                // {
+                //     SSSENGINE_LOG_ERROR(e.what());
+                //     SSSENGINE_DEBUG_BREAK;
+                //     break;
+                // }
+                // TODO: Create exception class and implement try catch
+                Renderer::BeginFrame();
+                Renderer::Render();
             }
 
-            Platform::Timestamp lastTimestamp = Platform::GetCurrentTime();
-            u64 elapsedMicroseconds = Platform::ToMicroSeconds(lastTimestamp - firstTimestamp);
-            SSSENGINE_ASSERT(elapsedMicroseconds > 0);
+            auto lastTimestamp = Platform::GetCurrentTime();
+            auto deltaTime = lastTimestamp - firstTimestamp;
+            SSSENGINE_ASSERT(deltaTime.value > 0);
             firstTimestamp = lastTimestamp;
-            // SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", elapsedMicroseconds);
+            // SSSENGINE_LOG_INFO("Elapsed Microseconds: {}", deltaTime);
         }
     }
-
-    //	}
 } // namespace SSSEngine::Editor
+
+// TODO: Pass Array of Ascii strings instead
+void SSSEngine::Platform::RunApplication(int argc, char *argv[])
+{
+    Editor::Application app;
+    app.Run();
+}

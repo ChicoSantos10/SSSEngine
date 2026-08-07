@@ -47,7 +47,7 @@ namespace SSSEngine::Renderer::DirectX12
      */
     class RenderingContext final
     {
-        public:
+      public:
         explicit RenderingContext(const SSSEngine::Platform::WindowHandle &window);
         RenderingContext(RenderingContext &&) = default; // INVESTIGATE: Do we need to define 1?
         RenderingContext &operator=(const RenderingContext &) = delete;
@@ -62,8 +62,10 @@ namespace SSSEngine::Renderer::DirectX12
         void Signal();
         void WaitForFenceValue();
         void Render(const Microsoft::WRL::ComPtr<ID3D12PipelineState> &,
-                    const Microsoft::WRL::ComPtr<ID3D12RootSignature> &, const D3D12_VERTEX_BUFFER_VIEW &,
-                    const D3D12_INDEX_BUFFER_VIEW &, const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> &);
+                    const Microsoft::WRL::ComPtr<ID3D12RootSignature> &,
+                    const D3D12_VERTEX_BUFFER_VIEW &,
+                    const D3D12_INDEX_BUFFER_VIEW &,
+                    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> &);
         void BeginFrame();
         // INVESTIGATE: This could be the destructor instead but only if we manage the memory explicitly so that the
         // destructor gets called before the dll gets deleted
@@ -104,8 +106,8 @@ namespace SSSEngine::Renderer::DirectX12
     };
 
     // TODO: This should be in a file of it's own since it's just a helper function
-    SSSENGINE_FORCE_INLINE D3D12_CPU_DESCRIPTOR_HANDLE
-    GetDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> &descriptorHeap)
+    SSSENGINE_FORCE_INLINE
+    D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle(const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> &descriptorHeap)
     {
 #if defined(_MSC_VER) || !defined(_WIN32)
         return descriptorHeap->GetCPUDescriptorHandleForHeapStart();

@@ -1,0 +1,59 @@
+/*  SSS Engine
+    Copyright (C) 2025  Francisco Santos
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+    USA
+*/
+
+/**
+ * @file
+ * @brief File with utilities for Memory Addresses
+ */
+
+#pragma once
+
+#include "Attributes.h"
+#include "Concepts.h"
+
+namespace SSSEngine
+{
+    template<typename T>
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T *AddressOf(T &value) noexcept
+    {
+#ifdef SSSENGINE_MSVC
+#elif SSSENGINE_CLANG || SSSENGINE_GCC
+        return __builtin_addressof(value);
+#endif // SSSENGINE_MSVC
+    }
+
+    template<typename T>
+        requires(!FunctionPointerConcept<T>)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T *ToAddress(T *ptr) noexcept
+    {
+        return ptr;
+    }
+
+    template<typename T>
+        requires requires(T &t) {
+            { t.operator->() } -> PointerConcept;
+        }
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto ToAddress(T &value) noexcept
+    {
+        return ToAddress(value.operator->());
+    }
+} // namespace SSSEngine

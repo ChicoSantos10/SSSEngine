@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <unordered_map>
-
 #include "HelperMacros.h"
 #include "Keycodes.h"
 #include "ButtonState.h"
@@ -35,10 +33,17 @@ namespace SSSEngine::Input
 {
     // TODO: This is an initial input system and will be updated later
     // It will need a way to figure each event even during each frame by buffering input and dispatching events
-    SSSENGINE_GLOBAL std::unordered_map<KeyboardCodes, ButtonState> KeyboardButtons;
-    SSSENGINE_GLOBAL std::unordered_map<MouseButton, ButtonState> MouseButtons;
-    SSSENGINE_GLOBAL Math::Vector2<float> MouseDirection;
+    //
+    // SSSENGINE_GLOBAL
+    // std::unordered_map<KeyboardCodes, ButtonState>
+    //     KeyboardButtons;
+    // SSSENGINE_GLOBAL
+    // std::unordered_map<MouseButton, ButtonState> MouseButtons;
+    // SSSENGINE_GLOBAL
+    // Math::Vector2<float> MouseDirection;
 
+    // INVESTIGATE: Should we separate between the different peripherals? Keyboard, Mouse, Gamepad as the most common
+    // but also pen and whatever else may be wanted
     bool HandleInput();
     void GamepadInput();
 } // namespace SSSEngine::Input

@@ -260,7 +260,7 @@ namespace SSSEngine::Renderer::DirectX12
             const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(GetDescriptorHandle(dsvDescriptorHeap));
             commandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
 
-            constexpr float ClearColor[]{0.5f, 0.5f, 0.75f, 1.0f};
+            static constexpr float ClearColor[]{0.5f, 0.5f, 0.75f, 1.0f};
             commandList->ClearRenderTargetView(rtvHandle, ClearColor, 0, nullptr);
             commandList->ClearDepthStencilView(dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
                                                D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,

@@ -24,8 +24,8 @@
 
 #pragma once
 
+#include "StringView.h"
 #include "WindowHandle.h"
-#include "Platform.h"
 #include "Attributes.h"
 
 namespace SSSEngine::Core
@@ -37,44 +37,47 @@ namespace SSSEngine::Core
      */
     class Window final
     {
-        public:
-        Window(Platform::WindowVec position, Platform::WindowVec size, const Platform::WindowTitle &title,
-               const Window *parent = nullptr);
+      public:
+        Window(Platform::WindowPos position, Platform::WindowSize size, const Text::Utf8View &title, const Window *parent = nullptr);
         ~Window();
         Window(const Window &other) = delete;
         Window(Window &&other) = delete;
         Window &operator=(const Window &other) = delete;
         Window &operator=(Window &&other) = delete;
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowHandle GetHandle() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        Platform::WindowId GetHandle() const noexcept
         {
             return m_handle;
         }
 
         // INVESTIGATE: Are these really noexcept
-        // PERF: Is getting the rect first fine for performance or is the compiler not able to optimize? Does it even
-        // matter
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowVec GetSize() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        Platform::WindowSize GetSize() const noexcept
         {
             return Platform::GetWindowSize(m_handle);
         }
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE Platform::WindowRect GetRect() const noexcept
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        Platform::WindowRect GetRect() const noexcept
         {
             return Platform::GetWindowRect(m_handle);
         }
 
-        void SetWindowTitle(Platform::WindowTitle title) const
+        SSSENGINE_FORCE_INLINE
+        void SetWindowTitle(Text::Utf8View &title) const
         {
             Platform::SetWindowTitle(m_handle, title);
         }
 
         // LOW_PRIORITY: Potentially allow other types of fullscreen
+        SSSENGINE_FORCE_INLINE
         void SetBorderlessFullscreen(bool fullscreen) const
         {
             Platform::SetBorderlessFullscreen(m_handle, fullscreen);
         }
 
+        SSSENGINE_FORCE_INLINE
         void ToggleBorderlessFullscreen() const
         {
             Platform::ToggleBorderlessFullscreen(m_handle);
@@ -89,7 +92,7 @@ namespace SSSEngine::Core
          *  - Add a method to minimize the window
          */
 
-        private:
-        Platform::WindowHandle m_handle;
+      private:
+        Platform::WindowId m_handle;
     };
 } // namespace SSSEngine::Core

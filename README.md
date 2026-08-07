@@ -173,15 +173,15 @@ with the engine during initialization.
 
 ```cpp
 // module_api.h
-typedef struct ModuleAPI {
-    const char* name;
-    uint32_t version;
+struct ModuleAPI {
+    Utf8 name;
+    u32 version;
     void (*initialize)(void* engineContext);
     void (*shutdown)();
     void (*update)(float deltaTime);
-} ModuleAPI;
+};
 
-extern "C" ModuleAPI* GetModule();
+ModuleAPI* GetModule();
 ```
 
 **Module Lifecycle**

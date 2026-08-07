@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.25)
 include(FetchContent)
 include(ExternalProject)
+include(CMakeDependentOption)
 
 project(SSSEngine)
 
 # TODO: This works for now but we shouldn't specify it here. Instead we should tell cmake what features we need for each
 # target
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -32,6 +33,17 @@ option(ALLOW_NO_INLINE_STATEMENT "Allow Force NO inline statement" ON)
 option(ALLOW_LOGGING "Allow logging" ON)
 
 option(ADDRESS_SANITIZER "Run the address sanitizer if available" OFF)
+option(MEMORY_SANITIZER "Run the memory sanitizer if available" OFF)
+option(THREAD_SANITIZER "Run the thread sanitizer if available" OFF)
+option(UB_SANITIZER "Run the undefined behaviour sanitizer if available" OFF)
+
+# TODO: We should only guarantee that at least one of them gets built.
+cmake_dependent_option(BUILD_DX12 "Build DX12" OFF WIN32 OFF)
+option(BUILD_VULKAN "Build Vulkan" OFF)
+
+if (NOT BUILD_DX12 AND NOT BUILD_VULKAN)
+    message(FATAL_ERROR "At least 1 rendering backend must be built")
+endif()
 
 add_compile_definitions(
         "$<$<CONFIG:Debug>:SSSENGINE_DEBUG;SSSENGINE_ASSERTIONS>"
@@ -49,34 +61,34 @@ if (MSVC)
     add_compile_definitions(SSSENGINE_MSVC)
 
     # INVESTIGATE: What kind of exception handling we want?
-    # Do we always want exceptions or maybe only in debug builds. Is it even feasible without littering code with macros
-    # everywhere?
     add_compile_options()
     add_compile_options(
         /EHsc
         "$<$<CONFIG:Debug>:/W4;/WX;/Od;>"
         "$<$<CONFIG:RelWithDebInfo>:/W4;/WX;/O2;>"
-        "$<$<BOOL:${ADDRESS_SANITIZER}>:/fsanitizer=address>"
+        "$<$<BOOL:${ADDRESS_SANITIZER}>:/fsanitize=address>"
     )
     # NOTE: Disable certain warnings
     add_compile_options(
             "$<$<CONFIG:Debug,RelWithDebugInfo>:/wd4100;/wd4189>"
             /wd28251
     )
-elseif (MINGW)
-    add_compile_definitions(SSSENGINE_MINGW)
-    add_compile_options(-Wall -Wextra -Wpedantic)
+else ()
+    add_compile_options(-Wall -Wextra -Wpedantic -nostdinc++)
+    # add_link_options(-nodefaultlibs)
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CLANG TRUE)
         add_compile_definitions(SSSENGINE_CLANG)
-        message(FATAL_ERROR "Finish before porting to CLANG")
         add_compile_options(
-            "$<$<BOOL:${ADDRESS_SANITIZER}>:-fsanitizer=address>"
+            "$<$<BOOL:${ADDRESS_SANITIZER}>:-fsanitize=address>"
+            "$<$<BOOL:${MEMORY_SANITIZER}>:-fsanitize=memory>"
+            "$<$<BOOL:${THREAD_SANITIZER}>:-fsanitize=thread>"
+            "$<$<BOOL:${UB_SANITIZER}>:-fsanitize=undefined>"
         )
     else ()
         set(GCC TRUE)
         add_compile_definitions(SSSENGINE_GCC)
-        message(FATAL_ERROR "Finish before porting to GCC")
+        # message(FATAL_ERROR "Finish before porting to GCC")
     endif ()
 endif ()
 

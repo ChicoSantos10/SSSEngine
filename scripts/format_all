@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+folders='engine test'
+
+find $folders -iname "*.h" -o -iname "*.cpp" | xargs clang-format -i

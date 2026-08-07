@@ -39,9 +39,10 @@
 namespace SSSEngine::Renderer::DirectX12
 {
 
-    Microsoft::WRL::ComPtr<ID3D12Resource>
-    CreateDefaultBuffer(ID3D12GraphicsCommandList *cmdList, const void *data, u64 byteSize,
-                        Microsoft::WRL::ComPtr<ID3D12Resource> &uploadBuffer)
+    Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(ID3D12GraphicsCommandList *cmdList,
+                                                               const void *data,
+                                                               u64 byteSize,
+                                                               Microsoft::WRL::ComPtr<ID3D12Resource> &uploadBuffer)
     {
         SSSENGINE_ASSERT(cmdList != nullptr);
         SSSENGINE_ASSERT(data);

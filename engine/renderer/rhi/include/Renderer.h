@@ -19,12 +19,11 @@
 
 /**
  * @file
- * @brief
+ * @brief Renderer Hardware Interface
  */
 
 #pragma once
 
-#include "Platform.h"
 #include "WindowHandle.h"
 #include "SwapChainHandle.h"
 
@@ -34,20 +33,48 @@
  */
 namespace SSSEngine::Renderer
 {
-    using CreateSwapChain_t = SwapChainHandle (*)(const SSSEngine::Platform::WindowHandle &);
+    using CreateSwapChain_t = SwapChainHandle (*)(const SSSEngine::Platform::WindowId &);
     using Render_t = void (*)();
     using Terminate_t = void (*)();
     using LoadAssetsTest_t = void (*)();
-    using ResizeSwapChain_t = void (*)(const SSSEngine::Platform::WindowHandle &);
+    using ResizeSwapChain_t = void (*)(const SSSEngine::Platform::WindowId &);
     using BeginFrame_t = void (*)();
 
-    SSSENGINE_GLOBAL CreateSwapChain_t CreateSwapChain;
-    SSSENGINE_GLOBAL Render_t Render;
-    SSSENGINE_GLOBAL Terminate_t Terminate;
-    SSSENGINE_GLOBAL LoadAssetsTest_t LoadAssetsTest;
-    SSSENGINE_GLOBAL ResizeSwapChain_t ResizeSwapChain;
-    SSSENGINE_GLOBAL BeginFrame_t BeginFrame;
+    SSSENGINE_GLOBAL
+    CreateSwapChain_t CreateSwapChain;
+    SSSENGINE_GLOBAL
+    Render_t Render;
+    SSSENGINE_GLOBAL
+    Terminate_t Terminate;
+    SSSENGINE_GLOBAL
+    LoadAssetsTest_t LoadAssetsTest;
+    SSSENGINE_GLOBAL
+    ResizeSwapChain_t ResizeSwapChain;
+    SSSENGINE_GLOBAL
+    BeginFrame_t BeginFrame;
 
-    void LoadDirectx();
+    /**
+     * @enum Renderer
+     * @brief Renderers available
+     *
+     */
+    enum class Renderer : u8
+    {
+#ifdef SSSENGINE_WIN32
+        Directx12 = 0,
+#endif // SSSENGINE_WIN32
+        Vulkan = 1,
+    };
+
+    /**
+     * @brief Unloads the renderer if loaded and loads a new one
+     *
+     * @param renderer The renderer to load
+     */
+    void LoadRenderer(Renderer renderer);
+
+    /**
+     * @brief Unloads the current renderer
+     */
     void Unload();
 } // namespace SSSEngine::Renderer

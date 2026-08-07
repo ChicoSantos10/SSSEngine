@@ -1,0 +1,2 @@
+add_library(SSSContainers INTERFACE)
+target_include_directories(SSSContainers INTERFACE include)

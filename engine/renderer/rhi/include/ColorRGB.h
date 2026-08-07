@@ -19,7 +19,7 @@
 
 /**
  * @file
- * @brief
+ * @brief Color structs
  */
 
 #pragma once
@@ -35,7 +35,7 @@ namespace SSSEngine::Renderer
      */
     struct Color32RGBA
     {
-        byte R{0}, G{0}, B{0}, A{0};
+        byte r{0}, g{0}, b{0}, a{0};
     };
 
     /**
@@ -45,7 +45,7 @@ namespace SSSEngine::Renderer
      */
     struct ColorRGB
     {
-        float R{0}, G{0}, B{0};
+        float r{0}, g{0}, b{0};
     };
 
     /**
@@ -55,7 +55,7 @@ namespace SSSEngine::Renderer
      */
     struct ColorRGBA
     {
-        ColorRGB RGB{.R = 0, .G = 0, .B = 0};
-        float A{0};
+        ColorRGB rgb{.r = 0, .g = 0, .b = 0};
+        float a{0};
     };
 } // namespace SSSEngine::Renderer

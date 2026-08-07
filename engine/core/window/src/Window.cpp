@@ -24,13 +24,16 @@
 
 #include "Window.h"
 #include "Renderer.h"
+#include "String.h"
 #include "WindowHandle.h"
 
 namespace SSSEngine::Core
 {
-    Window::Window(const Platform::WindowVec position, const Platform::WindowVec size,
-                   const Platform::WindowTitle &title, const Window *parent) :
-    m_handle{Platform::OpenWindow(position, size, title, parent ? parent->m_handle : nullptr)}
+    Window::Window(const Platform::WindowPos position,
+                   const Platform::WindowSize size,
+                   const Text::Utf8View &title,
+                   const Window *parent) :
+        m_handle{Platform::OpenWindow(position, size, title, parent ? parent->m_handle : Platform::WindowId(-1))}
     {
         Renderer::CreateSwapChain(m_handle);
     }

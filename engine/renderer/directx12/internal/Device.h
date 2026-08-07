@@ -30,5 +30,6 @@
 
 namespace SSSEngine::Renderer::DirectX12
 {
-    SSSENGINE_GLOBAL Microsoft::WRL::ComPtr<ID3D12Device10> Device;
+    SSSENGINE_GLOBAL
+    Microsoft::WRL::ComPtr<ID3D12Device10> Device;
 } // namespace SSSEngine::Renderer::DirectX12

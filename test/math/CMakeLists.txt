@@ -1,6 +1,7 @@
 add_executable(SSSMathTest 
     Matrix.test.cpp
     Vector.test.cpp
+    Quantity.test.cpp
 )
 
 target_link_libraries(SSSMathTest PRIVATE

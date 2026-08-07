@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "Renderer.h"
 #include "Window.h"
 
@@ -39,7 +37,7 @@ namespace SSSEngine::Editor
      */
     class Application final
     {
-        public:
+      public:
         Application();
         Application(const Application &) = delete;
         Application(Application &&) = delete;
@@ -48,13 +46,14 @@ namespace SSSEngine::Editor
 
         ~Application()
         {
+            // TODO: If we are unloading this here we should load it in the constructor
             Renderer::Unload();
         };
 
         void Run();
 
-        private:
-        std::unique_ptr<Core::Window> m_Window;
+      private:
+        Core::Window *m_Window;
         bool m_Running = false;
     };
 

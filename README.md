@@ -32,6 +32,14 @@ My goal is to create a simple game engine that will not feature any technology t
 performance metric. It's a game engine that will focus on the player experience above anything else. It's better to make
 life harder for designers, artists, and coders if the end product is better for the consumer.
 
+Aligning this to my love for making very efficient code, tackling on very hard challenges and a desire to learn more,
+and the passion for video games, created the perfect combination of motivations to make my own game engine.
+
+As such I will avoid as much as possible every not needed library. This means the C++ standard library will not be used.
+The only libraries used will be the C runtime, the respective OS libraries, Vulkan and Wayland, since those are all
+necessary or would increase the complexity of the program by orders of magnitude without adding any sort of meaningful
+reward and could even make the program worse.
+
 ## Getting started
 
 Simply run cmake with the following commands:
@@ -46,13 +54,21 @@ Replacing your buildfolder and yourgenerator for your folder and generator of ch
 Please note that I have not tested using Visual Studio as a generator and cannot guarantee it will work. Currently, only
 tested compiler is MSVC and the generator is Ninja.
 
-To run the engine run the following command:
+To run the engine just run the executable created on build folder
 
-``````cmake
-buildfolder/bin/SSSEngine.exe
-``````
+There are also presets to use.
 
-Or simply find the exe at that location and double click it.
+Compiler Status:
+
+| Clang | GCC | MSVC |
+| ----- | --- | ---- |
+| Windows | ❌ | ❌ | ❌ |
+| Linux | ✅ | ⁉️ | ❎ |
+
+✅ -> Working
+❌ -> Not Working
+⁉️ -> Not Tested 
+❎ -> Not applicable
 
 ## How to contribute
 
@@ -321,6 +337,7 @@ The basic layout will be as follows:
   /editor/        # Separate binary using ImGui
   /launcher/      # Project Launcher and workspace manager
   /modules/       # Optional plug-ins and discovery tool
+  /std/           # namespace std, necessary for certain language features and for interoping with the C standard library
   CMakeLists.txt
 ```
 
@@ -349,7 +366,7 @@ of non-related modules.
 
 ### Dependencies
 
-- System APIs only (Win32, Linux, Vulkan SDK, DX12 SDK)
+- System APIs only (Win32, Linux and Wayland, Vulkan SDK, DX12 SDK, C Runtime Library)
 - This ensures the code is optimized for its own use case
 - This also allows me to explore and learn more about multiple software and game architecture
 
@@ -369,24 +386,100 @@ Tags will be lightweight and created for versioning.
 
 Each folder should be lowercase, small and ideally 1 word. Files themselves should be PascalCase.
 
-## Milestones
+## Version 1.0 Road cap
 
-### Phase 1: Simple platform Windows code 
-- Window Creation ✔
-- Open shared libraries ✔
-- Simple memory allocation and simple allocator
-- Simple containers
-- Simple utf-8 strings and needed conversion to/from ANSI and windows WCHAR*
+    **Current Target:** Linux + Clang + Vulkan
+    **First Release:** Linux and Windows + Clang, GCC and MSVC + Vulkan
 
-### Phase 2: Rendering using Directx12
-### Phase 3: Editor GUI
-### Phase 4: Input
-### Phase 5: Audio
-### Phase 6: Core Loop
-### Phase 7: Project Launcher
-### Phase 8: Module System
-### Phase 9: Profiler and optimizations
-### Phase 10: Implementing Linux and Vulkan 
+### Progress Legend
+
+| Status         | Meaning                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------- |
+| 🟢 Stable      | Complete for the current milestone                                                                 |
+| 🟡 Usable      | Substantial implementation exists and is currently usable, but additional functionality is planned |
+| 🟠 In Progress | Currently being actively developed                                                                 |
+| 🔵 Deferred    | Intentionally postponed until a later phase                                                        |
+| ⚪ Not Started | Not Started                                                                                        |
+| 🔴 Blocked     | Cannot progress until another component is completed                                               |
+
+### Phase 1: Base Library and Std Replacement 
+
+**Status:** 🟡 Usable
+
+| Feature                    | Status | 
+| -------------------------- | ------ | 
+| Remove Std Include Headers |   🟢   | 
+| Memory Management          |   🟡   | 
+| Containers                 |   🟡   | 
+| Text and Strings           |   🟡   |
+| Algorithms                 |   🟡   |
+| Concurrency  Primitives    |   🟠   |
+| File System                |   🟠   |
+| Logging                    |   🟠   |
+| Timing                     |   🟡   |
+
+### Phase 2: Linux and Platform Abstraction Layer
+
+**Status:** 🟠 In Progress
+
+| Feature                    | Status | 
+| -------------------------- | ------ | 
+| Window Creation            |   🔴   | 
+| Abstraction Layer          |   🟠   | 
+| Concurrency Primitives     |   🟠   | 
+| File System                |   🟠   |
+| Timing                     |   🟠   |
+| Dynamic Libraries          |   🟡   |
+
+### Phase 3: Rendering With Vulkan
+
+**Status:** ⚪ Not Started
+
+| Feature                    | Status |
+| -------------------------- | ------ |
+| Graphics device            |   ⚪   |
+| Command queues             |   ⚪   |
+| Command lists              |   ⚪   |
+| Resource management        |   ⚪   |
+| Shaders                    |   ⚪   |
+| Pipeline state             |   ⚪   |
+| Texture management         |   ⚪   |
+| Basic renderer             |   ⚪   |
+| Triangle Rendering         |   ⚪   |
+| Mesh Rendering             |   ⚪   |
+
+### Phase 4: Editor GUI
+
+**Status:** ⚪ Not Started
+
+### Phase 5: Input
+
+**Status:** ⚪ Not Started
+
+### Phase 6: Audio
+
+**Status:** ⚪ Not Started
+
+### Phase 7: Core Loop
+
+**Status:** ⚪ Not Started
+
+### Phase 8: Project Launcher
+
+**Status:** ⚪ Not Started
+
+### Phase 9: Module System
+
+**Status:** ⚪ Not Started
+
+### Phase 10: Profiler and optimizations
+
+**Status:** ⚪ Not Started
+
+### Phase 11: GCC and MSVC + Windows
+
+**Status:** ⚪ Not Started
+
 
 ## Gathering Results
 

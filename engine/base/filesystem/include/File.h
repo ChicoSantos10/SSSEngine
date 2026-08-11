@@ -29,7 +29,7 @@
 #include "Debug.h"
 #include "Types.h"
 
-namespace SSSEngine::Platform
+namespace SSSEngine::FileSystem
 {
     enum class FilePermissions : u8
     {
@@ -66,75 +66,23 @@ namespace SSSEngine::Platform
     // Must be convertible to Wide String for Windows
     // using FilePath = std::wstring;
     using FilePath = char *;
+    using FileHandle = int;
 
-    template<FilePermissions T = FilePermissions::Read>
-    class File final
+    namespace PlatformInternal
     {
-        using FileHandle = int;
-
-      public:
-        static constexpr FilePermissions AccessPermissions = T;
-
-        // INVESTIGATE: What happens if we fail to get the file?
-        explicit File(const FilePath &path, bool create = false) : m_fileHandle{PlatformOpenFile(path, create)} {}
-
-        File() = delete;
-        File(File &&) = delete;
-        File(const File &) = delete;
-        File &operator=(File &&) = delete;
-        File &operator=(const File &) = delete;
-
-        ~File()
-        {
-            PlatformCloseFile();
-        };
-
         /**
-         * @brief Writes to a file size bytes from data
-         *
-         * @param file The writeable file to write into
-         * @param data The data to write to
-         * @param size The amount of bytes to write from data
-         * @return True if the write was successful, false otherwise
-         */
-        friend bool WriteFile(File file, void *data, SizeType size);
-
-        /**
-         * @brief Reads maxBytes from file into a buffer
-         *
-         * @param file The file to read into buffer
-         * @param buffer The buffer to write the bytes read from file
-         * @param maxBytes The maximum amount of bytes to read
-         * @return True if successful, false otherwise
-         */
-        friend bool ReadFile(File file, void *buffer, SizeType maxBytes);
-
-        /**
-         * @brief Get's the extended file information
-         *
-         * @important Use this only when you need the extended file data or already have
-         * the handle. Do not open a file just to get the information once as opening a file has extra performance
-         * costs!
-         *
-         * @param file The file to get the information
-         * @return The file data
-         */
-        friend ExtendedFileData GetExtendedFileData(File file);
-
-      private:
-        /**
-         * @brief Opens or Creates a file
+         * @brief Opens or Creates a file.
          *
          * @param path A relative or absolute path to a file
          * @return The platform specific handle to the file
          */
-        FileHandle PlatformOpenFile(const FilePath &path, bool create);
+        FileHandle OpenFile(const FilePath &path, bool create, FilePermissions permissions);
 
         /**
          * @brief Closes a file opened by OpenFile(FilePath)
          *
          */
-        bool PlatformCloseFile();
+        bool CloseFile(FileHandle handle);
 
         /**
          * @brief Writes to a file. Only can happen if file was created with write permissions
@@ -146,7 +94,7 @@ namespace SSSEngine::Platform
          * @return True if the write was successful, false otherwise
          */
         // TODO: Pass a buffer instead (address, size)
-        bool PlatformWriteFile(const void *data, SizeType size);
+        bool WriteFile(FileHandle handle, const void *data, SizeType size);
 
         /**
          * @brief Reads a file into a buffer. Can only happen if the file was opened with read permissions
@@ -157,15 +105,106 @@ namespace SSSEngine::Platform
          * @return True if successful, false otherwise
          */
         // TODO: Should pass a buffer and assert that buffersize >= maxBytes
-        bool PlatformReadFile(void *buffer, SizeType maxBytes) const;
+        bool ReadFile(FileHandle handle, void *buffer, SizeType maxBytes);
 
         /**
          * @brief Platform specific way to get the file information
          *
          * @return Returns the complete file information
          */
-        ExtendedFileData PlatformFileInformation();
+        ExtendedFileData FileInformation(FileHandle handle);
+    } // namespace PlatformInternal
 
+    /**
+     * @brief Get's a simplified data for the file at path
+     *
+     * Faster way to get file data without needing to open a file. If you need more data look at
+     * @see GetExtendedFileData
+     * @see ExtendedFileData
+     *
+     * @param path The absolute or relative path to the file
+     * @return Returns a simplified data of the file
+     */
+    FileData GetFileData(const FilePath &path);
+
+    template<FilePermissions T = FilePermissions::Read>
+    class File final
+    {
+      public:
+        static constexpr FilePermissions AccessPermissions = T;
+
+        // INVESTIGATE: What happens if we fail to get the file?
+        explicit File(const FilePath &path, bool create = false) :
+            m_fileHandle{PlatformInternal::OpenFile(path, create, AccessPermissions)}
+        {
+        }
+
+        /**
+         * @brief Transfers ownership of the handle to this file
+         *
+         * @param handle A handle gotten from the OS
+         */
+        explicit File(FileHandle handle) : m_fileHandle{handle} {}
+
+        File() = delete;
+        File(File &&) = delete;
+        File(const File &) = delete;
+        File &operator=(File &&) = delete;
+        File &operator=(const File &) = delete;
+
+        ~File()
+        {
+            PlatformInternal::CloseFile(m_fileHandle);
+        };
+
+        /**
+         * @brief Writes to a file size bytes from data
+         *
+         * @param file The writeable file to write into
+         * @param data The data to write to
+         * @param size The amount of bytes to write from data
+         * @return True if the write was successful, false otherwise
+         */
+        SSSENGINE_FORCE_INLINE
+        bool Write(const void *data, SizeType size)
+            requires(HasBitSet(AccessPermissions, FilePermissions::Write))
+        {
+            return PlatformInternal::WriteFile(m_fileHandle, data, size);
+        }
+
+        /**
+         * @brief Reads maxBytes from file into a buffer
+         *
+         * @param file The file to read into buffer
+         * @param buffer The buffer to write the bytes read from file
+         * @param maxBytes The maximum amount of bytes to read
+         * @return True if successful, false otherwise
+         */
+        // TODO: Return an optional buffer
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        bool Read(void *buffer, SizeType maxBytes) const
+            requires(HasBitSet(AccessPermissions, FilePermissions::Read))
+        {
+            return PlatformInternal::ReadFile(m_fileHandle, buffer, maxBytes);
+        }
+
+        /**
+         * @brief Get's the extended file information
+         *
+         * @important Use this only when you need the extended file data or already have
+         * the handle. Do not open a file just to get the information once as opening a file has extra performance
+         * costs!
+         *
+         * @param file The file to get the information
+         * @return The file data
+         */
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        ExtendedFileData Info() const
+        {
+            return PlatformInternal::FileInformation(m_fileHandle);
+        }
+
+      private:
         FileHandle m_fileHandle;
     };
 
@@ -191,34 +230,4 @@ namespace SSSEngine::Platform
                             "is a "
                             "ReadFileConcept");
 
-    SSSENGINE_FORCE_INLINE
-    bool WriteFile(WriteFileConcept auto &file, void *data, SizeType size)
-    {
-        file.PlatformWriteFile(data, size);
-    }
-
-    SSSENGINE_FORCE_INLINE
-    bool ReadFile(const ReadFileConcept auto &file, void *buffer, SizeType maxBytes)
-    {
-        file.PlatformReadFile(buffer, maxBytes);
-    }
-
-    template<FilePermissions T>
-    SSSENGINE_FORCE_INLINE
-    ExtendedFileData GetExtendedFileData(const File<T> &file)
-    {
-        file.PlatformFileInformation();
-    }
-
-    /**
-     * @brief Get's a simplified data for the file at path
-     *
-     * Faster way to get file data without needing to open a file. If you need more data look at
-     * @see GetExtendedFileData
-     * @see ExtendedFileData
-     *
-     * @param path The absolute or relative path to the file
-     * @return Returns a simplified data of the file
-     */
-    FileData GetFileData(const FilePath &path);
-} // namespace SSSEngine::Platform
+} // namespace SSSEngine::FileSystem

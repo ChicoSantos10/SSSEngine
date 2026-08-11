@@ -1,5 +1,5 @@
 target_include_directories(SSSPlatformCommon
-  PUBLIC
+    INTERFACE
   include
 )
 target_include_directories(SSSPlatformCommonInternal
@@ -7,7 +7,7 @@ target_include_directories(SSSPlatformCommonInternal
   internal
 )
 
-target_sources(SSSPlatformCommon PRIVATE 
+target_sources(SSSPlatform PRIVATE 
   src/PlatformThreading.cpp
   src/ApplicationAllocator.cpp
 )

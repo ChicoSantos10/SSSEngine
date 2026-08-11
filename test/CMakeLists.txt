@@ -6,12 +6,8 @@ if(BUILD_TESTING)
       SSSUtils 
       SSSLogging 
       SSSBase
+      SSSPlatform
     )
-    if(WIN32)
-      target_link_libraries(SSSTest PRIVATE SSSWin32)
-    else()
-      target_link_libraries(SSSTest PRIVATE SSSLinux)
-    endif()
 
     add_subdirectory(math)
     add_subdirectory(utils)

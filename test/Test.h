@@ -17,6 +17,8 @@
     USA
 */
 
+#pragma once
+
 #include "Formatter.h"
 #include "HelperMacros.h"
 #include "Logger.h"
@@ -36,11 +38,17 @@ namespace SSSTest
         using String = SSSEngine::Text::Utf8View;
         using function = void();
 
+        static inline TestData *head = nullptr;
+
         int line;
         String file;
         function *test;
+        TestData *next; // NOLINT(modernize-use-default-member-init)
 
-        TestData(int line, const char8 *file, function *test) : line{line}, file{file}, test{test} {}
+        TestData(int line, const char8 *file, function *test) : line{line}, file{file}, test{test}, next{head}
+        {
+            head = this;
+        }
 
         void operator()() const
         {
@@ -49,45 +57,30 @@ namespace SSSTest
     };
 
     SSSENGINE_GLOBAL
-    SSSEngine::Containers::DynamicArray<TestData> Tests{};
-    SSSENGINE_GLOBAL
     bool Succeeded = true;
 
-    class Test
+    SSSENGINE_GLOBAL
+    void Execute()
     {
-      public:
-        explicit Test(const TestData &data)
+        for(auto *test = TestData::head; test; test = test->next)
         {
-            Add(data);
-        }
-
-        static void Add(const TestData &data)
-        {
-            Tests.PushBack(data);
-        }
-
-        static void Execute()
-        {
-            for(auto const &test: Tests)
+            try
             {
-                try
-                {
-                    test();
-                }
-                catch(...)
-                {
-                    // TODO: Test details (name, file, line)
-                    SSSENGINE_LOG_ERROR("Exception found while testing in file: {} line: {}.\n", test.file, test.line);
+                (*test)();
+            }
+            catch(...)
+            {
+                // TODO: Test details (name, file, line)
+                SSSENGINE_LOG_ERROR("Exception found while testing in file: {} line: {}.\n", test->file, test->line);
 
-                    Succeeded = false;
-                }
+                Succeeded = false;
             }
         }
-    };
+    }
 
 #define SSSTEST_TEST(name)                                                                                             \
     void name();                                                                                                       \
-    Test _##name({__LINE__, SSSENGINE_UTF8_FILE, name});                                                               \
+    TestData _##name({__LINE__, SSSENGINE_UTF8_FILE, name});                                                           \
     void name()
 
 #define SSSTEST_EXPECT_(value)                                                                                         \

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "Address.h"
 #include "Allocator.h"
 #include "Attributes.h"
 #include "Debug.h"
@@ -45,7 +46,8 @@ namespace SSSEngine::Containers
         }
 
         constexpr explicit DynamicArray(SizeType startingCapacity) :
-            m_data(Memory::CurrentAllocator().Allocate(Math::Bytes(sizeof(T) * startingCapacity), Alignment))
+            m_data(Memory::CurrentAllocator().Allocate(Math::Bytes(sizeof(T) * startingCapacity), Alignment)),
+            m_capacity(startingCapacity)
         {
         }
 
@@ -124,17 +126,20 @@ namespace SSSEngine::Containers
         {
             if(self.m_count < self.m_capacity)
             {
-                *self.End() = value;
+                ConstructAt(self.End(), value);
             }
             else
             {
                 // TODO: Reallocate more space and add
             }
+
+            ++self.m_count;
         }
 
         // TODO: Count, Capacity, Empty, Reserve, Shrink
         // Clear, PushFront, Emplace, Pop
         // GetRange / Span
+        // Destructor
 
       private:
         PropagateConst<T *> m_data;
@@ -144,7 +149,7 @@ namespace SSSEngine::Containers
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr bool ValidIndex(SizeType index) const noexcept
         {
-            return index > 0 && index < m_count;
+            return index >= 0 && index < m_count;
         }
 
         // NOLINTBEGIN(readability-identifier-naming)

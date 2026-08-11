@@ -24,21 +24,16 @@
 
 #pragma once
 
+#include "Arena.h"
 #include "Attributes.h"
 #include "Buffer.h"
-#include "Concepts.h"
 #include "Debug.h"
 #include "HelperMacros.h"
 #include "MemorySize.h"
+#include "AllocatorConcept.h"
 
 namespace SSSEngine::Memory
 {
-
-    template<typename T>
-    concept AllocatorConcept = requires(T allocator, Math::Bytes size, SizeType align, Buffer buffer) {
-        { allocator.Allocate(size, align) } -> ConvertibleToConcept<void *>;
-        { allocator.Free(buffer) } -> SameAsConcept<void>;
-    };
 
     class Allocator
     {
@@ -46,8 +41,7 @@ namespace SSSEngine::Memory
         Allocator() = default;
 
         template<AllocatorConcept T>
-        explicit Allocator(T allocator) :
-            m_allocator(&allocator), m_allocate{&allocator.Allocate}, m_free{&allocator.Free}
+        explicit Allocator(T &allocator) : m_allocator(&allocator), m_allocate{&Allocate<T>}, m_free{&Free<T>}
         {
         }
 
@@ -72,15 +66,33 @@ namespace SSSEngine::Memory
         void *m_allocator{};
         AllocateFn m_allocate{};
         FreeFn m_free{};
+
+        template<typename T>
+            SSSENGINE_FORCE_INLINE
+        static void *Allocate(void *self, Math::Bytes size, SizeType alignment)
+        {
+            return static_cast<T *>(self)->Allocate(size, alignment);
+        }
+
+        template<typename T>
+            SSSENGINE_FORCE_INLINE
+        static void Free(void *self, Buffer buffer)
+        {
+            return static_cast<T *>(self)->Free(buffer);
+        }
     };
+
+    // TODO: Default Allocator
+    SSSENGINE_GLOBAL
+    Arena GlobalArena{Math::Bytes(1_GB)};
 
     // TODO: Rethink this:
     SSSENGINE_GLOBAL
     constexpr SizeType MaxAllocators = 32;
     SSSENGINE_GLOBAL
-    thread_local Allocator Allocators[MaxAllocators];
+    thread_local Allocator Allocators[MaxAllocators] = {Allocator(GlobalArena)};
     SSSENGINE_GLOBAL
-    thread_local SizeType Index = -1;
+    thread_local SizeType Index = 0;
 
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     Allocator &CurrentAllocator()
@@ -93,7 +105,7 @@ namespace SSSEngine::Memory
     void PushAllocator(AllocatorConcept auto &allocator)
     {
         SSSENGINE_ASSERT(Index + 1 < MaxAllocators);
-        Allocators[++Index] = allocator;
+        Allocators[++Index] = Allocator(allocator);
     }
 
     SSSENGINE_FORCE_INLINE

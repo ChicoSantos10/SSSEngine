@@ -22,8 +22,6 @@
  * @brief
  */
 
-#pragma once
-
 #include "Test.h"
 
 // #include "Ordering.h"

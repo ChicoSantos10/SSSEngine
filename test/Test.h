@@ -17,30 +17,35 @@
     USA
 */
 
+#pragma once
+
 #include "Formatter.h"
 #include "HelperMacros.h"
 #include "Logger.h"
+#include "StandardFileStream.h"
+#include "StringView.h"
 #include "Types.h"
-#include "String.h"
-#include "Utility.h"
-#include "DynamicArray.h"
 
 namespace SSSTest
 {
-    // INVESTIGATE: Logging system or just keep std? Use vector or custom container when created?
     // TODO: Meaningful messages
-    // TODO: Test Allocator
 
     struct TestData
     {
         using String = SSSEngine::Text::Utf8View;
         using function = void();
 
+        static inline TestData *head = nullptr;
+
         int line;
         String file;
         function *test;
+        TestData *next; // NOLINT(modernize-use-default-member-init)
 
-        TestData(int line, const char8 *file, function *test) : line{line}, file{file}, test{test} {}
+        TestData(int line, const char8 *file, function *test) : line{line}, file{file}, test{test}, next{head}
+        {
+            head = this;
+        }
 
         void operator()() const
         {
@@ -49,59 +54,49 @@ namespace SSSTest
     };
 
     SSSENGINE_GLOBAL
-    SSSEngine::Containers::DynamicArray<TestData> Tests{};
-    SSSENGINE_GLOBAL
     bool Succeeded = true;
 
-    class Test
+    SSSENGINE_GLOBAL
+    void Execute()
     {
-      public:
-        explicit Test(const TestData &data)
+        for(auto *test = TestData::head; test; test = test->next)
         {
-            Add(data);
-        }
-
-        static void Add(const TestData &data)
-        {
-            Tests.PushBack(data);
-        }
-
-        static void Execute()
-        {
-            for(auto const &test: Tests)
+            try
             {
-                try
-                {
-                    test();
-                }
-                catch(...)
-                {
-                    // TODO: Test details (name, file, line)
-                    SSSENGINE_LOG_ERROR("Exception found while testing in file: {} line: {}.\n", test.file, test.line);
+                // TODO: Info about the test about to start
+                (*test)();
+            }
+            catch(...)
+            {
+                SSSENGINE_LOG_ERROR("Exception found while testing in file: {} line: {}.\n", test->file, test->line);
 
-                    Succeeded = false;
-                }
+                Succeeded = false;
             }
         }
-    };
+    }
+
+    SSSENGINE_GLOBAL
+    void ReportExpectFailure(int line, SSSEngine::Text::Utf8View file, SSSEngine::Text::Utf8View expected)
+    {
+        SSSENGINE_LOG_ERROR("Failed at {}:{}\n", file, line);
+        SSSENGINE_LOG_ERROR("\tExpected {}\n", expected);
+        /*SSSENGINE_LOG_ERROR("\tGot {} {} {}\n", first, #comparison, second);*/
+    }
 
 #define SSSTEST_TEST(name)                                                                                             \
     void name();                                                                                                       \
-    Test _##name({__LINE__, SSSENGINE_UTF8_FILE, name});                                                               \
+    TestData _##name({__LINE__, SSSENGINE_UTF8_FILE, name});                                                           \
     void name()
 
-#define SSSTEST_EXPECT_(value)                                                                                         \
-    if((value))                                                                                                        \
+#define SSSTEST_COMPARE_(first, second, comparison)                                                                    \
+    if((first)comparison(second))                                                                                      \
     {                                                                                                                  \
     }                                                                                                                  \
     else                                                                                                               \
     {                                                                                                                  \
-        SSSENGINE_LOG_ERROR("Failed at {}:{}\n", SSSENGINE_UTF8_FILE, __LINE__);                                       \
-        SSSENGINE_LOG_ERROR("{}\n", SSSENGINE_STRING(value));                                                          \
+        ReportExpectFailure(SSSENGINE_LINE, SSSENGINE_UTF8_FILE, #first #comparison #second);                          \
         Succeeded = false;                                                                                             \
     }
-
-#define SSSTEST_COMPARE_(first, second, comparison) SSSTEST_EXPECT_((first)comparison(second))
 
 #define SSSTEST_EXPECT_EQ(first, second) SSSTEST_COMPARE_(first, second, ==)
 #define SSSTEST_EXPECT_NEQ(first, second) SSSTEST_COMPARE_(first, second, !=)
@@ -109,8 +104,35 @@ namespace SSSTest
 #define SSSTEST_EXPECT_GE(first, second) SSSTEST_COMPARE_(first, second, >=)
 #define SSSTEST_EXPECT_LE(first, second) SSSTEST_COMPARE_(first, second, <=)
 #define SSSTEST_EXPECT_LT(first, second) SSSTEST_COMPARE_(first, second, <)
-#define SSSTEST_EXPECT(value) SSSTEST_EXPECT_(value)
+#define SSSTEST_EXPECT(value)                                                                                          \
+    if((value))                                                                                                        \
+    {                                                                                                                  \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+        ReportExpectFailure(SSSENGINE_LINE, SSSENGINE_UTF8_FILE, #value);                                              \
+        Succeeded = false;                                                                                             \
+    }
 
-    // TODO: Implement assert
-    //
+#define SSSTEST_ASSERT_(first, second, comparison)                                                                     \
+    if((first)comparison(second))                                                                                      \
+    {                                                                                                                  \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+        SSSENGINE_LOG_ERROR("Assertion failed at {}:{}\n", SSSENGINE_UTF8_FILE, __LINE__);                             \
+        SSSENGINE_LOG_ERROR("\tExpected {} {} {}\n", #first, #comparison, #second);                                    \
+        /*SSSENGINE_LOG_ERROR("\tGot {} {} {}\n", first, #comparison, second);*/                                       \
+        Succeeded = false;                                                                                             \
+        throw;                                                                                                         \
+    }
+
+#define SSSTEST_ASSERT_EQ(first, second) SSSTEST_ASSERT_(first, second, ==)
+#define SSSTEST_ASSERT_NEQ(first, second) SSSTEST_ASSERT_(first, second, !=)
+#define SSSTEST_ASSERT_GT(first, second) SSSTEST_ASSERT_(first, second, >)
+#define SSSTEST_ASSERT_GE(first, second) SSSTEST_ASSERT_(first, second, >=)
+#define SSSTEST_ASSERT_LE(first, second) SSSTEST_ASSERT_(first, second, <=)
+#define SSSTEST_ASSERT_LT(first, second) SSSTEST_ASSERT_(first, second, <)
+    // #define SSSTEST_ASSERT(value) SSSTEST_ASSERT_(value)
+
 } // namespace SSSTest

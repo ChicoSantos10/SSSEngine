@@ -27,10 +27,10 @@
 
 #ifdef SSSENGINE_LOGGING
 
-    #include "Attributes.h"
     #include "Types.h"
-    #include "Debug.h"
     #include "String.h"
+    #include "StringView.h"
+    #include "Utf8Encoding.h"
 
 /**
  * @namespace
@@ -38,7 +38,8 @@
  */
 namespace SSSEngine::Logging
 {
-    using String = Text::Utf8;
+    using Encoding = Text::Utf8Encoding;
+    using String = Text::String<Encoding>;
 
     enum class LogLevel : u8
     {
@@ -47,28 +48,10 @@ namespace SSSEngine::Logging
         Error,
     };
 
-    // TODO: This should be replaced by just having a logger which should be responsible for knowing how to log (file,
-    // console, ...)
+    using LoggingFunction = void (*)(LogLevel, Text::StringView<Encoding>);
+
     SSSENGINE_GLOBAL
-    void LogConsole(LogLevel level, const String &message)
-    {
-        switch(level)
-        {
-            using enum LogLevel;
-            // TODO: OS Logging
-            case Info:
-                // std::wcout << L"[INFO]: " << message << "\n";
-                break;
-            case Warning:
-                // std::wcout << L"[WARNING]: " << message << "\n";
-                break;
-            case Error:
-                // std::wcerr << L"[ERROR]: " << message << "\n";
-                break;
-            default:
-                SSSENGINE_UNREACHABLE;
-        }
-    }
+    LoggingFunction Logger;
 
     // INVESTIGATE: Should we just disable the macros when no logging is set?
     // Pros:
@@ -77,18 +60,22 @@ namespace SSSEngine::Logging
     //  - Needs to build logging always
     //  - Can lead to mistakes where calling logging directly instead of macros leaking logs when not intending
     #define SSSENGINE_LOG_INFO(message, ...)                                                                           \
-        LogConsole(SSSEngine::Logging::LogLevel::Info,                                                                 \
-                   SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
+        SSSEngine::Logging::Logger(                                                                                    \
+            SSSEngine::Logging::LogLevel::Info,                                                                        \
+            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message) __VA_OPT__(, ) __VA_ARGS__))
     #define SSSENGINE_LOG_WARNING(message, ...)                                                                        \
-        LogConsole(SSSEngine::Logging::LogLevel::Error,                                                                \
-                   SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
+        SSSEngine::Logging::Logger(                                                                                    \
+            SSSEngine::Logging::LogLevel::Error,                                                                       \
+            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message) __VA_OPT__(, ) __VA_ARGS__))
     #define SSSENGINE_LOG_ERROR(message, ...)                                                                          \
-        LogConsole(SSSEngine::Logging::LogLevel::Error,                                                                \
-                   SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
-} // namespace SSSEngine::Logging
+        SSSEngine::Logging::Logger(                                                                                    \
+            SSSEngine::Logging::LogLevel::Error,                                                                       \
+            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message) __VA_OPT__(, ) __VA_ARGS__))
 
 #else
     #define SSSENGINE_LOG_INFO(message, ...)
     #define SSSENGINE_LOG_WARNING(message, ...)
     #define SSSENGINE_LOG_ERROR(message, ...)
 #endif
+
+} // namespace SSSEngine::Logging

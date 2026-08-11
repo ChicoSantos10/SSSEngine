@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "Allocator.h"
+#include "AllocatorConcept.h"
 #include "ApplicationAllocator.h"
 #include "Attributes.h"
 #include "Buffer.h"
@@ -51,7 +51,6 @@ namespace SSSEngine::Memory
          * @param alignment The alignment of the pointer
          * @return The aligned pointer if the arena has enough space left otherwise nullptr
          */
-        SSSENGINE_PURE
         void *Allocate(Math::Bytes size, SizeType alignment) noexcept
         {
             auto start = reinterpret_cast<uintptr>(m_buffer.address);

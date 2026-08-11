@@ -791,6 +791,12 @@ namespace SSSEngine::Text
         // Convert the type into string
         // All args and replacement fields must be used
 
+        // INVESTIGATE: What to do if args are not there?
+        if constexpr(sizeof...(args) == 0)
+        {
+            return String<Encoding>{fmt.string};
+        }
+
         // LINE: 5394
         auto fmtArgs = MakeFormatArgs<Encoding>(args...);
         FormatArgs<Encoding> fa = fmtArgs;

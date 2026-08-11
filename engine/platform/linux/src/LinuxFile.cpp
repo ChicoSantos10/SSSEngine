@@ -31,22 +31,22 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-namespace SSSEngine::Platform
+namespace SSSEngine::FileSystem
 {
-    template<FilePermissions T>
-    File<T>::FileHandle File<T>::PlatformOpenFile(const FilePath &path, bool create)
+
+    FileHandle PlatformInternal::OpenFile(const FilePath &path, bool create, FilePermissions permissions)
     {
         using enum FilePermissions;
         int flags = 0;
-        if(HasBitSet(T, Join(Read, Write)))
+        if(HasBitSet(permissions, Join(Read, Write)))
         {
             flags = O_RDWR;
         }
-        else if(HasBitSet(T, Read))
+        else if(HasBitSet(permissions, Read))
         {
             flags = O_RDONLY;
         }
-        else if(HasBitSet(T, Write))
+        else if(HasBitSet(permissions, Write))
         {
             flags = O_WRONLY;
         }
@@ -66,10 +66,9 @@ namespace SSSEngine::Platform
         return handle;
     }
 
-    template<FilePermissions T>
-    bool File<T>::PlatformCloseFile()
+    bool PlatformInternal::CloseFile(FileHandle handle)
     {
-        int success = close(m_fileHandle);
+        int success = close(handle);
 
         if(success == -1) SSSENGINE_UNLIKELY
         {
@@ -81,10 +80,9 @@ namespace SSSEngine::Platform
         return true;
     }
 
-    template<FilePermissions T>
-    bool File<T>::PlatformWriteFile(const void *data, SizeType size)
+    bool PlatformInternal::WriteFile(FileHandle handle, const void *data, SizeType size)
     {
-        ssize_t writtenBytes = write(m_fileHandle, data, size);
+        ssize_t writtenBytes = write(handle, data, size);
 
         if(writtenBytes == -1) SSSENGINE_UNLIKELY
         {
@@ -103,10 +101,9 @@ namespace SSSEngine::Platform
         return true;
     }
 
-    template<FilePermissions T>
-    bool File<T>::PlatformReadFile(void *buffer, SizeType maxBytes) const
+    bool PlatformInternal::ReadFile(FileHandle handle, void *buffer, SizeType maxBytes)
     {
-        ssize_t bytesRead = read(m_fileHandle, buffer, maxBytes);
+        ssize_t bytesRead = read(handle, buffer, maxBytes);
 
         if(bytesRead == -1) SSSENGINE_UNLIKELY
         {
@@ -128,11 +125,10 @@ namespace SSSEngine::Platform
                 .lastWriteTime = Time(data.st_mtim)};
     }
 
-    template<FilePermissions T>
-    ExtendedFileData File<T>::PlatformFileInformation()
+    ExtendedFileData PlatformInternal::FileInformation(FileHandle handle)
     {
         struct stat data{};
-        int success = fstat(m_fileHandle, &data);
+        int success = fstat(handle, &data);
 
         if(success == -1) SSSENGINE_UNLIKELY
         {
@@ -156,4 +152,4 @@ namespace SSSEngine::Platform
 
         return FromStat(data);
     }
-} // namespace SSSEngine::Platform
+} // namespace SSSEngine::FileSystem

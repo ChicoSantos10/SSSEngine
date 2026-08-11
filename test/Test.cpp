@@ -18,11 +18,21 @@
 */
 
 #include "Test.h"
+#include "Allocator.h"
+#include "Arena.h"
+#include "ConsoleLogger.h"
+#include "Logger.h"
+#include "MemorySize.h"
 
 // INVESTIGATE: Should we still differentiate between windows and others? This does not need to be a gui app so we
 // don't need winMain so verify that we do not set the compiler option for that
 int main()
 {
-    SSSTest::Test::Execute();
+    SSSEngine::Logging::Logger = &SSSEngine::Logging::LogConsole;
+
+    SSSEngine::Memory::Arena allocator{SSSEngine::Math::Bytes{1_GB}};
+    SSSEngine::Memory::PushAllocator(allocator);
+
+    SSSTest::Execute();
     return SSSTest::Succeeded ? 0 : 1;
 }

@@ -52,7 +52,7 @@ namespace SSSEngine::Memory
         return pageSize;
     }
 
-    Math::Bytes GetSystemLargePageSize()
+    Math::Bytes GetSystemHugePageSize()
     {
         // TODO: Scan the /proc/meminfo for the correct value
         return Math::Bytes(2_MiB);

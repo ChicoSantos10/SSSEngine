@@ -12,24 +12,22 @@ namespace SSSEngine::Memory
 {
     SSSENGINE_INTERNAL Buffer Memory;
     SSSENGINE_INTERNAL u32 CurrentPageOffset = 0;
-    SSSENGINE_INTERNAL Math::Bytes PageSize = GetSystemPageSize();
-    SSSENGINE_INTERNAL Math::Bytes HugePageSize = GetSystemHugePageSize();
 
     void Reserve(u32 pages)
     {
         SSSENGINE_ASSERT(Memory.address == nullptr);
         SSSENGINE_ASSERT(Memory.capacity == 0_B);
-        Memory = ReserveMemory(pages * PageSize);
+        Memory = ReserveMemory(pages * GetSystemPageSize());
     }
 
     Buffer Request(Math::Bytes bytes)
     {
         if(Memory.address == nullptr)
         {
-            Reserve(Math::NextMultiplePowerOf2(bytes.value, PageSize.value) / PageSize.value);
+            Reserve(Math::NextMultiplePowerOf2(bytes.value, GetSystemPageSize().value) / GetSystemPageSize().value);
         }
 
-        void *startAddress = static_cast<Byte *>(Memory.address) + CurrentPageOffset * PageSize.value;
+        void *startAddress = static_cast<Byte *>(Memory.address) + CurrentPageOffset * GetSystemPageSize().value;
         ++CurrentPageOffset;
 
         Buffer buffer{.address = startAddress, .capacity = bytes};

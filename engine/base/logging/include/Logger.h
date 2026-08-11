@@ -27,9 +27,7 @@
 
 #ifdef SSSENGINE_LOGGING
 
-    #include "Attributes.h"
     #include "Types.h"
-    #include "Debug.h"
     #include "String.h"
     #include "StringView.h"
     #include "Utf8Encoding.h"
@@ -64,19 +62,20 @@ namespace SSSEngine::Logging
     #define SSSENGINE_LOG_INFO(message, ...)                                                                           \
         SSSEngine::Logging::Logger(                                                                                    \
             SSSEngine::Logging::LogLevel::Info,                                                                        \
-            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
+            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message) __VA_OPT__(, ) __VA_ARGS__))
     #define SSSENGINE_LOG_WARNING(message, ...)                                                                        \
         SSSEngine::Logging::Logger(                                                                                    \
             SSSEngine::Logging::LogLevel::Error,                                                                       \
-            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
+            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message) __VA_OPT__(, ) __VA_ARGS__))
     #define SSSENGINE_LOG_ERROR(message, ...)                                                                          \
         SSSEngine::Logging::Logger(                                                                                    \
             SSSEngine::Logging::LogLevel::Error,                                                                       \
-            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message), ##__VA_ARGS__))
-} // namespace SSSEngine::Logging
+            SSSEngine::Text::Format<SSSEngine::Text::Utf8Encoding>(SSSENGINE_UTF8(message) __VA_OPT__(, ) __VA_ARGS__))
 
 #else
     #define SSSENGINE_LOG_INFO(message, ...)
     #define SSSENGINE_LOG_WARNING(message, ...)
     #define SSSENGINE_LOG_ERROR(message, ...)
 #endif
+
+} // namespace SSSEngine::Logging

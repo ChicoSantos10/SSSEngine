@@ -30,13 +30,13 @@ namespace SSSEngine::Ranges
         using DifferenceType = IteratorTraits::DifferenceType;
         using ConstIterator = ReverseIterator<const ValueType *>;
 
-        explicit ReverseIterator(const Iterator &it) : m_it(it) {}
+        constexpr explicit ReverseIterator(const Iterator &it) : m_it(it) {}
 
-        ReverseIterator(const ReverseIterator &it) = default;
-        ReverseIterator(ReverseIterator &&) = default;
-        ReverseIterator &operator=(const ReverseIterator &) = default;
-        ReverseIterator &operator=(ReverseIterator &&) = default;
-        ~ReverseIterator() = default;
+        constexpr ReverseIterator(const ReverseIterator &it) = default;
+        constexpr ReverseIterator(ReverseIterator &&) = default;
+        constexpr ReverseIterator &operator=(const ReverseIterator &) = default;
+        constexpr ReverseIterator &operator=(ReverseIterator &&) = default;
+        constexpr ~ReverseIterator() = default;
 
         // NOLINTBEGIN(google-explicit-constructor)
 

@@ -38,7 +38,7 @@
 #include "QualifierTraits.h"
 #include "SignTraits.h"
 #include "String.h"
-#include "StringSink.h"
+#include "Sink.h"
 #include "StringView.h"
 #include "Encoding.h"
 #include "Traits.h"
@@ -161,7 +161,7 @@ namespace SSSEngine::Text
         StringView<Encoding> string;
     };
 
-    template<EncodingConcept Encoding, SinkConcept Out>
+    template<EncodingConcept Encoding, Containers::SinkConcept Out>
     struct FormatContext
     {
         Out output;
@@ -671,7 +671,7 @@ namespace SSSEngine::Text
         return Storage{Storage::MakeElement(args)...};
     }
 
-    template<EncodingConcept Encoding, SinkConcept Sink>
+    template<EncodingConcept Encoding, Containers::SinkConcept Sink>
     void FormatTo(Sink &out, StringView<Encoding> fmt, FormatArgs<Encoding> args)
     {
         using namespace Ranges;
@@ -728,31 +728,31 @@ namespace SSSEngine::Text
 
         It argBegin;
         SizeType argIndex = 0;
-        FormatArg<Encoding> type = args.Get(argIndex);
-        type.Visit(
-            [&fmtCtx](auto &arg)
-            {
-                using Type = RemoveReferenceType<decltype(arg)>;
-                using Formatter = Formatter<Type, Encoding>;
-
-                if constexpr(IsSameType<Type, CustomType>)
-                {
-                    arg.format();
-                }
-                else if constexpr(IsDefaultConstructible<Formatter>)
-                {
-                    Formatter fmt;
-                    fmt.Parse();
-                    fmt.Format(arg, fmtCtx);
-                }
-                else
-                {
-                    SSSENGINE_STATIC_ASSERT("No way to format");
-                }
-            });
         while(argBegin = findArgBegin(fmt.Begin()), argBegin != end)
         {
             const auto argEnd = findArgEnd(argBegin);
+            FormatArg<Encoding> type = args.Get(argIndex);
+            type.Visit(
+                [&fmtCtx](auto &arg)
+                {
+                    using Type = RemoveReferenceType<decltype(arg)>;
+                    using Formatter = Formatter<Type, Encoding>;
+
+                    if constexpr(IsSameType<Type, CustomType>)
+                    {
+                        arg.format();
+                    }
+                    else if constexpr(IsDefaultConstructible<Formatter>)
+                    {
+                        Formatter fmt;
+                        fmt.Parse();
+                        fmt.Format(arg, fmtCtx);
+                    }
+                    else
+                    {
+                        SSSENGINE_STATIC_ASSERT("No way to format");
+                    }
+                });
             // LINE 5094
 
             // TODO:
@@ -767,7 +767,7 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding>
     String<Encoding> FormatEngine(StringView<Encoding> fmt, FormatArgs<Encoding> args)
     {
-        DirectSink<String<Encoding>> sink;
+        Containers::DirectSink<String<Encoding>> sink;
         FormatTo(sink, fmt, args);
 
         return Move(sink).Get();
@@ -802,20 +802,5 @@ namespace SSSEngine::Text
         FormatArgs<Encoding> fa = fmtArgs;
         return FormatEngine(fmt.string, fa);
     }
-
-    template<EncodingConcept Encoding>
-    struct Formatter<String<Encoding>, Encoding>
-    {
-        constexpr auto Parse() const noexcept
-        {
-            SSSENGINE_UNREACHABLE;
-        }
-
-        template<typename FmtCtx>
-        constexpr auto Format(StringView<Encoding> value, FmtCtx &ctx) const noexcept
-        {
-            SSSENGINE_UNREACHABLE;
-        }
-    };
 
 } // namespace SSSEngine::Text

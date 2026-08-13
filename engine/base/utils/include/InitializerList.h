@@ -24,72 +24,7 @@
 
 #pragma once
 
-#include "Attributes.h"
-#include "Types.h"
-
-// NOLINTBEGIN
-namespace std
-{
-    template<class E>
-    class initializer_list
-    {
-      public:
-        using ValueType = E;
-        using Reference = E &;
-        using ConstReference = const E &;
-        using SizeType = SizeType;
-        using Iterator = E *;
-        using ConstIterator = const E *;
-
-      private:
-        ConstIterator m_array;
-        SizeType m_count;
-
-        constexpr initializer_list(ConstIterator a, SizeType l) : m_array(a), m_count(l) {}
-
-      public:
-        constexpr initializer_list() noexcept : m_array(0), m_count(0) {}
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr SizeType Count() const noexcept
-        {
-            return m_count;
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr ConstIterator Begin() const noexcept
-        {
-            return m_array;
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr ConstIterator End() const noexcept
-        {
-            return Begin() + Count();
-        }
-
-      private:
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        friend constexpr ConstIterator begin(initializer_list<E> list) noexcept
-        {
-            return list.Begin();
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        friend constexpr ConstIterator end(initializer_list<E> list) noexcept
-        {
-            return list.End();
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        friend constexpr ConstIterator Count(initializer_list<E> list) noexcept
-        {
-            return list.Count();
-        }
-    };
-
-} // namespace std
-  // NOLINTEND
+#include <initializer_list>
 
 namespace SSSEngine
 {

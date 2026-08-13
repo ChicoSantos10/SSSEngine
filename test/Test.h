@@ -22,7 +22,6 @@
 #include "Formatter.h"
 #include "HelperMacros.h"
 #include "Logger.h"
-#include "StandardFileStream.h"
 #include "StringView.h"
 #include "Types.h"
 

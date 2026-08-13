@@ -1,0 +1,152 @@
+/**
+ * @file
+ * @brief
+ */
+
+#pragma once
+
+#include "Address.h"
+#include "Attributes.h"
+#include "Iterator.h"
+#include "Ordering.h"
+
+namespace SSSEngine::Ranges
+{
+    /**
+     * @class ReverseIterator
+     * @brief A wrapper for an Iterator that advances from the end to the beginning of a sequence.
+     *
+     * @tparam Iterator The type of bidirectional iterator
+     */
+    template<BidirectionalIteratorConcept Iterator>
+    class ReverseIterator
+    {
+        using IteratorTraits = IteratorTraits<Iterator>;
+
+      public:
+        using ValueType = IteratorTraits::ValueType;
+        using PointerType = IteratorTraits::PointerType;
+        using ReferenceType = IteratorTraits::ReferenceType;
+        using DifferenceType = IteratorTraits::DifferenceType;
+        using ConstIterator = ReverseIterator<const ValueType *>;
+
+        explicit ReverseIterator(const Iterator &it) : m_it(it) {}
+
+        ReverseIterator(const ReverseIterator &it) = default;
+        ReverseIterator(ReverseIterator &&) = default;
+        ReverseIterator &operator=(const ReverseIterator &) = default;
+        ReverseIterator &operator=(ReverseIterator &&) = default;
+        ~ReverseIterator() = default;
+
+        // NOLINTBEGIN(google-explicit-constructor)
+
+        operator ConstIterator()
+        {
+            return ConstIterator{m_it};
+        }
+
+        // NOLINTEND(google-explicit-constructor)
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ReferenceType operator*() const noexcept
+        {
+            auto temp = m_it;
+            return *--temp;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr PointerType operator->() const noexcept
+        {
+            auto temp = m_it;
+            --temp;
+
+            return ToAddress(temp);
+        }
+
+        SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator &operator++() noexcept
+        {
+            --m_it;
+            return *this;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator operator++(int) noexcept
+        {
+            return ReverseIterator(m_it--);
+        }
+
+        SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator &operator--() noexcept
+        {
+            ++m_it;
+            return *this;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator operator--(int) noexcept
+        {
+            return ReverseIterator(m_it++);
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ReferenceType operator[](DifferenceType index) const noexcept
+        {
+            return *(*this + index);
+        }
+
+        SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator &operator+=(DifferenceType offset) noexcept
+        {
+            m_it -= offset;
+            return *this;
+        }
+
+        SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator &operator-=(DifferenceType offset) noexcept
+        {
+            m_it += offset;
+            return *this;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator operator+(DifferenceType offset) const noexcept
+        {
+            return ReverseIterator(m_it - offset);
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ReverseIterator &operator-(DifferenceType offset) const noexcept
+        {
+            return ReverseIterator(m_it + offset);
+        }
+
+      private:
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr bool operator==(ReverseIterator lhs, ReverseIterator rhs) noexcept
+        {
+            return lhs.m_it == rhs.m_it;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr auto operator<=>(ReverseIterator lhs, ReverseIterator rhs) noexcept
+        {
+            return lhs.m_it <=> rhs.m_it;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr DifferenceType operator+(ReverseIterator lhs, ReverseIterator rhs) noexcept
+        {
+            return lhs.m_it + rhs.m_it;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr DifferenceType operator-(ReverseIterator lhs, ReverseIterator rhs) noexcept
+        {
+            return lhs.m_it - rhs.m_it;
+        }
+
+        Iterator m_it;
+    };
+
+} // namespace SSSEngine::Ranges

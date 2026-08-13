@@ -33,16 +33,21 @@
 #include "Types.h"
 #include "Utility.h"
 #include "Container.h"
+#include "Span.h"
 
-namespace SSSEngine::Text
+namespace SSSEngine::Containers
 {
     template<typename T>
-    concept SinkConcept = requires(T &sink, SizeType n) {
-        { sink.Reserve(n) } -> SameAsConcept<bool>;
-        { sink.Current() } -> Ranges::IteratorConcept;
-        { Move(sink).Get() };
-        { sink.Advance(n) };
-    };
+    concept SinkConcept = true;
+
+    // template<typename T>
+    // concept SinkConcept = requires { T::Iterator; } && requires(T &sink, SizeType n, T::Iterator it) {
+    //     { sink.Reserve(n) } -> SameAsConcept<bool>;
+    //     { sink.Current() } -> Ranges::IteratorConcept;
+    //     { Move(sink).Get() };
+    //     { sink.AdvanceTo(it) };
+    //     { sink.Advance(n) };
+    // };
 
     template<typename T>
     struct SinkBuffer
@@ -50,72 +55,6 @@ namespace SSSEngine::Text
         static constexpr SizeType StackSize = Memory::CacheLineConstructive * 5;
         static constexpr SizeType Elements = StackSize / sizeof(T);
         T storage[Elements];
-    };
-
-    template<typename T>
-    class BufferedSink
-    {
-        SSSENGINE_NOT_IMPLEMENTED;
-
-      public:
-        using SinkOutput = T;
-        using Iterator = T::ValueType *;
-        using SinkBuffer = SinkBuffer<T>;
-
-        void Reserve(SizeType elements) noexcept
-        {
-            SSSENGINE_ASSERT(elements <= SinkBuffer::Elements);
-
-            if(End() - Current() < elements)
-            {
-                Flush();
-            }
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        Iterator Current() noexcept
-        {
-            return m_current;
-        };
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        Iterator Begin() noexcept
-        {
-            return m_buffer.storage;
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        Iterator End() noexcept
-        {
-            return m_buffer.storage + SinkBuffer::Elements;
-        }
-
-        SSSENGINE_FORCE_INLINE
-        void Advance(SizeType count) noexcept
-        {
-            m_current += count;
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        T Get() && noexcept
-        {
-            Flush();
-            return Move(m_sequence);
-        }
-
-      private:
-        SinkOutput m_sequence;
-        SinkBuffer m_buffer;
-        Iterator m_current;
-
-        void Flush() noexcept
-        {
-            if(m_current > Begin())
-            {
-                m_sequence.Append(m_current, End());
-            }
-            m_current = Begin();
-        }
     };
 
     template<Containers::ContainerConcept T>
@@ -139,11 +78,6 @@ namespace SSSEngine::Text
             m_out.End();
         }
 
-        SSSENGINE_FORCE_INLINE
-        void Advance(SizeType) const noexcept
-        {
-        }
-
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         SinkOutput Get() && noexcept
         {
@@ -154,4 +88,4 @@ namespace SSSEngine::Text
         SinkOutput m_out;
     };
 
-} // namespace SSSEngine::Text
+} // namespace SSSEngine::Containers

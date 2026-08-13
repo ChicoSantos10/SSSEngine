@@ -31,14 +31,55 @@ namespace SSSEngine::Containers
     template<typename T>
     struct Span
     {
-        T *begin;
-        T *end;
+        using Iterator = T *;
+        using ConstIterator = const T *;
+
+        Iterator beginIt;
+        Iterator endIt;
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         operator Span<const T>() const noexcept // NOLINT(*-explicit-constructor)
         {
-            return {begin, end};
+            return {beginIt, endIt};
+        }
+
+        friend constexpr Iterator begin(const Span &span)
+        {
+            return span.beginIt;
+        }
+
+        friend constexpr Iterator end(const Span &span)
+        {
+            return span.endIt;
         }
     };
+
+    template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    Span<T>::Iterator Begin(Span<T> span)
+    {
+        return begin(span);
+    }
+
+    template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    Span<T>::ConstIterator ConstBegin(Span<T> span)
+    {
+        return begin(span);
+    }
+
+    template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    Span<T>::Iterator End(Span<T> span)
+    {
+        return end(span);
+    }
+
+    template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    Span<T>::ConstIterator ConstEnd(Span<T> span)
+    {
+        return end(span);
+    }
 
 } // namespace SSSEngine::Containers

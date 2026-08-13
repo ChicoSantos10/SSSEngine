@@ -59,6 +59,29 @@ namespace SSSEngine::Ranges
         { i-- } -> SameAsConcept<T>;
     };
 
+    template<typename It>
+    struct IteratorTraits
+    {
+    };
+
+    template<typename T>
+    struct IteratorTraits<T *>
+    {
+        using ValueType = T;
+        using DifferenceType = ptrdiff;
+        using PointerType = T *;
+        using ReferenceType = T &;
+    };
+
+    template<typename T>
+    struct IteratorTraits<const T *>
+    {
+        using ValueType = T;
+        using DifferenceType = ptrdiff;
+        using PointerType = const T *;
+        using ReferenceType = const T &;
+    };
+
     namespace Impl
     {
         struct DecayCopy

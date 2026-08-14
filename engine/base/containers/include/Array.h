@@ -32,6 +32,8 @@
 #include "Types.h"
 #include "Utility.h"
 #include "Optional.h"
+#include "BasicIterator.h"
+#include "ReverseIterator.h"
 
 namespace SSSEngine::Containers
 {
@@ -47,8 +49,10 @@ namespace SSSEngine::Containers
         using ValueType = T;
         using Reference = T &;
         using ConstReference = const T &;
-        using Iterator = T *;
-        using ConstIterator = const T *;
+        using Iterator = Ranges::BasicIterator<T *>;
+        using ConstIterator = Ranges::BasicIterator<const T *>;
+        using ReverseIterator = Ranges::ReverseIterator<Iterator>;
+        using ConstReverseIterator = Ranges::ReverseIterator<ConstIterator>;
 
         /**
          * @brief The number of elements in the array
@@ -73,7 +77,7 @@ namespace SSSEngine::Containers
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstIterator ConstBegin() const noexcept
         {
-            return Begin();
+            return ConstIterator(data);
         }
 
         /**
@@ -92,10 +96,56 @@ namespace SSSEngine::Containers
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstIterator ConstEnd() const noexcept
         {
-            return End();
+            return ConstIterator(data + Elements);
         }
 
-        // TODO: Reverse Iterator
+        /**
+         * @brief Returns an iterator that starts on the last element and moves to beginning
+         *
+         * @tparam Self Deducing this for the class
+         * @return The reverse iterator
+         */
+        template<typename Self>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr auto ReverseBegin(this Self &self) noexcept
+        {
+            return Ranges::MakeReverseIterator(self.End());
+        }
+
+        /**
+         * @brief Gets the const reverse iterator starting at the end of the array
+         *
+         * @return A const reverse iterator
+         */
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ConstReverseIterator ConstReverseBegin() const noexcept
+        {
+            return ReverseBegin();
+        }
+
+        /**
+         * @brief Returns an iterator pointing to one past the first element in a reverse order
+         *
+         * @tparam Self Deducing this for the class
+         * @return The reverse iterator
+         */
+        template<typename Self>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr auto ReverseEnd(this Self &self) noexcept
+        {
+            return Ranges::MakeReverseIterator(self.Begin());
+        }
+
+        /**
+         * @brief Gets the const reverse iterator starting at the beginning of the array
+         *
+         * @return A const reverse iterator
+         */
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ConstReverseIterator ConstReverseEnd() const noexcept
+        {
+            return ReverseEnd();
+        }
 
         /**
          * @return The result of indexing the underlying array
@@ -162,8 +212,6 @@ namespace SSSEngine::Containers
             return Elements;
         }
 
-        SSSENGINE_PURE
-
         /**
          * @brief Checks all values of both array and compares them. T must be EqualityComparableConcept
          *
@@ -171,6 +219,7 @@ namespace SSSEngine::Containers
          * @param rhs The other array to compare with
          * @return True if all elements are equal, false otherwise
          */
+        SSSENGINE_PURE
         friend constexpr bool operator==(const Array &lhs, const Array &rhs) noexcept
             requires(EqualityComparableConcept<T>)
         {

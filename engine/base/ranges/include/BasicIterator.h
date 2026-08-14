@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Attributes.h"
+#include "Debug.h"
 #include "QualifierTraits.h"
 #include "Iterator.h"
 #include "Ordering.h"
@@ -34,6 +35,7 @@ namespace SSSEngine::Ranges
 
         explicit BasicIterator(const Iterator &it) : m_it(it) {}
 
+        BasicIterator() = default;
         BasicIterator(const BasicIterator &it) = default;
         BasicIterator(BasicIterator &&) = default;
         BasicIterator &operator=(const BasicIterator &) = default;
@@ -42,7 +44,7 @@ namespace SSSEngine::Ranges
 
         // NOLINTBEGIN(google-explicit-constructor)
 
-        operator ConstIterator()
+        operator ConstIterator() const noexcept
         {
             return ConstIterator{m_it};
         }
@@ -119,6 +121,12 @@ namespace SSSEngine::Ranges
             return BasicIterator(m_it - offset);
         }
 
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr Iterator Current() const noexcept
+        {
+            return m_it;
+        }
+
       private:
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         friend constexpr bool operator==(BasicIterator lhs, BasicIterator rhs) noexcept
@@ -144,12 +152,13 @@ namespace SSSEngine::Ranges
             return lhs.m_it - rhs.m_it;
         }
 
-        Iterator m_it;
+        Iterator m_it{};
     };
 
     template<typename T>
     struct IteratorTraits<BasicIterator<T>> : public IteratorTraits<T>
     {
+        using ConstIteratorType = BasicIterator<const typename IteratorTraits<T>::ValueType *>;
     };
 
 } // namespace SSSEngine::Ranges

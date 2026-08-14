@@ -71,6 +71,7 @@ namespace SSSEngine::Ranges
         using DifferenceType = ptrdiff;
         using PointerType = T *;
         using ReferenceType = T &;
+        using ConstIteratorType = const T *;
     };
 
     template<typename T>
@@ -80,6 +81,7 @@ namespace SSSEngine::Ranges
         using DifferenceType = ptrdiff;
         using PointerType = const T *;
         using ReferenceType = const T &;
+        using ConstIteratorType = const T *;
     };
 
     namespace Impl

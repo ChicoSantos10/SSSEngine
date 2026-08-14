@@ -29,12 +29,14 @@
 #include "Allocator.h"
 #include "AsciiEncoding.h"
 #include "Attributes.h"
+#include "BasicIterator.h"
 #include "Debug.h"
 #include "Encoding.h"
 #include "Math.h"
 #include "MemorySize.h"
 #include "MemoryUtility.h"
 #include "QualifierTraits.h"
+#include "ReverseIterator.h"
 #include "StringView.h"
 #include "Traits.h"
 #include "Types.h"
@@ -76,8 +78,10 @@ namespace SSSEngine::Text
         using View = StringView<Encoding>;
 
       public:
-        using Iterator = CharType *;
-        using ConstIterator = const CharType *;
+        using Iterator = Ranges::BasicIterator<CharType *>;
+        using ConstIterator = Ranges::BasicIterator<const CharType *>;
+        using ReverseIterator = Ranges::ReverseIterator<Iterator>;
+        using ConstReverseIterator = Ranges::ReverseIterator<ConstIterator>;
 
         constexpr String() noexcept : m_count(0), m_isSmall(true)
         {
@@ -198,7 +202,7 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return m_data.stackString.Begin();
+                return m_data.stackString.Begin().Current();
             }
             return m_data.heapString.m_data;
         }
@@ -288,6 +292,7 @@ namespace SSSEngine::Text
         }
 
         template<typename Self>
+            SSSENGINE_PURE
         constexpr auto Begin(this Self &self) noexcept
         {
             using It = ConditionalType<IsConst<RemoveReferenceType<Self>>, ConstIterator, Iterator>;
@@ -307,6 +312,7 @@ namespace SSSEngine::Text
         }
 
         template<typename Self>
+            SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr auto End(this Self &self) noexcept
         {
             return self.Begin() + self.Count();
@@ -318,7 +324,31 @@ namespace SSSEngine::Text
             return End();
         }
 
-        // TODO: Reverse Iterators and ranges
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr auto ReverseBegin() noexcept
+        {
+            return Ranges::MakeReverseIterator(End());
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ConstReverseIterator ConstReverseBegin() noexcept
+        {
+            return ReverseBegin();
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr auto ReverseEnd() noexcept
+        {
+            return Ranges::MakeReverseIterator(Begin());
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ConstReverseIterator ConstReverseEnd() noexcept
+        {
+            return ReverseEnd();
+        }
+
+        // TODO: Ranges
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr bool IsEmpty() const noexcept

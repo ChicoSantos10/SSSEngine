@@ -28,7 +28,7 @@ namespace SSSEngine::Ranges
         using PointerType = IteratorTraits::PointerType;
         using ReferenceType = IteratorTraits::ReferenceType;
         using DifferenceType = IteratorTraits::DifferenceType;
-        using ConstIterator = ReverseIterator<const ValueType *>;
+        using ConstIterator = IteratorTraits::ConstIteratorType;
 
         constexpr explicit ReverseIterator(const Iterator &it) : m_it(it) {}
 
@@ -40,9 +40,9 @@ namespace SSSEngine::Ranges
 
         // NOLINTBEGIN(google-explicit-constructor)
 
-        operator ConstIterator()
+        operator ReverseIterator<ConstIterator>() const noexcept
         {
-            return ConstIterator{m_it};
+            return ReverseIterator<ConstIterator>(ConstIterator(m_it));
         }
 
         // NOLINTEND(google-explicit-constructor)
@@ -148,5 +148,11 @@ namespace SSSEngine::Ranges
 
         Iterator m_it;
     };
+
+    template<BidirectionalIteratorConcept It>
+    constexpr ReverseIterator<It> MakeReverseIterator(It iterator)
+    {
+        return ReverseIterator<It>(iterator);
+    }
 
 } // namespace SSSEngine::Ranges

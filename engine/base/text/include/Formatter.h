@@ -223,7 +223,7 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
-            ParseInt<Encoding>(value, ctx.output.Current());
+            ParseInt<Encoding>(value, ctx.output.Current().Current());
         }
     };
 

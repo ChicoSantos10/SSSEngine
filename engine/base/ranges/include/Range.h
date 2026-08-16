@@ -28,6 +28,7 @@
 #include "ArrayTraits.h"
 #include "Attributes.h"
 #include "Concepts.h"
+#include "ConstIterator.h"
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "HelperMacros.h"
@@ -523,6 +524,7 @@ namespace SSSEngine::Ranges
 
         SSSENGINE_GLOBAL
         constexpr __impl::IsEmptyImpl IsEmpty{};
+
     } // namespace Utility
 
     template<typename R>
@@ -596,7 +598,8 @@ namespace SSSEngine::Ranges
         class ConstBeginImpl
         {
             template<CanBorrowRangeConcept T>
-            constexpr auto operator()(T &&t) noexcept(noexcept(MakeConstIterator(Begin(PossiblyConstRange(t)))))
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&t) const noexcept(noexcept(MakeConstIterator(Begin(PossiblyConstRange(t)))))
                 requires requires { MakeConstIterator(Begin(PossiblyConstRange(t))); }
             {
                 auto &range = PossiblyConstRange(t);
@@ -604,6 +607,73 @@ namespace SSSEngine::Ranges
             }
         };
 
+        class ConstEndImpl
+        {
+            template<CanBorrowRangeConcept T>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&t) noexcept(noexcept(MakeConstSentinel(End(PossiblyConstRange(t)))))
+                requires requires { MakeConstSentinel(End(PossiblyConstRange(t))); }
+            {
+                auto &range = PossiblyConstRange(t);
+                return ConstIterator<decltype(End(range))>(End(range));
+            }
+        };
+
+        class ConstReverseBeginImpl
+        {
+            template<CanBorrowRangeConcept T>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&t) const
+                noexcept(noexcept(MakeConstIterator(ReverseBegin(PossiblyConstRange(t)))))
+                requires requires { MakeConstIterator(ReverseBegin(PossiblyConstRange(t))); }
+            {
+                auto &range = PossiblyConstRange(t);
+                return ConstIterator<decltype(ReverseBegin(range))>(ReverseBegin(range));
+            }
+        };
+
+        class ConstReverseEndImpl
+        {
+            template<CanBorrowRangeConcept T>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&t) noexcept(noexcept(MakeConstSentinel(ReverseEnd(PossiblyConstRange(t)))))
+                requires requires { MakeConstSentinel(ReverseEnd(PossiblyConstRange(t))); }
+            {
+                auto &range = PossiblyConstRange(t);
+                return ConstIterator<decltype(ReverseEnd(range))>(ReverseEnd(range));
+            }
+        };
+
+        class ConstDataImpl
+        {
+            template<CanBorrowRangeConcept T>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&t) noexcept(noexcept(Ranges::Data(PossiblyConstRange(t))))
+                requires requires { Ranges::Data(PossiblyConstRange(t)); }
+            {
+                return Ranges::Data(PossiblyConstRange(t));
+            }
+        };
+
     } // namespace __impl
+
+    inline namespace Utility
+    {
+        SSSENGINE_GLOBAL
+        constexpr __impl::ConstBeginImpl ConstBegin{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::ConstEndImpl ConstEnd{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::ConstReverseBeginImpl ConstReverseBegin{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::ConstReverseEndImpl ConstReverseEnd{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::ConstDataImpl ConstData{};
+
+    } // namespace Utility
 
 } // namespace SSSEngine::Ranges

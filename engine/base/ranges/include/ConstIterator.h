@@ -12,6 +12,7 @@
 #include "CopyAndMoveTraits.h"
 #include "HelperMacros.h"
 #include "Iterator.h"
+#include "ObjectConcepts.h"
 #include "Ordering.h"
 #include "Traits.h"
 #include "Utility.h"
@@ -294,5 +295,39 @@ namespace SSSEngine::Ranges
 
     template<InputIteratorConcept It>
     using ConstIterator = ConditionalType<ConstIteratorConcept<It>, It, BasicConstIterator<It>>;
+
+    template<InputIteratorConcept It>
+    constexpr ConstIterator<It> MakeConstIterator(It it) noexcept(IsNoThrowConvertible<It, ConstIterator<It>>)
+    {
+        return it;
+    }
+
+    // NOLINTBEGIN(readability-identifier-naming, bugprone-reserved-identifier)
+    namespace __impl
+    {
+        template<typename Sentinel>
+        struct __ConstSentinel
+        {
+            using Type = Sentinel;
+        };
+
+        template<InputIteratorConcept Sentinel>
+        struct __ConstSentinel<Sentinel>
+        {
+            using Type = ConstIterator<Sentinel>;
+        };
+    } // namespace __impl
+
+    // NOLINTEND(readability-identifier-naming, bugprone-reserved-identifier)
+
+    template<SemiregularConcept Sentinel>
+    using ConstSentinel = typename __impl::__ConstSentinel<Sentinel>::Type;
+
+    template<SemiregularConcept Sentinel>
+    constexpr ConstSentinel<Sentinel>
+    MakeConstSentinel(Sentinel sentinel) noexcept(IsNoThrowConvertible<Sentinel, ConstSentinel<Sentinel>>)
+    {
+        return sentinel;
+    }
 
 } // namespace SSSEngine::Ranges

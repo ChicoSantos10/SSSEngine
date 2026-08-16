@@ -89,6 +89,13 @@ namespace SSSEngine
     concept SameAsConcept = IsSameType<T, U>;
 
     /**
+     * @brief Concept of 2 different types, after having their cvref removed
+     *
+     */
+    template<typename T, typename U>
+    concept DifferentFromConcept = !SameAsConcept<RemoveCVReferenceType<T>, RemoveCVReferenceType<U>>;
+
+    /**
      * @brief Checks if T and others are of the same type
      *
      */
@@ -251,5 +258,9 @@ namespace SSSEngine
     template<typename T, typename U>
     concept TotallyComparableWithConcept = TotallyComparableConcept<T> && TotallyComparableConcept<U> &&
                                            EqualityComparableWithConcept<T, U> && OrderableWithConcept<T, U>;
+
+    template<typename Base, typename Derived>
+    concept DerivedFromConcept =
+        IsBaseOf<Base, Derived> && ConvertibleToConcept<const volatile Derived *, const volatile Base *>;
 
 } // namespace SSSEngine

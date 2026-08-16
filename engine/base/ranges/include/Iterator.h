@@ -25,6 +25,7 @@
 #pragma once
 
 #include "ArrayTraits.h"
+#include "Attributes.h"
 #include "Concepts.h"
 #include "HelperMacros.h"
 #include "ObjectConcepts.h"
@@ -59,32 +60,7 @@ namespace SSSEngine::Ranges
         { i-- } -> SameAsConcept<T>;
     };
 
-    template<typename It>
-    struct IteratorTraits
-    {
-    };
-
-    template<typename T>
-    struct IteratorTraits<T *>
-    {
-        using ValueType = T;
-        using DifferenceType = ptrdiff;
-        using PointerType = T *;
-        using ReferenceType = T &;
-        using ConstIteratorType = const T *;
-    };
-
-    template<typename T>
-    struct IteratorTraits<const T *>
-    {
-        using ValueType = T;
-        using DifferenceType = ptrdiff;
-        using PointerType = const T *;
-        using ReferenceType = const T &;
-        using ConstIteratorType = const T *;
-    };
-
-    namespace Impl
+    namespace __impl // NOLINT(bugprone-reserved-identifier, readability-identifier-naming)
     {
         struct DecayCopy
         {
@@ -223,14 +199,14 @@ namespace SSSEngine::Ranges
                 }
             }
         };
-    } // namespace Impl
+    } // namespace __impl
 
     SSSENGINE_GLOBAL
-    constexpr Impl::IteratorMoveImpl IteratorMove{};
+    constexpr __impl::IteratorMoveImpl IteratorMove{};
 
     template<typename T>
-        requires requires { typename Impl::IteratorValue<T>::ValueType; }
-    using IteratorValueType = Impl::IteratorValue<T>::ValueType;
+        requires requires { typename __impl::IteratorValue<T>::ValueType; }
+    using IteratorValueType = __impl::IteratorValue<T>::ValueType;
 
     template<DereferenceableConcept T>
     using IteratorReferenceType = decltype(*DeclVal<T &>());
@@ -239,7 +215,7 @@ namespace SSSEngine::Ranges
     using IteratorRValueReferenceType = decltype(IteratorMove(DeclVal<T &>()));
 
     template<DereferenceableConcept T>
-    using IteratorDifferenceType = Impl::IteratorDifference<T>::DifferenceType;
+    using IteratorDifferenceType = __impl::IteratorDifference<T>::DifferenceType;
 
     namespace Impl
     {
@@ -343,5 +319,248 @@ namespace SSSEngine::Ranges
     template<typename Iterator, typename T>
     concept WriteableContiguousMemoryIteratorConcept =
         ContiguousMemoryIteratorConcept<Iterator> && WriteIteratorConcept<Iterator, T>;
+
+    // NOLINTBEGIN(bugprone-reserved-identifier, readability-identifier-naming)
+    namespace __impl
+    {
+        struct __AdvanceFn final
+        {
+            template<IteratorConcept It>
+            static consteval bool IsNoExcept(It &, IteratorDifferenceType<It>) noexcept
+            {
+                auto it = DeclVal<It &>();
+                auto offset = DeclVal<IteratorDifferenceType<It>>();
+
+                if constexpr(RandomAccessIteratorConcept<It>)
+                {
+                    return noexcept(it += offset);
+                }
+                else if constexpr(BidirectionalIteratorConcept<It>)
+                {
+                    return noexcept(++it) && noexcept(--it) && noexcept(--offset) && noexcept(++offset);
+                }
+                else
+                {
+                    return noexcept(offset-- > 0) && noexcept(++it);
+                }
+            }
+
+            template<IteratorConcept It, SentinelForConcept<It> Sentinel>
+            static consteval bool IsNoExcept(It &, Sentinel) noexcept
+            {
+                auto it = DeclVal<It &>();
+                auto bound = DeclVal<Sentinel>();
+
+                if constexpr(AssignableFromConcept<It &, Sentinel>)
+                {
+                    return noexcept(it = Move(bound));
+                }
+                else if constexpr(SizedSentinelForConcept<Sentinel, It>)
+                {
+                    return noexcept((DeclVal<__AdvanceFn>())(it, bound - it));
+                }
+                else
+                {
+                    return noexcept(it != bound) && noexcept(++it);
+                }
+            }
+
+            template<IteratorConcept It, SentinelForConcept<It> Sentinel>
+            static consteval bool IsNoExcept(It &, IteratorDifferenceType<It>, Sentinel) noexcept
+            {
+                auto it = DeclVal<It &>();
+                auto bound = DeclVal<Sentinel>();
+                auto offset = DeclVal<IteratorDifferenceType<It>>();
+
+                if constexpr(SizedSentinelForConcept<Sentinel, It>)
+                {
+                    return noexcept(bound - it) && noexcept(it = Move(bound)) &&
+                           noexcept(it += IteratorDifferenceType<It>(0)) && noexcept((DeclVal<__AdvanceFn>())(it, bound)) &&
+                           noexcept((DeclVal<__AdvanceFn>())(it, offset));
+                }
+                bool noexceptInc = noexcept(++it) && noexcept(++offset);
+
+                if constexpr(BidirectionalIteratorConcept<It> && SameAsConcept<It, Sentinel>)
+                {
+                    return noexceptInc && noexcept(--it) && noexcept(--offset);
+                }
+
+                return noexceptInc;
+            }
+
+            template<IteratorConcept It>
+                SSSENGINE_FORCE_INLINE
+            constexpr void operator()(It &it, IteratorDifferenceType<It> offset) const noexcept(IsNoExcept(it, offset))
+            {
+                if constexpr(RandomAccessIteratorConcept<It>)
+                {
+                    it += offset;
+                }
+                else if constexpr(BidirectionalIteratorConcept<It>)
+                {
+                    if(offset > 0)
+                    {
+                        do
+                        {
+                            ++it;
+                        } while(--offset);
+                    }
+                    else if(offset < 0)
+                    {
+                        do
+                        {
+                            --it;
+                        } while(++offset);
+                    }
+                }
+                else
+                {
+                    SSSENGINE_ASSERT(offset >= 0);
+                    while(offset-- > 0)
+                    {
+                        ++it;
+                    }
+                }
+            }
+
+            template<IteratorConcept It, SentinelForConcept<It> Sentinel>
+                SSSENGINE_FORCE_INLINE
+            constexpr void operator()(It &it, Sentinel bound) const noexcept(IsNoExcept(it, bound))
+            {
+                if constexpr(AssignableFromConcept<It &, Sentinel>)
+                {
+                    it = Move(bound);
+                }
+                else if constexpr(SizedSentinelForConcept<Sentinel, It>)
+                {
+                    (*this)(it, bound - it);
+                }
+                else
+                {
+                    while(it != bound)
+                    {
+                        ++it;
+                    }
+                }
+            }
+
+            template<IteratorConcept It, SentinelForConcept<It> Sentinel>
+                SSSENGINE_FORCE_INLINE
+            constexpr IteratorDifferenceType<It> operator()(It &it, IteratorDifferenceType<It> offset, Sentinel bound) const
+                noexcept(IsNoExcept(it, offset, bound))
+            {
+                if constexpr(SizedSentinelForConcept<Sentinel, It>)
+                {
+                    const IteratorDifferenceType<It> diff = bound - it;
+
+                    if(diff == 0)
+                    {
+                        if constexpr(AssignableFromConcept<It &, Sentinel>)
+                        {
+                            it = Move(bound);
+                        }
+                        else if constexpr(RandomAccessIteratorConcept<It>)
+                        {
+                            it += IteratorDifferenceType<It>(0);
+                        }
+
+                        return offset;
+                    }
+
+                    if(diff > 0 ? offset >= diff : offset <= diff)
+                    {
+                        (*this)(it, bound);
+                        return offset - diff;
+                    }
+
+                    if(offset != 0) SSSENGINE_LIKELY
+                    {
+                        SSSENGINE_ASSERT((offset < 0) == (diff < 0));
+
+                        (*this)(it, offset);
+                        return 0;
+                    }
+                    else
+                    {
+                        if constexpr(RandomAccessIteratorConcept<It>)
+                        {
+                            it += IteratorDifferenceType<It>(0);
+                        }
+                        return 0;
+                    }
+                }
+                else if(offset == 0 || it == bound)
+                {
+                    return offset;
+                }
+                else if(offset > 0)
+                {
+                    IteratorDifferenceType<It> adv = 0;
+                    do
+                    {
+                        ++it;
+                        ++adv;
+                    } while(adv != offset && it != bound);
+                    return offset - adv;
+                }
+                else if constexpr(BidirectionalIteratorConcept<It> && SameAsConcept<It, Sentinel>)
+                {
+                    IteratorDifferenceType<It> adv = 0;
+                    do
+                    {
+                        --it;
+                        --adv;
+                    } while(adv != offset && it != bound);
+                    return offset - adv;
+                }
+                else
+                {
+                    SSSENGINE_ASSERT(offset >= 0);
+                    return offset;
+                }
+            }
+
+            void operator&() const = delete; // NOLINT(google-runtime-operator)
+        };
+
+        struct __PrevFn final
+        {
+            template<BidirectionalIteratorConcept It>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr It operator()(It it) const noexcept(noexcept(--it))
+            {
+                --it;
+                return it;
+            }
+
+            template<BidirectionalIteratorConcept It>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr It operator()(It it, IteratorDifferenceType<It> offset) const
+                noexcept(noexcept(__AdvanceFn{}(it, -offset)))
+            {
+                __AdvanceFn{}(it, -offset);
+                return it;
+            }
+
+            template<BidirectionalIteratorConcept It>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr It operator()(It it, IteratorDifferenceType<It> offset, It bound) const
+                noexcept(noexcept(__AdvanceFn{}(it, -offset, bound)))
+            {
+                __AdvanceFn{}(it, -offset, bound);
+                return it;
+            }
+
+            void operator&() const = delete; // NOLINT(google-runtime-operator)
+        };
+    } // namespace __impl
+
+    // NOLINTEND(bugprone-reserved-identifier, readability-identifier-naming)
+
+    SSSENGINE_GLOBAL
+    constexpr __impl::__PrevFn Previous{};
+    SSSENGINE_GLOBAL
+    constexpr __impl::__AdvanceFn Advance{};
+    // TODO: Distance
 
 } // namespace SSSEngine::Ranges

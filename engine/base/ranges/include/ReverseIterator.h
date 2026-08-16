@@ -7,6 +7,7 @@
 
 #include "Address.h"
 #include "Attributes.h"
+#include "ConstIterator.h"
 #include "Iterator.h"
 #include "Ordering.h"
 
@@ -21,14 +22,11 @@ namespace SSSEngine::Ranges
     template<BidirectionalIteratorConcept Iterator>
     class ReverseIterator
     {
-        using IteratorTraits = IteratorTraits<Iterator>;
-
       public:
-        using ValueType = IteratorTraits::ValueType;
-        using PointerType = IteratorTraits::PointerType;
-        using ReferenceType = IteratorTraits::ReferenceType;
-        using DifferenceType = IteratorTraits::DifferenceType;
-        using ConstIterator = IteratorTraits::ConstIteratorType;
+        using ValueType = IteratorValueType<Iterator>;
+        using ReferenceType = IteratorReferenceType<Iterator>;
+        using DifferenceType = IteratorDifferenceType<Iterator>;
+        using ConstIterator = BasicConstIterator<Iterator>;
 
         constexpr explicit ReverseIterator(const Iterator &it) : m_it(it) {}
 
@@ -55,7 +53,7 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr PointerType operator->() const noexcept
+        constexpr auto *operator->() const noexcept
         {
             auto temp = m_it;
             --temp;

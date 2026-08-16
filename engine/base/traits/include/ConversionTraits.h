@@ -238,7 +238,7 @@ namespace SSSEngine
     using CommonRef = typename CommonRefImpl<Ap, Bp>::Type;
 
     template<typename Xp, typename Yp>
-    using CondResCVRef = CondRes<MatchCVQualifiers<Xp, Yp> &, MatchCVQualifiers<Yp, Xp> &>;
+    using CondResCVRef = CondRes<MatchCVQualifiersType<Xp, Yp> &, MatchCVQualifiersType<Yp, Xp> &>;
 
     template<typename Xp, typename Yp>
     struct CommonRefImpl<Xp &, Yp &, VoidType<CondResCVRef<Xp, Yp>>> :

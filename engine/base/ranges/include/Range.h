@@ -28,12 +28,16 @@
 #include "ArrayTraits.h"
 #include "Attributes.h"
 #include "Concepts.h"
+#include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "HelperMacros.h"
 #include "Iterator.h"
+#include "Limits.h"
 #include "QualifierTraits.h"
 #include "SignTraits.h"
 #include "Traits.h"
+#include "ReverseIterator.h"
+#include "Types.h"
 
 namespace SSSEngine::Ranges
 {
@@ -41,7 +45,7 @@ namespace SSSEngine::Ranges
     SSSENGINE_GLOBAL
     constexpr bool EnableBorrowRange = false;
 
-    namespace Impl
+    namespace __impl // NOLINT(readability-identifier-naming, bugprone-reserved-identifier)
     {
         template<typename R>
         concept CanBorrowRangeConcept = (IsLValueReference<R> || EnableBorrowRange<RemoveCVReferenceType<R>>);
@@ -156,6 +160,136 @@ namespace SSSEngine::Ranges
         };
 
         template<typename T>
+        concept HasReverseBeginConcept = requires(T &t) {
+            { DecayType<decltype(t.ReverseBegin())>(t.ReverseBegin()) } -> IteratorConcept;
+        };
+
+        void ReverseBegin() = delete;
+
+        template<typename T>
+        concept AdlReverseBeginConcept = requires(T &t) {
+            { DecayType<decltype(ReverseBegin(t))>(ReverseBegin(t)) } -> IteratorConcept;
+        };
+
+        template<typename T>
+        concept ReversableConcept = requires(T &t) {
+            { BeginImpl{}(t) } -> BidirectionalIteratorConcept;
+            { EndImpl{}(t) } -> SameAsConcept<decltype(BeginImpl{}(t))>;
+        };
+
+        class ReverseBeginImpl
+        {
+          private:
+            template<typename T>
+            static consteval bool IsNoExcept()
+            {
+                if constexpr(HasReverseBeginConcept<T>)
+                {
+                    return noexcept(DecayType<decltype(DeclVal<T>().ReverseBegin())>(DeclVal<T>().ReverseBegin()));
+                }
+                else if constexpr(AdlReverseBeginConcept<T>)
+                {
+                    return noexcept(DecayType<decltype(ReverseBegin(DeclVal<T>()))>(ReverseBegin(DeclVal<T>())));
+                }
+                else
+                {
+                    if constexpr(noexcept(EndImpl{}(DeclVal<T &>())))
+                    {
+                        using It = decltype(EndImpl{}(DeclVal<T &>()));
+                        return IsNoThrowCopyConstructible<It>;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+          public:
+            template<CanBorrowRangeConcept T>
+                requires HasReverseBeginConcept<T> || AdlReverseBeginConcept<T> || ReversableConcept<T>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&range) const noexcept(IsNoExcept<T>())
+            {
+                if constexpr(HasReverseBeginConcept<T>)
+                {
+                    return range.ReverseBegin();
+                }
+                else if constexpr(AdlReverseBeginConcept<T>)
+                {
+                    return ReverseBegin(range);
+                }
+                else
+                {
+                    MakeReverseIterator(EndImpl{}(range));
+                }
+            }
+        };
+
+        template<typename T>
+        concept HasReverseEndConcept = requires(T &t) {
+            {
+                DecayType<decltype(t.ReverseEnd())>(t.ReverseEnd())
+            } -> SentinelForConcept<decltype(ReverseBeginImpl{}(Forward<T>(t)))>;
+        };
+
+        void ReverseEnd() = delete;
+
+        template<typename T>
+        concept AdlReverseEndConcept = requires(T &t) {
+            { DecayType<decltype(ReverseEnd(t))>(ReverseEnd(t)) } -> IteratorConcept;
+        };
+
+        class ReverseEndImpl
+        {
+          private:
+            template<typename T>
+            static consteval bool IsNoExcept()
+            {
+                if constexpr(HasReverseEndConcept<T>)
+                {
+                    return noexcept(DecayType<decltype(DeclVal<T>().ReverseEnd())>(DeclVal<T>().ReverseEnd()));
+                }
+                else if constexpr(AdlReverseEndConcept<T>)
+                {
+                    return noexcept(DecayType<decltype(ReverseEnd(DeclVal<T>()))>(ReverseEnd(DeclVal<T>())));
+                }
+                else
+                {
+                    if constexpr(noexcept(BeginImpl{}(DeclVal<T &>())))
+                    {
+                        using It = decltype(BeginImpl{}(DeclVal<T &>()));
+                        return IsNoThrowCopyConstructible<It>;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
+          public:
+            template<CanBorrowRangeConcept T>
+                requires HasReverseEndConcept<T> || AdlReverseEndConcept<T> || ReversableConcept<T>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&range) const noexcept(IsNoExcept<T>())
+            {
+                if constexpr(HasReverseEndConcept<T>)
+                {
+                    return range.ReverseEnd();
+                }
+                else if constexpr(AdlReverseEndConcept<T>)
+                {
+                    return ReverseEnd(range);
+                }
+                else
+                {
+                    MakeReverseIterator(BeginImpl{}(range));
+                }
+            }
+        };
+
+        template<typename T>
         concept AdlCountConcept = ClassOrEnumConcept<RemoveReferenceType<T>> && requires(T &t) {
             { DecayCopy(Count(t)) } -> IntegralConcept;
         };
@@ -230,6 +364,35 @@ namespace SSSEngine::Ranges
             }
         };
 
+        class SignedCountImpl
+        {
+          public:
+            template<typename T>
+                requires requires(T &t) { CountImpl{}(t); }
+            SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr auto operator()(T &&t) const noexcept(noexcept(CountImpl{}(t)))
+            {
+                auto count = CountImpl{}(t);
+                using CountType = decltype(count);
+                if constexpr(IntegralConcept<CountType>)
+                {
+                    using Math::Limits::BinaryDigits;
+                    if constexpr(BinaryDigits<CountType> < BinaryDigits<ptrdiff>)
+                    {
+                        return static_cast<ptrdiff>(count);
+                    }
+                    else
+                    {
+                        return static_cast<SignedType<CountType>>(count);
+                    }
+                }
+                else
+                {
+                    SSSENGINE_NOT_IMPLEMENTED;
+                }
+            }
+        };
+
         template<typename T>
         using DataResult = AddPointerType<RemoveReferenceType<T>>;
 
@@ -287,21 +450,79 @@ namespace SSSEngine::Ranges
                 }
             }
         };
-    } // namespace Impl
+
+        template<typename T>
+        concept HasIsEmptyConcept = requires(T &t) {
+            { t.empty() } -> ConvertibleToConcept<bool>;
+        };
+
+        template<typename T>
+        concept CheckCountIsZeroConcept = requires(T &t) { CountImpl{}(t) == 0; };
+
+        template<typename T>
+        concept CheckIteratorConcept = requires(T &t) {
+            requires(!IsArrayUnknownBounds<RemoveReferenceType<T>>);
+
+            { BeginImpl{}(t) } -> MultiPassIteratorConcept;
+            { BeginImpl{}(t) == EndImpl{}(t) } -> ConvertibleToConcept<bool>;
+        };
+
+        struct IsEmptyImpl
+        {
+          private:
+            template<typename T>
+            static consteval bool IsNoExcept()
+            {
+                if constexpr(HasIsEmptyConcept<T>)
+                    return noexcept(bool(DeclVal<T &>().empty()));
+                else if constexpr(CheckCountIsZeroConcept<T>)
+                    return noexcept(CountImpl{}(DeclVal<T &>()) == 0);
+                else
+                    return noexcept(bool(BeginImpl{}(DeclVal<T &>()) == EndImpl{}(DeclVal<T &>())));
+            }
+
+          public:
+            template<typename T>
+                requires HasIsEmptyConcept<T> || CheckCountIsZeroConcept<T> || CheckIteratorConcept<T>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr bool operator()(T &&t) const noexcept(IsNoExcept<T &>())
+            {
+                if constexpr(HasIsEmptyConcept<T>)
+                    return bool(t.empty());
+                else if constexpr(CheckCountIsZeroConcept<T>)
+                    return CountImpl{}(t) == 0;
+                else
+                    return bool(BeginImpl{}(t) == EndImpl{}(t));
+            }
+        };
+
+    } // namespace __impl
 
     inline namespace Utility
     {
         SSSENGINE_GLOBAL
-        constexpr Impl::BeginImpl Begin{};
+        constexpr __impl::BeginImpl Begin{};
 
         SSSENGINE_GLOBAL
-        constexpr Impl::EndImpl End{};
+        constexpr __impl::EndImpl End{};
 
         SSSENGINE_GLOBAL
-        constexpr Impl::CountImpl Count{};
+        constexpr __impl::ReverseBeginImpl ReverseBegin{};
 
         SSSENGINE_GLOBAL
-        constexpr Impl::DataImpl Data{};
+        constexpr __impl::ReverseEndImpl ReverseEnd{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::CountImpl Count{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::SignedCountImpl SignedCount{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::DataImpl Data{};
+
+        SSSENGINE_GLOBAL
+        constexpr __impl::IsEmptyImpl IsEmpty{};
     } // namespace Utility
 
     template<typename R>
@@ -311,7 +532,7 @@ namespace SSSEngine::Ranges
     };
 
     template<typename R>
-    using IteratorType = Impl::RangeIteratorType<R>;
+    using IteratorType = __impl::RangeIteratorType<R>;
 
     template<typename R>
     using SentinelType = decltype(End(DeclVal<R &>()));
@@ -336,7 +557,7 @@ namespace SSSEngine::Ranges
     concept SizedRangeConcept = EnableSizedRange<R> && RangeConcept<R> && requires(R &r) { Ranges::Count(r); };
 
     template<typename R>
-    concept BorrowedRangeConcept = RangeConcept<R> && Impl::CanBorrowRangeConcept<R>;
+    concept BorrowedRangeConcept = RangeConcept<R> && __impl::CanBorrowRangeConcept<R>;
 
     template<typename R>
     concept InputRangeConcept = RangeConcept<R> && InputIteratorConcept<IteratorType<R>>;
@@ -355,5 +576,34 @@ namespace SSSEngine::Ranges
         RandomAccessRangeConcept<R> && ContiguousMemoryIteratorConcept<IteratorType<R>> && requires(R &t) {
             { Ranges::Data(t) } -> SameAsConcept<AddPointerType<RangeReferenceType<R>>>;
         };
+
+    namespace __impl
+    {
+        template<InputRangeConcept Range>
+            SSSENGINE_FORCE_INLINE
+        constexpr auto &PossiblyConstRange(Range &range) noexcept
+        {
+            if constexpr(InputRangeConcept<const Range>)
+            {
+                return const_cast<const Range &>(range);
+            }
+            else
+            {
+                return range;
+            }
+        }
+
+        class ConstBeginImpl
+        {
+            template<CanBorrowRangeConcept T>
+            constexpr auto operator()(T &&t) noexcept(noexcept(MakeConstIterator(Begin(PossiblyConstRange(t)))))
+                requires requires { MakeConstIterator(Begin(PossiblyConstRange(t))); }
+            {
+                auto &range = PossiblyConstRange(t);
+                return ConstIterator<decltype(Begin(range))>(Begin(range));
+            }
+        };
+
+    } // namespace __impl
 
 } // namespace SSSEngine::Ranges

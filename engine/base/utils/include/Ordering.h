@@ -168,7 +168,7 @@ namespace SSSEngine
         concept ComparesAsConcept = SSSEngine::SameAsConcept<CommonComparatorCategory<T, Cmp>, Cmp>;
     }
 
-    template<typename T, typename Cmp>
+    template<typename T, typename Cmp = PartialOrdering>
     concept ThreeWayComparableConcept =
         SSSEngine::EqualityComparableConcept<T> && SSSEngine::OrderableConcept<T> &&
         requires(const SSSEngine::RemoveReferenceType<T> &a, const SSSEngine::RemoveReferenceType<T> &b) {

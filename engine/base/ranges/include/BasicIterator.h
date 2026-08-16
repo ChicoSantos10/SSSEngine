@@ -6,6 +6,9 @@
 #pragma once
 
 #include "Attributes.h"
+#include "Concepts.h"
+#include "ConstIterator.h"
+#include "ConversionTraits.h"
 #include "Debug.h"
 #include "QualifierTraits.h"
 #include "Iterator.h"
@@ -16,22 +19,17 @@ namespace SSSEngine::Ranges
 
     /**
      * @class BasicIterator
-     * @brief Wrapper for pointer types for iterating
+     * @brief Adaptor for iterators that are pure pointer iterators
      *
      * @tparam Iterator The type of iterator
      */
-    template<typename Iterator>
-        requires(IsPointer<Iterator>)
+    template<PointerConcept Iterator>
     class BasicIterator
     {
-        using IteratorTraits = IteratorTraits<Iterator>;
-
       public:
-        using ValueType = IteratorTraits::ValueType;
-        using PointerType = IteratorTraits::PointerType;
-        using ReferenceType = IteratorTraits::ReferenceType;
-        using DifferenceType = IteratorTraits::DifferenceType;
-        using ConstIterator = BasicIterator<const ValueType *>;
+        using ValueType = IteratorValueType<Iterator>;
+        using ReferenceType = IteratorReferenceType<Iterator>;
+        using DifferenceType = IteratorDifferenceType<Iterator>;
 
         explicit BasicIterator(const Iterator &it) : m_it(it) {}
 
@@ -42,15 +40,6 @@ namespace SSSEngine::Ranges
         BasicIterator &operator=(BasicIterator &&) = default;
         ~BasicIterator() = default;
 
-        // NOLINTBEGIN(google-explicit-constructor)
-
-        operator ConstIterator() const noexcept
-        {
-            return ConstIterator{m_it};
-        }
-
-        // NOLINTEND(google-explicit-constructor)
-
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ReferenceType operator*() const noexcept
         {
@@ -58,7 +47,7 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr PointerType operator->() const noexcept
+        constexpr auto *operator->() const noexcept
         {
             return m_it;
         }
@@ -141,9 +130,15 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        friend constexpr DifferenceType operator+(BasicIterator lhs, BasicIterator rhs) noexcept
+        friend constexpr BasicIterator operator+(BasicIterator lhs, DifferenceType offset) noexcept
         {
-            return lhs.m_it + rhs.m_it;
+            return BasicIterator(lhs.m_it + offset);
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr BasicIterator operator+(DifferenceType offset, BasicIterator lhs) noexcept
+        {
+            return BasicIterator(lhs.m_it + offset);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
@@ -153,12 +148,6 @@ namespace SSSEngine::Ranges
         }
 
         Iterator m_it{};
-    };
-
-    template<typename T>
-    struct IteratorTraits<BasicIterator<T>> : public IteratorTraits<T>
-    {
-        using ConstIteratorType = BasicIterator<const typename IteratorTraits<T>::ValueType *>;
     };
 
 } // namespace SSSEngine::Ranges

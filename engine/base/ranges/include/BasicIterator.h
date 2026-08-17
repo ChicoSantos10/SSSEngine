@@ -99,18 +99,6 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr BasicIterator operator+(DifferenceType offset) const noexcept
-        {
-            return BasicIterator(m_it + offset);
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr BasicIterator &operator-(DifferenceType offset) const noexcept
-        {
-            return BasicIterator(m_it - offset);
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr Iterator Current() const noexcept
         {
             return m_it;
@@ -131,12 +119,6 @@ namespace SSSEngine::Ranges
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         friend constexpr BasicIterator operator+(BasicIterator lhs, DifferenceType offset) noexcept
-        {
-            return BasicIterator(lhs.m_it + offset);
-        }
-
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        friend constexpr BasicIterator operator+(DifferenceType offset, BasicIterator lhs) noexcept
         {
             return BasicIterator(lhs.m_it + offset);
         }

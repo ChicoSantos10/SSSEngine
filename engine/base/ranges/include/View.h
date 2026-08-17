@@ -8,11 +8,14 @@
 #include "Address.h"
 #include "Attributes.h"
 #include "Concepts.h"
+#include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "Iterator.h"
 #include "ObjectConcepts.h"
 #include "QualifierTraits.h"
 #include "Range.h"
+#include "Storage.h"
+#include "Utility.h"
 
 namespace SSSEngine::Ranges
 {
@@ -194,39 +197,186 @@ namespace SSSEngine::Ranges
         }
 
         template<RandomAccessRangeConcept Range = Derived>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr decltype(auto) operator[](RangeDifferenceType<Range> offset)
         {
             return Ranges::Begin(GetDerived())[offset];
         }
 
         template<RandomAccessRangeConcept Range = const Derived>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr decltype(auto) operator[](RangeDifferenceType<Range> offset) const
         {
             return Ranges::Begin(GetDerived())[offset];
         }
 
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr auto ConstBegin()
             requires InputRangeConcept<Derived>
         {
             return Ranges::ConstBegin(GetDerived());
         }
 
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr auto ConstBegin() const
             requires InputRangeConcept<const Derived>
         {
             return Ranges::ConstBegin(GetDerived());
         }
 
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr auto ConstEnd()
             requires InputRangeConcept<Derived>
         {
             return Ranges::ConstEnd(GetDerived());
         }
 
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr auto ConstEnd() const
             requires InputRangeConcept<const Derived>
         {
             return Ranges::ConstEnd(GetDerived());
         }
     };
+
+    template<typename T>
+    struct NonPropagatingCache
+    {
+    };
+
+    template<ObjectConcept T>
+    struct NonPropagatingCache<T> : protected Storage<T>
+    {
+        NonPropagatingCache() = default;
+        ~NonPropagatingCache() = default;
+
+        constexpr NonPropagatingCache(const NonPropagatingCache &) noexcept {}
+
+        constexpr NonPropagatingCache(NonPropagatingCache &&other) noexcept
+        {
+            other.Destroy();
+        }
+
+        explicit constexpr NonPropagatingCache(T value) noexcept(IsNoThrowMoveConstructible<T>) : hasValue(true)
+        {
+            this->Construct(Move(value));
+        }
+
+        constexpr NonPropagatingCache &operator=(const NonPropagatingCache &other) noexcept
+        {
+            if(AddressOf(other) != this)
+                this->Destroy();
+            return *this;
+        }
+
+        constexpr NonPropagatingCache &operator=(NonPropagatingCache &&other) noexcept
+        {
+            this->Destroy();
+            other.Destroy();
+            return *this;
+        }
+
+        constexpr NonPropagatingCache &operator=(T value)
+        {
+            this->Destroy();
+            this->Construct(Move(value));
+            hasValue = true;
+            return *this;
+        }
+
+        constexpr explicit operator bool() const noexcept
+        {
+            return hasValue;
+        }
+
+        constexpr T &operator*() noexcept
+        {
+            return this->Get();
+        }
+
+        constexpr const T &operator*() const noexcept
+        {
+            return this->Get();
+        }
+
+        using Storage<T>::Destroy;
+
+        bool hasValue = false;
+    };
+
+    template<RangeConcept Range>
+    struct CachedIterator
+    {
+    };
+
+    template<MultiPassRangeConcept Range>
+    struct CachedIterator<Range> : protected NonPropagatingCache<Range>
+    {
+        using Iterator = IteratorType<Range>;
+
+        constexpr bool HasValue()
+        {
+            return this->hasValue;
+        }
+
+        constexpr Iterator Get(const Range &) noexcept(noexcept(**this))
+        {
+            SSSENGINE_ASSERT(HasValue());
+            return **this;
+        }
+
+        constexpr void Set(const Range &, const Iterator &it) noexcept(IsNoThrowCopyConstructible<Iterator>)
+        {
+            SSSENGINE_ASSERT(!HasValue());
+            this->Construct(it);
+            this->hasValue = true;
+        }
+    };
+
+    template<RandomAccessRangeConcept Range>
+    class CachedIterator<Range>
+    {
+      public:
+        using Iterator = IteratorType<Range>;
+        using OffsetType = RangeDifferenceType<Range>;
+
+        constexpr CachedIterator() = default;
+        constexpr CachedIterator(const CachedIterator &) = default;
+        constexpr ~CachedIterator() = default;
+
+        constexpr CachedIterator(CachedIterator &&other) noexcept
+        {
+            *this = Move(other);
+        }
+
+        constexpr CachedIterator &operator=(const CachedIterator &) = default;
+
+        constexpr CachedIterator &operator=(CachedIterator &&other) noexcept
+        {
+            m_offset = other.m_offset;
+            other.m_offset = -1;
+            return *this;
+        }
+
+        constexpr bool HasValue() noexcept
+        {
+            return m_offset >= 0;
+        }
+
+        constexpr Iterator Get(const Range &range) noexcept(noexcept(Begin(range) + m_offset))
+        {
+            SSSENGINE_ASSERT(HasValue());
+            return Begin(range) + m_offset;
+        }
+
+        constexpr void Set(const Range &range, const Iterator &it) noexcept(noexcept(it - Begin(range)))
+        {
+            SSSENGINE_ASSERT(!HasValue());
+            m_offset = it - Begin(range);
+        }
+
+      private:
+        OffsetType m_offset = -1;
+    };
+
 } // namespace SSSEngine::Ranges

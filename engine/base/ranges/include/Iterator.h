@@ -523,6 +523,37 @@ namespace SSSEngine::Ranges
             void operator&() const = delete; // NOLINT(google-runtime-operator)
         };
 
+        struct __NextFn final
+        {
+            template<BidirectionalIteratorConcept It>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr It operator()(It it) const noexcept(noexcept(--it))
+            {
+                ++it;
+                return it;
+            }
+
+            template<BidirectionalIteratorConcept It>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr It operator()(It it, IteratorDifferenceType<It> offset) const
+                noexcept(noexcept(__AdvanceFn{}(it, offset)))
+            {
+                __AdvanceFn{}(it, offset);
+                return it;
+            }
+
+            template<BidirectionalIteratorConcept It>
+                SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+            constexpr It operator()(It it, IteratorDifferenceType<It> offset, It bound) const
+                noexcept(noexcept(__AdvanceFn{}(it, offset, bound)))
+            {
+                __AdvanceFn{}(it, offset, bound);
+                return it;
+            }
+
+            void operator&() const = delete; // NOLINT(google-runtime-operator)
+        };
+
         struct __PrevFn final
         {
             template<BidirectionalIteratorConcept It>
@@ -558,9 +589,11 @@ namespace SSSEngine::Ranges
     // NOLINTEND(bugprone-reserved-identifier, readability-identifier-naming)
 
     SSSENGINE_GLOBAL
-    constexpr __impl::__PrevFn Previous{};
-    SSSENGINE_GLOBAL
     constexpr __impl::__AdvanceFn Advance{};
+    SSSENGINE_GLOBAL
+    constexpr __impl::__NextFn Next{};
+    SSSENGINE_GLOBAL
+    constexpr __impl::__PrevFn Previous{};
     // TODO: Distance
 
 } // namespace SSSEngine::Ranges

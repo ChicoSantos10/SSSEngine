@@ -122,6 +122,11 @@ namespace SSSEngine
         }
 
         SSSENGINE_FORCE_INLINE
+        constexpr void Destroy() noexcept
+        {
+        }
+
+        SSSENGINE_FORCE_INLINE
         constexpr void Destroy() noexcept(IsNoThrowDestructible<T>)
             requires(IsDestructible<T> && !IsTriviallyDestructible<T>)
         {

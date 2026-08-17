@@ -571,7 +571,7 @@ namespace SSSEngine::Ranges
     concept BidirectionalRangeConcept = MultiPassRangeConcept<R> && BidirectionalIteratorConcept<IteratorType<R>>;
 
     template<typename R>
-    concept RandomAccessRangeConcept = BidirectionalIteratorConcept<R> && RandomAccessIteratorConcept<IteratorType<R>>;
+    concept RandomAccessRangeConcept = BidirectionalRangeConcept<R> && RandomAccessIteratorConcept<IteratorType<R>>;
 
     template<typename R>
     concept ContiguousRangeConcept =
@@ -675,5 +675,11 @@ namespace SSSEngine::Ranges
         constexpr __impl::ConstDataImpl ConstData{};
 
     } // namespace Utility
+
+    /**
+     * @brief A concept for a range where the iterator given by begin is the same as the iterator given by end
+     */
+    template<typename T>
+    concept CommonRangeConcept = RangeConcept<T> && SameAsConcept<IteratorType<T>, SentinelType<T>>;
 
 } // namespace SSSEngine::Ranges

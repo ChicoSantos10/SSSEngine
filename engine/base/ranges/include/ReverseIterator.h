@@ -36,6 +36,8 @@ namespace SSSEngine::Ranges
         constexpr ReverseIterator &operator=(ReverseIterator &&) = default;
         constexpr ~ReverseIterator() = default;
 
+        // TODO: Proper noexcept
+
         // NOLINTBEGIN(google-explicit-constructor)
 
         operator ReverseIterator<ConstIterator>() const noexcept
@@ -148,7 +150,7 @@ namespace SSSEngine::Ranges
     };
 
     template<BidirectionalIteratorConcept It>
-    constexpr ReverseIterator<It> MakeReverseIterator(It iterator)
+    constexpr ReverseIterator<It> MakeReverseIterator(It iterator) noexcept(noexcept(ReverseIterator<It>(iterator)))
     {
         return ReverseIterator<It>(iterator);
     }

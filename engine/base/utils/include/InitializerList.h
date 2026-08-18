@@ -24,11 +24,20 @@
 
 #pragma once
 
+#include "HelperMacros.h"
 #include <initializer_list>
 
 namespace SSSEngine
 {
     template<typename T>
     using InitializerList = std::initializer_list<T>;
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsInitializerList = false;
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsInitializerList<InitializerList<T>> = true;
 
 } // namespace SSSEngine

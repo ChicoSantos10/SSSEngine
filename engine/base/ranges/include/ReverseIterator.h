@@ -7,6 +7,7 @@
 
 #include "Address.h"
 #include "Attributes.h"
+#include "Concepts.h"
 #include "ConstIterator.h"
 #include "Iterator.h"
 #include "Ordering.h"
@@ -30,6 +31,9 @@ namespace SSSEngine::Ranges
 
         constexpr explicit ReverseIterator(const Iterator &it) : m_it(it) {}
 
+        constexpr ReverseIterator()
+            requires DefaultInitializableConcept<Iterator>
+        = default;
         constexpr ReverseIterator(const ReverseIterator &it) = default;
         constexpr ReverseIterator(ReverseIterator &&) = default;
         constexpr ReverseIterator &operator=(const ReverseIterator &) = default;

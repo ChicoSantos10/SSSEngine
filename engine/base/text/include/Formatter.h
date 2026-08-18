@@ -36,6 +36,7 @@
 #include "Math.h"
 #include "MemoryUtility.h"
 #include "QualifierTraits.h"
+#include "ReverseView.h"
 #include "SignTraits.h"
 #include "String.h"
 #include "Sink.h"
@@ -223,7 +224,7 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
-            ParseInt<Encoding>(value, ctx.output.Current().Current());
+            ParseInt<Encoding>(value, ctx.output.Current().Underlying());
         }
     };
 
@@ -565,11 +566,10 @@ namespace SSSEngine::Text
                 m_packedSize = Size;
 
                 u64 types = 0;
-                // TODO: Replace with array and reverse for each
-                static constexpr ArgType Types[]{AsArgType<Encoding, Args>()...};
-                for(const ArgType *current = Types + Size - 1; current != Types - 1; --current)
+                static constexpr Containers::Array<ArgType, sizeof...(Args)> Types{AsArgType<Encoding, Args>()...};
+                for(ArgType current: Ranges::Reverse(Types))
                 {
-                    types = (types << PackedTypeBits) | AsNumber(*current);
+                    types = (types << PackedTypeBits) | AsNumber(current);
                 }
 
                 m_packedTypes = types;

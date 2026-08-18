@@ -1,0 +1,87 @@
+/**
+ * @file
+ * @brief
+ */
+
+#pragma once
+
+#include "Concepts.h"
+#include "Traits.h"
+
+namespace SSSEngine::Ranges
+{
+    template<typename Derived>
+    struct RangeAdaptorClosure;
+
+    template<typename Derived>
+    struct RangeAdaptor;
+
+    template<typename Adaptor, typename... Args>
+    struct Partial;
+
+    template<typename Lhs, typename Rhs>
+    struct Pipe;
+
+    // NOLINTBEGIN(bugprone-reserved-identifier, readability-identifier-naming)
+
+    namespace __impl
+    {
+        template<typename Adaptor, typename... Args>
+        concept __AdaptorInvocableConcept = requires { DeclVal<Adaptor>()(DeclVal<Args>()...); };
+
+        template<typename Adaptor, typename... Args>
+        concept __AdaptorPartialAppliableConcept = (Adaptor::Arity > 1) && (sizeof...(Args) == Adaptor::Arity - 1) &&
+                                                   (ConstructibleFromConcept<DecayType<Args>, Args> && ...);
+        template<typename T, typename U>
+            requires(!SameAsConcept<T, RangeAdaptorClosure<U>>)
+        void __IsRangeAdaptorClosureFn(const T &, const RangeAdaptorClosure<U> &);
+
+        template<typename T>
+        concept __IsRangeAdaptorClosureConcept = requires(T t) { __IsRangeAdaptorClosureFn(t, t); };
+
+    } // namespace __impl
+
+    // NOLINTEND(bugprone-reserved-identifier, readability-identifier-naming)
+
+    template<typename Self, typename Range>
+        requires __impl::__IsRangeAdaptorClosureConcept<Self> && __impl::__AdaptorInvocableConcept<Self, Range>
+    constexpr auto operator|(Range &&range, Self &&self)
+    {
+        return Forward<Self>(self)(Forward<Range>(range));
+    }
+
+    template<typename Lhs, typename Rhs>
+        requires __impl::__IsRangeAdaptorClosureConcept<Lhs> && __impl::__IsRangeAdaptorClosureConcept<Rhs>
+    constexpr auto operator|(Lhs &&lhs, Rhs &&rhs)
+    {
+        return Pipe<DecayType<Lhs>, DecayType<Rhs>>{Forward<Lhs>(lhs), Forward<Rhs>(rhs)};
+    }
+
+    template<__impl::__AdaptorPartialAppliableConcept Derived>
+    struct RangeAdaptorClosure
+    {
+        template<typename Self, typename Range>
+            requires __impl::__IsRangeAdaptorClosureConcept<Self> && __impl::__AdaptorInvocableConcept<Self, Range>
+        friend constexpr auto operator|(Range &&range, Self &&self);
+
+        template<typename Lhs, typename Rhs>
+            requires __impl::__IsRangeAdaptorClosureConcept<Lhs> && __impl::__IsRangeAdaptorClosureConcept<Rhs>
+        friend constexpr auto operator|(Lhs &&lhs, Rhs &&rhs);
+    };
+
+    template<typename Derived>
+    struct RangeAdaptor
+    {
+        template<typename... Args>
+            requires __impl::__AdaptorPartialAppliableConcept<Derived, Args...>
+        constexpr auto operator()(Args &&...args) const
+        {
+            return Partial<Derived, DecayType<Args>...>{0, Forward<Args>(args)...};
+        }
+    };
+
+    template<typename Adaptor, typename... Args>
+    struct Partial : RangeAdaptorClosure<Partial>
+    {
+    };
+} // namespace SSSEngine::Ranges

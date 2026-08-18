@@ -5,15 +5,21 @@
 
 #pragma once
 
+#include "Array.h"
 #include "Attributes.h"
 #include "Concepts.h"
 #include "CopyAndMoveTraits.h"
+#include "Debug.h"
 #include "Empty.h"
 #include "HelperMacros.h"
 #include "Iterator.h"
+#include "QualifierTraits.h"
 #include "Range.h"
+#include "RangeAdaptor.h"
 #include "ReverseIterator.h"
+#include "Subrange.h"
 #include "View.h"
+#include "AllView.h"
 
 namespace SSSEngine::Ranges
 {
@@ -78,14 +84,16 @@ namespace SSSEngine::Ranges
         }
 
         template<typename Self>
-        constexpr auto Begin(this Self &&self) noexcept(noexcept(MakeReverseIterator(Ranges::End(m_view))))
+        constexpr auto
+        Begin(this Self &&self) noexcept(noexcept(MakeReverseIterator(Ranges::End(Forward<Self>(self).m_view))))
             requires CommonRangeConcept<View>
         {
             return MakeReverseIterator(Ranges::End(Forward<Self>(self).m_view));
         }
 
         template<typename Self>
-        constexpr auto End(this Self &&self) noexcept(noexcept(MakeReverseIterator(Ranges::End(m_view))))
+        constexpr auto
+        End(this Self &&self) noexcept(noexcept(MakeReverseIterator(Ranges::Begin(Forward<Self>(self).m_view))))
             requires CommonRangeConcept<View>
         {
             return MakeReverseIterator(Ranges::Begin(Forward<Self>(self).m_view));
@@ -118,5 +126,67 @@ namespace SSSEngine::Ranges
     template<typename View>
     SSSENGINE_GLOBAL
     constexpr bool EnableBorrowRange<ReverseView<View>> = EnableBorrowRange<View>;
+
+    template<typename Range>
+    ReverseView(Range &&) -> ReverseView<Ranges::AllType<Range>>;
+
+    // NOLINTBEGIN(bugprone-reserved-identifier, readability-identifier-naming)
+    namespace __impl
+    {
+        template<typename>
+        SSSENGINE_GLOBAL
+        constexpr bool __IsReversibleSubrange = false;
+
+        template<typename It, SubrangeKind Kind>
+        SSSENGINE_GLOBAL
+        constexpr bool __IsReversibleSubrange<Subrange<ReverseIterator<It>, ReverseIterator<It>, Kind>> = true;
+
+        template<typename>
+        SSSENGINE_GLOBAL
+        constexpr bool __IsReverseView = false;
+
+        template<typename View>
+        SSSENGINE_GLOBAL
+        constexpr bool __IsReverseView<ReverseView<View>> = true;
+
+        template<typename Range>
+        concept __CanReverseViewConcept = requires { ReverseView{DeclVal<Range>()}; };
+
+        struct _Reverse : RangeAdaptorClosure<_Reverse>
+        {
+            template<ViewableRangeConcept Range>
+                requires __impl::__IsReverseView<RemoveCVReferenceType<Range>> ||
+                         __impl::__IsReversibleSubrange<RemoveCVReferenceType<Range>> ||
+                         __impl::__CanReverseViewConcept<Range>
+        SSSENGINE_PURE
+            constexpr auto operator()(Range &&range) const
+            {
+                using Type = RemoveCVReferenceType<Range>;
+                if constexpr(__impl::__IsReverseView<Type>)
+                {
+                    return Forward<Range>(range).GetView();
+                }
+                else if constexpr(__impl::__IsReversibleSubrange<Type>)
+                {
+                    using It = decltype(Ranges::Begin(range).Underlying());
+                    if constexpr(SizedRangeConcept<Type>)
+                        return Subrange<It, It, SubrangeKind::Sized>{
+                            range.End().Underlying(), range.Begin().Underlying(), range.Count()};
+                    else
+                        return Subrange<It, It, SubrangeKind::Unsized>{range.End().Underlying(), range.Begin().Underlying()};
+                }
+                else
+                    return ReverseView{Forward<Range>(range)};
+            }
+
+            static constexpr bool SimpleCallOp = true;
+        };
+
+    } // namespace __impl
+
+    // NOLINTEND(bugprone-reserved-identifier, readability-identifier-naming)
+
+    SSSENGINE_GLOBAL
+    __impl::_Reverse Reverse;
 
 } // namespace SSSEngine::Ranges

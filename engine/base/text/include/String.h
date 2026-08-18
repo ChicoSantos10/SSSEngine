@@ -202,7 +202,7 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return m_data.stackString.Begin().Current();
+                return m_data.stackString.Begin().Underlying();
             }
             return m_data.heapString.m_data;
         }

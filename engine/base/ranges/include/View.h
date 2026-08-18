@@ -10,6 +10,7 @@
 #include "Concepts.h"
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
+#include "InitializerList.h"
 #include "Iterator.h"
 #include "ObjectConcepts.h"
 #include "QualifierTraits.h"
@@ -51,6 +52,14 @@ namespace SSSEngine::Ranges
 
     template<typename T>
     concept ViewConcept = RangeConcept<T> && MovableConcept<T> && EnableView<T>;
+
+    template<typename View>
+    concept ViewableRangeConcept =
+        RangeConcept<View> &&
+        ((ViewConcept<RemoveCVReferenceType<View>> && ConstructibleFromConcept<RemoveCVReferenceType<View>, View>) ||
+         (!ViewConcept<RemoveCVReferenceType<View>> &&
+          (IsLValueReference<View> ||
+           (MovableConcept<RemoveReferenceType<View>> && !IsInitializerList<RemoveCVReferenceType<View>>))));
 
     /**
      * @class ViewInterface

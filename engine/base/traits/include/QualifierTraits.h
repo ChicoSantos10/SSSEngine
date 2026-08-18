@@ -118,6 +118,43 @@ namespace SSSEngine
         using Type = typename Match::Type;
     };
 
+    // NOLINTBEGIN(bugprone-reserved-identifier, readability-identifier-naming)
+    namespace __impl
+    {
+        template<typename From, typename To>
+        struct __LikeImpl; // From must be a reference and To an lvalue reference
+
+        template<typename From, typename To>
+        struct __LikeImpl<From &, To &>
+        {
+            using Type = To &;
+        };
+
+        template<typename From, typename To>
+        struct __LikeImpl<const From &, To &>
+        {
+            using Type = const To &;
+        };
+
+        template<typename From, typename To>
+        struct __LikeImpl<From &&, To &>
+        {
+            using Type = To &&;
+        };
+
+        template<typename From, typename To>
+        struct __LikeImpl<const From &&, To &>
+        {
+            using Type = const To &&;
+        };
+
+    } // namespace __impl
+
+    // NOLINTEND(bugprone-reserved-identifier, readability-identifier-naming)
+
+    template<typename From, typename To>
+    using LikeType = typename __impl::__LikeImpl<From &&, To &>::Type;
+
     template<typename T>
     using DecayType = __decay(T);
 

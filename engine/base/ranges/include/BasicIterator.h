@@ -99,7 +99,7 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr Iterator Current() const noexcept
+        constexpr Iterator Underlying() const noexcept
         {
             return m_it;
         }

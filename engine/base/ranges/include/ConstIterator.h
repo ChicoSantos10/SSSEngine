@@ -86,13 +86,13 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr const Iterator &Current() const & noexcept
+        constexpr const Iterator &Underlying() const & noexcept
         {
             return m_current;
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr Iterator Current() && noexcept(IsNoThrowMoveConstructible<Iterator>)
+        constexpr Iterator Underlying() && noexcept(IsNoThrowMoveConstructible<Iterator>)
         {
             return Move(m_current);
         }
@@ -133,7 +133,7 @@ namespace SSSEngine::Ranges
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr BasicConstIterator
-        operator++(int) noexcept(noexcept(++*this && IsNoThrowCopyConstructible<BasicConstIterator>))
+        operator++(int) noexcept(noexcept(++m_current) && IsNoThrowCopyConstructible<BasicConstIterator>)
             requires MultiPassIteratorConcept<Iterator>
         {
             auto tmp = *this;
@@ -151,7 +151,7 @@ namespace SSSEngine::Ranges
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr BasicConstIterator
-        operator--(int) noexcept(noexcept(--*this && IsNoThrowCopyConstructible<BasicConstIterator>))
+        operator--(int) noexcept(noexcept(--m_current) && IsNoThrowCopyConstructible<BasicConstIterator>)
             requires BidirectionalIteratorConcept<Iterator>
         {
             auto tmp = *this;

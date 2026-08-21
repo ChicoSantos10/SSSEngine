@@ -16,7 +16,6 @@
 #include "Traits.h"
 #include "Types.h"
 #include "Utility.h"
-#include "PropagateConst.h"
 
 namespace SSSEngine::Containers
 {
@@ -29,9 +28,16 @@ namespace SSSEngine::Containers
         static constexpr Math::Bytes DefaultStartSize = Math::Bytes(sizeof(T) * StartCapacity);
 
         template<typename U>
-        using ReferenceType = ConditionalType<IsConst<U>, const T &, T &>;
+        using SelectReferenceType = ConditionalType<IsConst<U>, const T &, T &>;
 
       public:
+        using ElementType = T;
+        using ValueType = RemoveCVType<T>;
+        using PointerType = ElementType *;
+        using ConstPointerType = const ElementType *;
+        using ReferenceType = ElementType &;
+        using ConstReferenceType = const ElementType &;
+
         using Iterator = Ranges::BasicIterator<T *>;
         using ConstIterator = Ranges::BasicIterator<const T *>;
         using ReverseIterator = Ranges::ReverseIterator<Iterator>;
@@ -71,7 +77,7 @@ namespace SSSEngine::Containers
 
         template<typename Self>
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr Optional<ReferenceType<Self>> TryAt(this Self &self, SizeType index) noexcept
+        constexpr Optional<SelectReferenceType<Self>> TryAt(this Self &self, SizeType index) noexcept
         {
             if(self.ValidIndex(index))
             {
@@ -111,26 +117,26 @@ namespace SSSEngine::Containers
             SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr IteratorType<Self> Begin(this Self &self) noexcept
         {
-            return self.m_data;
+            return IteratorType<Self>(self.m_data);
         }
 
         template<typename Self>
             SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr IteratorType<Self> End(this Self &self) noexcept
         {
-            return self.m_data + self.m_count;
+            return IteratorType<Self>(self.m_data + self.m_count);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstIterator ConstBegin() const noexcept
         {
-            return Begin();
+            return ConstIterator(m_data);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstIterator ConstEnd() const noexcept
         {
-            return End();
+            return ConstIterator(m_data + m_count);
         }
 
         template<typename Self>
@@ -175,13 +181,25 @@ namespace SSSEngine::Containers
             ++self.m_count;
         }
 
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr PointerType Data() noexcept
+        {
+            return static_cast<PointerType>(m_data);
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ConstPointerType Data() const noexcept
+        {
+            return static_cast<ConstPointerType>(m_data);
+        }
+
         // TODO: Count, Capacity, Empty, Reserve, Shrink
         // Clear, PushFront, Emplace, Pop
         // GetRange / Span
         // Destructor
 
       private:
-        PropagateConst<T *> m_data;
+        T *m_data;
         SizeType m_count = 0;
         SizeType m_capacity = 0;
 
@@ -207,3 +225,10 @@ namespace SSSEngine::Containers
     };
 
 } // namespace SSSEngine::Containers
+
+namespace SSSEngine
+{
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyRelocatable<Containers::DynamicArray<T>> = true;
+}

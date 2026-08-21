@@ -34,7 +34,7 @@ namespace SSSEngine
      *
      * @tparam T The type of the variable to propagate the constness
      */
-    template<PointerConcept T>
+    template<ObjectPointerConcept T>
     struct PropagateConst
     {
         // TODO: Implement this class to work for pointer like objects as well
@@ -42,7 +42,7 @@ namespace SSSEngine
         using ElementType = RemovePointerType<T>;
 
         // INVESTIGATE: Where should we put this?
-        template<typename From, PointerConcept To>
+        template<typename From, ObjectPointerConcept To>
         using PointerMatchCV = AddPointerType<MatchCVQualifiersType<From, RemovePointerType<To>>>;
 
         // NOLINTBEGIN(google-explicit-constructor)

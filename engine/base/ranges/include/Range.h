@@ -68,7 +68,7 @@ namespace SSSEngine::Ranges
             SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             static constexpr bool IsNoExcept()
             {
-                if constexpr(IsArray<RemoveReferenceType<T>>)
+                if constexpr(IsCStyleArray<RemoveReferenceType<T>>)
                 {
                     return true;
                 }
@@ -84,11 +84,11 @@ namespace SSSEngine::Ranges
 
           public:
             template<typename T>
-                requires IsArray<RemoveReferenceType<T>> || HasBeginConcept<T> || AdlBeginConcept<T>
+                requires IsCStyleArray<RemoveReferenceType<T>> || HasBeginConcept<T> || AdlBeginConcept<T>
             SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             constexpr auto operator()(T &&t) const noexcept(IsNoExcept<T &>())
             {
-                if constexpr(IsArray<RemoveReferenceType<T>>)
+                if constexpr(IsCStyleArray<RemoveReferenceType<T>>)
                 {
                     SSSENGINE_STATIC_ASSERT(IsLValueReference<T>);
                     return t + 0;
@@ -140,7 +140,7 @@ namespace SSSEngine::Ranges
 
           public:
             template<typename T>
-                requires IsArray<RemoveReferenceType<T>> || HasEndConcept<T> || AdlEndConcept<T>
+                requires IsCStyleArray<RemoveReferenceType<T>> || HasEndConcept<T> || AdlEndConcept<T>
             SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             constexpr auto operator()(T &&t) const noexcept(IsNoExcept<T &>())
             {
@@ -395,16 +395,13 @@ namespace SSSEngine::Ranges
         };
 
         template<typename T>
-        using DataResult = AddPointerType<RemoveReferenceType<T>>;
-
-        template<typename T>
         concept AdlDataConcept = ClassOrEnumConcept<RemoveReferenceType<T>> && requires(T &t) {
-            { DecayCopy(Data(t)) } -> SameAsConcept<DataResult<T>>;
+            { DecayCopy(Data(t)) } -> ObjectPointerConcept;
         };
 
         template<typename T>
         concept HasDataConcept = requires(T &t) {
-            { t.Data() } -> SameAsConcept<DataResult<T>>;
+            { t.Data() } -> ObjectPointerConcept;
         };
 
         template<typename T>
@@ -421,7 +418,7 @@ namespace SSSEngine::Ranges
                 {
                     return noexcept(DecayCopy(DeclVal<T &>().Data()));
                 }
-                else if(AdlDataConcept<T>)
+                else if constexpr(AdlDataConcept<T>)
                 {
                     return noexcept(DecayCopy(Data(DeclVal<T &>())));
                 }
@@ -441,9 +438,9 @@ namespace SSSEngine::Ranges
                 {
                     return t.Data();
                 }
-                else if(AdlDataConcept<T>)
+                else if constexpr(AdlDataConcept<T>)
                 {
-                    return data(t);
+                    return Data(t);
                 }
                 else
                 {
@@ -550,6 +547,9 @@ namespace SSSEngine::Ranges
 
     template<typename R>
     using RangeDifferenceType = IteratorDifferenceType<IteratorType<R>>;
+
+    template<typename R>
+    using RangeDataType = decltype(Data(DeclVal<R &>()));
 
     template<typename R>
     SSSENGINE_GLOBAL

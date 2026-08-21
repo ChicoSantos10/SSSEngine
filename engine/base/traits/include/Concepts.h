@@ -117,11 +117,11 @@ namespace SSSEngine
     concept FunctionPointerConcept = IsPointer<T> && IsFunction<RemovePointerType<T>>;
 
     /**
-     * @brief Concept for a pointer to a variable
+     * @brief Concept for a pointer to an object
      *
      */
     template<typename T>
-    concept PointerConcept = IsPointer<T> && !IsFunction<RemovePointerType<T>>;
+    concept ObjectPointerConcept = IsPointer<T> && IsObject<RemovePointerType<T>>;
 
     template<typename T>
     concept EnumConcept = IsEnum<T>;
@@ -145,7 +145,7 @@ namespace SSSEngine
     concept ObjectConcept = IsObject<T>;
 
     template<typename T>
-    concept ArrayConcept = IsArray<T>;
+    concept ArrayConcept = IsCStyleArray<T>;
 
     template<typename Tp, typename Up>
     concept CommonReferenceWithConcept =

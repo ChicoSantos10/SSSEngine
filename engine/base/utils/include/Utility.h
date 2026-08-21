@@ -132,7 +132,7 @@ namespace SSSEngine
     //  Move to Construct.h file or similar
 
     template<typename T>
-        requires(!IsArray<T> && IsDefaultConstructible<T>)
+        requires(!IsCStyleArray<T> && IsDefaultConstructible<T>)
     SSSENGINE_FORCE_INLINE
     constexpr T *DefaultConstructAt(T *address) noexcept(IsNoThrowDefaultConstructible<T>)
     {
@@ -147,7 +147,7 @@ namespace SSSEngine
      * @param value The value to construct
      */
     template<typename T, typename... Args>
-        requires(!IsArray<T> && BraceInitializableConcept<T, Args...>)
+        requires(!IsCStyleArray<T> && BraceInitializableConcept<T, Args...>)
     SSSENGINE_FORCE_INLINE
     constexpr T *BraceConstructAt(T *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
     {
@@ -162,7 +162,7 @@ namespace SSSEngine
      * @param args The args to use in the constructor
      */
     template<typename T, typename... Args>
-        requires(!IsArray<T> && IsConstructible<T, Args...>)
+        requires(!IsCStyleArray<T> && IsConstructible<T, Args...>)
     SSSENGINE_FORCE_INLINE
     constexpr T *ConstructAt(T *address, Args &&...args) noexcept(IsNoThrowConstructible<T, Args...>)
     {
@@ -170,7 +170,7 @@ namespace SSSEngine
     }
 
     template<typename T>
-        requires(!IsArray<T> && IsDestructible<T>)
+        requires(!IsCStyleArray<T> && IsDestructible<T>)
     SSSENGINE_FORCE_INLINE
     constexpr void DestroyAt(T *address) noexcept(IsNoThrowDestructible<T>)
     {

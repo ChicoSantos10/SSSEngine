@@ -1,5 +1,4 @@
-/*  SSS Engine
-    Copyright (C) 2025  Francisco Santos
+/*  SSS Engine Copyright (C) 2025  Francisco Santos
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -30,6 +29,7 @@
 #include "AsciiEncoding.h"
 #include "Attributes.h"
 #include "BasicIterator.h"
+#include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "Encoding.h"
 #include "Math.h"
@@ -217,7 +217,7 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return m_data.stackString.data;
+                return m_data.stackString.m_data;
             }
             return m_data.heapString.m_data;
         }
@@ -487,3 +487,10 @@ namespace SSSEngine::Text
     SSSENGINE_STATIC_ASSERT(sizeof(Ascii) == 16);
 
 } // namespace SSSEngine::Text
+
+namespace SSSEngine
+{
+    template<Text::EncodingConcept Encoding>
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyRelocatable<Text::String<Encoding>> = true;
+}

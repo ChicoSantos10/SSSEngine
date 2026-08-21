@@ -28,7 +28,6 @@
 #include "Concepts.h"
 #include "QualifierTraits.h"
 #include "Swap.h"
-#include "Traits.h"
 #include "Types.h"
 #include "Utility.h"
 #include "Optional.h"
@@ -37,18 +36,52 @@
 
 namespace SSSEngine::Containers
 {
+    template<typename T, SizeType N>
+    struct ArrayStorage
+    {
+        using Type = T[N];
+    };
+
     /**
+     * @class ArrayStorage<T, 0>
+     * @brief Represents the storage for a 0 sized array
+     *
+     * @tparam T The type of elements to store
+     */
+    template<typename T>
+    struct ArrayStorage<T, 0>
+    {
+        struct Type
+        {
+            SSSENGINE_NO_RETURN SSSENGINE_FORCE_INLINE
+            T &operator[]() const noexcept
+            {
+                SSSENGINE_UNREACHABLE;
+            }
+
+            SSSENGINE_FORCE_INLINE
+            constexpr explicit operator T *() const noexcept
+            {
+                return nullptr;
+            }
+        };
+    };
+
+    /**
+     * @class Array
      * @brief Wrapper for a C style array with compile time size check. Does not decay into a pointer
      *
      * @tparam T Type of the elements inside the array
      */
     template<typename T, SizeType N>
-        requires(N > 0)
     struct Array
     {
+        using ElementType = T;
         using ValueType = T;
-        using Reference = T &;
-        using ConstReference = const T &;
+        using PointerType = T *;
+        using ConstPointerType = const T *;
+        using Reference = ElementType &;
+        using ConstReference = const ElementType &;
         using Iterator = Ranges::BasicIterator<T *>;
         using ConstIterator = Ranges::BasicIterator<const T *>;
         using ReverseIterator = Ranges::ReverseIterator<Iterator>;
@@ -62,13 +95,19 @@ namespace SSSEngine::Containers
         /**
          * @return An iterator or const iterator depending on the constness of the array
          */
-        template<typename Self>
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr auto Begin(this Self &self) noexcept
+        constexpr Iterator Begin() noexcept
         {
-            using It = ConditionalType<IsConst<RemoveReferenceType<Self>>, ConstIterator, Iterator>;
+            return Iterator(Data());
+        }
 
-            return It{self.data};
+        /**
+         * @return An iterator or const iterator depending on the constness of the array
+         */
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ConstIterator Begin() const noexcept
+        {
+            return ConstIterator(Data());
         }
 
         /**
@@ -77,17 +116,25 @@ namespace SSSEngine::Containers
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstIterator ConstBegin() const noexcept
         {
-            return ConstIterator(data);
+            return ConstIterator(Data());
         }
 
         /**
          * @return An iterator or const iterator to the end of the array depending on the constness of the array
          */
-        template<typename Self>
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr auto End(this Self &self) noexcept
+        constexpr Iterator End() noexcept
         {
-            return self.Begin() + Elements;
+            return Iterator(Data() + Elements);
+        }
+
+        /**
+         * @return An iterator or const iterator to the end of the array depending on the constness of the array
+         */
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr ConstIterator End() const noexcept
+        {
+            return ConstIterator(Data() + Elements);
         }
 
         /**
@@ -96,7 +143,7 @@ namespace SSSEngine::Containers
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstIterator ConstEnd() const noexcept
         {
-            return ConstIterator(data + Elements);
+            return ConstIterator(Data() + Elements);
         }
 
         /**
@@ -120,7 +167,7 @@ namespace SSSEngine::Containers
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstReverseIterator ConstReverseBegin() const noexcept
         {
-            return ReverseBegin();
+            return Ranges::MakeReverseIterator(End());
         }
 
         /**
@@ -144,7 +191,7 @@ namespace SSSEngine::Containers
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ConstReverseIterator ConstReverseEnd() const noexcept
         {
-            return ReverseEnd();
+            return Ranges::MakeReverseIterator(Begin());
         }
 
         /**
@@ -152,7 +199,7 @@ namespace SSSEngine::Containers
          */
         template<typename Self>
         SSSENGINE_PURE
-        constexpr decltype(auto) operator[](this Self &&self, SizeType index)
+        constexpr decltype(auto) operator[](this Self &&self, SizeType index) noexcept
         {
             return Forward<Self>(self).data[index];
         }
@@ -166,12 +213,12 @@ namespace SSSEngine::Containers
          */
         template<typename Self>
         SSSENGINE_PURE
-        constexpr auto TryAt(this Self &self, SizeType index)
+        constexpr auto TryAt(this Self &self, SizeType index) noexcept
         {
             using Type = decltype(self.data[0]);
             using Opt = Optional<Type>;
 
-            if(index >= Elements)
+            if(self.IsEmpty() || index >= Elements)
             {
                 return Opt{};
             }
@@ -189,7 +236,7 @@ namespace SSSEngine::Containers
          * @return An Optional<T>
          */
         SSSENGINE_PURE
-        constexpr Optional<T> TryAt(SizeType index) const &&
+        constexpr Optional<T> TryAt(SizeType index) const && noexcept
         {
             using Opt = Optional<T>;
 
@@ -210,6 +257,33 @@ namespace SSSEngine::Containers
         consteval SizeType Capacity() const noexcept
         {
             return Elements;
+        }
+
+        /**
+         * @see Elements
+         *
+         * @return Same as Array::Elements
+         */
+        SSSENGINE_PURE
+        consteval SizeType Count() const noexcept
+        {
+            return Elements;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        consteval bool IsEmpty() const noexcept
+        {
+            return Elements == 0;
+        }
+
+        constexpr PointerType Data() noexcept
+        {
+            return static_cast<PointerType>(data);
+        }
+
+        constexpr ConstPointerType Data() const noexcept
+        {
+            return static_cast<ConstPointerType>(data);
         }
 
         /**
@@ -263,7 +337,7 @@ namespace SSSEngine::Containers
             lhs.Swap(rhs);
         }
 
-        T data[N];
+        ArrayStorage<T, N>::Type data;
 
       private:
         // NOLINTBEGIN(readability-identifier-naming)
@@ -282,3 +356,10 @@ namespace SSSEngine::Containers
     };
 
 } // namespace SSSEngine::Containers
+
+namespace SSSEngine
+{
+    template<typename T, SizeType N>
+    SSSENGINE_GLOBAL
+    constexpr bool IsTriviallyRelocatable<Containers::Array<T, N>> = true;
+}

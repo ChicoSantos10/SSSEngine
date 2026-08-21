@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "ConversionTraits.h"
 #include "HelperMacros.h"
 #include "QualifierTraits.h"
 #include "Types.h"
@@ -33,15 +34,15 @@ namespace SSSEngine
 {
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsArray = false;
+    constexpr bool IsCStyleArray = false;
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsArray<T[]> = true;
+    constexpr bool IsCStyleArray<T[]> = true;
 
     template<typename T, SizeType N>
     SSSENGINE_GLOBAL
-    constexpr bool IsArray<T[N]> = true;
+    constexpr bool IsCStyleArray<T[N]> = true;
 
     /**
      * @brief Get the number of dimensions of the array
@@ -155,5 +156,9 @@ namespace SSSEngine
     template<typename T>
     SSSENGINE_GLOBAL
     constexpr bool IsCompleteOrUnbounded = decltype(CompleteOrUnboundedChecker(Identity<T>{}))::Value;
+
+    template<typename From, typename To>
+    SSSENGINE_GLOBAL
+    constexpr bool IsArrayConvertible = IsConvertible<From (*)[], To (*)[]>;
 
 } // namespace SSSEngine

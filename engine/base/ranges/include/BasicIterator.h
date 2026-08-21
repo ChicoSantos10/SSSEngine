@@ -23,7 +23,7 @@ namespace SSSEngine::Ranges
      *
      * @tparam Iterator The type of iterator
      */
-    template<PointerConcept Iterator>
+    template<ObjectPointerConcept Iterator>
     class BasicIterator
     {
       public:
@@ -31,14 +31,14 @@ namespace SSSEngine::Ranges
         using ReferenceType = IteratorReferenceType<Iterator>;
         using DifferenceType = IteratorDifferenceType<Iterator>;
 
-        explicit BasicIterator(const Iterator &it) : m_it(it) {}
+        constexpr BasicIterator() = default;
+        constexpr BasicIterator(const BasicIterator &it) = default;
+        constexpr BasicIterator(BasicIterator &&) = default;
+        constexpr BasicIterator &operator=(const BasicIterator &) = default;
+        constexpr BasicIterator &operator=(BasicIterator &&) = default;
+        constexpr ~BasicIterator() = default;
 
-        BasicIterator() = default;
-        BasicIterator(const BasicIterator &it) = default;
-        BasicIterator(BasicIterator &&) = default;
-        BasicIterator &operator=(const BasicIterator &) = default;
-        BasicIterator &operator=(BasicIterator &&) = default;
-        ~BasicIterator() = default;
+        constexpr explicit BasicIterator(const Iterator &it) : m_it(it) {}
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr ReferenceType operator*() const noexcept
@@ -124,9 +124,21 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr BasicIterator operator+(DifferenceType offset, BasicIterator lhs) noexcept
+        {
+            return BasicIterator(lhs.m_it + offset);
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         friend constexpr DifferenceType operator-(BasicIterator lhs, BasicIterator rhs) noexcept
         {
             return lhs.m_it - rhs.m_it;
+        }
+
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        friend constexpr BasicIterator operator-(BasicIterator lhs, DifferenceType offset) noexcept
+        {
+            return BasicIterator(lhs.m_it - offset);
         }
 
         Iterator m_it{};

@@ -25,4 +25,5 @@ namespace SSSEngine::Ranges
         It m_iterator;
         Sentinel m_sentinel;
     };
+
 } // namespace SSSEngine::Ranges

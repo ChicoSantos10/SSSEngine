@@ -48,7 +48,7 @@ namespace SSSEngine
     // NOLINTBEGIN(*-explicit-constructor)
 
     template<typename T>
-    concept ValidVariantMemberConcept = !IsLValueReference<T> && ObjectConcept<T> && !IsArray<T> && !IsVoid<T>;
+    concept ValidVariantMemberConcept = !IsLValueReference<T> && ObjectConcept<T> && !IsCStyleArray<T> && !IsVoid<T>;
 
     template<typename... Types>
         requires(sizeof...(Types) > 1) && (ValidVariantMemberConcept<Types> && ...) && AreAllUnique<Types...>

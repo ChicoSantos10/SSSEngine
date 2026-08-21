@@ -49,7 +49,7 @@ namespace SSSEngine
 
     template<typename T>
         requires requires(T &t) {
-            { t.operator->() } -> PointerConcept;
+            { t.operator->() } -> ObjectPointerConcept;
         }
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto ToAddress(T &value) noexcept

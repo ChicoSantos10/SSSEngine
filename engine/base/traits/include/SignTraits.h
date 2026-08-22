@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "Attributes.h"
 #include "ConversionTraits.h"
 #include "HelperMacros.h"
 #include "EnumTraits.h"
@@ -119,6 +120,13 @@ namespace SSSEngine
     using UnsignedType = MakeUnsigned<T>::Type;
 
     template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto ToUnsigned(T t)
+    {
+        return static_cast<UnsignedType<T>>(t);
+    }
+
+    template<typename T>
     struct SignedImpl
     {
         using Type = T;
@@ -203,6 +211,13 @@ namespace SSSEngine
      */
     template<typename T>
     using SignedType = MakeSigned<T>::Type;
+
+    template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    auto ToSigned(T t)
+    {
+        return static_cast<SignedType<T>>(t);
+    }
 
     template<typename T>
     SSSENGINE_GLOBAL

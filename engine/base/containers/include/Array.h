@@ -26,7 +26,6 @@
 
 #include "Attributes.h"
 #include "Concepts.h"
-#include "QualifierTraits.h"
 #include "Swap.h"
 #include "Types.h"
 #include "Utility.h"
@@ -236,7 +235,7 @@ namespace SSSEngine::Containers
          * @return An Optional<T>
          */
         SSSENGINE_PURE
-        constexpr Optional<T> TryAt(SizeType index) const && noexcept
+        constexpr Optional<T> TryAt(SizeType index) && noexcept
         {
             using Opt = Optional<T>;
 

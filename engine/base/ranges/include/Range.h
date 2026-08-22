@@ -301,12 +301,6 @@ namespace SSSEngine::Ranges
         };
 
         template<typename T>
-        auto ToUnsigned(T t)
-        {
-            return static_cast<UnsignedType<T>>(t);
-        }
-
-        template<typename T>
         concept SentinelCountConcept = requires(T &t) {
             requires(!IsArrayUnknownBounds<RemoveReferenceType<T>>);
             { BeginImpl{}(t) } -> IteratorConcept;

@@ -139,10 +139,10 @@ namespace SSSEngine::Ranges
             else
             {
                 SSSENGINE_ASSERT(offset >= 0);
-                Ranges::Advance(m_iterator, offset, m_sentinel);
+                auto moved = offset - Ranges::Advance(m_iterator, offset, m_sentinel);
                 if constexpr(StoreCount)
                 {
-                    m_count.count -= ToUnsigned(offset);
+                    m_count.count -= ToUnsigned(moved);
                 }
                 return *this;
             }

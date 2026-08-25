@@ -53,18 +53,17 @@ namespace SSSEngine::Memory
          */
         void *Allocate(Math::Bytes size, SizeType alignment) noexcept
         {
-            auto start = reinterpret_cast<uintptr>(m_buffer.address);
+            auto start = reinterpret_cast<Byte *>(m_buffer.address);
             auto offset = Math::NextMultiplePowerOf2<uintptr>(m_offset, alignment);
-            uintptr pointer = start + offset;
 
-            if(pointer + size > start + m_buffer.capacity)
+            if(offset > m_buffer.capacity || size > m_buffer.capacity - offset)
             {
                 // INVESTIGATE: What to do? Grow?
                 return nullptr;
             }
 
             m_offset = offset + size;
-            return reinterpret_cast<void *>(pointer);
+            return start + offset;
         }
 
         /**

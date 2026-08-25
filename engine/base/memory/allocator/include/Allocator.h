@@ -56,7 +56,10 @@ namespace SSSEngine::Memory
         SSSENGINE_FORCE_INLINE
         constexpr void Free(Buffer buffer)
         {
-            m_free(m_allocator, buffer);
+            if(buffer.address)
+            {
+                m_free(m_allocator, buffer);
+            }
         }
 
       private:
@@ -97,7 +100,7 @@ namespace SSSEngine::Memory
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr Allocator &CurrentAllocator()
     {
-        SSSENGINE_ASSERT(Index >= 0 && Index < MaxAllocators);
+        SSSENGINE_ASSERT(Index < MaxAllocators);
         return Allocators[Index];
     }
 
@@ -187,8 +190,6 @@ namespace SSSEngine::Memory
         SSSENGINE_FORCE_INLINE
     constexpr void Free(T *address, SizeType count)
     {
-        SSSENGINE_ASSERT(count > 0);
-
         if consteval
         {
             delete[] address;

@@ -64,7 +64,7 @@ namespace SSSEngine::Memory
             }
 
             m_offset = offset + size;
-            return Offset(m_buffer, pointer);
+            return reinterpret_cast<void *>(pointer);
         }
 
         /**

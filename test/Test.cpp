@@ -30,8 +30,8 @@ int main()
 {
     SSSEngine::Logging::Logger = &SSSEngine::Logging::LogConsole;
 
-    SSSEngine::Memory::Arena allocator{SSSEngine::Math::Bytes{1_GB}};
-    SSSEngine::Memory::PushAllocator(allocator);
+    SSSEngine::Memory::Arena allocator{SSSEngine::Math::Bytes{1_GiB}};
+    SSSEngine::Memory::AllocatorScope scope(allocator);
 
     SSSTest::Execute();
     return SSSTest::Succeeded ? 0 : 1;

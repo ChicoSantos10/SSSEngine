@@ -280,11 +280,13 @@ namespace SSSEngine::Text
             }
 
             auto newCapacity = GrowthStrategy::NextCapacity(Capacity(), amount);
-            void *address = Memory::CurrentAllocator().Allocate({newCapacity * sizeof(CharType)}, alignof(CharType));
+            CharType *address = Memory::Allocate<CharType>(newCapacity);
+            m_data.heapString.m_data = address;
 
             if(!address) SSSENGINE_UNLIKELY
             {
                 // INVESTIGATE: What do we do here?
+                SSSENGINE_ASSERT(false);
             }
 
             if(m_isSmall)
@@ -460,11 +462,10 @@ namespace SSSEngine::Text
          * @param capacity The amount of code units that the memory allocated allows for
          * @param count The amount of code units currently in the string
          */
-        constexpr void CreateHeapString(Math::Bytes size, u32 capacity, u32 count)
+        constexpr void CreateHeapString(u32 capacity, u32 count)
         {
             m_data.heapString = {};
-            m_data.heapString.m_data =
-                static_cast<CharType *>(Memory::CurrentAllocator().Allocate(size, alignof(CharType)));
+            m_data.heapString.m_data = Memory::Allocate<CharType>(capacity);
             m_data.heapString.m_capacity = capacity;
 
             m_count = count;
@@ -482,8 +483,10 @@ namespace SSSEngine::Text
         {
             auto count = string.Count();
             auto capacity = count + 1;
-            auto bytes = Math::Bytes(capacity * sizeof(CharType));
-            CreateHeapString(bytes, capacity, count);
+            auto bytes = Math::Bytes(count * sizeof(CharType));
+            CreateHeapString(capacity, count);
+
+            SSSENGINE_ASSERT(m_data.heapString.m_data);
 
             RawMemoryCopy(string.Data(), m_data.heapString.m_data, bytes);
             m_data.heapString.m_data[m_count] = CharType(0);
@@ -495,12 +498,11 @@ namespace SSSEngine::Text
         constexpr void DeleteHeapString()
         {
             SSSENGINE_ASSERT(!m_isSmall);
-            Memory::CurrentAllocator().Free(
-                {.address = m_data.heapString.m_data, .capacity = {m_data.heapString.m_capacity}});
+            Memory::Free(m_data.heapString.m_data, m_data.heapString.m_capacity);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        friend bool operator==(String lhs, String rhs) noexcept
+        constexpr friend bool operator==(String lhs, String rhs) noexcept
         {
             Ranges::Equals(lhs, rhs);
         }

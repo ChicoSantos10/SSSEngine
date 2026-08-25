@@ -84,14 +84,29 @@ namespace SSSEngine::Math
         using QuantityType = Quantity<T, V, P>;
         using Tag = T;
 
-        ValueType value;
+        ValueType value{0};
+
+        constexpr Quantity() noexcept = default;
+
+        explicit constexpr Quantity(ValueType v) : value(v) {}
+
+        template<SameQuantityConcept<QuantityType> To>
+        explicit constexpr Quantity(To from) : value(from.template As<QuantityType>())
+        {
+        }
 
         template<SameQuantityConcept<QuantityType> To>
         explicit constexpr operator To() const
         {
+            return To(As<To>());
+        }
+
+        template<SameQuantityConcept<QuantityType> To>
+        constexpr To::ValueType As() const noexcept
+        {
             if constexpr(IsSameType<QuantityType, To>)
             {
-                return To(value);
+                return value;
             }
 
             using Divide = Math::RatioDivide<typename QuantityType::Ratio, typename To::Ratio>;
@@ -100,7 +115,7 @@ namespace SSSEngine::Math
             auto convertedValue =
                 static_cast<CT>(value) * static_cast<CT>(Divide::Numerator) / static_cast<CT>(Divide::Denominator);
 
-            return To(static_cast<To::ValueType>(convertedValue));
+            return static_cast<To::ValueType>(convertedValue);
         }
 
         constexpr operator ValueType() // NOLINT(*-explicit-constructor)
@@ -172,12 +187,12 @@ namespace SSSEngine::Math
 
         static consteval Quantity Max() noexcept
         {
-            return {Limits::Max<ValueType>};
+            return Quantity{Limits::Max<ValueType>};
         }
 
         static consteval Quantity Min() noexcept
         {
-            return {Limits::Min<ValueType>};
+            return Quantity{Limits::Min<ValueType>};
         }
 
         template<QuantityConcept Lhs, SameQuantityConcept<Lhs> Rhs>

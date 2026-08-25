@@ -32,6 +32,7 @@
 #include <sys/sysinfo.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <errno.h>
 
 namespace SSSEngine::Memory
 {
@@ -43,12 +44,13 @@ namespace SSSEngine::Memory
 
         SSSENGINE_ASSERT(success != -1);
 
-        return {.totalSize = {info.totalram * info.mem_unit}, .available = {info.freeram * info.mem_unit}};
+        return {.totalSize = Math::Bytes{info.totalram * info.mem_unit},
+                .available = Math::Bytes{info.freeram * info.mem_unit}};
     }
 
     Math::Bytes GetSystemPageSize()
     {
-        SSSENGINE_FUNCTION_LOCAL Math::Bytes pageSize = {static_cast<Math::Bytes::ValueType>(getpagesize())};
+        SSSENGINE_FUNCTION_LOCAL Math::Bytes pageSize{static_cast<Math::Bytes::ValueType>(getpagesize())};
         return pageSize;
     }
 
@@ -73,7 +75,14 @@ namespace SSSEngine::Memory
 
     void CommitMemory(Buffer buffer)
     {
-        mprotect(buffer.address, buffer.capacity.value, PROT_READ | PROT_WRITE);
+        int code = mprotect(buffer.address, buffer.capacity.value, PROT_READ | PROT_WRITE);
+
+        if(code != 0)
+        {
+            auto err = errno;
+            // TODO: We failed to commit memory
+            SSSENGINE_ASSERT(false);
+        }
     }
 
     bool ReleaseMemory(Buffer buffer)

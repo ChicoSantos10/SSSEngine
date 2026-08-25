@@ -17,7 +17,6 @@
     USA
 */
 
-#include "Concepts.h"
 #include "Ratio.h"
 #include "Test.h"
 #include "Quantity.h"
@@ -26,6 +25,7 @@ namespace SSSTest
 {
     using namespace SSSEngine::Math;
     using DummyQuantityType = Quantity<int, i64, Nano>;
+    using DummyQuantityType2 = Quantity<int, i64, Micro>;
 
     SSSTEST_TEST(EqualityComparisons)
     {
@@ -185,5 +185,13 @@ namespace SSSTest
         DummyQuantityType a{10};
 
         SSSTEST_EXPECT_EQ(a % 8, DummyQuantityType{2});
+    }
+
+    SSSTEST_TEST(Conversion)
+    {
+        DummyQuantityType2 a{10};
+        DummyQuantityType b{a};
+
+        SSSTEST_EXPECT_EQ(b, DummyQuantityType{10000});
     }
 } // namespace SSSTest

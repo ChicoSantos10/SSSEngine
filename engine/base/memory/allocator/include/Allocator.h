@@ -41,12 +41,12 @@ namespace SSSEngine::Memory
         Allocator() = default;
 
         template<AllocatorConcept T>
-        explicit Allocator(T &allocator) : m_allocator(&allocator), m_allocate{&Allocate<T>}, m_free{&Free<T>}
+        constexpr explicit Allocator(T &allocator) : m_allocator(&allocator), m_allocate{&Allocate<T>}, m_free{&Free<T>}
         {
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        void *Allocate(Math::Bytes size, SizeType alignment)
+        constexpr void *Allocate(Math::Bytes size, SizeType alignment)
         {
             return m_allocate(m_allocator, size, alignment);
         }
@@ -54,9 +54,9 @@ namespace SSSEngine::Memory
         // TODO: Reallocate
 
         SSSENGINE_FORCE_INLINE
-        void Free(Buffer buffer)
+        constexpr void Free(Buffer buffer)
         {
-            return m_free(m_allocator, buffer);
+            m_free(m_allocator, buffer);
         }
 
       private:
@@ -84,7 +84,7 @@ namespace SSSEngine::Memory
 
     // TODO: Default Allocator
     SSSENGINE_GLOBAL
-    Arena GlobalArena{Math::Bytes(1_GB)};
+    Arena GlobalArena{Math::Bytes(1_GiB)};
 
     // TODO: Rethink this:
     SSSENGINE_GLOBAL
@@ -95,21 +95,21 @@ namespace SSSEngine::Memory
     thread_local SizeType Index = 0;
 
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    Allocator &CurrentAllocator()
+    constexpr Allocator &CurrentAllocator()
     {
         SSSENGINE_ASSERT(Index >= 0 && Index < MaxAllocators);
         return Allocators[Index];
     }
 
     SSSENGINE_FORCE_INLINE
-    void PushAllocator(AllocatorConcept auto &allocator)
+    constexpr void PushAllocator(AllocatorConcept auto &allocator)
     {
         SSSENGINE_ASSERT(Index + 1 < MaxAllocators);
         Allocators[++Index] = Allocator(allocator);
     }
 
     SSSENGINE_FORCE_INLINE
-    void PopAllocator()
+    constexpr void PopAllocator()
     {
         SSSENGINE_ASSERT(Index > 0);
         --Index;
@@ -122,15 +122,81 @@ namespace SSSEngine::Memory
         AllocatorScope &operator=(const AllocatorScope &) = delete;
         AllocatorScope &operator=(AllocatorScope &&) = delete;
 
-        explicit AllocatorScope(AllocatorConcept auto &allocator)
+        constexpr explicit AllocatorScope(AllocatorConcept auto &allocator)
         {
             PushAllocator(allocator);
         }
 
-        ~AllocatorScope()
+        constexpr ~AllocatorScope()
         {
             PopAllocator();
         }
     };
+
+    // NOTE:-------------------------------------------
+    //  Wrappers around CurrentAllocator Allocate.
+    //  These allow for constexpr memory allocation
+    //  with a call to new and delete during consteval
+    // ------------------------------------------------
+
+    template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T *Allocate()
+    {
+        if consteval
+        {
+            return new T();
+        }
+        else
+        {
+            return static_cast<T *>(CurrentAllocator().Allocate(Math::Bytes(sizeof(T)), alignof(T)));
+        }
+    }
+
+    template<typename T>
+        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr T *Allocate(SizeType count)
+    {
+        SSSENGINE_ASSERT(count > 0);
+
+        if consteval
+        {
+            return new T[count];
+        }
+        else
+        {
+            return static_cast<T *>(CurrentAllocator().Allocate(Math::Bytes(sizeof(T) * count), alignof(T)));
+        }
+    }
+
+    template<typename T>
+        SSSENGINE_FORCE_INLINE
+    constexpr void Free(T *address)
+    {
+        if consteval
+        {
+            delete address;
+        }
+        else
+        {
+            CurrentAllocator().Free(Buffer{.address = address, .capacity = {sizeof(T)}});
+        }
+    }
+
+    template<typename T>
+        SSSENGINE_FORCE_INLINE
+    constexpr void Free(T *address, SizeType count)
+    {
+        SSSENGINE_ASSERT(count > 0);
+
+        if consteval
+        {
+            delete[] address;
+        }
+        else
+        {
+            CurrentAllocator().Free(Buffer{.address = address, .capacity = Math::Bytes{sizeof(T) * count}});
+        }
+    }
 
 } // namespace SSSEngine::Memory

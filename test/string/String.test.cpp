@@ -18,6 +18,7 @@
 */
 
 #include "String.h"
+#include "Allocator.h"
 #include "ArrayTraits.h"
 #include "MemoryUtility.h"
 #include "Test.h"
@@ -129,4 +130,5 @@ namespace SSSTest
 
         SSSTEST_EXPECT_EQ(MemoryCompare(test.CString(), u8"Hello", 6), 0);
     }
+
 } // namespace SSSTest

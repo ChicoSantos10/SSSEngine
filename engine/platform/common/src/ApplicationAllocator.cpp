@@ -30,7 +30,7 @@ namespace SSSEngine::Memory
         void *startAddress = static_cast<Byte *>(Memory.address) + CurrentPageOffset * GetSystemPageSize().value;
         ++CurrentPageOffset;
 
-        Buffer buffer{.address = startAddress, .capacity = bytes};
+        Buffer buffer{.address = startAddress, .capacity = GetSystemPageSize()};
         CommitMemory(buffer);
 
         return buffer;

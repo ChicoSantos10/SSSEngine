@@ -50,7 +50,8 @@ namespace SSSEngine
     }
 
     // FIXME: This functions are not safe. Find a better way to do it by either passing buffers, arrays, or
-    //   something where sizes are known!
+    //      something where sizes are known! Alternatively this could be Raw operations and non templated, operating in
+    //      pure void*
 
     /**
      * @brief Copies the bit representation
@@ -61,10 +62,8 @@ namespace SSSEngine
      * @param to Memory address to copy to
      * @param bytes The amount of bytes to copy
      */
-    template<typename From, typename To>
-        requires(IsBitwiseCopyable<From> && IsBitwiseCopyable<To>)
     SSSENGINE_FORCE_INLINE
-    constexpr void MemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
+    constexpr void RawMemoryCopy(const void *SSSENGINE_RESTRICT from, void *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
     {
         SSSENGINE_ASSERT(!PointersOverlap(from, to, bytes));
 

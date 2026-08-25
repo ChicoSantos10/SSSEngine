@@ -27,6 +27,7 @@
 #include "Algorithm.h"
 #include "AsciiEncoding.h"
 #include "Attributes.h"
+#include "BasicIterator.h"
 #include "Debug.h"
 #include "Encoding.h"
 #include "HelperMacros.h"
@@ -82,7 +83,7 @@ namespace SSSEngine::Text
     {
       public:
         using CharType = Encoding::CodeUnitType;
-        using Iterator = const CharType *; // TODO: Iterator that wraps a T*
+        using Iterator = Ranges::BasicIterator<const CharType *>;
 
         constexpr StringView(const StringView &literal) = default;
         constexpr StringView(StringView &&literal) noexcept = default;
@@ -155,13 +156,13 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr Iterator Begin() const noexcept
         {
-            return m_data;
+            return Iterator(m_data);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr Iterator End() const noexcept
         {
-            return m_data + m_size;
+            return Iterator(m_data + m_size);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE

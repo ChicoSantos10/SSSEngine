@@ -24,12 +24,17 @@
 
 #pragma once
 
+#include "Address.h"
 #include "Attributes.h"
+#include "BasicIterator.h"
 #include "Concepts.h"
 #include "Debug.h"
+#include "Encoding.h"
 #include "Iterator.h"
 #include "Memory.h"
 #include "Range.h"
+#include "String.h"
+#include "StringView.h"
 #include "Types.h"
 #include "Utility.h"
 #include "Container.h"
@@ -50,42 +55,135 @@ namespace SSSEngine::Containers
     // };
 
     template<typename T>
-    struct SinkBuffer
+    struct StackBuffer
     {
         static constexpr SizeType StackSize = Memory::CacheLineConstructive * 5;
         static constexpr SizeType Elements = StackSize / sizeof(T);
-        T storage[Elements];
+
+        using Iterator = Ranges::BasicIterator<T>;
+        using DifferenceType = Ranges::IteratorDifferenceType<Iterator>;
+
+        Array<T, Elements> storage;
+        Iterator current;
+
+        DifferenceType Used(StackBuffer buffer) noexcept
+        {
+            return buffer.current - buffer.storage.Begin();
+        }
+
+        DifferenceType Unused(StackBuffer buffer) noexcept
+        {
+            return buffer.storage.End() - buffer.current;
+        }
     };
 
-    template<Containers::ContainerConcept T>
-    class DirectSink
+    template<ContainerConcept Container>
+    class RangeSink : StackBuffer<typename Container::ValueType>
     {
+        using Base = StackBuffer<typename Container::ValueType>;
+        using Base::Used;
+        using Base::Unused;
+
       public:
-        using SinkOutput = T;
-        using SinkIterator = Ranges::IteratorType<T>;
+        RangeSink() = default;
 
-        bool Reserve(SizeType amount)
+        auto Reserve(SizeType amount)
         {
-            SizeType cap = m_out.Count() + amount;
-            m_out.Reserve(cap);
+            if(amount > Unused()) SSSENGINE_UNLIKELY
+            {
+                Flush();
+            }
 
-            return m_out.Capacity() >= amount;
+            auto current = this->current;
+            this->current += amount;
+
+            return current;
         }
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        SinkIterator Current() noexcept
+        void Flush()
         {
-            m_out.End();
+            auto amount = Used();
+            m_range.Reserve(amount);
+
+            m_range.Append(Subrange(this->storage.Begin(), this->current));
+
+            this->current = this->storage.Begin();
         }
 
-        SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        SinkOutput Get() && noexcept
+        Container Get() &&
         {
-            return Move(m_out);
+            return Move(m_range);
         }
 
       private:
-        SinkOutput m_out;
+        Container m_range;
+    };
+
+    template<SinkConcept Sink>
+    class SinkIterator
+    {
+        using Encoding = Sink::Encoding;
+        using View = Text::StringView<Encoding>;
+
+      public:
+        SinkIterator() noexcept = default;
+        SinkIterator(const SinkIterator &other) noexcept = default;
+        constexpr SinkIterator &operator=(const SinkIterator &) = default;
+
+        constexpr explicit SinkIterator(Sink &sink) noexcept : m_sink(AddressOf(sink)) {}
+
+        constexpr SinkIterator &operator=(View string)
+        {
+            m_sink->Write(string);
+            return *this;
+        }
+
+        constexpr SinkIterator &operator*()
+        {
+            return *this;
+        }
+
+        constexpr SinkIterator &operator++() noexcept
+        {
+            return *this;
+        }
+
+        constexpr SinkIterator &operator++(int) noexcept
+        {
+            return *this;
+        }
+
+      private:
+        Sink *m_sink;
+    };
+
+    template<Text::EncodingConcept E>
+    class StringSink
+    {
+        using CharType = E::CodeUnitType;
+        using String = Text::String<E>;
+        using View = Text::StringView<E>;
+
+      public:
+        using Encoding = E;
+
+        void Write(View string)
+        {
+            m_string.Append(string);
+        }
+
+        String Get() &&
+        {
+            return Move(m_string);
+        }
+
+        SinkIterator<StringSink> Out() noexcept
+        {
+            return SinkIterator<StringSink>(*this);
+        }
+
+      private:
+        String m_string;
     };
 
 } // namespace SSSEngine::Containers

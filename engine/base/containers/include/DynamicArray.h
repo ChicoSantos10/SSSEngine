@@ -31,15 +31,15 @@ namespace SSSEngine::Containers
         using SelectReferenceType = ConditionalType<IsConst<U>, const T &, T &>;
 
       public:
-        using ElementType = T;
-        using ValueType = RemoveCVType<T>;
-        using PointerType = ElementType *;
-        using ConstPointerType = const ElementType *;
-        using ReferenceType = ElementType &;
-        using ConstReferenceType = const ElementType &;
+        using ValueType = T;
+        using ElementType = RemoveCVType<T>;
+        using PointerType = ValueType *;
+        using ConstPointerType = const ValueType *;
+        using ReferenceType = ValueType &;
+        using ConstReferenceType = const ValueType &;
 
-        using Iterator = Ranges::BasicIterator<T *>;
-        using ConstIterator = Ranges::BasicIterator<const T *>;
+        using Iterator = Ranges::BasicIterator<ValueType *>;
+        using ConstIterator = Ranges::BasicIterator<const ValueType *>;
         using ReverseIterator = Ranges::ReverseIterator<Iterator>;
         using ConstReverseIterator = Ranges::ReverseIterator<ConstIterator>;
 

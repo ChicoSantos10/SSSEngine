@@ -85,7 +85,7 @@ namespace SSSEngine::Containers
     {
       public:
         using ElementType = T;
-        using ValueType = RemoveCVReferenceType<T>;
+        using ValueType = RemoveCVType<T>;
         using PointerType = T *;
         using ConstPointerType = const T *;
         using ReferenceType = ElementType &;

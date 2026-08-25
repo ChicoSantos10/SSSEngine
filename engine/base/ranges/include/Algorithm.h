@@ -161,7 +161,7 @@ namespace SSSEngine::Ranges
         {
             SizeType count = end - start;
             SizeType amount = count * sizeof(Type);
-            MemoryCopy(ToAddress(start), ToAddress(to), amount);
+            RawMemoryCopy(ToAddress(start), ToAddress(to), amount);
 
             return {end, to + count};
         }

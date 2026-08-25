@@ -78,6 +78,8 @@ namespace SSSEngine::Text
         using View = StringView<Encoding>;
 
       public:
+        using ValueType = CharType;
+
         using Iterator = Ranges::BasicIterator<CharType *>;
         using ConstIterator = Ranges::BasicIterator<const CharType *>;
         using ReverseIterator = Ranges::ReverseIterator<Iterator>;
@@ -202,7 +204,7 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return m_data.stackString.Begin().Underlying();
+                return m_data.stackString.Data();
             }
             return m_data.heapString.m_data;
         }
@@ -217,9 +219,16 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return m_data.stackString.m_data;
+                return m_data.stackString.Data();
             }
             return m_data.heapString.m_data;
+        }
+
+        template<typename Self>
+            SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+        constexpr auto Data(this Self &self) noexcept
+        {
+            return self.CString();
         }
 
         /**
@@ -280,11 +289,11 @@ namespace SSSEngine::Text
 
             if(m_isSmall)
             {
-                MemoryCopy(m_data.stackString, address, Count());
+                RawMemoryCopy(m_data.stackString.Data(), address, Count());
             }
             else
             {
-                MemoryCopy(m_data.heapString.m_data, address, Count());
+                RawMemoryCopy(m_data.heapString.m_data, address, Count());
             }
 
             SSSENGINE_ASSERT(!m_isSmall);
@@ -356,6 +365,23 @@ namespace SSSEngine::Text
             return m_count == 0;
         }
 
+        SSSENGINE_FORCE_INLINE
+        constexpr void Append(View string) noexcept
+        {
+            SSSENGINE_ASSERT(!PointersOverlap(Data(), string.Data(), string.Count() * sizeof(CharType)));
+
+            auto nextCount = m_count + string.Count();
+
+            if(nextCount >= Capacity()) SSSENGINE_UNLIKELY
+            {
+                // TODO: Maybe create an internal helper just with the allocation part
+                Reserve(nextCount);
+            }
+
+            RawMemoryCopy(string.Data(), Data() + m_count, string.Count() * sizeof(CharType));
+            m_count = nextCount;
+        }
+
       private:
         // NOTE: In order to have m_other overlap with the padding from this class, its members have to be private
         class HeapString
@@ -381,7 +407,7 @@ namespace SSSEngine::Text
             SSSENGINE_OVERLAP HeapString heapString;
         };
 
-        SSSENGINE_OVERLAP Data m_data;
+        SSSENGINE_OVERLAP union Data m_data;
         u32 m_count : 31;
         bool m_isSmall : 1;
 
@@ -459,7 +485,7 @@ namespace SSSEngine::Text
             auto bytes = Math::Bytes(capacity * sizeof(CharType));
             CreateHeapString(bytes, capacity, count);
 
-            MemoryCopy(string.Data(), m_data.heapString.m_data, bytes);
+            RawMemoryCopy(string.Data(), m_data.heapString.m_data, bytes);
             m_data.heapString.m_data[m_count] = CharType(0);
         }
 

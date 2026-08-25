@@ -1651,6 +1651,7 @@ namespace std
 #if __has_builtin(__builtin_toupper)
                                 *__p = __builtin_toupper(*__p);
 #else
+
                                 *__p = std::toupper(*__p);
 #endif
                         break;

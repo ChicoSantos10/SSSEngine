@@ -32,6 +32,7 @@
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "EnumHelpers.h"
+#include "Iterator.h"
 #include "Limits.h"
 #include "Math.h"
 #include "MemoryUtility.h"
@@ -73,17 +74,17 @@
 
 namespace SSSEngine::Text
 {
-    template<EncodingConcept Encoding, IntegralConcept T>
+    template<EncodingConcept Encoding, IntegralConcept T, Ranges::OutputIteratorConcept<StringView<Encoding>> Out>
         requires(!IsSameType<T, char>)
-    constexpr void ParseInt(T value, typename Encoding::CodeUnitType *buffer)
+    constexpr Out ParseInt(T value, Out out)
     {
         using CharType = Encoding::CodeUnitType;
 
         if(value == 0)
         {
-            buffer[0] = SSSENGINE_ENCODING_SELECTOR(CharType, '0');
+            *out++ = SSSENGINE_ENCODING_SELECTOR(CharType, "0");
 
-            return;
+            return out;
         }
 
         if constexpr(IsSigned<T>)
@@ -109,31 +110,35 @@ namespace SSSEngine::Text
                         return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-9223372036854775808"));
                     }
                 }();
-                MemoryCopy(min.Data(), buffer, min.Count());
-                return;
+                *out++ = min;
+                return out;
             }
         }
 
-        CharType tmp[Math::Limits::DecimalDigits<T> + 1]; // NOTE: Extra 1 for the sign (-)
+        static constexpr SizeType MaxDigits = Math::Limits::DecimalDigits<T>;
+        CharType tmp[MaxDigits + 1]; // NOTE: Extra 1 for the sign (-)
 
         using Unsigned = UnsignedType<T>;
         bool isNegative = value < 0;
         Unsigned unsignedValue = isNegative ? static_cast<Unsigned>(-value) : static_cast<Unsigned>(value);
 
-        SizeType i = 0;
-        for(; unsignedValue > 0; ++i)
+        SizeType i = MaxDigits;
+        for(; unsignedValue > 0; --i)
         {
             tmp[i] = CharType('0') + (unsignedValue % 10);
             unsignedValue /= 10;
         }
 
-        SizeType out = 0;
         if(isNegative)
         {
-            buffer[out++] = CharType('-');
+            tmp[i--] = CharType('-');
         }
 
-        ReverseMemoryCopy(tmp, &buffer[out], i);
+        auto written = MaxDigits - i;
+        StringView<Encoding> view(tmp + i, written);
+
+        *out++ = view;
+        return out;
     }
 
     /**
@@ -162,10 +167,10 @@ namespace SSSEngine::Text
         StringView<Encoding> string;
     };
 
-    template<EncodingConcept Encoding, Containers::SinkConcept Out>
+    template<EncodingConcept Encoding, typename OutIterator>
     struct FormatContext
     {
-        Out output;
+        OutIterator out;
     };
 
     template<typename T, EncodingConcept Encoding>
@@ -190,7 +195,7 @@ namespace SSSEngine::Text
         }
 
         template<typename FmtCtx>
-        constexpr auto Format(CharType value, FmtCtx &ctx) const noexcept
+        constexpr auto Format(CharType value, FmtCtx &ctx) const noexcept -> decltype(ctx.out)
         {
             SSSENGINE_UNREACHABLE;
         }
@@ -201,13 +206,15 @@ namespace SSSEngine::Text
     {
         constexpr auto Parse() const noexcept
         {
-            SSSENGINE_UNREACHABLE;
+            // SSSENGINE_UNREACHABLE;
         }
 
         template<typename FmtCtx>
-        constexpr auto Format(StringView<Encoding> value, FmtCtx &ctx) const noexcept
+        constexpr auto Format(StringView<Encoding> value, FmtCtx &ctx) const noexcept -> decltype(ctx.out)
         {
-            SSSENGINE_UNREACHABLE;
+            auto it = Move(ctx.out);
+            *it++ = value;
+            return it;
         }
     };
 
@@ -224,7 +231,7 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
-            ParseInt<Encoding>(value, ctx.output.Current().Underlying());
+            return ParseInt<Encoding>(value, ctx.out);
         }
     };
 
@@ -671,8 +678,8 @@ namespace SSSEngine::Text
         return Storage{Storage::MakeElement(args)...};
     }
 
-    template<EncodingConcept Encoding, Containers::SinkConcept Sink>
-    void FormatTo(Sink &out, StringView<Encoding> fmt, FormatArgs<Encoding> args)
+    template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<StringView<Encoding>> OutIterator>
+    void FormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding> args)
     {
         using namespace Ranges;
 
@@ -682,7 +689,7 @@ namespace SSSEngine::Text
         static constexpr auto Left = CharType('{');
         static constexpr auto Right = CharType('}');
 
-        FormatContext<Encoding, Sink> fmtCtx;
+        FormatContext<Encoding, OutIterator> fmtCtx{out};
 
         const auto end = fmt.End();
         const auto findArgBegin = [end](It begin) -> It
@@ -728,10 +735,18 @@ namespace SSSEngine::Text
 
         It argBegin;
         SizeType argIndex = 0;
-        while(argBegin = findArgBegin(fmt.Begin()), argBegin != end)
+
+        auto left = fmt.Begin();
+
+        while(argBegin = findArgBegin(left), argBegin != end)
         {
+            auto it = Move(fmtCtx.out);
+            StringView<Encoding> view(left.Underlying(), argBegin - left);
+            *it++ = view;
+            fmtCtx.out = Move(it);
+
             const auto argEnd = findArgEnd(argBegin);
-            FormatArg<Encoding> type = args.Get(argIndex);
+            FormatArg<Encoding> type = args.Get(argIndex++);
             type.Visit(
                 [&fmtCtx](auto &arg)
                 {
@@ -746,7 +761,7 @@ namespace SSSEngine::Text
                     {
                         Formatter fmt;
                         fmt.Parse();
-                        fmt.Format(arg, fmtCtx);
+                        fmtCtx.out = Move(fmt.Format(arg, fmtCtx));
                     }
                     else
                     {
@@ -754,6 +769,8 @@ namespace SSSEngine::Text
                     }
                 });
             // LINE 5094
+
+            left = argEnd + 1;
 
             // TODO:
             // - Copy from format to sink
@@ -767,8 +784,8 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding>
     String<Encoding> FormatEngine(StringView<Encoding> fmt, FormatArgs<Encoding> args)
     {
-        Containers::DirectSink<String<Encoding>> sink;
-        FormatTo(sink, fmt, args);
+        Containers::StringSink<Encoding> sink;
+        FormatTo(sink.Out(), fmt, args);
 
         return Move(sink).Get();
     }
@@ -802,5 +819,10 @@ namespace SSSEngine::Text
         FormatArgs<Encoding> fa = fmtArgs;
         return FormatEngine(fmt.string, fa);
     }
+
+    // TODO: Simple, single argument format that simply formats the value into a string: Format("{}", x) -> Format(x)
+    // Or have a ToString(x) and Format("{}", x) just returns the ToString(x)
+    //
+    // INVESTIGATE: Is it possible to deduce encoding instead of having it explicit
 
 } // namespace SSSEngine::Text

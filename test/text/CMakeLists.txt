@@ -1,5 +1,6 @@
 add_executable(SSSTextTest
   String.test.cpp
+  Formatter.test.cpp
 )
 
 target_link_libraries(SSSTextTest PRIVATE

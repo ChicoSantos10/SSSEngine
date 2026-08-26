@@ -11,6 +11,6 @@ if(BUILD_TESTING)
 
     add_subdirectory(math)
     add_subdirectory(utils)
-    add_subdirectory(string)
+    add_subdirectory(text)
     add_subdirectory(storage)
 endif()

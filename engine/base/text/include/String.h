@@ -522,9 +522,9 @@ namespace SSSEngine::Text
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr friend bool operator==(String lhs, String rhs) noexcept
+        constexpr friend bool operator==(const String &lhs, const String &rhs) noexcept
         {
-            Ranges::Equals(lhs, rhs);
+            return Ranges::Equals(lhs, rhs);
         }
     };
 

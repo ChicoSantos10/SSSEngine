@@ -95,23 +95,23 @@ namespace SSSEngine::Text
         // NOLINTBEGIN(*-explicit-constructor)
 
         template<SizeType N>
-        constexpr StringView(const CharType (&data)[N]) noexcept : m_data{data}, m_size{N - 1}
+        constexpr StringView(const CharType (&data)[N]) noexcept : m_data{data}, m_count{N - 1}
         {
         }
 
-        constexpr StringView(const CharType *data, const SizeType size) noexcept : m_data{data}, m_size{size} {}
+        constexpr StringView(const CharType *data, const SizeType size) noexcept : m_data{data}, m_count{size} {}
 
-        constexpr StringView(const CharType *data) noexcept : m_data(data), m_size(Length(data)) {}
+        constexpr StringView(const CharType *data) noexcept : m_data(data), m_count(Length(data)) {}
 
         constexpr StringView(const char *data, const SizeType size) noexcept
             requires IsSameType<Encoding, Utf8Encoding>
-            : m_data{BitCopy<const char8 *>(data)}, m_size{size}
+            : m_data{BitCopy<const char8 *>(data)}, m_count{size}
         {
         }
 
         template<SizeType N>
             requires IsSameType<Encoding, Utf8Encoding>
-        constexpr StringView(const char (&data)[N]) noexcept : StringView(data, N)
+        constexpr StringView(const char (&data)[N]) noexcept : StringView(data, N - 1)
         {
         }
 
@@ -150,7 +150,7 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr SizeType Count() const noexcept
         {
-            return m_size;
+            return m_count;
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
@@ -162,7 +162,7 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr Iterator End() const noexcept
         {
-            return Iterator(m_data + m_size);
+            return Iterator(m_data + m_count);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
@@ -171,14 +171,14 @@ namespace SSSEngine::Text
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         constexpr const CharType &operator[](SizeType index) const noexcept
         {
-            SSSENGINE_ASSERT(index < m_size);
+            SSSENGINE_ASSERT(index < m_count);
 
             return m_data[index];
         }
 
       private:
         const CharType *m_data;
-        SizeType m_size;
+        SizeType m_count;
 
         // NOLINTBEGIN(readability-identifier-naming)
 

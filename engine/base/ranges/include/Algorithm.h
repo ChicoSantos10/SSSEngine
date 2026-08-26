@@ -270,6 +270,8 @@ namespace SSSEngine::Ranges
                 return false;
             }
         }
+
+        return true;
     }
 
     template<RangeConcept R1, RangeConcept R2>
@@ -283,7 +285,7 @@ namespace SSSEngine::Ranges
                 return false;
             }
 
-            Equals(Begin(first), End(first), Begin(other));
+            return Equals(Begin(first), End(first), Begin(other));
         }
         else
         {

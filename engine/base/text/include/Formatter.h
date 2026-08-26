@@ -135,7 +135,7 @@ namespace SSSEngine::Text
         }
 
         auto written = MaxDigits - i;
-        StringView<Encoding> view(tmp + i, written);
+        StringView<Encoding> view(tmp + i + 1, written);
 
         *out++ = view;
         return out;
@@ -302,10 +302,6 @@ namespace SSSEngine::Text
         {
             // TODO: StringView? Shouldn't the IsConvertible already make this never happen?
             return Identity<const CharType *>{};
-        }
-        else if constexpr(IsChar<RemovePointerType<DecayType<Type>>>)
-        {
-            SSSENGINE_STATIC_ASSERT(false, "Invalid string type to format");
         }
         else if constexpr(SignedIntegralConcept<Type>)
         {
@@ -773,11 +769,17 @@ namespace SSSEngine::Text
             left = argEnd + 1;
 
             // TODO:
-            // - Copy from format to sink
             // - Parse Context: {id:opts}
             //      - Get optional Arg index or increment
             //      - Get other possible values
-            // - Format into sink
+        }
+
+        if(left != end)
+        {
+            auto it = Move(fmtCtx.out);
+            StringView<Encoding> view(left.Underlying(), end - left);
+            *it++ = view;
+            fmtCtx.out = Move(it);
         }
     }
 

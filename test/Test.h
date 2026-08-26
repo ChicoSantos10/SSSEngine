@@ -77,7 +77,7 @@ namespace SSSTest
     SSSENGINE_GLOBAL
     void ReportExpectFailure(int line, SSSEngine::Text::Utf8View file, SSSEngine::Text::Utf8View expected)
     {
-        // SSSENGINE_LOG_ERROR("Failed at {}:{}\n", file, line);
+        SSSENGINE_LOG_ERROR("Failed at {}:{}\n", file, line);
         // SSSENGINE_LOG_ERROR("\tExpected {}\n", expected);
         /*SSSENGINE_LOG_ERROR("\tGot {} {} {}\n", first, #comparison, second);*/
     }

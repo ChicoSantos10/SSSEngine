@@ -298,7 +298,6 @@ namespace SSSEngine::Text
 
             auto newCapacity = GrowthStrategy::NextCapacity(Capacity(), amount);
             CharType *address = Memory::Allocate<CharType>(newCapacity);
-            m_data.heapString.m_data = address;
 
             if(!address) SSSENGINE_UNLIKELY
             {
@@ -309,6 +308,8 @@ namespace SSSEngine::Text
             if(m_isSmall)
             {
                 RawMemoryCopy(m_data.stackString.Data(), address, Count());
+                m_data.heapString = {};
+                m_isSmall = false;
             }
             else
             {
@@ -316,12 +317,14 @@ namespace SSSEngine::Text
             }
 
             SSSENGINE_ASSERT(!m_isSmall);
+            m_data.heapString.m_data = address;
             m_data.heapString.m_capacity = newCapacity;
         }
 
         template<typename Self>
             SSSENGINE_PURE
         constexpr auto Begin(this Self &self) noexcept
+
         {
             using It = ConditionalType<IsConst<RemoveReferenceType<Self>>, ConstIterator, Iterator>;
 
@@ -391,11 +394,8 @@ namespace SSSEngine::Text
 
             auto nextCount = m_count + string.Count();
 
-            if(nextCount >= Capacity()) SSSENGINE_UNLIKELY
-            {
-                // TODO: Maybe create an internal helper just with the allocation part
-                Reserve(nextCount);
-            }
+            // TODO: Maybe create an internal helper just with the allocation part
+            Reserve(nextCount);
 
             RawMemoryCopy(string.Data(), Data() + m_count, string.Count() * sizeof(CharType));
             m_count = nextCount;

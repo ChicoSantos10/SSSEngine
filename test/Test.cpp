@@ -33,6 +33,8 @@ int main()
     SSSEngine::Memory::Arena allocator{SSSEngine::Math::Bytes{1_GiB}};
     SSSEngine::Memory::AllocatorScope scope(allocator);
 
+    SSSENGINE_LOG_INFO("Starting Tests...");
+
     SSSTest::Execute();
     return SSSTest::Succeeded ? 0 : 1;
 }

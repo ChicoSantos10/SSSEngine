@@ -139,22 +139,30 @@ namespace SSSEngine::Text
                 return *this;
             }
 
-            if(!m_isSmall)
-            {
-                DeleteHeapString();
-            }
-
             if(string.m_isSmall)
             {
-                CopySmallString(string);
+                if(!m_isSmall)
+                {
+                    DeleteHeapString();
+                    CreateSmallString(string);
+                }
+                else
+                {
+                    CopySmallString(string);
+                }
             }
             else
             {
-                CopyHeapString(string);
+                if(!m_isSmall)
+                {
+                    Reserve(string.Count());
+                    CopyHeapString(string);
+                }
+                else
+                {
+                    CreateHeapString(string);
+                }
             }
-
-            m_isSmall = string.m_isSmall;
-            m_count = string.m_count;
 
             return *this;
         }
@@ -173,11 +181,20 @@ namespace SSSEngine::Text
 
             if(string.m_isSmall)
             {
-                CopySmallString(string);
+                if(!m_isSmall)
+                {
+                    CreateSmallString(string);
+                }
+                else
+                {
+                    CopySmallString(string);
+                }
             }
             else
             {
                 m_data.heapString = string.m_data.heapString;
+                m_count = string.m_count;
+                m_isSmall = false;
 
                 // INVESTIGATE: Same doubts as above in move constructor
                 string.m_data.heapString = {};
@@ -424,8 +441,7 @@ namespace SSSEngine::Text
             m_isSmall = true;
 
             DefaultConstructAt(AddressOf(m_data.stackString));
-            const auto [_, last] = Ranges::Copy(view, m_data.stackString.Begin());
-            Ranges::ZeroFill<CharType>(last, m_data.stackString.End());
+            CopySmallString(view);
         }
 
         /**
@@ -438,7 +454,8 @@ namespace SSSEngine::Text
             SSSENGINE_ASSERT(m_isSmall);
             SSSENGINE_ASSERT(string.Count() <= MaxCountSmall);
 
-            Ranges::Copy(string, m_data.stackString.Begin());
+            const auto [_, last] = Ranges::Copy(string, m_data.stackString.Begin());
+            Ranges::ZeroFill<CharType>(last, m_data.stackString.End());
             m_count = string.Count();
         }
 
@@ -499,6 +516,9 @@ namespace SSSEngine::Text
         {
             SSSENGINE_ASSERT(!m_isSmall);
             Memory::Free(m_data.heapString.m_data, m_data.heapString.m_capacity);
+#if SSSENGINE_DEBUG
+            m_data.heapString = {};
+#endif // SSSENGINE_DEBUG
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE

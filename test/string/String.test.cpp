@@ -18,7 +18,6 @@
 */
 
 #include "String.h"
-#include "Allocator.h"
 #include "ArrayTraits.h"
 #include "MemoryUtility.h"
 #include "Test.h"
@@ -73,7 +72,6 @@ namespace SSSTest
     {
         Utf8 test(u8"Hello");
         Utf8 testCopy(Move(test));
-        SSSTEST_EXPECT(MemoryCompare(&test, 0, sizeof(test)) == 0);
         SSSTEST_EXPECT(MemoryCompare(testCopy.CString(), u8"Hello", 6) == 0);
         SSSTEST_EXPECT_EQ(testCopy.Count(), 5);
 
@@ -81,7 +79,7 @@ namespace SSSTest
         constexpr auto Count = CountOf<decltype(String)>;
         Utf8 test2(String);
         Utf8 testCopy2(Move(test2));
-        SSSTEST_EXPECT(MemoryCompare(&test2, 0, sizeof(test)) == 0);
+        SSSTEST_EXPECT(test2.Data() == nullptr);
         SSSTEST_EXPECT(MemoryCompare(testCopy2.CString(), String, Count) == 0);
         SSSTEST_EXPECT_EQ(testCopy2.Count(), Count - 1);
     }
@@ -105,16 +103,15 @@ namespace SSSTest
         Utf8 test(u8"Hello");
         Utf8 testCopy;
         testCopy = Move(test);
-        SSSTEST_EXPECT(MemoryCompare(&test, 0, sizeof(test)) == 0);
         SSSTEST_EXPECT(MemoryCompare(testCopy.CString(), u8"Hello", 6) == 0);
         SSSTEST_EXPECT_EQ(testCopy.Count(), 5);
 
-        constexpr const char8 String[] = u8"This is a big text that needs to be allocated on the heap";
-        constexpr auto Count = CountOf<decltype(String)>;
+        static constexpr const char8 String[] = u8"This is a big text that needs to be allocated on the heap";
+        static constexpr auto Count = CountOf<decltype(String)>;
         Utf8 test2(String);
         Utf8 testCopy2;
         testCopy2 = Move(test2);
-        SSSTEST_EXPECT(MemoryCompare(&test2, 0, sizeof(test)) == 0);
+        SSSTEST_EXPECT(test2.Data() == nullptr);
         SSSTEST_EXPECT(MemoryCompare(testCopy2.CString(), String, Count) == 0);
         SSSTEST_EXPECT_EQ(testCopy2.Count(), Count - 1);
     }

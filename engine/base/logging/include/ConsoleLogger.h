@@ -17,6 +17,10 @@ namespace SSSEngine::Logging
 {
     void LogConsole(LogLevel level, Text::StringView<Text::Utf8Encoding> message)
     {
+        // TODO: Improve this:
+        //  - Receive fmt string + args and format to file sink (stdout or stderr)
+        //  - Color
+
         Text::Utf8 final;
         switch(level)
         {
@@ -27,7 +31,7 @@ namespace SSSEngine::Logging
                 final = Text::Format<Text::Utf8Encoding>(u8"[WARNING]: {}", message);
                 break;
             case LogLevel::Error:
-                final = Text::Format<Text::Utf8Encoding>(u8"[ERROR]: {}", message);
+                final = Text::Format<Text::Utf8Encoding>(u8"\033[31m[ERROR]:\033[0m {}", message);
                 FileSystem::StdError.Write(reinterpret_cast<const void *>(final.CString()), final.Count());
                 return;
         }

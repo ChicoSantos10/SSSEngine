@@ -74,18 +74,12 @@ namespace SSSTest
         }
     }
 
-    SSSENGINE_GLOBAL
-    void ReportExpectFailure(int line, SSSEngine::Text::Utf8View file, SSSEngine::Text::Utf8View expected)
-    {
-        SSSENGINE_LOG_ERROR("Failed at {}:{}\n", file, line);
-        // SSSENGINE_LOG_ERROR("\tExpected {}\n", expected);
-        /*SSSENGINE_LOG_ERROR("\tGot {} {} {}\n", first, #comparison, second);*/
-    }
-
 #define SSSTEST_TEST(name)                                                                                             \
     void name();                                                                                                       \
     TestData _##name({__LINE__, SSSENGINE_UTF8_FILE, name});                                                           \
     void name()
+
+    // TODO: Got {}... but first needs custom formatters for each type being tested
 
 #define SSSTEST_COMPARE_(first, second, comparison)                                                                    \
     if((first)comparison(second))                                                                                      \
@@ -93,7 +87,12 @@ namespace SSSTest
     }                                                                                                                  \
     else                                                                                                               \
     {                                                                                                                  \
-        ReportExpectFailure(SSSENGINE_LINE, SSSENGINE_UTF8_FILE, #first #comparison #second);                          \
+        SSSENGINE_LOG_ERROR("Failed at {}:{}\n", SSSENGINE_UTF8_FILE, SSSENGINE_LINE);                                 \
+        SSSENGINE_LOG_ERROR("\tExpected {} {} {}\n",                                                                   \
+                            SSSENGINE_UTF8_STRING(first),                                                              \
+                            SSSENGINE_UTF8_STRING(comparison),                                                         \
+                            SSSENGINE_UTF8_STRING(second));                                                            \
+        /*SSSENGINE_LOG_ERROR("\tGot {} {} {}\n", first, SSSENGINE_UTF8_STRING(comparison), second);*/                 \
         Succeeded = false;                                                                                             \
     }
 
@@ -109,7 +108,9 @@ namespace SSSTest
     }                                                                                                                  \
     else                                                                                                               \
     {                                                                                                                  \
-        ReportExpectFailure(SSSENGINE_LINE, SSSENGINE_UTF8_FILE, #value);                                              \
+        SSSENGINE_LOG_ERROR("Failed at {}:{}\n", SSSENGINE_UTF8_FILE, SSSENGINE_LINE);                                 \
+        SSSENGINE_LOG_ERROR("\tExpected {}\n", #value);                                                                \
+        /*SSSENGINE_LOG_ERROR("\tGot {}\n", value);*/                                                                  \
         Succeeded = false;                                                                                             \
     }
 

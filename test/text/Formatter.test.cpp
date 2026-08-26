@@ -94,4 +94,5 @@ namespace SSSTest
         Utf8 result(u8"Hello!");
         SSSTEST_EXPECT_EQ(string, result);
     }
+
 } // namespace SSSTest

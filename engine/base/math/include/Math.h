@@ -29,6 +29,7 @@
 #include "Concepts.h"
 #include "ConversionTraits.h"
 #include "Debug.h"
+#include "Float.h"
 #include "HelperMacros.h"
 #include "Limits.h"
 #include "SignTraits.h"
@@ -38,53 +39,6 @@
 
 namespace SSSEngine::Math
 {
-    SSSENGINE_FORCE_INLINE
-    constexpr auto AsBits(RealConcept auto value) noexcept
-    {
-        if constexpr(sizeof(value) == 4)
-        {
-            return BitCopy<u32>(value);
-        }
-        else if constexpr(sizeof(value) == 8)
-        {
-            return BitCopy<u64>(value);
-        }
-        else
-        {
-            SSSENGINE_NOT_IMPLEMENTED;
-        }
-    }
-
-    SSSENGINE_FORCE_INLINE
-    constexpr auto AsSignedBits(RealConcept auto value) noexcept
-    {
-        auto num = AsBits(value);
-        return static_cast<SignedType<decltype(num)>>(num);
-    }
-
-    template<RealConcept R>
-    SSSENGINE_GLOBAL
-    constexpr u64 ExponentMask = 0;
-
-    template<RealConcept R>
-    SSSENGINE_GLOBAL
-    constexpr u64 FractionMask = 0;
-
-    template<>
-    SSSENGINE_GLOBAL
-    constexpr u32 ExponentMask<f32> = 0x7F800000U;
-
-    template<>
-    SSSENGINE_GLOBAL
-    constexpr u32 FractionMask<f32> = 0x007FFFFFU;
-
-    template<>
-    SSSENGINE_GLOBAL
-    constexpr u64 ExponentMask<f64> = 0x7FF0000000000000ULL;
-
-    template<>
-    SSSENGINE_GLOBAL
-    constexpr u64 FractionMask<f64> = 0x000FFFFFFFFFFFFFULL;
 
     /**
      * @brief Get's the absolute representation of a signed integer
@@ -114,7 +68,7 @@ namespace SSSEngine::Math
      * @return The absolute value of num
      */
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr auto Absolute(RealConcept auto num) noexcept
+    constexpr auto Absolute(FloatingPointConcept auto num) noexcept
     {
         return num < 0 ? -num : num;
     }
@@ -305,7 +259,7 @@ namespace SSSEngine::Math
      * @param num The number to check
      * @return The next integer greater or equal to num
      */
-    template<NumberConcept ReturnType = f32, RealConcept T>
+    template<NumberConcept ReturnType = f32, FloatingPointConcept T>
     constexpr ReturnType Ceil(T num) noexcept
     {
         SSSENGINE_STATIC_ASSERT(IsAnyType<T, f32, f64>);
@@ -413,7 +367,7 @@ namespace SSSEngine::Math
         using Type = decltype(num);
         auto value = [num]()
         {
-            if constexpr(IsReal<Type>)
+            if constexpr(IsFloatingPoint<Type>)
             {
                 return AsSignedBits(num);
             }
@@ -508,16 +462,16 @@ namespace SSSEngine::Math
         return (static_cast<f32>(e) + log2ofM) * Log10of2;
     }
 
-    template<RealConcept R>
+    template<IntegralConcept Int>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr bool IsNaN(R value) noexcept
+    constexpr Int Log2(Int value) noexcept
     {
-        auto bits = AsBits(value);
-
-        auto exponent = bits & ExponentMask<R>;
-        auto fraction = bits & FractionMask<R>;
-
-        return exponent == ExponentMask<R> && fraction != 0;
+        if constexpr(IsSigned<Int>)
+        {
+            SSSENGINE_ASSERT(value >= 0);
+        }
+        using Type = UnsignedType<Int>;
+        return Limits::BinaryDigits<Type> - 1 - CountLeftZeros(value);
     }
 
 } // namespace SSSEngine::Math

@@ -267,7 +267,7 @@ namespace SSSEngine
 
     namespace CompareImpl
     {
-        template<SSSEngine::RealConcept N>
+        template<SSSEngine::FloatingPointConcept N>
         constexpr WeakOrdering FloatingWeakOrdering(N first, N second) noexcept
         {
             auto ordering = Impl::Ordering(first <=> second);
@@ -308,7 +308,7 @@ namespace SSSEngine
 
         template<typename T, typename U>
         concept StronglyOrderedConcept =
-            AdlStrongConcept<T, U> || SSSEngine::RealConcept<SSSEngine::RemoveReferenceType<T>> ||
+            AdlStrongConcept<T, U> || SSSEngine::FloatingPointConcept<SSSEngine::RemoveReferenceType<T>> ||
             CmpThreeWayConcept<StrongOrdering, T, U>;
 
         class StrongOrderImpl
@@ -316,7 +316,7 @@ namespace SSSEngine
             template<typename T, typename U>
             static constexpr bool IsNoExcept()
             {
-                if constexpr(SSSEngine::RealConcept<SSSEngine::DecayType<T>>)
+                if constexpr(SSSEngine::FloatingPointConcept<SSSEngine::DecayType<T>>)
                     return true;
                 else if constexpr(AdlStrongConcept<T, U>)
                     return noexcept(StrongOrdering(StrongOrderImpl(SSSEngine::DeclVal<T>(), SSSEngine::DeclVal<U>())));
@@ -357,7 +357,7 @@ namespace SSSEngine
             SSSENGINE_PURE
             constexpr StrongOrdering operator()(T &&t, U &&u) const noexcept(IsNoExcept<T, U>())
             {
-                if constexpr(SSSEngine::IsReal<SSSEngine::DecayType<T>>)
+                if constexpr(SSSEngine::IsFloatingPoint<SSSEngine::DecayType<T>>)
                 {
                     return FloatingPointCompare(t, u);
                 }
@@ -373,15 +373,16 @@ namespace SSSEngine
         };
 
         template<typename T, typename U>
-        concept WeaklyOrderedConcept = AdlWeakConcept<T, U> || SSSEngine::RealConcept<SSSEngine::RemoveReferenceType<T>> ||
-                                       CmpThreeWayConcept<WeakOrdering, T, U> || StronglyOrderedConcept<T, U>;
+        concept WeaklyOrderedConcept =
+            AdlWeakConcept<T, U> || SSSEngine::FloatingPointConcept<SSSEngine::RemoveReferenceType<T>> ||
+            CmpThreeWayConcept<WeakOrdering, T, U> || StronglyOrderedConcept<T, U>;
 
         class WeakOrderImpl
         {
             template<typename T, typename U>
             static constexpr bool IsNoExcept()
             {
-                if constexpr(SSSEngine::RealConcept<SSSEngine::DecayType<T>>)
+                if constexpr(SSSEngine::FloatingPointConcept<SSSEngine::DecayType<T>>)
                     return true;
                 else if constexpr(AdlWeakConcept<T, U>)
                     return noexcept(WeakOrdering(WeakOrderImpl(SSSEngine::DeclVal<T>(), SSSEngine::DeclVal<U>())));
@@ -400,7 +401,7 @@ namespace SSSEngine
             SSSENGINE_PURE
             constexpr WeakOrdering operator()(T &&t, U &&u) const noexcept(IsNoExcept<T, U>())
             {
-                if constexpr(SSSEngine::IsReal<SSSEngine::DecayType<T>>)
+                if constexpr(SSSEngine::IsFloatingPoint<SSSEngine::DecayType<T>>)
                 {
                     return FloatingWeakOrdering(t, u);
                 }

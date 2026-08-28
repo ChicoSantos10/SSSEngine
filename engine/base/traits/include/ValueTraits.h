@@ -114,42 +114,42 @@ namespace SSSEngine
     constexpr bool IsIntegral = Integral<T>::Value;
 
     template<typename T>
-    struct IsRealImpl : public FalseType
+    struct IsFloatingPointImpl : public FalseType
     {
     };
 
     template<>
-    struct IsRealImpl<float> : public TrueType
+    struct IsFloatingPointImpl<float> : public TrueType
     {
     };
 
     template<>
-    struct IsRealImpl<double> : public TrueType
+    struct IsFloatingPointImpl<double> : public TrueType
     {
     };
 
     template<>
-    struct IsRealImpl<long double> : public TrueType
+    struct IsFloatingPointImpl<long double> : public TrueType
     {
     };
 
     template<typename T>
-    struct Real : IsRealImpl<RemoveCVType<T>>::Type
+    struct FloatingPointChecker : IsFloatingPointImpl<RemoveCVType<T>>::Type
     {
     };
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsReal = Real<T>::Value;
+    constexpr bool IsFloatingPoint = FloatingPointChecker<T>::Value;
 
     template<typename T>
-    struct NumberChecker : Or<Integral<T>, Real<T>>
+    struct NumberChecker : Or<Integral<T>, FloatingPointChecker<T>>
     {
     };
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsNumber = IsIntegral<T> || IsReal<T>;
+    constexpr bool IsNumber = IsIntegral<T> || IsFloatingPoint<T>;
 
     template<typename T>
     struct UnicodeTypeCheckerImpl : public FalseType

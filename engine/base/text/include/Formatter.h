@@ -120,7 +120,17 @@ namespace SSSEngine::Text
 
         using Unsigned = UnsignedType<T>;
         bool isNegative = value < 0;
-        Unsigned unsignedValue = isNegative ? static_cast<Unsigned>(-value) : static_cast<Unsigned>(value);
+        auto unsignedValue = [value]
+        {
+            if constexpr(IsSigned<T>)
+            {
+                return static_cast<Unsigned>(Math::Absolute(value));
+            }
+            else
+            {
+                return value;
+            }
+        }();
 
         SizeType i = MaxDigits;
         for(; unsignedValue > 0; --i)

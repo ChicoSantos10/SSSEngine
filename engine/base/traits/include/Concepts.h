@@ -79,7 +79,7 @@ namespace SSSEngine
      * @tparam T A type representing a floating type number
      */
     template<typename T>
-    concept RealConcept = NumberConcept<T> && IsReal<T>;
+    concept FloatingPointConcept = NumberConcept<T> && IsFloatingPoint<T>;
 
     /**
      * @brief Compares 2 types to see if they are the same

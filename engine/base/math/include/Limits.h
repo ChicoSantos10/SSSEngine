@@ -25,7 +25,6 @@
 #pragma once
 
 #include "Concepts.h"
-#include "ConversionTraits.h"
 #include "Debug.h"
 #include "HelperMacros.h"
 #include "SignTraits.h"
@@ -151,11 +150,11 @@ namespace SSSEngine::Math::Limits
      *
      * Is the negative value of Max<N>
      */
-    template<RealConcept N>
+    template<FloatingPointConcept N>
     SSSENGINE_GLOBAL
     constexpr N Min<N> = -Max<N>;
 
-    template<RealConcept N>
+    template<FloatingPointConcept N>
     SSSENGINE_GLOBAL
     constexpr N SmallestPositive = NotSupportedError<N>();
 
@@ -180,7 +179,7 @@ namespace SSSEngine::Math::Limits
     SSSENGINE_GLOBAL
     constexpr f128 SmallestPositive<f128> = __LDBL_MIN__;
 
-    template<RealConcept N>
+    template<FloatingPointConcept N>
     SSSENGINE_GLOBAL
     constexpr N Epsilon = NotSupportedError<N>();
 

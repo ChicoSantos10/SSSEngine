@@ -141,8 +141,8 @@ namespace SSSTest
         DummyQuantityType a = DummyQuantityType::Max();
         DummyQuantityType b = DummyQuantityType::Min();
 
-        SSSTEST_EXPECT_EQ(a.value, SSSEngine::NumericTraits<DummyQuantityType::ValueType>::Max);
-        SSSTEST_EXPECT_EQ(b.value, SSSEngine::NumericTraits<DummyQuantityType::ValueType>::Min);
+        SSSTEST_EXPECT_EQ(a.value, SSSEngine::NumericTraitsType<DummyQuantityType::ValueType>::Max);
+        SSSTEST_EXPECT_EQ(b.value, SSSEngine::NumericTraitsType<DummyQuantityType::ValueType>::Min);
     }
 
     SSSTEST_TEST(OperatorPlus)

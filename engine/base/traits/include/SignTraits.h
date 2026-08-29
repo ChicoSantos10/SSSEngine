@@ -40,46 +40,40 @@ namespace SSSEngine
     };
 
     template<>
-    struct UnsignedImpl<char>
+    struct UnsignedImpl<i8>
     {
-        using Type = unsigned char;
+        using Type = u8;
     };
 
     template<>
-    struct UnsignedImpl<signed char>
+    struct UnsignedImpl<i16>
     {
-        using Type = unsigned char;
+        using Type = u16;
     };
 
     template<>
-    struct UnsignedImpl<short>
+    struct UnsignedImpl<i32>
     {
-        using Type = unsigned short;
+        using Type = u32;
     };
 
     template<>
-    struct UnsignedImpl<int>
+    struct UnsignedImpl<i64>
     {
-        using Type = unsigned int;
+        using Type = u64;
     };
 
     template<>
-    struct UnsignedImpl<long>
+    struct UnsignedImpl<i128>
     {
-        using Type = unsigned long;
-    };
-
-    template<>
-    struct UnsignedImpl<long long>
-    {
-        using Type = unsigned long long;
+        using Type = u128;
     };
 
     template<typename T>
     class UnsignedSelector;
 
     template<typename T>
-        requires IsIntegral<T>
+        requires IsInteger<T>
     class UnsignedSelector<T>
     {
         using UnsignedType = typename UnsignedImpl<RemoveCVType<T>>::Type;
@@ -139,40 +133,40 @@ namespace SSSEngine
     };
 
     template<>
-    struct SignedImpl<unsigned char>
+    struct SignedImpl<u8>
     {
-        using Type = signed char;
+        using Type = i8;
     };
 
     template<>
-    struct SignedImpl<unsigned short>
+    struct SignedImpl<u16>
     {
-        using Type = short;
+        using Type = i16;
     };
 
     template<>
-    struct SignedImpl<unsigned int>
+    struct SignedImpl<u32>
     {
-        using Type = int;
+        using Type = i32;
     };
 
     template<>
-    struct SignedImpl<unsigned long>
+    struct SignedImpl<u64>
     {
-        using Type = long;
+        using Type = i64;
     };
 
     template<>
-    struct SignedImpl<unsigned long long>
+    struct SignedImpl<u128>
     {
-        using Type = long long;
+        using Type = i128;
     };
 
     template<typename T>
     class SignedSelector;
 
     template<typename T>
-        requires IsIntegral<T>
+        requires IsInteger<T>
     class SignedSelector<T>
     {
         using SignedType = typename SignedImpl<RemoveCVType<T>>::Type;

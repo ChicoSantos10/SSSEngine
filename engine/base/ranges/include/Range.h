@@ -371,8 +371,8 @@ namespace SSSEngine::Ranges
                 using CountType = decltype(count);
                 if constexpr(IntegralConcept<CountType>)
                 {
-                    using CountTraits = SSSEngine::NumericTraits<CountType>;
-                    using PtrDiffTraits = SSSEngine::NumericTraits<ptrdiff>;
+                    using CountTraits = SSSEngine::NumericTraitsType<CountType>;
+                    using PtrDiffTraits = SSSEngine::NumericTraitsType<ptrdiff>;
 
                     if constexpr(CountTraits::BinaryDigits < PtrDiffTraits::BinaryDigits)
                     {

@@ -28,6 +28,7 @@
 #include "AsciiEncoding.h"
 #include "Attributes.h"
 #include "BasicIterator.h"
+#include "Concepts.h"
 #include "Debug.h"
 #include "Encoding.h"
 #include "HelperMacros.h"
@@ -45,7 +46,7 @@ namespace SSSEngine::Text
      * @param string The string to count
      * @return The number of code units until the null terminator
      */
-    template<StringTypeConcept CharType>
+    template<CharTypeConcept CharType>
     SSSENGINE_PURE SSSENGINE_GLOBAL
     constexpr SizeType Length(const CharType *const string) noexcept
     {

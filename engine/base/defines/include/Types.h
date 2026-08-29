@@ -40,6 +40,26 @@ using i32 = signed int;
 using u8 = unsigned char;
 using u16 = unsigned short;
 using u32 = unsigned int;
+
+#ifdef __SIZEOF_INT128__
+    #define SSSENGINE_NATIVE_INT128
+
+using i128 = __int128;
+using u128 = unsigned __int128;
+
+#else
+    #include "Debug.h"
+SSSENGINE_NOT_IMPLEMENTED
+
+class i128
+{
+};
+
+class u128
+{
+};
+#endif
+
 using f32 = float;
 using f64 = double;
 using f128 = long double;
@@ -62,8 +82,8 @@ using fast16u = u32;
 using fast32u = u32;
 using fast64u = u64;
 
-using maxint = i64;
-using maxuint = u64;
+using maxint = i128;
+using maxuint = u128;
 
 using functionPtr = void (*)();
 using objPtr = void *;

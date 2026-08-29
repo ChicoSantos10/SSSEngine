@@ -24,13 +24,28 @@
 
 #pragma once
 
+#include "Concepts.h"
 #include "Float.h"
 #include "Integer.h"
-#include "ValueTraits.h"
 
 namespace SSSEngine
 {
     template<typename T>
-    using NumericTraits = ConditionalType<IsIntegral<T>, IntTraits<T>, FloatTraits<T>>;
+    struct NumericTraits;
+
+    template<IntegralConcept Int>
+    struct NumericTraits<Int>
+    {
+        using Type = IntTraits<Int>;
+    };
+
+    template<FloatingPointConcept Float>
+    struct NumericTraits<Float>
+    {
+        using Type = FloatTraits<Float>;
+    };
+
+    template<typename T>
+    using NumericTraitsType = NumericTraits<T>::Type;
 
 } // namespace SSSEngine

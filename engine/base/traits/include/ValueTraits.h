@@ -35,83 +35,68 @@
 namespace SSSEngine
 {
     template<typename>
-    struct IsIntegralImpl : public FalseType
+    struct IsIntegerImpl : public FalseType
     {
     };
 
     template<>
-    struct IsIntegralImpl<bool> : public FalseType
+    struct IsIntegerImpl<i8> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<char> : public TrueType
+    struct IsIntegerImpl<u8> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<signed char> : public TrueType
+    struct IsIntegerImpl<i16> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<unsigned char> : public TrueType
+    struct IsIntegerImpl<u16> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<wchar_t> : public TrueType
+    struct IsIntegerImpl<i32> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<short> : public TrueType
+    struct IsIntegerImpl<u32> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<unsigned short> : public TrueType
+    struct IsIntegerImpl<i64> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<int> : public TrueType
+    struct IsIntegerImpl<u64> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<unsigned int> : public TrueType
+    struct IsIntegerImpl<i128> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegralImpl<long> : public TrueType
-    {
-    };
-
-    template<>
-    struct IsIntegralImpl<unsigned long> : public TrueType
-    {
-    };
-
-    template<>
-    struct IsIntegralImpl<long long> : public TrueType
-    {
-    };
-
-    template<>
-    struct IsIntegralImpl<unsigned long long> : public TrueType
+    struct IsIntegerImpl<u128> : public TrueType
     {
     };
 
     template<typename T>
-    struct Integral : public IsIntegralImpl<RemoveCVType<T>>::Type
+    struct Integer : public IsIntegerImpl<RemoveCVType<T>>::Type
     {
     };
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsIntegral = Integral<T>::Value;
+    constexpr bool IsInteger = Integer<T>::Value;
 
     template<typename T>
     struct IsFloatingPointImpl : public FalseType
@@ -143,13 +128,13 @@ namespace SSSEngine
     constexpr bool IsFloatingPoint = FloatingPointChecker<T>::Value;
 
     template<typename T>
-    struct NumberChecker : Or<Integral<T>, FloatingPointChecker<T>>
+    struct NumberChecker : Or<Integer<T>, FloatingPointChecker<T>>
     {
     };
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsNumber = IsIntegral<T> || IsFloatingPoint<T>;
+    constexpr bool IsNumber = IsInteger<T> || IsFloatingPoint<T>;
 
     template<typename T>
     struct UnicodeTypeCheckerImpl : public FalseType
@@ -182,7 +167,11 @@ namespace SSSEngine
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsChar = IsAnyType<RemoveCVType<T>, char, unsigned char, wchar_t>;
+    constexpr bool IsASCIIChar = IsSameType<RemoveCVType<T>, char>;
+
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr bool IsWideChar = IsSameType<RemoveCVType<T>, wchar_t>;
 
     template<typename T>
     struct NullPointerChecker : FalseType

@@ -399,7 +399,7 @@ namespace SSSEngine::Containers
     // Deduction Guides
 
     template<typename T>
-    concept IntegralConstantLikeConcept = IsIntegral<RemoveCVReferenceType<decltype(T::Value)>>;
+    concept IntegralConstantLikeConcept = IsInteger<RemoveCVReferenceType<decltype(T::Value)>>;
 
     template<typename T>
     SSSENGINE_GLOBAL

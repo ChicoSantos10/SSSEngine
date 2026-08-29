@@ -57,7 +57,7 @@ namespace SSSEngine
      *
      */
     template<typename T>
-    concept IntegralConcept = NumberConcept<T> && IsIntegral<T>;
+    concept IntegralConcept = NumberConcept<T> && IsInteger<T>;
 
     /**
      * @brief Concept of a Unsigned Integer type
@@ -130,10 +130,7 @@ namespace SSSEngine
     concept UnicodeTypeConcept = IsUnicodeChar<T>;
 
     template<typename T>
-    concept CharTypeConcept = IsChar<T>;
-
-    template<typename T>
-    concept StringTypeConcept = IsChar<T> || IsUnicodeChar<T>;
+    concept CharTypeConcept = UnicodeTypeConcept<T> || IsASCIIChar<T> || IsWideChar<T>;
 
     template<typename T>
     concept ConstConcept = IsConst<RemoveReferenceType<T>>;

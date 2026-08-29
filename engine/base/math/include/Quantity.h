@@ -187,12 +187,12 @@ namespace SSSEngine::Math
 
         static consteval Quantity Max() noexcept
         {
-            return Quantity{Limits::Max<ValueType>};
+            return Quantity{NumericTraits<ValueType>::Max};
         }
 
         static consteval Quantity Min() noexcept
         {
-            return Quantity{Limits::Min<ValueType>};
+            return Quantity{NumericTraits<ValueType>::Min};
         }
 
         template<QuantityConcept Lhs, SameQuantityConcept<Lhs> Rhs>

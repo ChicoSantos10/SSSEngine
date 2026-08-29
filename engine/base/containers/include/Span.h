@@ -47,7 +47,7 @@ namespace SSSEngine::Containers
     using ExtentType = SizeType;
 
     SSSENGINE_GLOBAL
-    constexpr auto DynamicExtent = Math::Limits::Max<ExtentType>;
+    constexpr auto DynamicExtent = IntTraits<ExtentType>::Max;
 
     template<ExtentType Extent>
     struct ExtentStorage

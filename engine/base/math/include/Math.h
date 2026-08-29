@@ -29,9 +29,8 @@
 #include "Concepts.h"
 #include "ConversionTraits.h"
 #include "Debug.h"
-#include "Float.h"
 #include "HelperMacros.h"
-#include "Limits.h"
+#include "Integer.h"
 #include "SignTraits.h"
 #include "Traits.h"
 #include "Types.h"
@@ -55,9 +54,9 @@ namespace SSSEngine::Math
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr T Absolute(T num) noexcept
     {
-        SSSENGINE_ASSERT(num != Limits::Min<T>);
+        SSSENGINE_ASSERT(num != IntTraits<T>::Min);
 
-        auto y = num >> (Limits::Bits<T> - 1);
+        auto y = num >> (Bits<T> - 1);
         return (num ^ y) - y;
     }
 
@@ -378,7 +377,7 @@ namespace SSSEngine::Math
         }();
         using UnsignedType = UnsignedType<decltype(value)>;
 
-        static constexpr auto Shift = Limits::Bits<Type> - 1;
+        static constexpr auto Shift = Bits<Type> - 1;
 
         return (value >> Shift) | (-static_cast<UnsignedType>(value) >> Shift);
     };
@@ -420,7 +419,7 @@ namespace SSSEngine::Math
     constexpr IntegralConcept auto BitWidth(IntegralConcept auto value)
     {
         using Type = decltype(value);
-        return Limits::BinaryDigits<Type> - CountLeftZeros(value);
+        return IntTraits<Type>::BinaryDigits - CountLeftZeros(value);
     }
 
     SSSENGINE_PURE SSSENGINE_GLOBAL
@@ -471,7 +470,7 @@ namespace SSSEngine::Math
             SSSENGINE_ASSERT(value >= 0);
         }
         using Type = UnsignedType<Int>;
-        return Limits::BinaryDigits<Type> - 1 - CountLeftZeros(value);
+        return IntTraits<Type>::BinaryDigits - 1 - CountLeftZeros(value);
     }
 
 } // namespace SSSEngine::Math

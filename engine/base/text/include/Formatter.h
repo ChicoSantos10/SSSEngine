@@ -32,6 +32,7 @@
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
 #include "EnumHelpers.h"
+#include "Integer.h"
 #include "Iterator.h"
 #include "Limits.h"
 #include "Math.h"
@@ -89,7 +90,7 @@ namespace SSSEngine::Text
 
         if constexpr(IsSigned<T>)
         {
-            if(value == Math::Limits::Min<T>)
+            if(value == IntTraits<T>::Min)
             {
                 StringView<Encoding> min = []()
                 {
@@ -115,7 +116,7 @@ namespace SSSEngine::Text
             }
         }
 
-        static constexpr SizeType MaxDigits = Math::Limits::DecimalDigits<T>;
+        static constexpr SizeType MaxDigits = IntTraits<T>::DecimalDigits + 1;
         CharType tmp[MaxDigits + 1]; // NOTE: Extra 1 for the sign (-)
 
         using Unsigned = UnsignedType<T>;
@@ -560,7 +561,7 @@ namespace SSSEngine::Text
         static constexpr SizeType PackedTypeMask = (1 << PackedTypeBits) - 1;
 
         static constexpr SizeType PackedSizeBits = 4;
-        static constexpr SizeType PackedTypesBits = Math::Limits::Bits<u64> - 4;
+        static constexpr SizeType PackedTypesBits = Bits<u64> - 4;
 
         static constexpr SizeType MaxPackedArgs = PackedTypesBits / PackedTypeBits;
 

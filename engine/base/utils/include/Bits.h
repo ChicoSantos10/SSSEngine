@@ -32,6 +32,15 @@
 namespace SSSEngine
 {
     /**
+     * @brief The size in bits of the Type T
+     *
+     * @tparam T The Type to check the size of
+     */
+    template<typename T>
+    SSSENGINE_GLOBAL
+    constexpr u64 Bits = sizeof(T) * 8;
+
+    /**
      * @brief Joins the bits together by doing a bitwise OR (|)
      *
      * @tparam Integer types like int, uint, byte...

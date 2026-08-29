@@ -276,7 +276,7 @@ namespace SSSEngine
                 return std::Impl::Make<WeakOrdering>(ordering);
             }
 
-            auto isNan = [](N v) -> int { return SSSEngine::Math::IsNaN(v) ? SSSEngine::Math::SignOf(v) ? -1 : 1 : 0; };
+            auto isNan = [](N v) -> int { return IsNaN(v) ? SSSEngine::Math::SignOf(v) ? -1 : 1 : 0; };
 
             return isNan(first) <=> isNan(second);
         }
@@ -330,7 +330,7 @@ namespace SSSEngine
             template<typename T>
             static constexpr T TwosComplement(T t) noexcept
             {
-                constexpr auto Bits = SSSEngine::Math::Limits::Bits<T>;
+                constexpr auto Bits = SSSEngine::Bits<T>;
 
                 SSSEngine::UnsignedType<T> sign = t >> (Bits - 1);
 
@@ -340,8 +340,8 @@ namespace SSSEngine
             template<typename T>
             static constexpr StrongOrdering FloatingPointCompare(T x, T y) noexcept
             {
-                auto xBits = SSSEngine::Math::AsBits(x);
-                auto yBits = SSSEngine::Math::AsBits(y);
+                auto xBits = SSSEngine::AsBits(x);
+                auto yBits = SSSEngine::AsBits(y);
 
                 if(xBits == yBits)
                 {

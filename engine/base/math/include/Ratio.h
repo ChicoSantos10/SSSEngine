@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "Integer.h"
 #include "Math.h"
 #include "HelperMacros.h"
 #include "Types.h"
@@ -37,7 +38,7 @@ namespace SSSEngine::Math
      * simplified when instantiated
      */
     template<maxint Num, maxint Den = 1>
-        requires(Den != 0 && Num != Math::Limits::Min<maxint> && Den != Math::Limits::Max<maxint>)
+        requires(Den != 0 && Num != IntTraits<maxint>::Min && Den != IntTraits<maxint>::Max)
     struct Ratio
     {
         static constexpr maxint Gcd = GreatestCommonDivisor(Num, Den);

@@ -17,7 +17,7 @@ namespace std
             equivalent = 0,
             less = -1,
             greater = 1,
-            unordered = SSSEngine::Math::Limits::Min<OrderingType>,
+            unordered = SSSEngine::IntTraits<OrderingType>::Min,
         };
 
         template<typename T>

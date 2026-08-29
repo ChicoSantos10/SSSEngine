@@ -17,6 +17,7 @@
     USA
 */
 
+#include "Integer.h"
 #include "Threading.h"
 #include "Attributes.h"
 #include "Limits.h"
@@ -97,7 +98,7 @@ namespace SSSEngine::Threading
     SSSENGINE_FORCE_INLINE
     void Notify(u32 *addr, bool all)
     {
-        if(Futex(addr, FUTEX_WAKE_PRIVATE, all ? Math::Limits::Max<u32> : 1, nullptr, nullptr, 0) == -1)
+        if(Futex(addr, FUTEX_WAKE_PRIVATE, all ? IntTraits<u32>::Max : 1, nullptr, nullptr, 0) == -1)
         {
             // TODO: Handle errors
         }

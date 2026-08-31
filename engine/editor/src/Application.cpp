@@ -30,6 +30,7 @@
 #include "Audio.h"
 #include "Renderer.h"
 #include "String.h"
+#include "System.h"
 #include "Timer.h"
 #include "Input.h"
 #include "Window.h"
@@ -90,6 +91,7 @@ namespace SSSEngine::Editor
 // TODO: Pass Array of Ascii strings instead
 void SSSEngine::Platform::RunApplication(int argc, char *argv[])
 {
+    SSSENGINE_ASSERT(System::HasAvx2());
     Editor::Application app;
     app.Run();
 }

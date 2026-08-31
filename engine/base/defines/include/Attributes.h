@@ -102,7 +102,14 @@
 
 #pragma region Attributes
 
-#define SSSENGINE_PURE [[nodiscard]]
+#define SSSENGINE_NODISCARD [[nodiscard]]
+#ifdef SSSENGINE_MSVC
+    #define SSSENGINE_PURE [[nodiscard]]
+    #define SSSENGINE_CONST [[nodiscard]]
+#elif defined(SSSENGINE_GCC) || defined(SSSENGINE_CLANG)
+    #define SSSENGINE_PURE [[nodiscard, gnu::pure]]
+    #define SSSENGINE_CONST [[nodiscard, gnu::const]]
+#endif
 #define SSSENGINE_NO_RETURN [[noreturn]]
 #define SSSENGINE_FALLTHROUGH [[fallthrough]]
 #define SSSENGINE_DEPRECATED(reason) [[deprecated(#reason)]]

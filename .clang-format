@@ -53,6 +53,7 @@ Macros:
   - SSSENGINE_PURE=[[nodiscard]]
   - SSSENGINE_FORCE_INLINE=[[nodiscard]]
   - SSSENGINE_GLOBAL=[[nodiscard]]
+  - SSSENGINE_SIMD_ATTRIBUTES=[[nodiscard]]
   - SSSENGINE_LIKELY=[[likely]]
   - SSSENGINE_UNLIKELY=[[unlikely]]
 MaxEmptyLinesToKeep: '1'

@@ -28,8 +28,6 @@
 #include "Concepts.h"
 #include "Debug.h"
 #include "Types.h"
-#include "ValueConstant.h"
-#include "ValueTraits.h"
 
 namespace SSSEngine
 {

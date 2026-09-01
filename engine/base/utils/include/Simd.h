@@ -1203,9 +1203,192 @@ namespace SSSEngine
     struct Float256
     {
         using NativeType = __m256;
+        using ElementType = f32;
+
+        Float256() = default;
+
+        // NOLINTBEGIN(google-explicit-constructor)
+
+        SSSENGINE_FORCE_INLINE
+        constexpr Float256(NativeType value) noexcept :
+            value(value)
+        {
+        }
+
+        // NOLINTEND(google-explicit-constructor)
+
+        SSSENGINE_FORCE_INLINE
+        constexpr explicit Float256(ElementType value) noexcept :
+            value(_mm256_set1_ps(value))
+        {
+        }
+
+        // ---------
+        // Operators
+        // ---------
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator+(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_add_ps(lhs.value, rhs.value);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator-(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_sub_ps(lhs.value, rhs.value);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator*(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_mul_ps(lhs.value, rhs.value);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator/(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_div_ps(lhs.value, rhs.value);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator&(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_and_ps(lhs.value, rhs.value);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator|(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_or_ps(lhs.value, rhs.value);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator^(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_xor_ps(lhs.value, rhs.value);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator==(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_cmp_ps(lhs.value, rhs.value, _CMP_EQ_OQ);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator!=(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_cmp_ps(lhs.value, rhs.value, _CMP_NEQ_OQ);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator>(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_cmp_ps(lhs.value, rhs.value, _CMP_GT_OQ);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator>=(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_cmp_ps(lhs.value, rhs.value, _CMP_GE_OQ);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator<(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_cmp_ps(lhs.value, rhs.value, _CMP_LT_OQ);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr friend Float256 operator<=(Float256 lhs, Float256 rhs)
+        {
+            return _mm256_cmp_ps(lhs.value, rhs.value, _CMP_LE_OQ);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator+=(Float256 other) noexcept
+        {
+            value = (*this + other).value;
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator-=(Float256 other) noexcept
+        {
+            value = (*this - other).value;
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator*=(Float256 other) noexcept
+        {
+            value = (*this * other).value;
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator/=(Float256 other) noexcept
+        {
+            value = (*this / other).value;
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator&=(Float256 other) noexcept
+        {
+            value = (*this & other).value;
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator|=(Float256 other) noexcept
+        {
+            value = (*this | other).value;
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator^=(Float256 other) noexcept
+        {
+            value = (*this ^ other).value;
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator~() noexcept
+        {
+            SSSENGINE_FUNCTION_LOCAL constexpr NativeType Neg1 = _mm256_castsi256_ps(_mm256_set1_epi64x(-1.0f));
+
+            value = _mm256_xor_ps(value, Neg1);
+
+            return *this;
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr Float256 &operator-() noexcept
+        {
+            SSSENGINE_FUNCTION_LOCAL constexpr NativeType Neg0 = _mm256_set1_ps(-0.0f);
+
+            value = _mm256_xor_ps(value, Neg0);
+
+            return *this;
+        }
 
         NativeType value;
     };
+
+    Float256 Fma(Float256 a, Float256 b, Float256 c)
+    {
+        SSSENGINE_ASSERT(System::HasFma());
+        return _mm256_fmadd_ps(a.value, b.value, c.value);
+    }
 
 #endif
 } // namespace SSSEngine

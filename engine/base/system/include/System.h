@@ -19,6 +19,12 @@ namespace SSSEngine::System
     }
 
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    bool HasFma()
+    {
+        return __builtin_cpu_supports("fma");
+    }
+
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     bool HasAvx512F()
     {
         return __builtin_cpu_supports("avx512f");

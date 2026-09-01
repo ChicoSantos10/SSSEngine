@@ -1,4 +1,3 @@
-
 /*  SSS Engine
     Copyright (C) 2025  Francisco Santos
 

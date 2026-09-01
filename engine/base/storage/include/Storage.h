@@ -1,4 +1,5 @@
-/*  SSS Engine Copyright (C) 2025  Francisco Santos
+/*  SSS Engine
+    Copyright (C) 2025  Francisco Santos
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public

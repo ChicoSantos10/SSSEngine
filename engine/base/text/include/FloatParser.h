@@ -287,32 +287,11 @@ namespace SSSEngine::Text
                 e10 -= lz;
                 result.digits[0] = result.digits[lz];
                 result.exponent = e10;
-                result.significantDigits = 1;
-                RawMemoryMove(&result.digits[lz + 1], &result.digits[Index], 8);
+                result.significantDigits = 8 - lz - 1;
+                RawMemoryMove(&result.digits[lz + 1], &result.digits[1], 8);
             }
 
         return result;
     }
-
-    constexpr f32 F = BitCopy<f32>(0x00000001);
-    constexpr auto A = FloatToAscii(F);
-    constexpr auto B = A.significantDigits;
-    constexpr auto C = A.exponent;
-    constexpr auto Digits = A.digits;
-    constexpr char Buf[] = {'1', '0', '0', '0', '0', '0', '0'};
-    SSSENGINE_STATIC_ASSERT(Digits[0] == Buf[0]);
-    SSSENGINE_STATIC_ASSERT(Digits[1] == Buf[1]);
-    SSSENGINE_STATIC_ASSERT(Digits[2] == Buf[2]);
-
-    constexpr auto One = 12340;
-    constexpr auto OnePos = 7;
-    constexpr char Buffer[] = {'1', '0', '0', '0', '2', '9', '8', '0'};
-    constexpr auto OnePosChar = Buffer[OnePos];
-    constexpr auto Interval = 10;
-    constexpr u32 E103 = C + 3;
-    constexpr auto E10 = E103 < Interval ? E103 : Interval;
-    constexpr auto First = 0;
-    constexpr auto DotPos = 1;
-    constexpr auto MovePos = DotPos + 1;
 
 } // namespace SSSEngine::Text

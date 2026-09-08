@@ -177,6 +177,30 @@ namespace SSSEngine::Text
             return m_data[index];
         }
 
+        SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+        constexpr friend bool operator==(StringView lhs, StringView rhs) noexcept
+        {
+            if(lhs.Count() != rhs.Count())
+            {
+                return false;
+            }
+
+            if(lhs.Data() == rhs.Data())
+            {
+                return true;
+            }
+
+            for(SizeType i = 0; i < lhs.Count(); ++i)
+            {
+                if(lhs[i] != rhs[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
       private:
         const CharType *m_data;
         SizeType m_count;

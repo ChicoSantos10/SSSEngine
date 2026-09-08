@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Address.h"
+#include "Array.h"
 #include "Attributes.h"
 #include "Concepts.h"
 #include "CopyAndMoveTraits.h"

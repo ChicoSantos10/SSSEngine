@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Attributes.h"
+#include "Byte.h"
 #include "Concepts.h"
 #include "CopyAndMoveTraits.h"
 #include "EnumHelpers.h"
@@ -140,4 +141,5 @@ namespace SSSEngine
         return __builtin_bit_cast(To, from);
 #endif
     }
+
 } // namespace SSSEngine

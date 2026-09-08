@@ -27,15 +27,15 @@
 
 #ifdef SSSENGINE_MSVC
     #define SSSENGINE_DEBUG_BREAK __debugbreak()
-#elif SSSENGINE_CLANG
+#elif defined(SSSENGINE_CLANG)
     #define SSSENGINE_DEBUG_BREAK __builtin_debugtrap()
-#elif SSSENGINE_GCC
+#elif defined(SSSENGINE_GCC)
     #define SSSENGINE_DEBUG_BREAK __builtin_trap()
 #endif
 
 #ifdef SSSENGINE_MSVC
     #define SSSENGINE_UNREACHABLE_IMPL __assume(0)
-#elif SSSENGINE_CLANG || SSSENGINE_GCC
+#elif defined(SSSENGINE_CLANG) || defined(SSSENGINE_GCC)
     #define SSSENGINE_UNREACHABLE_IMPL __builtin_unreachable()
 #endif
 

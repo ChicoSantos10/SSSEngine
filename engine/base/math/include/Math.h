@@ -29,6 +29,7 @@
 #include "Concepts.h"
 #include "ConversionTraits.h"
 #include "Debug.h"
+#include "Float.h"
 #include "HelperMacros.h"
 #include "Integer.h"
 #include "SignTraits.h"
@@ -145,14 +146,19 @@ namespace SSSEngine::Math
         auto asUnsigned = BitCopy<UnsignedType<Type>>(num);
 
 #ifdef SSSENGINE_MSVC
-        byte index;
-        auto result = _BitScanReverse(&index, asUnsigned);
+        // INVESTIGATE: Maybe use __lzcnt if available
         if constexpr(Fallback)
         {
-            return result == 0 ? 0 : index;
+            if(asUnsigned == 0)
+            {
+                return 0;
+            }
         }
-        return index;
-#elif SSSENGINE_GCC || SSSENGINE_CLANG
+        // TODO: If sizeof(Type) == 64 we need to call _BitScanReverse64
+        byte index;
+        auto result = _BitScanReverse(&index, asUnsigned);
+        return Bits<Type>() - 1 - index;
+#elif defined(SSSENGINE_GCC) || defined(SSSENGINE_CLANG)
         if constexpr(Fallback)
         {
             return __builtin_clzg(asUnsigned, 0);
@@ -427,18 +433,17 @@ namespace SSSEngine::Math
     {
         if(value <= 0)
         {
-            // TODO: Proper infinity
-            return -1.0f / 0;
+            return FloatTraits<f32>::NegativeInfinity;
         }
 
-        static constexpr float Log10of2 = 0.30102999566f;
-        static constexpr f32 P0 = 1.4426950408889634f;
-        static constexpr f32 P1 = -0.7213475204444817f;
-        static constexpr f32 P2 = 0.4808983469629878f;
-        static constexpr f32 P3 = -0.36067376022224085f;
-        static constexpr f32 P4 = 0.2885390081777927f;
-        static constexpr f32 P5 = -0.2402265069591013f;
-        static constexpr f32 P6 = 0.20625209037634344f;
+        SSSENGINE_FUNCTION_LOCAL constexpr float Log10of2 = 0.30102999566f;
+        SSSENGINE_FUNCTION_LOCAL constexpr f32 P0 = 1.4426950408889634f;
+        SSSENGINE_FUNCTION_LOCAL constexpr f32 P1 = -0.7213475204444817f;
+        SSSENGINE_FUNCTION_LOCAL constexpr f32 P2 = 0.4808983469629878f;
+        SSSENGINE_FUNCTION_LOCAL constexpr f32 P3 = -0.36067376022224085f;
+        SSSENGINE_FUNCTION_LOCAL constexpr f32 P4 = 0.2885390081777927f;
+        SSSENGINE_FUNCTION_LOCAL constexpr f32 P5 = -0.2402265069591013f;
+        SSSENGINE_FUNCTION_LOCAL constexpr f32 P6 = 0.20625209037634344f;
 
         u32 bits = BitCopy<u32>(value);
 
@@ -455,7 +460,6 @@ namespace SSSEngine::Math
 
         f32 t = m - 1.0f;
 
-        // TODO: Use SIMD fmadd
         f32 log2ofM = t * (P0 + t * (P1 + t * (P2 + t * (P3 + t * (P4 + t * (P5 + t * P6))))));
 
         return (static_cast<f32>(e) + log2ofM) * Log10of2;

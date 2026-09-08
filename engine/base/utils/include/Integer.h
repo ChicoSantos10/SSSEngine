@@ -56,7 +56,7 @@ namespace SSSEngine
         /**
          * @brief The amount of meaningful base 10 digits for type N
          */
-        static constexpr u32 DecimalDigits = BinaryDigits * 0.301029995664;
+        static constexpr u32 DecimalDigits = BinaryDigits * 0.301029995663981;
     };
 
 } // namespace SSSEngine

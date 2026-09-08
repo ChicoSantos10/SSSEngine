@@ -24,13 +24,26 @@
 
 #pragma once
 
-namespace SSSEngine::System
+#include "Array.h"
+#include "Attributes.h"
+#include "CopyAndMoveTraits.h"
+#include "Byte.h"
+#include "Swap.h"
+
+namespace SSSEngine
 {
-#if defined(__x86_64__) || defined(_M_X64)
-    #define SSSENGINE_X64
-#elif defined(__aarch_64__) || defined(_M_ARM64)
-    #define SSSENGINE_ARM64
-#else
-    #error "Architecture not recognized"
-#endif
-} // namespace SSSEngine::System
+    template<typename T>
+        requires IsTriviallyCopyable<T>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr auto Byteswap(const T &value) noexcept
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr auto Size = sizeof(T);
+        auto bytes = BitCopy<Containers::Array<Byte, Size>>(value);
+        for(SizeType i = 0; i < Size / 2; ++i)
+        {
+            Utility::Swap(bytes[i], bytes[Size - 1 - i]);
+        }
+
+        return BitCopy<T>(bytes);
+    };
+} // namespace SSSEngine

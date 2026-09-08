@@ -27,12 +27,17 @@
 #include "Architecture.h"
 
 #include "Attributes.h"
+#include "Bits.h"
+#include "Concepts.h"
 #include "Debug.h"
 #include "HelperMacros.h"
 #include "Math.h"
+#include "SignTraits.h"
 #include "System.h"
+#include "Traits.h"
 #include "Types.h"
 
+#include <emmintrin.h>
 #include <immintrin.h>
 
 #define SSSENGINE_SIMD_ATTRIBUTES SSSENGINE_CONST SSSENGINE_FORCE_INLINE
@@ -56,35 +61,36 @@ namespace SSSEngine
     template<>
     struct IntBySize<64>
     {
-        using Type = i64;
+        using Type = u64;
     };
 
     template<>
     struct IntBySize<32>
     {
-        using Type = i32;
+        using Type = u32;
     };
 
     template<>
     struct IntBySize<16>
     {
-        using Type = i16;
+        using Type = u16;
     };
 
     template<>
     struct IntBySize<8>
     {
-        using Type = i8;
+        using Type = u8;
     };
 
-    template<u32 Lanes>
-        requires(Lanes >= 2) && ValidLanesNumber<Lanes, 128>
+    template<IntegralConcept Int>
+        requires(sizeof(Int) < Bits<i64>)
     struct Int128
     {
-        static constexpr SizeType ElementSize = 128 / Lanes;
+        static constexpr SizeType ElementSize = Bits<Int>;
+        static constexpr SizeType Lanes = 128 / ElementSize;
 
         using NativeType = __m128i;
-        using ElementType = IntBySize<ElementSize>::Type;
+        using ElementType = Int;
 
         Int128() = default;
 
@@ -104,9 +110,9 @@ namespace SSSEngine
         {
         }
 
-        template<u32 L>
+        template<IntegralConcept I>
         SSSENGINE_FORCE_INLINE
-        constexpr explicit Int128(Int128<L> other) noexcept :
+        constexpr explicit Int128(Int128<I> other) noexcept :
             value{other.value}
         {
         }
@@ -281,9 +287,9 @@ namespace SSSEngine
             return *this;
         }
 
-        template<u32 L>
+        template<IntegralConcept I>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr Int128 &operator<<=(Int128<L> other) noexcept
+        constexpr Int128 &operator<<=(Int128<I> other) noexcept
         {
             value = NativeLeftShift(value, other.value);
 
@@ -298,9 +304,9 @@ namespace SSSEngine
             return *this;
         }
 
-        template<u32 L>
+        template<IntegralConcept I>
             SSSENGINE_SIMD_ATTRIBUTES
-        constexpr Int128 &operator>>=(Int128<L> other) noexcept
+        constexpr Int128 &operator>>=(Int128<I> other) noexcept
         {
             value = NativeRightShift(value, other.value);
 
@@ -333,12 +339,11 @@ namespace SSSEngine
             return *this;
         }
 
-        template<u32 L>
-            requires ValidLanesNumber<L, 128>
+        template<IntegralConcept I>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr explicit operator Int128<L>() noexcept
+        constexpr explicit operator Int128<I>() noexcept
         {
-            return Int128<L>{value};
+            return Int128<I>{value};
         }
 
         NativeType value;
@@ -349,19 +354,19 @@ namespace SSSEngine
         {
             if constexpr(ElementSize == 64)
             {
-                return _mm128_set1_epi64x(value);
+                return _mm_set1_epi64x(value);
             }
             else if constexpr(ElementSize == 32)
             {
-                return _mm128_set1_epi32(value);
+                return _mm_set1_epi32(value);
             }
             else if constexpr(ElementSize == 16)
             {
-                return _mm128_set1_epi16(value);
+                return _mm_set1_epi16(value);
             }
             else
             {
-                return _mm128_set1_epi8(value);
+                return _mm_set1_epi8(value);
             }
         }
 
@@ -517,15 +522,36 @@ namespace SSSEngine
         {
             if constexpr(ElementSize == 64)
             {
-                return _mm_srli_epi64(lhs, count);
+                if constexpr(IsSigned<ElementType>)
+                {
+                    return _mm_srai_epi64(lhs, count);
+                }
+                else
+                {
+                    return _mm_srli_epi64(lhs, count);
+                }
             }
             else if constexpr(ElementSize == 32)
             {
-                return _mm_srli_epi32(lhs, count);
+                if constexpr(IsSigned<ElementType>)
+                {
+                    return _mm_srai_epi32(lhs, count);
+                }
+                else
+                {
+                    return _mm_srli_epi32(lhs, count);
+                }
             }
             else if constexpr(ElementSize == 16)
             {
-                return _mm_srli_epi16(lhs, count);
+                if constexpr(IsSigned<ElementType>)
+                {
+                    return _mm_srai_epi16(lhs, count);
+                }
+                else
+                {
+                    return _mm_srli_epi16(lhs, count);
+                }
             }
             else
             {
@@ -538,15 +564,36 @@ namespace SSSEngine
         {
             if constexpr(ElementSize == 64)
             {
-                return _mm_srl_epi64(lhs, count);
+                if constexpr(IsSigned<ElementType>)
+                {
+                    return _mm_sra_epi64(lhs, count);
+                }
+                else
+                {
+                    return _mm_srl_epi64(lhs, count);
+                }
             }
             else if constexpr(ElementSize == 32)
             {
-                return _mm_srl_epi32(lhs, count);
+                if constexpr(IsSigned<ElementType>)
+                {
+                    return _mm_sra_epi32(lhs, count);
+                }
+                else
+                {
+                    return _mm_srl_epi32(lhs, count);
+                }
             }
             else if constexpr(ElementSize == 16)
             {
-                return _mm_srl_epi16(lhs, count);
+                if constexpr(IsSigned<ElementType>)
+                {
+                    return _mm_sra_epi16(lhs, count);
+                }
+                else
+                {
+                    return _mm_srl_epi16(lhs, count);
+                }
             }
             else
             {
@@ -559,16 +606,37 @@ namespace SSSEngine
         {
             if constexpr(ElementSize == 64)
             {
-                return _mm_srlv_epi64(lhs, count);
+                if constexpr(IsSigned<Int>)
+                {
+                    return _mm_srav_epi64(lhs, count);
+                }
+                else
+                {
+                    return _mm_srlv_epi64(lhs, count);
+                }
             }
             else if constexpr(ElementSize == 32)
             {
-                return _mm_srlv_epi32(lhs, count);
+                if constexpr(IsSigned<Int>)
+                {
+                    return _mm_srav_epi32(lhs, count);
+                }
+                else
+                {
+                    return _mm_srlv_epi32(lhs, count);
+                }
             }
             else if constexpr(ElementSize == 16)
             {
                 SSSENGINE_ASSERT(System::HasAvx512BW() && System::HasAvx512VL());
-                return _mm_srlv_epi16(lhs, count);
+                if constexpr(IsSigned<Int>)
+                {
+                    return _mm_srav_epi16(lhs, count);
+                }
+                else
+                {
+                    return _mm_srlv_epi16(lhs, count);
+                }
             }
             else
             {
@@ -640,10 +708,14 @@ namespace SSSEngine
         }
     };
 
-    using i64x2 = Int128<2>;
-    using i32x4 = Int128<4>;
-    using i16x8 = Int128<8>;
-    using i8x16 = Int128<16>;
+    using i64x2 = Int128<i64>;
+    using u64x2 = Int128<u64>;
+    using i32x4 = Int128<i32>;
+    using u32x4 = Int128<u32>;
+    using i16x8 = Int128<i16>;
+    using u16x8 = Int128<u16>;
+    using i8x16 = Int128<i8>;
+    using u8x16 = Int128<u8>;
 
     template<u32 Lanes>
         requires(Lanes >= 4) && ValidLanesNumber<Lanes, 256>
@@ -732,9 +804,9 @@ namespace SSSEngine
             return NativeLeftShift(lhs.value, rhs.value);
         }
 
-        template<u32 L>
+        template<IntegralConcept Int>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr friend Int256 operator<<(Int256 lhs, Int128<L> count) noexcept
+        constexpr friend Int256 operator<<(Int256 lhs, Int128<Int> count) noexcept
         {
             return NativeLeftShift(lhs.value, count.value);
         }
@@ -751,9 +823,9 @@ namespace SSSEngine
             return NativeRightShift(lhs.value, rhs.value);
         }
 
-        template<u32 L>
+        template<IntegralConcept Int>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr friend Int256 operator>>(Int256 lhs, Int128<L> count) noexcept
+        constexpr friend Int256 operator>>(Int256 lhs, Int128<Int> count) noexcept
         {
             return NativeRightShift(lhs.value, count.value);
         }
@@ -864,9 +936,9 @@ namespace SSSEngine
             return *this;
         }
 
-        template<u32 L>
+        template<IntegralConcept Int>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr Int256 &operator<<=(Int128<L> other) noexcept
+        constexpr Int256 &operator<<=(Int128<Int> other) noexcept
         {
             value = NativeLeftShift(value, other.value);
 
@@ -881,9 +953,9 @@ namespace SSSEngine
             return *this;
         }
 
-        template<u32 L>
+        template<IntegralConcept Int>
             SSSENGINE_SIMD_ATTRIBUTES
-        constexpr Int256 &operator>>=(Int128<L> other) noexcept
+        constexpr Int256 &operator>>=(Int128<Int> other) noexcept
         {
             value = NativeRightShift(value, other.value);
 
@@ -1405,10 +1477,34 @@ namespace SSSEngine
         NativeType value;
     };
 
-    Float256 Fma(Float256 a, Float256 b, Float256 c)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Float256 Fma(Float256 a, Float256 b, Float256 c)
     {
         SSSENGINE_ASSERT(System::HasFma());
         return _mm256_fmadd_ps(a.value, b.value, c.value);
+    }
+
+    template<IntegralConcept Int>
+        requires(Int128<Int>::ElementSize == 16)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> MulHi(Int128<Int> a, Int128<Int> b)
+    {
+        if constexpr(IsSigned<Int>)
+        {
+            return Int128<Int>(_mm_mulhi_epi16(a.value, b.value));
+        }
+        else
+        {
+            return Int128<Int>(_mm_mulhi_epu16(a.value, b.value));
+        }
+    }
+
+    template<IntegralConcept Int>
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr auto Lower64Bits(Int128<Int> a)
+    {
+        using Type = ConditionalType<IsSigned<Int>, i64, u64>;
+        return static_cast<Type>(_mm_cvtsi128_si64(a.value));
     }
 
 #endif

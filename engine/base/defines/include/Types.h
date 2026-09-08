@@ -48,7 +48,6 @@ using i128 = __int128;
 using u128 = unsigned __int128;
 
 #else
-    #include "Debug.h"
 SSSENGINE_NOT_IMPLEMENTED
 
 class i128
@@ -104,10 +103,12 @@ SSSENGINE_STATIC_ASSERT(sizeof(u8) == 1, "u8 must be 1 byte");
 SSSENGINE_STATIC_ASSERT(sizeof(u16) == 2, "u16 must be 2 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(u32) == 4, "u32 must be 4 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(u64) == 8, "u64 must be 8 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(u128) == 16, "u128 must be 8 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(i8) == 1, "i8 must be 1 byte");
 SSSENGINE_STATIC_ASSERT(sizeof(i16) == 2, "i16 must be 2 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(i32) == 4, "i32 must be 4 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(i64) == 8, "i64 must be 8 bytes");
+SSSENGINE_STATIC_ASSERT(sizeof(i128) == 16, "i128 must be 16 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(f32) == 4, "f32 must be 4 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(f64) == 8, "f64 must be 8 bytes");
 SSSENGINE_STATIC_ASSERT(sizeof(uintptr) == sizeof(void *), "uintptr should be the size of a pointer");

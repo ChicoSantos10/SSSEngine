@@ -56,8 +56,6 @@ namespace SSSEngine
     /**
      * @brief Copies the bit representation
      *
-     * @tparam From Type to copy from
-     * @tparam To Type to copy to
      * @param from Memory address to copy from
      * @param to Memory address to copy to
      * @param bytes The amount of bytes to copy
@@ -74,6 +72,27 @@ namespace SSSEngine
     }
 
     /**
+     * @brief Copies the bit representation where from and to can overlap
+     *
+     * @tparam From Type to copy from
+     * @tparam To Type to copy to
+     * @param from Memory address to copy from
+     * @param to Memory address to copy to
+     * @param bytes The amount of bytes to copy
+     */
+    SSSENGINE_FORCE_INLINE
+    constexpr void RawMemoryMove(const void *SSSENGINE_RESTRICT from, void *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
+    {
+#ifdef SSSENGINE_MSVC
+#elif SSSENGINE_CLANG || SSSENGINE_GCC
+        __builtin_memmove(to, from, bytes);
+#endif // SSSENGINE_MSVC
+    }
+
+    // TODO: This memory functions should operate under array of bytes. As such they should maybe be on a different file
+    //  They should also not be templated if here
+
+    /**
      * @brief Copies the bit representation in reverse order
      *
      * @tparam From Type to copy from
@@ -85,7 +104,7 @@ namespace SSSEngine
     template<typename From, typename To>
         requires(IsBitwiseCopyable<From> && IsBitwiseCopyable<To>)
     SSSENGINE_FORCE_INLINE
-    void ReverseMemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
+    constexpr void ReverseMemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
     {
         SSSENGINE_ASSERT(!PointersOverlap(from, to, bytes));
 
@@ -108,12 +127,23 @@ namespace SSSEngine
     template<typename T>
         requires(IsBitwiseCopyable<T>)
     SSSENGINE_FORCE_INLINE
-    void MemorySet(T *to, i8 value, SizeType bytes) noexcept
+    constexpr void MemorySet(T *to, i8 value, SizeType bytes) noexcept
     {
+        if consteval
+        {
+            auto amount = bytes / sizeof(T);
+            while(amount--)
+            {
+                *to++ = T(value);
+            }
+        }
+        else
+        {
 #ifdef SSSENGINE_MSVC
 #elif SSSENGINE_CLANG || SSSENGINE_GCC
-        __builtin_memset(to, value, bytes);
+            __builtin_memset(to, value, bytes);
 #endif // SSSENGINE_MSVC
+        }
     }
 
     /**
@@ -126,7 +156,7 @@ namespace SSSEngine
     template<typename T>
         requires(IsBitwiseCopyable<T>)
     SSSENGINE_FORCE_INLINE
-    void ZeroMemory(T *to, SizeType bytes) noexcept
+    constexpr void ZeroMemory(T *to, SizeType bytes) noexcept
     {
         MemorySet(to, 0, bytes);
     }

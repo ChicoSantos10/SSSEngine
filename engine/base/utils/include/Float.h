@@ -105,20 +105,20 @@ namespace SSSEngine
     };
 
     template<FloatingPointConcept Float>
-    using FloatToIntegerType = FloatTraits<Float>::Type;
+    using FloatToIntegerType = FloatTraits<Float>::IntegerType;
 
     template<FloatingPointConcept Float>
-    using FloatToIntegerUnsignedType = FloatTraits<Float>::UnsignedType;
+    using FloatToIntegerUnsignedType = FloatTraits<Float>::UnsignedIntegerType;
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto AsBits(Float value) noexcept
     {
         return BitCopy<FloatToIntegerUnsignedType<Float>>(value);
     }
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto AsSignedBits(Float value) noexcept
     {
         return BitCopy<FloatToIntegerType<Float>>(value);
@@ -141,7 +141,7 @@ namespace SSSEngine
                             (FloatTraits<f64>::ExponentWidth + FloatTraits<f64>::MantissaWidth == 63));
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto SignBit(FloatToIntegerUnsignedType<Float> bits) noexcept
     {
         return bits >> (Bits<Float> - 1);
@@ -157,7 +157,7 @@ namespace SSSEngine
      * @return The value of the sign bit (1 or 0)
      */
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto SignBit(Float value) noexcept
     {
         auto bits = AsBits(value);
@@ -166,14 +166,14 @@ namespace SSSEngine
     }
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto MaskExponent(FloatToIntegerUnsignedType<Float> bits) noexcept
     {
         return bits & FloatTraits<Float>::ExponentMask;
     }
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto MaskExponent(Float value) noexcept
     {
         auto bits = AsBits(value);
@@ -182,14 +182,14 @@ namespace SSSEngine
     }
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto MaskMantissa(FloatToIntegerUnsignedType<Float> bits) noexcept
     {
         return bits & FloatTraits<Float>::MantissaMask;
     }
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr auto MaskMantissa(Float value) noexcept
     {
         auto bits = AsBits(value);
@@ -198,22 +198,50 @@ namespace SSSEngine
     }
 
     template<FloatingPointConcept Float>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr auto Exponent(FloatToIntegerUnsignedType<Float> bits) noexcept
+    {
+        return MaskExponent<Float>(bits) >> FloatTraits<Float>::MantissaWidth;
+    }
+
+    template<FloatingPointConcept Float>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr auto Exponent(Float value) noexcept
+    {
+        auto bits = AsBits(value);
+
+        return Exponent<Float>(bits);
+    }
+
+    template<FloatingPointConcept Float>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr auto Mantissa(FloatToIntegerUnsignedType<Float> bits) noexcept
+    {
+        return MaskMantissa<Float>(bits);
+    }
+
+    template<FloatingPointConcept Float>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr auto Mantissa(Float value) noexcept
+    {
+        return MaskMantissa(value);
+    }
+
+    template<FloatingPointConcept Float>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr DecodedFloat<Float> Decode(Float value) noexcept
     {
         auto bits = AsBits(value);
 
-        return {.sign = SignBit<Float>(bits),
-                .exponent = MaskExponent<Float>(bits) >> FloatTraits<Float>::MantissaWidth,
-                .mantissa = MaskMantissa<Float>(bits)};
+        return {.sign = SignBit<Float>(bits), .exponent = Exponent<Float>(bits), .mantissa = MaskMantissa<Float>(bits)};
     }
 
     template<FloatingPointConcept R>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr bool IsNaN(R value) noexcept
     {
-#ifdef SSSENGINE_MSVC
-#elif SSSENGINE_CLANG || SSSENGINE_GCC
+#if defined(SSSENGINE_MSVC)
+#elif defined(SSSENGINE_CLANG) || defined(SSSENGINE_GCC)
         return __builtin_isnan(value);
 #else
         auto bits = AsBits(value);

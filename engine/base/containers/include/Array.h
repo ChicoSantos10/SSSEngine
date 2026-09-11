@@ -91,6 +91,10 @@ namespace SSSEngine::Containers
          */
         static constexpr SizeType Elements = N;
 
+        // =============================================================================================================
+        // Iterators
+        // =============================================================================================================
+
         /**
          * @return An iterator or const iterator depending on the constness of the array
          */
@@ -192,6 +196,10 @@ namespace SSSEngine::Containers
         {
             return Ranges::MakeReverseIterator(Begin());
         }
+
+        // =============================================================================================================
+        // Member Access
+        // =============================================================================================================
 
         /**
          * @return The result of indexing the underlying array

@@ -76,10 +76,14 @@ namespace SSSEngine
 
     #define SSSENGINE_UNREACHABLE                                                                                      \
         SSSENGINE_ASSERT(false && "Supposedly unreachable code reached"), SSSENGINE_UNREACHABLE_IMPL
+
+    #define SSSENGINE_TODO                                                                                             \
+        SSSENGINE_ASSERT(false && "This section is marked as TODO but was called!"), SSSENGINE_UNREACHABLE_IMPL
 #else
     #include "Attributes.h"
     #define SSSENGINE_ASSERT(expression) SSSENGINE_ASSUME(expression)
     #define SSSENGINE_UNREACHABLE SSSENGINE_UNREACHABLE_IMPL
+    #define SSSENGINE_TODO static_static_assert(false, "Code marked as TODO");
 #endif
 
 #define SSSENGINE_STATIC_ASSERT(...) static_assert(__VA_ARGS__)

@@ -66,11 +66,13 @@ namespace SSSEngine::Text
         i32 exponent;
     };
 
-    struct LookupTables
+    namespace F32Lookup
     {
         // NOTE: Range between -32 and 44
-        static constexpr u64 Elements = 44 - (-32) + 1;
-        static constexpr auto ReversePowerOf10 = []
+        SSSENGINE_GLOBAL
+        constexpr u64 Elements = 44 - (-32) + 1;
+        SSSENGINE_GLOBAL
+        constexpr auto ReversePowerOf10 = []
         {
             Containers::Array<u64, Elements> arr; // NOLINT(cppcoreguidelines-pro-type-member-init)
 
@@ -98,7 +100,8 @@ namespace SSSEngine::Text
             return arr;
         }();
 
-        static constexpr auto H37 = []
+        SSSENGINE_GLOBAL
+        constexpr auto H37 = []
         {
             Containers::Array<u8, 256> arr; // NOLINT(cppcoreguidelines-pro-type-member-init)
             for(int exp = 0; exp < 256; exp++)
@@ -112,16 +115,23 @@ namespace SSSEngine::Text
         }();
 
 #ifdef SSSENGINE_AARCH64
-        static constexpr auto C1 = (((u64)('0' + '0' * 256) << (36)) + (((u64)1 << (36 - 1)) - 7));
+        SSSENGINE_GLOBAL
+        constexpr auto C1 = (((u64)('0' + '0' * 256) << (36)) + (((u64)1 << (36 - 1)) - 7));
 #else
-        static constexpr auto C1 = (((u64)('0' + '0' * 256) << (36 - 1)) + (((u64)1 << (36 - 2)) - 7));
+        SSSENGINE_GLOBAL
+        constexpr auto C1 = (((u64)('0' + '0' * 256) << (36 - 1)) + (((u64)1 << (36 - 2)) - 7));
 #endif
-        static constexpr auto Div10000 = 1844674407370956;
-        static constexpr auto M = (1ULL << 32) - 10000;
-        static constexpr auto E7 = 10000000;
-        static constexpr auto E6 = 1000000;
-        static constexpr auto M32x4 = {0x147b000, -100 + 0x10000, 0xce0, -10 + 0x100};
-    };
+        SSSENGINE_GLOBAL
+        constexpr auto Div10000 = 1844674407370956;
+        SSSENGINE_GLOBAL
+        constexpr auto M = (1ULL << 32) - 10000;
+        SSSENGINE_GLOBAL
+        constexpr auto E7 = 10000000;
+        SSSENGINE_GLOBAL
+        constexpr auto E6 = 1000000;
+        SSSENGINE_GLOBAL
+        constexpr auto M32x4 = {0x147b000, -100 + 0x10000, 0xce0, -10 + 0x100};
+    }; // namespace F32Lookup
 
     struct Decimal8ToAsciiResult
     {
@@ -129,7 +139,10 @@ namespace SSSEngine::Text
         u64 significantDigitsSub1;
     };
 
-    constexpr Decimal8ToAsciiResult Decimal8ToAsciiAvx512(const u64 m, const u32 upDown, const u32 lz) {}
+    constexpr Decimal8ToAsciiResult Decimal8ToAsciiAvx512(const u64 m, const u32 upDown, const u32 lz)
+    {
+        SSSENGINE_TODO;
+    }
 
     SSSENGINE_CONST
     constexpr Decimal8ToAsciiResult Decimal8ToAsciiAvx2(const u64 m, const u32 upDown, const u32 lz)
@@ -184,12 +197,6 @@ namespace SSSEngine::Text
     SSSENGINE_GLOBAL
     constexpr Ascii8 FloatToAscii(float v)
     {
-        //         const struct FloatTable *t = &float_table;
-        //         const struct ConstValueFloat *c = &t->constants_float;
-        // #if SSSENGINE_ARM64 && (defined(SSSENGINE_INLINE_ASSEMBLY))
-        //         // For arm64 processor , fewer instructions
-        //         asm("" : "+r"(c)); // read constant values from memory to register
-        // #endif
         u32 bits = AsBits(v);
 
         u32 mantissa = Mantissa<f32>(bits);
@@ -212,11 +219,7 @@ namespace SSSEngine::Text
             c = mantissa;
         }
 
-        if(exponent == 255) SSSENGINE_UNLIKELY
-        {
-            return {};
-            // return (char *)memcpy(buf, mantissa ? "nan" : "inf", 4) + 3;
-        }
+        SSSENGINE_ASSERT(exponent != 255);
 
 #ifdef SSSENGINE_AARCH64 // for arm64 processor , fewer instructions
         i64 k = ((i64)biasedExponent * (u128)(1233ull << 52)) >> 64; // signed multiplication
@@ -227,14 +230,14 @@ namespace SSSEngine::Text
         bool irregular = mantissa == 0;
         SSSENGINE_FUNCTION_LOCAL constexpr int Bit = 36;
 
-        u8 h37 = LookupTables::H37[exponent];
+        u8 h37 = F32Lookup::H37[exponent];
         if(irregular) SSSENGINE_UNLIKELY
         {
             k = (i64)(q * 1233 - 512) >> 12;
             h37 = (Bit + 1) + q + ((k * -1701 + (-1701)) >> 9);
         }
 
-        u64 pow10 = LookupTables::ReversePowerOf10[k + 45];
+        u64 pow10 = F32Lookup::ReversePowerOf10[k + 45];
         u64 cb = c << h37;
         u64 hi64 = u128(cb) * pow10 >> 64;
         u64 halfUlp = (pow10 >> (65 - h37)) + ((mantissa + 1) & 1);
@@ -245,7 +248,7 @@ namespace SSSEngine::Text
 #ifdef SSSENGINE_AARCH64
         u32 one = (dotOne36Bit * 10 + LookupTables::C1 + (dotOne36Bit >> (Bit - 4))) >> Bit;
 #else
-        u32 one = (dotOne36Bit * 5 + LookupTables::C1 + (dotOne36Bit >> (Bit - 4))) >> (Bit - 1);
+        u32 one = (dotOne36Bit * 5 + F32Lookup::C1 + (dotOne36Bit >> (Bit - 4))) >> (Bit - 1);
 #endif
         if(irregular) SSSENGINE_UNLIKELY
         {
@@ -256,13 +259,13 @@ namespace SSSEngine::Text
             upDown = mUp > ((hi64 - (halfUlp >> 1)) >> Bit);
         }
 
-        u32 lz = (u32(mUp) < u32(LookupTables::E7)) + (u32(mUp) < u32(LookupTables::E6));
+        u32 lz = (u32(mUp) < u32(F32Lookup::E7)) + (u32(mUp) < u32(F32Lookup::E6));
 
         auto ascii = Decimal8ToAscii(mUp, upDown, lz);
         SizeType onePos = 8 - lz;
         i32 e10 = static_cast<i32>(k + (onePos));
 
-        Ascii8 result{.significantDigits = static_cast<u32>(ascii.significantDigitsSub1 + 1), .exponent = e10};
+        Ascii8 result{.digits{}, .significantDigits = static_cast<u32>(ascii.significantDigitsSub1 + 1), .exponent = e10};
 
         auto digits = BitCopy<Containers::Array<char, 8>>(ascii.ascii);
         auto oneDigits = BitCopy<Containers::Array<char, 4>>(one);
@@ -275,12 +278,11 @@ namespace SSSEngine::Text
 #endif
             if(mUp < 100'000) SSSENGINE_UNLIKELY
             {
-                Containers::Array<char, 8> uArr;
-                SSSENGINE_FUNCTION_LOCAL constexpr SizeType Index = 2;
-                RawMemoryCopy(&result.digits[Index], uArr.Data(), 8);
+                Containers::Array<char, 8> uArr; // NOLINT(cppcoreguidelines-pro-type-member-init)
+                RawMemoryCopy(&result.digits[2], uArr.Data(), 8);
                 u64 u = BitCopy<u64>(uArr);
                 u = System::IsLittleEndian() ? u : Byteswap(u);
-                u64 lz = Math::CountRightZeros(u & 0x0f0f0f0f0f0f0f0f) / 8;
+                i32 lz = Math::CountRightZeros(u & 0x0f0f0f0f0f0f0f0f) / 8;
                 lz += 2;
                 e10 -= lz;
                 result.digits[0] = result.digits[lz];

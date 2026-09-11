@@ -9,6 +9,10 @@ namespace SSSTest
 {
     using namespace SSSEngine::Text;
 
+    // =================================================================================================================
+    // Integrals
+    // =================================================================================================================
+
     SSSTEST_TEST(FormatIntegrals)
     {
         {
@@ -89,13 +93,9 @@ namespace SSSTest
         }
     }
 
-    SSSTEST_TEST(FormatString)
-    {
-        Utf8View view(u8"Hello!");
-        Utf8 string = Format<Utf8Encoding>("{}", view);
-        Utf8 result(u8"Hello!");
-        SSSTEST_EXPECT_EQ(string, result);
-    }
+    // =================================================================================================================
+    // Floating Point
+    // =================================================================================================================
 
     SSSTEST_TEST(FormatFloat32Zero)
     {
@@ -221,11 +221,43 @@ namespace SSSTest
         }
     }
 
+    // =================================================================================================================
+    // Characters & Strings
+    // =================================================================================================================
+
+    SSSTEST_TEST(FormatString)
+    {
+        Utf8View view(u8"Hello!");
+        Utf8 string = Format<Utf8Encoding>("{}", view);
+        Utf8 result(u8"Hello!");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
     SSSTEST_TEST(FormatChar)
     {
         char8 v = u8'o';
         auto string = Format<Utf8Encoding>(u8"{}", v);
         Utf8View result(u8"o");
         SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    // =================================================================================================================
+    // Bool
+    // =================================================================================================================
+
+    SSSTEST_TEST(FormatBool)
+    {
+        {
+            bool v = true;
+            auto string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8View result(u8"True");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            bool v = false;
+            auto string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8View result(u8"False");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
     }
 } // namespace SSSTest

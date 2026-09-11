@@ -306,6 +306,24 @@ namespace SSSEngine::Text
         }
     };
 
+    template<EncodingConcept Encoding>
+    struct Formatter<bool, Encoding>
+    {
+        using CharType = Encoding::CodeUnitType;
+
+        constexpr auto Parse() noexcept {}
+
+        template<typename FmtCtx>
+        constexpr auto Format(bool value, FmtCtx &ctx) const noexcept
+        {
+            SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> True = SSSENGINE_ENCODING_SELECTOR(CharType, "True");
+            SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> False = SSSENGINE_ENCODING_SELECTOR(CharType, "False");
+
+            *ctx.out++ = value ? True : False;
+            return ctx.out;
+        }
+    };
+
     enum class ArgType : u8
     {
         Bool,

@@ -97,6 +97,14 @@ namespace SSSTest
         SSSTEST_EXPECT_EQ(string, result);
     }
 
+    SSSTEST_TEST(FormatFloat32Zero)
+    {
+        f32 v = 0;
+        Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+        Utf8 result(u8"0");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
     SSSTEST_TEST(FormatFloat32)
     {
         {

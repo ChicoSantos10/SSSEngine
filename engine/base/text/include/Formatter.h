@@ -262,6 +262,14 @@ namespace SSSEngine::Text
         {
             // TODO: Check NaN and Inf
 
+            SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> Zero = SSSENGINE_ENCODING_SELECTOR(CharType, "0");
+
+            if(value == 0)
+            {
+                *ctx.out++ = Zero;
+                return ctx.out;
+            }
+
             auto decimal = FloatToAscii(value);
             ctx.out = Move(FormatShort(value, decimal, ctx));
             return ctx.out;
@@ -271,6 +279,7 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto FormatShort(f32 value, Ascii8 &decimal, FmtCtx &ctx) const noexcept
         {
+            // TODO: Other encodings
             SSSENGINE_FUNCTION_LOCAL constexpr char Signs[] = {'+', '-'};
 
             auto sign = SignBit(value);

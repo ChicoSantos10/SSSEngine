@@ -194,6 +194,14 @@ namespace SSSEngine::Text
         i32 exponent;
     };
 
+    /**
+     * @brief Deconstructs a 32-bit float into it's digits and exponent
+     *
+     * @important: Do not pass the values 0, NaN or +-Infinity
+     *
+     * @param v The float to convert
+     * @return The digits and exponent
+     */
     SSSENGINE_GLOBAL
     constexpr Ascii8 FloatToAscii(float v)
     {
@@ -208,12 +216,7 @@ namespace SSSEngine::Text
 
         if(exponent == 0) SSSENGINE_UNLIKELY
         {
-            if(mantissa == 0)
-            {
-                Ascii8 result{};
-                result.digits[0] = '0';
-                return result;
-            }
+            SSSENGINE_ASSERT(mantissa != 0);
 
             q = 1 - ExponentBias;
             c = mantissa;

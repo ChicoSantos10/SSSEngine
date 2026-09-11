@@ -179,15 +179,13 @@ namespace SSSEngine::Text
     {
         using CharType = Encoding::CodeUnitType;
 
-        constexpr auto Parse() const noexcept
-        {
-            SSSENGINE_UNREACHABLE;
-        }
+        constexpr auto Parse() const noexcept {}
 
         template<typename FmtCtx>
         constexpr auto Format(CharType value, FmtCtx &ctx) const noexcept -> decltype(ctx.out)
         {
-            SSSENGINE_UNREACHABLE;
+            *ctx.out++ = StringView<Encoding>(&value, 1);
+            return ctx.out;
         }
     };
 
@@ -196,7 +194,7 @@ namespace SSSEngine::Text
     {
         constexpr auto Parse() const noexcept
         {
-            // SSSENGINE_UNREACHABLE;
+            // TODO: Parse StringView
         }
 
         template<typename FmtCtx>

@@ -1,7 +1,7 @@
-#include "Logger.h"
 #include "String.h"
 #include "StringView.h"
 #include "Test.h"
+#include "Types.h"
 #include "Utf8Encoding.h"
 #include "Formatter.h"
 
@@ -219,5 +219,13 @@ namespace SSSTest
             Utf8 result(u8"-Infinity");
             SSSTEST_EXPECT_EQ(string, result);
         }
+    }
+
+    SSSTEST_TEST(FormatChar)
+    {
+        char8 v = u8'o';
+        auto string = Format<Utf8Encoding>(u8"{}", v);
+        Utf8View result(u8"o");
+        SSSTEST_EXPECT_EQ(string, result);
     }
 } // namespace SSSTest

@@ -162,7 +162,7 @@ namespace SSSEngine
     {
         auto bits = AsBits(value);
 
-        return SignBit(bits);
+        return SignBit<Float>(bits);
     }
 
     template<FloatingPointConcept Float>

@@ -104,6 +104,7 @@ namespace SSSEngine::Text
 
         constexpr StringView(const CharType *data) noexcept : m_data(data), m_count(Length(data)) {}
 
+        // TODO: Should this be possible? Should it be only explicit?
         constexpr StringView(const char *data, const SizeType size) noexcept
             requires IsSameType<Encoding, Utf8Encoding>
             : m_data{BitCopy<const char8 *>(data)}, m_count{size}

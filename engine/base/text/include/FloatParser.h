@@ -264,8 +264,6 @@ namespace SSSEngine::Text
 
         Ascii8 result{.significantDigits = static_cast<u32>(ascii.significantDigitsSub1 + 1), .exponent = e10};
 
-        u64 firstSigPos = 1 - e10;
-
         auto digits = BitCopy<Containers::Array<char, 8>>(ascii.ascii);
         auto oneDigits = BitCopy<Containers::Array<char, 4>>(one);
 

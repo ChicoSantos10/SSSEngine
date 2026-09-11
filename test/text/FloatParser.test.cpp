@@ -1,6 +1,4 @@
 #include "ArrayTraits.h"
-#include "AsciiEncoding.h"
-#include "CString.h"
 #include "Float.h"
 #include "HelperMacros.h"
 #include "Logger.h"
@@ -87,8 +85,6 @@ namespace SSSTest
 
         for(SizeType i = 0; i < SSSEngine::CountOf<decltype(Numbers)>; ++i)
         {
-            SSSENGINE_LOG_INFO("Index: {}\n", i);
-
             f32 v = Numbers[i];
             auto end = SSSEngine::Text::FloatToAscii(v);
             SSSEngine::Text::AsciiView string(end.digits.Data(), SigDigits[i]);

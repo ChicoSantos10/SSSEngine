@@ -24,29 +24,33 @@
 
 #pragma once
 
+#include "Address.h"
 #include "Algorithm.h"
+#include "Array.h"
 #include "AsciiEncoding.h"
 #include "Attributes.h"
 #include "Concepts.h"
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
+#include "Encoding.h"
 #include "EnumHelpers.h"
+#include "Float.h"
+#include "FloatParser.h"
+#include "HelperMacros.h"
 #include "Integer.h"
 #include "Iterator.h"
 #include "Math.h"
+#include "MemoryUtility.h"
 #include "QualifierTraits.h"
 #include "ReverseView.h"
 #include "SignTraits.h"
-#include "String.h"
 #include "Sink.h"
+#include "String.h"
 #include "StringView.h"
-#include "Encoding.h"
 #include "Traits.h"
 #include "Types.h"
-#include "Address.h"
 #include "Utf8Encoding.h"
-#include "HelperMacros.h"
 
 #define SSSENGINE_ENCODING_SELECTOR(charType, message)                                                                 \
     []() -> auto                                                                                                       \
@@ -243,6 +247,59 @@ namespace SSSEngine::Text
         }
     };
 
+    template<EncodingConcept Encoding>
+    struct Formatter<f32, Encoding>
+    {
+        using CharType = Encoding::CodeUnitType;
+
+        constexpr auto Parse() const noexcept
+        {
+            // TODO: Parse
+        }
+
+        template<typename FmtCtx>
+        constexpr auto Format(f32 value, FmtCtx &ctx) const noexcept
+        {
+            // TODO: Check NaN and Inf
+
+            auto decimal = FloatToAscii(value);
+            ctx.out = Move(FormatShort(value, decimal, ctx));
+            return ctx.out;
+        }
+
+      private:
+        template<typename FmtCtx>
+        constexpr auto FormatShort(f32 value, Ascii8 &decimal, FmtCtx &ctx) const noexcept
+        {
+            SSSENGINE_FUNCTION_LOCAL constexpr char Signs[] = {'+', '-'};
+
+            auto sign = SignBit(value);
+            i32 positiveExponent = decimal.exponent >= 0;
+            auto first = (positiveExponent ? 0 : 1 - decimal.exponent) + sign;
+            RawMemoryMove(decimal.digits.Data(), &decimal.digits[first], decimal.significantDigits);
+            auto dot = first + decimal.exponent + positiveExponent;
+            auto move = positiveExponent ? dot + 1 : dot;
+            RawMemoryMove(&decimal.digits[dot], &decimal.digits[move], 8);
+
+            for(SizeType i = 0; i < first; ++i)
+            {
+                decimal.digits[i] = '0';
+            }
+
+            bool showSign = sign;
+            decimal.digits[0] = showSign ? Signs[sign] : decimal.digits[0];
+            decimal.digits[dot] = '.';
+
+            auto digitCount = first + decimal.significantDigits +
+                              (i32(decimal.significantDigits) >= decimal.exponent) * positiveExponent;
+
+            StringView<Encoding> view(decimal.digits.Data(), digitCount);
+            *ctx.out++ = view;
+
+            return ctx.out;
+        }
+    };
+
     enum class ArgType : u8
     {
         Bool,
@@ -308,7 +365,8 @@ namespace SSSEngine::Text
         }
         else if constexpr(IsSameType<DecayType<Type>, CharType *> || IsSameType<DecayType<Type>, const CharType *>)
         {
-            // TODO: StringView? Shouldn't the IsConvertible already make this never happen?
+            // TODO: StringView? Shouldn't the IsConvertible already make this never
+            // happen?
             return Identity<const CharType *>{};
         }
         else if constexpr(SignedIntegralConcept<Type>)
@@ -363,7 +421,7 @@ namespace SSSEngine::Text
     using NormalizedArgType = decltype(NormalizeArgType<Encoding, T>())::Type;
 
     template<EncodingConcept Encoding, typename T>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr ArgType AsArgType()
     {
         using enum ArgType;
@@ -421,7 +479,7 @@ namespace SSSEngine::Text
     }
 
     template<EncodingConcept Encoding, typename T>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr FormatArgValue<Encoding> AsArgValue(T &value)
     {
         using Type = NormalizedArgType<Encoding, T>;
@@ -629,8 +687,8 @@ namespace SSSEngine::Text
 
         union
         {
-            // NOLINTBEGIN(readability-identifier-naming) These are still private of the class even if they are
-            // public for the union
+            // NOLINTBEGIN(readability-identifier-naming) These are still private of the
+            // class even if they are public for the union
 
             const FormatArgValue<Encoding> *m_values;
             const FormatArg<Encoding> *m_args;
@@ -675,7 +733,7 @@ namespace SSSEngine::Text
     };
 
     template<EncodingConcept Encoding, typename... Args>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr auto MakeFormatArgs(Args &...args)
     {
         using Storage = FormatArgStorage<Encoding, NormalizedArgType<Encoding, Args>...>;
@@ -802,9 +860,10 @@ namespace SSSEngine::Text
 
     // LOW_PRIORITY: Better documentation here:
     /**
-     * @brief Formats a string replacing {} by the variable declared in order. Can also use an Id like so {1}
-     * representing the index of the arg to use to replace. And can use format options like so {:fmt}. Can do both
-     * as well {1:fmt}
+     * @brief Formats a string replacing {} by the variable declared in order. Can
+     * also use an Id like so {1} representing the index of the arg to use to
+     * replace. And can use format options like so {:fmt}. Can do both as well
+     * {1:fmt}
      *
      * @param format A string representing the format
      * @param args The variables that will replace the {} on the format string
@@ -813,10 +872,10 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, typename... Args>
     String<Encoding> Format(FormatString<Encoding, IdentityType<Args>...> fmt, Args &&...args)
     {
-        // Find replacement fields: {} which can have an Id and/or a format spec {id:spec}
-        // Ignore escape sequence {{ and }} => replaced by {} in the output string
-        // Convert the type into string
-        // All args and replacement fields must be used
+        // Find replacement fields: {} which can have an Id and/or a format spec
+        // {id:spec} Ignore escape sequence {{ and }} => replaced by {} in the output
+        // string Convert the type into string All args and replacement fields must be
+        // used
 
         // INVESTIGATE: What to do if args are not there?
         if constexpr(sizeof...(args) == 0)
@@ -830,8 +889,9 @@ namespace SSSEngine::Text
         return FormatEngine(fmt.string, fa);
     }
 
-    // TODO: Simple, single argument format that simply formats the value into a string: Format("{}", x) -> Format(x)
-    // Or have a ToString(x) and Format("{}", x) just returns the ToString(x)
+    // TODO: Simple, single argument format that simply formats the value into a
+    // string: Format("{}", x) -> Format(x) Or have a ToString(x) and Format("{}",
+    // x) just returns the ToString(x)
     //
     // INVESTIGATE: Is it possible to deduce encoding instead of having it explicit
 

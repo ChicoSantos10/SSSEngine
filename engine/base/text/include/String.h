@@ -276,7 +276,7 @@ namespace SSSEngine::Text
         {
             if(m_isSmall)
             {
-                return MaxSmallSize;
+                return MaxCountSmall;
             }
 
             return m_data.heapString.m_capacity;

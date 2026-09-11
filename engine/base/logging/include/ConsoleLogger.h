@@ -34,6 +34,11 @@
 
 namespace SSSEngine::Logging
 {
+    SSSENGINE_GLOBAL
+    constexpr auto BeginRed = u8"\033[31m";
+    SSSENGINE_GLOBAL
+    constexpr auto Reset = u8"\033[0m";
+
     void LogConsole(LogLevel level, Text::StringView<Text::Utf8Encoding> message)
     {
         // TODO: Improve this:
@@ -50,7 +55,7 @@ namespace SSSEngine::Logging
                 final = Text::Format<Text::Utf8Encoding>(u8"[WARNING]: {}", message);
                 break;
             case LogLevel::Error:
-                final = Text::Format<Text::Utf8Encoding>(u8"\033[31m[ERROR]:\033[0m {}", message);
+                final = Text::Format<Text::Utf8Encoding>(u8"{}[ERROR]: {}{}", BeginRed, message, Reset);
                 FileSystem::StdError.Write(reinterpret_cast<const void *>(final.CString()), final.Count());
                 return;
         }

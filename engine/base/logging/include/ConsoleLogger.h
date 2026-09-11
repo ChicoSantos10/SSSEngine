@@ -36,6 +36,7 @@ namespace SSSEngine::Logging
 {
     SSSENGINE_GLOBAL
     constexpr auto BeginRed = u8"\033[31m";
+
     SSSENGINE_GLOBAL
     constexpr auto Reset = u8"\033[0m";
 

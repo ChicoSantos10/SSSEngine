@@ -52,28 +52,6 @@
 #include "Types.h"
 #include "Utf8Encoding.h"
 
-#define SSSENGINE_ENCODING_SELECTOR(charType, message)                                                                 \
-    []() -> auto                                                                                                       \
-    {                                                                                                                  \
-        if constexpr(IsSameType<charType, char>)                                                                       \
-        {                                                                                                              \
-            return SSSENGINE_ASCII(message);                                                                           \
-        }                                                                                                              \
-        else if constexpr(IsSameType<charType, char8>)                                                                 \
-        {                                                                                                              \
-            return SSSENGINE_UTF8(message);                                                                            \
-        }                                                                                                              \
-        else if constexpr(IsSameType<charType, char16>)                                                                \
-        {                                                                                                              \
-            return SSSENGINE_UTF16(message);                                                                           \
-        }                                                                                                              \
-        else if constexpr(IsSameType<charType, char32>)                                                                \
-        {                                                                                                              \
-            return SSSENGINE_UTF32(message);                                                                           \
-        }                                                                                                              \
-        SSSENGINE_UNREACHABLE;                                                                                         \
-    }()
-
 namespace SSSEngine::Text
 {
     template<EncodingConcept Encoding, IntegralConcept T, Ranges::OutputIteratorConcept<StringView<Encoding>> Out>

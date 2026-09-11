@@ -44,6 +44,28 @@
 #define SSSENGINE_FILE SSSENGINE_UTF8_FILE
 #define SSSENGINE_LINE __LINE__
 
+#define SSSENGINE_ENCODING_SELECTOR(charType, message)                                                                 \
+    []() -> auto                                                                                                       \
+    {                                                                                                                  \
+        if constexpr(IsSameType<charType, char>)                                                                       \
+        {                                                                                                              \
+            return SSSENGINE_ASCII(message);                                                                           \
+        }                                                                                                              \
+        else if constexpr(IsSameType<charType, char8>)                                                                 \
+        {                                                                                                              \
+            return SSSENGINE_UTF8(message);                                                                            \
+        }                                                                                                              \
+        else if constexpr(IsSameType<charType, char16>)                                                                \
+        {                                                                                                              \
+            return SSSENGINE_UTF16(message);                                                                           \
+        }                                                                                                              \
+        else if constexpr(IsSameType<charType, char32>)                                                                \
+        {                                                                                                              \
+            return SSSENGINE_UTF32(message);                                                                           \
+        }                                                                                                              \
+        SSSENGINE_UNREACHABLE;                                                                                         \
+    }()
+
 #define SSSENGINE_PRAGMA(x) _Pragma(#x)
 
 #define SSSENGINE_GLOBAL inline
@@ -55,6 +77,6 @@
 #define SSSENGINE_LIB(library) SSSENGINE_PRAGMA(comment(lib, #library))
 
 #ifdef SSSENGINE_MSVC
-#elif SSSENGINE_GCC || SSSENGINE_CLANG
+#elif defined(SSSENGINE_GCC) || defined(SSSENGINE_CLANG)
     #define SSSENGINE_PACKED(name) struct __attribute__((packed)) name
 #endif

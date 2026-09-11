@@ -260,13 +260,33 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(f32 value, FmtCtx &ctx) const noexcept
         {
-            // TODO: Check NaN and Inf
-
             SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> Zero = SSSENGINE_ENCODING_SELECTOR(CharType, "0");
+            SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> NaN = SSSENGINE_ENCODING_SELECTOR(CharType, "NaN");
+            SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> Inf = SSSENGINE_ENCODING_SELECTOR(CharType, "Infinity");
+            SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> SignedInf[] = {
+                SSSENGINE_ENCODING_SELECTOR(CharType, "+Infinity"), SSSENGINE_ENCODING_SELECTOR(CharType, "-Infinity")};
 
-            if(value == 0)
+            if(value == 0) SSSENGINE_UNLIKELY
             {
                 *ctx.out++ = Zero;
+                return ctx.out;
+            }
+            if(IsNaN(value)) SSSENGINE_UNLIKELY
+            {
+                *ctx.out++ = NaN;
+                return ctx.out;
+            }
+            if(IsInfinity(value)) SSSENGINE_UNLIKELY
+            {
+                auto showSign = SignBit(value);
+                if(showSign)
+                {
+                    *ctx.out++ = SignedInf[showSign];
+                }
+                else
+                {
+                    *ctx.out++ = Inf;
+                }
                 return ctx.out;
             }
 
@@ -276,11 +296,12 @@ namespace SSSEngine::Text
         }
 
       private:
+        static constexpr char Signs[] = {'+', '-'};
+
         template<typename FmtCtx>
         constexpr auto FormatShort(f32 value, Ascii8 &decimal, FmtCtx &ctx) const noexcept
         {
             // TODO: Other encodings
-            SSSENGINE_FUNCTION_LOCAL constexpr char Signs[] = {'+', '-'};
 
             auto sign = SignBit(value);
             i32 positiveExponent = decimal.exponent >= 0;

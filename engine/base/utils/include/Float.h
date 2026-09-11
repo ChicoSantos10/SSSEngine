@@ -253,4 +253,14 @@ namespace SSSEngine
 #endif
     }
 
+    template<FloatingPointConcept R>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr bool IsInfinity(R value) noexcept
+    {
+#if defined(SSSENGINE_MSVC)
+#elif defined(SSSENGINE_CLANG) || defined(SSSENGINE_GCC)
+        return __builtin_isinf(value);
+#endif
+    }
+
 } // namespace SSSEngine

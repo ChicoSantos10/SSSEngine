@@ -197,4 +197,27 @@ namespace SSSTest
         }
     }
 
+    SSSTEST_TEST(FormatFloat32Nan)
+    {
+        f32 v = SSSEngine::FloatTraits<f32>::NaN;
+        Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+        Utf8 result(u8"NaN");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatFloat32Infinity)
+    {
+        {
+            f32 v = SSSEngine::FloatTraits<f32>::PositiveInfinity;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"Infinity");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f32 v = SSSEngine::FloatTraits<f32>::NegativeInfinity;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-Infinity");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
 } // namespace SSSTest

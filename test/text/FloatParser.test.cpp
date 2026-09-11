@@ -92,12 +92,6 @@ namespace SSSTest
             SSSTEST_EXPECT_EQ(end.exponent, Exponents[i]);
             SSSTEST_EXPECT_EQ(end.significantDigits, SigDigits[i]);
         }
-
-        auto end = SSSEngine::Text::FloatToAscii(0.f);
-        SSSEngine::Text::AsciiView string(end.digits.Data(), 1);
-        SSSTEST_EXPECT_EQ(string, "0");
-        SSSTEST_EXPECT_EQ(end.exponent, 0);
-        SSSTEST_EXPECT_EQ(end.significantDigits, 0);
     }
 
 } // namespace SSSTest

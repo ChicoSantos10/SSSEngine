@@ -67,5 +67,11 @@ namespace SSSEngine::System
         return __builtin_cpu_supports("avx512vl");
     }
 
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    bool HasAvx512FP16()
+    {
+        return __builtin_cpu_supports("avx512fp16");
+    }
+
 #endif
 } // namespace SSSEngine::System

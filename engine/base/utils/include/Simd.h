@@ -26,9 +26,11 @@
 
 #include "Architecture.h"
 
+#include "Array.h"
 #include "Attributes.h"
 #include "Bits.h"
 #include "Concepts.h"
+#include "ConversionTraits.h"
 #include "Debug.h"
 #include "HelperMacros.h"
 #include "Math.h"
@@ -39,6 +41,8 @@
 
 #include <emmintrin.h>
 #include <immintrin.h>
+#include <smmintrin.h>
+#include <xmmintrin.h>
 
 #define SSSENGINE_SIMD_ATTRIBUTES SSSENGINE_CONST SSSENGINE_FORCE_INLINE
 
@@ -107,6 +111,12 @@ namespace SSSEngine
         SSSENGINE_FORCE_INLINE
         constexpr explicit Int128(ElementType value) noexcept :
             value(NativeSet(value))
+        {
+        }
+
+        template<typename... Args>
+            requires(sizeof...(Args) == Lanes) && (ConvertibleToConcept<ElementType, Args> && ...)
+        SSSENGINE_FORCE_INLINE constexpr explicit Int128(Args... values) noexcept : value(NativeSetMultiple(values...))
         {
         }
 
@@ -371,7 +381,58 @@ namespace SSSEngine
         }
 
         SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1, ElementType v2) noexcept
+            requires(ElementSize == 64)
+        {
+            return _mm_set_epi64x(v1, v2);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1, ElementType v2, ElementType v3, ElementType v4) noexcept
+            requires(ElementSize == 32)
+        {
+            return _mm_set_epi32(v4, v3, v2, v1);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1,
+                                                      ElementType v2,
+                                                      ElementType v3,
+                                                      ElementType v4,
+                                                      ElementType v5,
+                                                      ElementType v6,
+                                                      ElementType v7,
+                                                      ElementType v8) noexcept
+            requires(ElementSize == 16)
+        {
+            return _mm_set_epi16(v8, v7, v6, v5, v4, v3, v2, v1);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1,
+                                                      ElementType v2,
+                                                      ElementType v3,
+                                                      ElementType v4,
+                                                      ElementType v5,
+                                                      ElementType v6,
+                                                      ElementType v7,
+                                                      ElementType v8,
+                                                      ElementType v9,
+                                                      ElementType v10,
+                                                      ElementType v11,
+                                                      ElementType v12,
+                                                      ElementType v13,
+                                                      ElementType v14,
+                                                      ElementType v15,
+                                                      ElementType v16) noexcept
+            requires(ElementSize == 8)
+        {
+            return _mm_set_epi8(v16, v15, v14, v13, v12, v11, v10, v9, v8, v7, v6, v5, v4, v3, v2, v1);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
         constexpr static NativeType NativeAdd(NativeType lhs, NativeType rhs)
+
         {
             if constexpr(ElementSize == 64)
             {
@@ -1507,7 +1568,198 @@ namespace SSSEngine
         return static_cast<Type>(_mm_cvtsi128_si64(a.value));
     }
 
+    /**
+     * @brief Copies an Integer to the lower elements of the 128-bit register and zeroes the remaining
+     *
+     * @param Int A signed or unsigned Integer type
+     * @param a The integer to copy
+     * @return A register with the first element a and the remaining values at 0
+     */
+    template<IntegralConcept Int>
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> CopyInt(Int a)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr SizeType Size = Int128<Int>::ElementSize;
+        if constexpr(Size == 64)
+        {
+            return _mm_cvtsi64_si128(a);
+        }
+        else if constexpr(Size == 32)
+        {
+            return _mm_cvtsi32_si128(a);
+        }
+        else if constexpr(Size == 16)
+        {
+            SSSENGINE_ASSERT(System::HasAvx512FP16());
+            return _mm_cvtsi16_si128(a);
+        }
+    }
+
+    template<IntegralConcept Int>
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> UnpackLow(Int128<Int> a, Int128<Int> b)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr SizeType Size = Int128<Int>::ElementSize;
+        if constexpr(Size == 64)
+        {
+            return _mm_unpacklo_epi64(a.value, b.value);
+        }
+        else if constexpr(Size == 32)
+        {
+            return _mm_unpacklo_epi32(a.value, b.value);
+        }
+        else if constexpr(Size == 16)
+        {
+            return _mm_unpacklo_epi16(a.value, b.value);
+        }
+        else
+        {
+            return _mm_unpacklo_epi8(a.value, b.value);
+        }
+    }
+
+    template<IntegralConcept Int>
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> UnpackHigh(Int128<Int> a, Int128<Int> b)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr SizeType Size = Int128<Int>::ElementSize;
+        if constexpr(Size == 64)
+        {
+            return _mm_unpackhi_epi64(a.value, b.value);
+        }
+        else if constexpr(Size == 32)
+        {
+            return _mm_unpackhi_epi32(a.value, b.value);
+        }
+        else if constexpr(Size == 16)
+        {
+            return _mm_unpackhi_epi16(a.value, b.value);
+        }
+        else
+        {
+            return _mm_unpackhi_epi8(a.value, b.value);
+        }
+    }
+
+    template<IntegralConcept Int>
+        requires(Int128<Int>::ElementSize == 64)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> MultiplyLow32Bit(Int128<Int> a, Int128<Int> b)
+    {
+        if constexpr(IsSigned<Int>)
+        {
+            return _mm_mul_epi32(a.value, b.value);
+        }
+        else
+        {
+            return _mm_mul_epu32(a.value, b.value);
+        }
+    }
+
+    struct ShufflerMask
+    {
+        using Type = u8;
+
+        Type a;
+        Type b;
+        Type c;
+        Type d;
+    };
+
+    template<IntegralConcept Int, ShufflerMask Mask>
+        requires(Int128<Int>::ElementSize == 32)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> Shuffle(Int128<Int> a)
+    {
+        return _mm_shuffle_epi32(a.value, _MM_SHUFFLE(Mask.d, Mask.c, Mask.b, Mask.a));
+    }
+
+    template<IntegralConcept Int>
+        requires(Int128<Int>::ElementSize == 32)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> Reverse(Int128<Int> a)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr ShufflerMask Mask{.a = 0, .b = 1, .c = 2, .d = 3};
+        return Shuffle<Int, Mask>(a);
+    }
+
+    template<IntegralConcept Int>
+        requires(Int128<Int>::ElementSize == 8)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> Shuffle(Int128<Int> a, Int128<Int> b)
+    {
+        return _mm_shuffle_epi8(a.value, b.value);
+    }
+
+    template<IntegralConcept Int>
+        requires(Int128<Int>::ElementSize == 8)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int128<Int> Reverse(Int128<Int> a)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr Int128<Int> Mask(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+        return Shuffle(a, Mask);
+    }
+
+    template<IntegralConcept Int>
+        requires(Int128<Int>::ElementSize == 8)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr int MoveMask(Int128<Int> a)
+    {
+        return _mm_movemask_epi8(a.value);
+    }
+
+    template<IntegralConcept Int>
+        SSSENGINE_FORCE_INLINE
+    constexpr void Store(Int128<Int> a, Int *address)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr auto HalfLanes = Int128<Int>::Lanes / 2;
+
+        if consteval
+        {
+            for(SizeType i = 0; i < 2; ++i)
+            {
+                u64 value = a.value[i];
+
+                SizeType index = i * HalfLanes;
+                for(SizeType j = 0; j < HalfLanes; j++)
+                {
+                    address[index + j] = Int(value >> HalfLanes * j);
+                }
+            }
+        }
+        else
+        {
+            _mm_storeu_si128(reinterpret_cast<__m128i *>(address), a.value);
+        }
+    }
+
+    template<IntegralConcept Int>
+        SSSENGINE_FORCE_INLINE
+    constexpr void StoreAligned(Int128<Int> a, Int *address)
+    {
+        // TODO: Assert that address is aligned
+
+        SSSENGINE_FUNCTION_LOCAL constexpr auto Size = Int128<Int>::ElementSize;
+
+        if consteval
+        {
+            Store(a, address);
+        }
+        else
+        {
+            _mm_store_si128(reinterpret_cast<__m128i *>(address), a.value);
+        }
+    }
+
+    template<IntegralConcept Int>
+        SSSENGINE_FORCE_INLINE
+    constexpr Int StoreLow32Bit(Int128<Int> a) noexcept
+    {
+        return _mm_cvtsi128_si32(a.value);
+    }
+
 #endif
+
 } // namespace SSSEngine
 
 // NOLINTEND(portability-simd-intrinsics)

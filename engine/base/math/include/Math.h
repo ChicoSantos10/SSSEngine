@@ -91,7 +91,7 @@ namespace SSSEngine::Math
      */
     template<bool Fallback = false>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr u8 CountRightZeros(IntegralConcept auto mask) noexcept
+    constexpr int CountRightZeros(IntegralConcept auto mask) noexcept
     {
         if constexpr(!Fallback)
         {
@@ -108,7 +108,7 @@ namespace SSSEngine::Math
             return result == 0 ? 0 : index;
         }
         return index;
-#elif SSSENGINE_GCC || SSSENGINE_CLANG
+#elif defined(SSSENGINE_GCC) || defined(SSSENGINE_CLANG)
         if constexpr(Fallback)
         {
             return __builtin_ctzg(asUnsigned, 0);
@@ -135,7 +135,7 @@ namespace SSSEngine::Math
      */
     template<bool Fallback = false>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr char CountLeftZeros(IntegralConcept auto num) noexcept
+    constexpr int CountLeftZeros(IntegralConcept auto num) noexcept
     {
         if constexpr(!Fallback)
         {
@@ -154,7 +154,7 @@ namespace SSSEngine::Math
                 return 0;
             }
         }
-        // TODO: If sizeof(Type) == 64 we need to call _BitScanReverse64
+        // TODO: If sizeof(Type) == 64 we need to call _BitScanReverse64 and fix the CountRightZeros version
         byte index;
         auto result = _BitScanReverse(&index, asUnsigned);
         return Bits<Type>() - 1 - index;

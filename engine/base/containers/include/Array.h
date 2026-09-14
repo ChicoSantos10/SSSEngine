@@ -359,6 +359,16 @@ namespace SSSEngine::Containers
             return array.End();
         }
 
+        friend constexpr decltype(auto) begin(Array &array) noexcept
+        {
+            return array.Begin();
+        }
+
+        friend constexpr decltype(auto) end(Array &array) noexcept
+        {
+            return array.End();
+        }
+
         // NOLINTEND(readability-identifier-naming)
     };
 

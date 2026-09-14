@@ -275,31 +275,32 @@ namespace SSSEngine::Text
         static constexpr char Signs[] = {'+', '-'};
 
         template<typename FmtCtx>
-        constexpr auto FormatShort(f32 value, Ascii8 &decimal, FmtCtx &ctx) const noexcept
+        constexpr auto FormatShort(f32 value, FloatToAsciiResult &decimal, FmtCtx &ctx) const noexcept
         {
-            // TODO: Other encodings
-
             auto sign = SignBit(value);
+            u32 showSign = sign;
+            u32 hideSign = !sign;
+
             i32 positiveExponent = decimal.exponent >= 0;
-            auto first = (positiveExponent ? 0 : 1 - decimal.exponent) + sign;
+            u32 first = (positiveExponent ? 0 : 1 - decimal.exponent) + 1;
             RawMemoryMove(decimal.digits.Data(), &decimal.digits[first], decimal.significantDigits);
+
             auto dot = first + decimal.exponent + positiveExponent;
             auto move = positiveExponent ? dot + 1 : dot;
             RawMemoryMove(&decimal.digits[dot], &decimal.digits[move], 8);
 
-            for(SizeType i = 0; i < first; ++i)
+            for(SizeType i = showSign; i < first; ++i)
             {
                 decimal.digits[i] = '0';
             }
 
-            bool showSign = sign;
-            decimal.digits[0] = showSign ? Signs[sign] : decimal.digits[0];
+            decimal.digits[0] = Signs[sign];
             decimal.digits[dot] = '.';
 
-            auto digitCount = first + decimal.significantDigits +
+            auto digitCount = first - hideSign + decimal.significantDigits +
                               (i32(decimal.significantDigits) >= decimal.exponent) * positiveExponent;
 
-            StringView<Encoding> view(decimal.digits.Data(), digitCount);
+            StringView<Encoding> view(&decimal.digits[hideSign], digitCount);
             *ctx.out++ = view;
 
             return ctx.out;

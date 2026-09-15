@@ -223,8 +223,8 @@ namespace SSSEngine::Text
         }
     };
 
-    template<EncodingConcept Encoding>
-    struct Formatter<f32, Encoding>
+    template<FloatingPointConcept Float, EncodingConcept Encoding>
+    struct Formatter<Float, Encoding>
     {
         using CharType = Encoding::CodeUnitType;
 
@@ -234,7 +234,7 @@ namespace SSSEngine::Text
         }
 
         template<typename FmtCtx>
-        constexpr auto Format(f32 value, FmtCtx &ctx) const noexcept
+        constexpr auto Format(Float value, FmtCtx &ctx) const noexcept
         {
             SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> Zero = SSSENGINE_ENCODING_SELECTOR(CharType, "0");
             SSSENGINE_FUNCTION_LOCAL constexpr StringView<Encoding> NaN = SSSENGINE_ENCODING_SELECTOR(CharType, "NaN");
@@ -275,7 +275,7 @@ namespace SSSEngine::Text
         static constexpr char Signs[] = {'+', '-'};
 
         template<typename FmtCtx>
-        constexpr auto FormatShort(f32 value, FloatToAsciiResult &decimal, FmtCtx &ctx) const noexcept
+        constexpr auto FormatShort(f64 value, FloatToAsciiResult &decimal, FmtCtx &ctx) const noexcept
         {
             auto sign = SignBit(value);
             u32 showSign = sign;
@@ -297,10 +297,15 @@ namespace SSSEngine::Text
             decimal.digits[0] = Signs[sign];
             decimal.digits[dot] = '.';
 
-            auto digitCount = first - hideSign + decimal.significantDigits +
-                              (i32(decimal.significantDigits) >= decimal.exponent) * positiveExponent;
+            auto countNegative = first - hideSign + decimal.significantDigits;
 
-            StringView<Encoding> view(&decimal.digits[hideSign], digitCount);
+            u32 absoluteExponent = Math::Absolute(decimal.exponent) + 1;
+            u32 digits = Math::Max(decimal.significantDigits, absoluteExponent);
+            bool hasDot = decimal.significantDigits > absoluteExponent;
+
+            auto count = positiveExponent ? digits + hasDot + showSign : countNegative;
+
+            StringView<Encoding> view(&decimal.digits[hideSign], count);
             *ctx.out++ = view;
 
             return ctx.out;

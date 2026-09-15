@@ -20,15 +20,15 @@
 /**
  * @file
  * @brief Utility to convert float from and to strings using the xjb algorithm
+ *
+ * Credit to Junbo Xiang and Tiejun Wang for the paper and the implementation whose this code derives from
  */
 
 #pragma once
 
 #include "Array.h"
-#include "AsciiEncoding.h"
 #include "Attributes.h"
 #include "Bits.h"
-#include "Concepts.h"
 #include "Debug.h"
 #include "Endian.h"
 #include "Float.h"
@@ -37,15 +37,9 @@
 #include "Math.h"
 #include "MemoryUtility.h"
 #include "Simd.h"
-#include "String.h"
-#include "StringView.h"
 #include "System.h"
 #include "Types.h"
-#include "Byte.h"
-#include "Utf8Encoding.h"
 #include "Byteswap.h"
-#include <emmintrin.h>
-#include <immintrin.h>
 
 namespace SSSEngine::Text
 {
@@ -393,10 +387,10 @@ namespace SSSEngine::Text
         SSSENGINE_FUNCTION_LOCAL constexpr u8x16 Zero('0');
         auto ascii16Swapped = u8x16(bcdSwapped) + Zero;
         auto ascii16 = Reverse(ascii16Swapped);
-        int mask = MoveMask(u8x16(u8x16(bcdSwapped) > u8x16(0)));
+        int mask = MoveMask(u8x16(bcdSwapped) > u8x16(0));
 
         int tz = Math::CountRightZeros(mask);
-        auto digits = upDown ? 14 + d17 - tz : 15 + d17;
+        auto digits = upDown ? 15 - tz : 15 + d17;
 
         return {.ascii = ascii16, .significantDigitsSub1 = static_cast<u64>(digits)};
     }
@@ -410,9 +404,6 @@ namespace SSSEngine::Text
         u32 ijklmnop = m + abcdefgh * HundredMillion;
 
 #ifdef SSSENGINE_X64
-    #ifdef SSSENGINE_AVX512
-    #elif defined(SSSENGINE_AVX2)
-    #else
         if consteval
         {
             return DecimalToAscii16Avx2(m, upDown, d17, abcdefgh, ijklmnop);
@@ -423,12 +414,11 @@ namespace SSSEngine::Text
             {
                 SSSENGINE_TODO;
             }
-            else if(System::HasAvx2())
+            else
             {
                 return DecimalToAscii16Avx2(m, upDown, d17, abcdefgh, ijklmnop);
             }
         }
-    #endif
 #elif defined(SSSENGINE_NEON)
         SSSENGINE_NOT_IMPLEMENTED;
 #endif
@@ -482,10 +472,10 @@ namespace SSSEngine::Text
 #else
         i64 k = ((i64(exponent) - ExponentBias) * 78913) >> 18;
 #endif // SSSENGINE_AARCH64
+
         const u64 *pow10 = F64Lookup::PowerOf10.Data() + 648 + k * 2;
         u64 powerHi = pow10[0];
         u64 powerLow = pow10[1];
-        // TODO: Can we just use u128?
         auto b = c << h7Precalc;
         u128 result = (u128(b) * powerHi + ((u128(b) * powerLow) >> 64));
         u64 resultHi = result >> 64;
@@ -545,36 +535,28 @@ namespace SSSEngine::Text
             Store(ascii.ascii, reinterpret_cast<u8 *>(final.digits.Data()));
         }
 
+        one |= 0x30303030;
+        auto trailing = BitCopy<Containers::Array<char, 4>>(one);
+        RawMemoryCopy(trailing.Data(), &final.digits[16], 4);
+
 #ifdef SSSENGINE_AARCH64
         if(exponent == 0) SSSENGINE_UNLIKELY
 #endif
             if(mUp < u64(1e14)) SSSENGINE_UNLIKELY
             {
-                SSSENGINE_TODO;
+                u64 lz = 0;
+                while(final.digits[lz] == '0')
+                {
+                    ++lz;
+                }
+
+                e10 -= i32(lz);
+                final.exponent = e10;
+                final.significantDigits -= lz;
+                RawMemoryMove(&final.digits[lz], &final.digits[0], final.significantDigits);
             }
 
         return final;
     }
-
-    constexpr auto A = FloatToAscii(198239.298239);
-    constexpr auto B = A.exponent;
-    constexpr auto C = A.digits;
-    constexpr auto C0 = C[0];
-    constexpr auto C1 = C[1];
-    constexpr auto C2 = C[2];
-    constexpr auto C3 = C[3];
-    constexpr auto C4 = C[4];
-    constexpr auto C5 = C[5];
-    constexpr auto C6 = C[6];
-    constexpr auto C7 = C[7];
-    constexpr auto C8 = C[8];
-    constexpr auto C9 = C[9];
-    constexpr auto C10 = C[10];
-    constexpr auto C11 = C[11];
-    constexpr auto C12 = C[12];
-    constexpr auto C13 = C[13];
-    constexpr auto C14 = C[14];
-    constexpr auto C15 = C[15];
-    constexpr auto D = A.significantDigits;
 
 } // namespace SSSEngine::Text

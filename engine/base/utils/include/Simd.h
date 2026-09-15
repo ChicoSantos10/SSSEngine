@@ -1753,7 +1753,7 @@ namespace SSSEngine
 
     template<IntegralConcept Int>
         SSSENGINE_FORCE_INLINE
-    constexpr Int StoreLow32Bit(Int128<Int> a) noexcept
+    constexpr int GetLow32Bit(Int128<Int> a) noexcept
     {
         return _mm_cvtsi128_si32(a.value);
     }

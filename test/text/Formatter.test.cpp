@@ -1,3 +1,4 @@
+#include "Logger.h"
 #include "String.h"
 #include "StringView.h"
 #include "Test.h"
@@ -108,6 +109,18 @@ namespace SSSTest
     SSSTEST_TEST(FormatFloat32)
     {
         {
+            f32 v = 1.0;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"1");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f32 v = 2.0;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
             f32 v = 10.0;
             Utf8 string = Format<Utf8Encoding>(u8"{}", v);
             Utf8 result(u8"10");
@@ -215,6 +228,148 @@ namespace SSSTest
         }
         {
             f32 v = SSSEngine::FloatTraits<f32>::NegativeInfinity;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-Infinity");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatFloat64Zero)
+    {
+        f64 v = 0;
+        Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+        Utf8 result(u8"0");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatFloat64)
+    {
+        {
+            f64 v = 1.0;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"1");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 2.0;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 10.0;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"10");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 10.581;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"10.581");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 0.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"0.5");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 0.99025;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"0.99025");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 0.000125;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"0.000125");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 1.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"1.5");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 10.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"10.5");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 10183.52;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"10183.52");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatNegativeFloat64)
+    {
+        {
+            f64 v = -10.0;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-10");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = -0.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-0.5");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = -0.99025;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-0.99025");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = -0.000125;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-0.000125");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = -1.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-1.5");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = -10.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-10.5");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = -10183.52;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-10183.52");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatFloat64Nan)
+    {
+        f64 v = SSSEngine::FloatTraits<f64>::NaN;
+        Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+        Utf8 result(u8"NaN");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatFloat64Infinity)
+    {
+        {
+            f64 v = SSSEngine::FloatTraits<f64>::PositiveInfinity;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"Infinity");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = SSSEngine::FloatTraits<f64>::NegativeInfinity;
             Utf8 string = Format<Utf8Encoding>(u8"{}", v);
             Utf8 result(u8"-Infinity");
             SSSTEST_EXPECT_EQ(string, result);

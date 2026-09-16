@@ -415,4 +415,17 @@ namespace SSSTest
             SSSTEST_EXPECT_EQ(string, result);
         }
     }
+
+    // =================================================================================================================
+    // Index based
+    // =================================================================================================================
+
+    SSSTEST_TEST(FormatWithIndices)
+    {
+        int a = 10;
+        int b = 15;
+        auto result = Format<Utf8Encoding>(u8"{1} {0}", a, b);
+        Utf8View expected = u8"15 10";
+        SSSTEST_EXPECT_EQ(result, expected);
+    }
 } // namespace SSSTest

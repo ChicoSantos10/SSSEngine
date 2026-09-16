@@ -163,6 +163,12 @@ namespace SSSEngine::Text
         OutIterator out;
     };
 
+    template<EncodingConcept Encoding, typename ParseIterator>
+    struct ParseContext
+    {
+        ParseIterator out;
+    };
+
     template<typename T, EncodingConcept Encoding>
     struct Formatter
     {
@@ -179,7 +185,11 @@ namespace SSSEngine::Text
     {
         using CharType = Encoding::CodeUnitType;
 
-        constexpr auto Parse() const noexcept {}
+        template<typename ParseCtx>
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            return ctx.out;
+        }
 
         template<typename FmtCtx>
         constexpr auto Format(CharType value, FmtCtx &ctx) const noexcept -> decltype(ctx.out)
@@ -192,9 +202,10 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding>
     struct Formatter<StringView<Encoding>, Encoding>
     {
-        constexpr auto Parse() const noexcept
+        template<typename ParseCtx>
+        constexpr auto Parse(ParseCtx &ctx) noexcept
         {
-            // TODO: Parse StringView
+            return ctx.out;
         }
 
         template<typename FmtCtx>
@@ -211,9 +222,10 @@ namespace SSSEngine::Text
     {
         using CharType = Encoding::CodeUnitType;
 
-        constexpr auto Parse() const noexcept
+        template<typename ParseCtx>
+        constexpr auto Parse(ParseCtx &ctx) noexcept
         {
-            // TODO: Parse
+            return ctx.out;
         }
 
         template<typename FmtCtx>
@@ -228,9 +240,10 @@ namespace SSSEngine::Text
     {
         using CharType = Encoding::CodeUnitType;
 
-        constexpr auto Parse() const noexcept
+        template<typename ParseCtx>
+        constexpr auto Parse(ParseCtx &ctx) noexcept
         {
-            // TODO: Parse
+            return ctx.out;
         }
 
         template<typename FmtCtx>
@@ -317,7 +330,11 @@ namespace SSSEngine::Text
     {
         using CharType = Encoding::CodeUnitType;
 
-        constexpr auto Parse() noexcept {}
+        template<typename ParseCtx>
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            return ctx.out;
+        }
 
         template<typename FmtCtx>
         constexpr auto Format(bool value, FmtCtx &ctx) const noexcept
@@ -782,6 +799,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         static constexpr auto Right = CharType('}');
 
         FormatContext<Encoding, OutIterator> fmtCtx{out};
+        FormatContext<Encoding, It> parseCtx{fmt.Begin()};
 
         const auto end = fmt.End();
         const auto findArgBegin = [end](It begin) -> It
@@ -830,6 +848,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
 
         auto left = fmt.Begin();
 
+        // TODO: Use parseCtx.out as the iterator
         while(argBegin = findArgBegin(left), argBegin != end)
         {
             auto it = Move(fmtCtx.out);
@@ -837,10 +856,15 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             *it++ = view;
             fmtCtx.out = Move(it);
 
+            if(*(argBegin + 1) >= CharType('0') && *(argBegin + 1) <= CharType('9'))
+            {
+                argIndex = *(argBegin + 1) - CharType('0');
+            }
+
             const auto argEnd = findArgEnd(argBegin);
             FormatArg<Encoding> type = args.Get(argIndex++);
             type.Visit(
-                [&fmtCtx](auto &arg)
+                [&fmtCtx, &parseCtx](auto &arg)
                 {
                     using Type = RemoveReferenceType<decltype(arg)>;
                     using Formatter = Formatter<Type, Encoding>;
@@ -852,7 +876,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
                     else if constexpr(IsDefaultConstructible<Formatter>)
                     {
                         Formatter fmt;
-                        fmt.Parse();
+                        parseCtx.out = Move(fmt.Parse(parseCtx));
                         fmtCtx.out = Move(fmt.Format(arg, fmtCtx));
                     }
                     else

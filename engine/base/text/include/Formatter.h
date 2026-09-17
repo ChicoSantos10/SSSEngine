@@ -38,99 +38,21 @@
 #include "Float.h"
 #include "FloatParser.h"
 #include "HelperMacros.h"
-#include "Integer.h"
 #include "Iterator.h"
 #include "Math.h"
 #include "MemoryUtility.h"
 #include "QualifierTraits.h"
 #include "ReverseView.h"
-#include "SignTraits.h"
 #include "Sink.h"
 #include "String.h"
 #include "StringView.h"
 #include "Traits.h"
 #include "Types.h"
 #include "Utf8Encoding.h"
+#include "IntParser.h"
 
 namespace SSSEngine::Text
 {
-    template<EncodingConcept Encoding, IntegralConcept T, Ranges::OutputIteratorConcept<StringView<Encoding>> Out>
-        requires(!IsSameType<T, char>)
-    constexpr Out ParseInt(T value, Out out)
-    {
-        using CharType = Encoding::CodeUnitType;
-
-        if(value == 0)
-        {
-            *out++ = SSSENGINE_ENCODING_SELECTOR(CharType, "0");
-
-            return out;
-        }
-
-        if constexpr(IsSigned<T>)
-        {
-            if(value == IntTraits<T>::Min)
-            {
-                StringView<Encoding> min = []()
-                {
-                    if constexpr(IsSameType<T, i8>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-128"));
-                    }
-                    else if constexpr(IsSameType<T, i16>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-32768"));
-                    }
-                    else if constexpr(IsSameType<T, i32>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-2147483648"));
-                    }
-                    else if constexpr(IsSameType<T, i64>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-9223372036854775808"));
-                    }
-                }();
-                *out++ = min;
-                return out;
-            }
-        }
-
-        static constexpr SizeType MaxDigits = IntTraits<T>::DecimalDigits + 1;
-        CharType tmp[MaxDigits + 1]; // NOTE: Extra 1 for the sign (-)
-
-        using Unsigned = UnsignedType<T>;
-        bool isNegative = value < 0;
-        auto unsignedValue = [value]
-        {
-            if constexpr(IsSigned<T>)
-            {
-                return static_cast<Unsigned>(Math::Absolute(value));
-            }
-            else
-            {
-                return value;
-            }
-        }();
-
-        SizeType i = MaxDigits;
-        for(; unsignedValue > 0; --i)
-        {
-            tmp[i] = CharType('0') + (unsignedValue % 10);
-            unsignedValue /= 10;
-        }
-
-        if(isNegative)
-        {
-            tmp[i--] = CharType('-');
-        }
-
-        auto written = MaxDigits - i;
-        StringView<Encoding> view(tmp + i + 1, written);
-
-        *out++ = view;
-        return out;
-    }
-
     /**
      * @class FormatString
      * @brief A string ready for format functions
@@ -231,7 +153,7 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
-            return ParseInt<Encoding>(value, ctx.out);
+            return IntToString<Encoding>(value, ctx.out);
         }
     };
 
@@ -856,9 +778,14 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             *it++ = view;
             fmtCtx.out = Move(it);
 
-            if(*(argBegin + 1) >= CharType('0') && *(argBegin + 1) <= CharType('9'))
+            if(IsDigit(*(argBegin + 1)))
             {
-                argIndex = *(argBegin + 1) - CharType('0');
+                SizeType digits = 1;
+                while(IsDigit(*(argBegin + digits + 1)))
+                {
+                    ++digits;
+                }
+                argIndex = StringToUnsignedInt(StringView<Encoding>{(argBegin + 1).Underlying(), digits});
             }
 
             const auto argEnd = findArgEnd(argBegin);

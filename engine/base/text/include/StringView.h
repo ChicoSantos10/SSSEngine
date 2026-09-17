@@ -80,7 +80,7 @@ namespace SSSEngine::Text
      *
      */
     template<EncodingConcept Encoding>
-    class StringView
+    struct StringView
     {
       public:
         using CharType = Encoding::CodeUnitType;
@@ -200,6 +200,21 @@ namespace SSSEngine::Text
             }
 
             return true;
+        }
+
+        SSSENGINE_FORCE_INLINE
+        constexpr void TrimLeft(SizeType count = 1) noexcept
+        {
+            SSSENGINE_ASSERT(m_count >= count);
+            m_data += count;
+            m_count -= count;
+        }
+
+        SSSENGINE_FORCE_INLINE
+        constexpr void TrimRight(SizeType count = 1) noexcept
+        {
+            SSSENGINE_ASSERT(m_count >= count);
+            m_count -= count;
         }
 
       private:

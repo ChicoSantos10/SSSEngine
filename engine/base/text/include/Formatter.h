@@ -53,6 +53,7 @@
 
 namespace SSSEngine::Text
 {
+
     /**
      * @class FormatString
      * @brief A string ready for format functions
@@ -63,15 +64,103 @@ namespace SSSEngine::Text
     {
         template<typename T>
             requires IsConvertible<const T &, StringView<Encoding>>
-        constexpr FormatString(const T &string) : string{string} // NOLINT(*-explicit-constructor)
+        consteval FormatString(const T &s) : string{s} // NOLINT(*-explicit-constructor)
         {
-            if consteval
+            using CharType = Encoding::CodeUnitType;
+
+            SSSENGINE_FUNCTION_LOCAL constexpr SizeType SizeArgs = sizeof...(Args);
+
+            SSSENGINE_FUNCTION_LOCAL constexpr CharType LeftBrace('{');
+            SSSENGINE_FUNCTION_LOCAL constexpr CharType RightBrace('}');
+
+            using It = StringView<Encoding>::Iterator;
+
+            constexpr auto VerifyDigits = [](It it)
             {
-                // TODO: Validate string
+                auto digits = 1;
+                while(IsDigit(*(it + digits)))
+                {
+                    ++digits;
+                }
+
+                auto index = StringToUnsignedInt(StringView<Encoding>(it.Underlying(), digits));
+                if((index + 1) > SizeArgs)
+                {
+                    return Optional<It>{};
+                }
+
+                SSSENGINE_STATIC_ASSERT(IsTriviallyDefaultConstructible<It>);
+                return Optional<It>(it + digits);
+            };
+            auto it = string.Begin();
+            auto end = string.End();
+            while(it != end)
+            {
+                if(*it == LeftBrace)
+                {
+                    ++it;
+                    if(*it == LeftBrace)
+                    {
+                        ++it;
+                        continue;
+                    }
+                    if(IsDigit(*it))
+                    {
+                        if(auto next = VerifyDigits(it))
+                        {
+                            it = next.Value();
+                        }
+                        else
+                        {
+                            throw "Invalid Index";
+                        }
+                    }
+
+                    if(*it != CharType(':') && *it != RightBrace)
+                    {
+                        throw "Invalid character";
+                    }
+
+                    while(*it != RightBrace)
+                    {
+                        if(*it == LeftBrace)
+                        {
+                            if(auto end = VerifyDigits(it + 1))
+                            {
+                                it = end.Value();
+                                if(*(it + 1) != RightBrace)
+                                {
+                                    throw "Nested specifier can only have a number!";
+                                }
+                            }
+                            else
+                            {
+                                throw "Invalid arg for nested specifier";
+                            }
+                        }
+
+                        ++it;
+
+                        if(it == end)
+                        {
+                            throw "End of string reached without a closing brace";
+                        }
+                    }
+                }
+                else if(*it == RightBrace)
+                {
+                    if(*(it + 1) != RightBrace)
+                    {
+                        throw "No opening left brace for this right brace";
+                    }
+
+                    ++it;
+                }
+                ++it;
             }
         }
 
-        constexpr operator StringView<Encoding>() // NOLINT(*-explicit-constructor)
+        consteval operator StringView<Encoding>() // NOLINT(*-explicit-constructor)
         {
             return string;
         }
@@ -269,6 +358,25 @@ namespace SSSEngine::Text
         }
     };
 
+    template<EncodingConcept Encoding>
+    struct Formatter<void *, Encoding>
+    {
+        using CharType = Encoding::CodeUnitType;
+
+        template<typename ParseCtx>
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            return ctx.out;
+        }
+
+        template<typename FmtCtx>
+        constexpr auto Format(void *value, FmtCtx &ctx) const noexcept
+        {
+            // TODO: Pointer formatting
+            return ctx.out;
+        }
+    };
+
     enum class ArgType : u8
     {
         Bool,
@@ -390,8 +498,8 @@ namespace SSSEngine::Text
     using NormalizedArgType = decltype(NormalizeArgType<Encoding, T>())::Type;
 
     template<EncodingConcept Encoding, typename T>
-SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr ArgType AsArgType()
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr ArgType AsArgType() noexcept
     {
         using enum ArgType;
         using CharType = Encoding::CodeUnitType;
@@ -448,7 +556,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     }
 
     template<EncodingConcept Encoding, typename T>
-SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr FormatArgValue<Encoding> AsArgValue(T &value)
     {
         using Type = NormalizedArgType<Encoding, T>;
@@ -523,19 +631,19 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        FormatArgValue<Encoding> Value() const noexcept
+        constexpr FormatArgValue<Encoding> Value() const noexcept
         {
             return m_value;
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        ArgType Type() const noexcept
+        constexpr ArgType Type() const noexcept
         {
             return m_type;
         }
 
         template<typename Visitor>
-        decltype(auto) Visit(Visitor &&visitor)
+        constexpr decltype(auto) Visit(Visitor &&visitor) noexcept
         {
             switch(m_type)
             {
@@ -590,7 +698,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         static constexpr SizeType MaxPackedArgs = PackedTypesBits / PackedTypeBits;
 
         template<typename... Args>
-        FormatArgs(const FormatArgStorage<Encoding, Args...> &storage) noexcept // NOLINT(*-explicit-constructor)
+        constexpr FormatArgs(const FormatArgStorage<Encoding, Args...> &storage) noexcept // NOLINT(*-explicit-constructor)
         {
             constexpr auto Size = sizeof...(Args);
             if constexpr(Size == 0)
@@ -622,20 +730,20 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        SizeType Count() const noexcept
+        constexpr SizeType Count() const noexcept
         {
             return m_packedSize ? m_packedSize : m_packedTypes;
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        ArgType GetType(SizeType index) const noexcept
+        constexpr ArgType GetType(SizeType index) const noexcept
         {
             u64 value = m_packedTypes >> (index * PackedTypeBits);
             return static_cast<ArgType>(value & PackedTypeMask);
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        FormatArg<Encoding> Get(SizeType index) const noexcept
+        constexpr FormatArg<Encoding> Get(SizeType index) const noexcept
         {
             if(index < m_packedSize)
             {
@@ -678,7 +786,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
         using ElementType = ConditionalType<PackTypes, FormatArgValue<Encoding>, FormatArg<Encoding>>;
 
         template<typename T>
-        static ElementType MakeElement(T &value) noexcept
+        constexpr static ElementType MakeElement(T &value) noexcept
         {
             using Type = NormalizedArgType<Encoding, RemoveConstType<T>>;
             SSSENGINE_STATIC_ASSERT(IsDefaultConstructible<Formatter<Type, Encoding>>, "Formatter must be specialized");
@@ -702,15 +810,15 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     };
 
     template<EncodingConcept Encoding, typename... Args>
-SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr auto MakeFormatArgs(Args &...args)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr auto MakeFormatArgs(Args &...args) noexcept
     {
         using Storage = FormatArgStorage<Encoding, NormalizedArgType<Encoding, Args>...>;
         return Storage{Storage::MakeElement(args)...};
     }
 
     template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<StringView<Encoding>> OutIterator>
-    void FormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding> args)
+    constexpr void FormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
     {
         using namespace Ranges;
 
@@ -808,7 +916,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
                     }
                     else
                     {
-                        SSSENGINE_STATIC_ASSERT("No way to format");
+                        SSSENGINE_STATIC_ASSERT(false, "No way to format");
                     }
                 });
             // LINE 5094
@@ -831,7 +939,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     }
 
     template<EncodingConcept Encoding>
-    String<Encoding> FormatEngine(StringView<Encoding> fmt, FormatArgs<Encoding> args)
+    constexpr String<Encoding> FormatEngine(StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
     {
         Containers::StringSink<Encoding> sink;
         FormatTo(sink.Out(), fmt, args);
@@ -851,7 +959,7 @@ SSSENGINE_PURE SSSENGINE_FORCE_INLINE
      * @return A formatted string
      */
     template<EncodingConcept Encoding, typename... Args>
-    String<Encoding> Format(FormatString<Encoding, IdentityType<Args>...> fmt, Args &&...args)
+    constexpr String<Encoding> Format(FormatString<Encoding, IdentityType<Args>...> fmt, Args &&...args) noexcept
     {
         // Find replacement fields: {} which can have an Id and/or a format spec
         // {id:spec} Ignore escape sequence {{ and }} => replaced by {} in the output

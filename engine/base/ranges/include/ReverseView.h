@@ -129,12 +129,12 @@ namespace SSSEngine::Ranges
 
         // NOLINTBEGIN(readability-identifier-naming)
 
-        friend auto begin(const ReverseView &view) noexcept(noexcept(view.Begin()))
+        friend constexpr auto begin(const ReverseView &view) noexcept(noexcept(view.Begin()))
         {
             return view.Begin();
         }
 
-        friend auto end(const ReverseView &view) noexcept(noexcept(view.End()))
+        friend constexpr auto end(const ReverseView &view) noexcept(noexcept(view.End()))
         {
             return view.End();
         }

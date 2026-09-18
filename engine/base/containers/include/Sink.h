@@ -167,17 +167,17 @@ namespace SSSEngine::Containers
       public:
         using Encoding = E;
 
-        void Write(View string)
+        constexpr void Write(View string) noexcept
         {
             m_string.Append(string);
         }
 
-        String Get() &&
+        constexpr String Get() && noexcept
         {
             return Move(m_string);
         }
 
-        SinkIterator<StringSink> Out() noexcept
+        constexpr SinkIterator<StringSink> Out() noexcept
         {
             return SinkIterator<StringSink>(*this);
         }

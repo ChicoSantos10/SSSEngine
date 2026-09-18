@@ -155,7 +155,7 @@ namespace SSSEngine::Ranges
             return BasicIterator(lhs.m_it - offset);
         }
 
-        Iterator m_it{};
+        Iterator m_it;
     };
 
 } // namespace SSSEngine::Ranges

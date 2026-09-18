@@ -59,6 +59,7 @@ namespace SSSEngine::Logging
     // Cons:
     //  - Needs to build logging always
     //  - Can lead to mistakes where calling logging directly instead of macros leaking logs when not intending
+    //  TODO: Instead of calling format here, we just forward the arguments to the logger
     #define SSSENGINE_LOG_INFO(message, ...)                                                                           \
         SSSEngine::Logging::Logger(                                                                                    \
             SSSEngine::Logging::LogLevel::Info,                                                                        \

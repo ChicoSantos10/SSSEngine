@@ -45,12 +45,12 @@ namespace SSSEngine
         StorageData &operator=(StorageData &&) = default;
         ~StorageData() = default;
 
-        StorageData()
+        constexpr StorageData()
             requires(!IsTriviallyDefaultConstructible<T>)
         {
         }
 
-        ~StorageData()
+        constexpr ~StorageData()
             requires(!IsTriviallyDestructible<T>)
         {
         }

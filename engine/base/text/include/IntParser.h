@@ -25,7 +25,10 @@
 #pragma once
 
 #include "Concepts.h"
+#include "Debug.h"
 #include "Encoding.h"
+#include "Integer.h"
+#include "Iterator.h"
 #include "StringView.h"
 
 namespace SSSEngine::Text
@@ -44,6 +47,74 @@ namespace SSSEngine::Text
         return digit == Char('+') || digit == Char('-');
     }
 
+    template<CharTypeConcept Char>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr bool SignValue(Char digit) noexcept
+    {
+        SSSENGINE_ASSERT(IsSign(digit));
+
+        return (digit - 0x2C) * -1;
+    }
+
+    template<CharTypeConcept Char>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr u64 CharToInt(Char digit) noexcept
+    {
+        SSSENGINE_ASSERT(IsDigit(digit));
+
+        return digit - Char('0');
+    }
+
+    template<Ranges::InputIteratorConcept It>
+        requires CharTypeConcept<Ranges::IteratorValueType<It>>
+    struct StringToUnsignedResult
+    {
+        u64 value;
+        It it;
+    };
+
+    template<Ranges::InputIteratorConcept It>
+        requires CharTypeConcept<Ranges::IteratorValueType<It>>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr StringToUnsignedResult<It> StringToUnsignedInt(It it, Ranges::SentinelForConcept<It> auto end) noexcept
+    {
+        u64 value = 0;
+        while(it != end && IsDigit(*it))
+        {
+            value = value * 10 + CharToInt(*it);
+            ++it;
+        }
+
+        return {value, it};
+    }
+
+    template<Ranges::InputIteratorConcept It>
+        requires CharTypeConcept<Ranges::IteratorValueType<It>>
+    struct StringToSignedResult
+    {
+        u64 value;
+        It it;
+    };
+
+    template<Ranges::InputIteratorConcept It>
+        requires CharTypeConcept<Ranges::IteratorValueType<It>>
+    SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+    constexpr StringToSignedResult<It> StringToInt(It it, Ranges::SentinelForConcept<It> auto end) noexcept
+    {
+        auto sign = 1;
+        if(IsSign(*it))
+        {
+            sign = SignValue(*it);
+            ++it;
+        }
+
+        auto [value, last] = StringToUnsignedResult<It>(it, end);
+
+        SSSENGINE_ASSERT(value <= IntTraits<i64>::Max);
+
+        return {static_cast<i64>(value) * sign, last};
+    }
+
     template<EncodingConcept Encoding>
     SSSENGINE_CONST SSSENGINE_FORCE_INLINE
     constexpr u64 StringToUnsignedInt(StringView<Encoding> string) noexcept
@@ -54,7 +125,8 @@ namespace SSSEngine::Text
         for(CharType c: string)
         {
             SSSENGINE_ASSERT(IsDigit(c));
-            value = value * 10 + (c - CharType('0'));
+
+            value = value * 10 + CharToInt(c);
         }
 
         return value;
@@ -69,7 +141,7 @@ namespace SSSEngine::Text
         auto sign = 1;
         if(IsSign(*it))
         {
-            sign = (*it - 0x2C) * -1;
+            sign = SignValue(*it);
             string.TrimLeft();
         }
 

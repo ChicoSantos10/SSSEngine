@@ -73,25 +73,6 @@ namespace SSSEngine::Text
             SSSENGINE_FUNCTION_LOCAL constexpr CharType LeftBrace('{');
             SSSENGINE_FUNCTION_LOCAL constexpr CharType RightBrace('}');
 
-            using It = StringView<Encoding>::Iterator;
-
-            constexpr auto VerifyDigits = [](It it)
-            {
-                auto digits = 1;
-                while(IsDigit(*(it + digits)))
-                {
-                    ++digits;
-                }
-
-                auto index = StringToUnsignedInt(StringView<Encoding>(it.Underlying(), digits));
-                if((index + 1) > SizeArgs)
-                {
-                    return Optional<It>{};
-                }
-
-                SSSENGINE_STATIC_ASSERT(IsTriviallyDefaultConstructible<It>);
-                return Optional<It>(it + digits);
-            };
             auto it = string.Begin();
             auto end = string.End();
             while(it != end)
@@ -104,16 +85,15 @@ namespace SSSEngine::Text
                         ++it;
                         continue;
                     }
-                    if(IsDigit(*it))
+                    auto [index, last] = StringToUnsignedInt(it, end);
+                    if(it != last)
                     {
-                        if(auto next = VerifyDigits(it))
-                        {
-                            it = next.Value();
-                        }
-                        else
+                        if(index >= SizeArgs)
                         {
                             throw "Invalid Index";
                         }
+
+                        it = last;
                     }
 
                     if(*it != CharType(':') && *it != RightBrace)
@@ -125,15 +105,17 @@ namespace SSSEngine::Text
                     {
                         if(*it == LeftBrace)
                         {
-                            if(auto end = VerifyDigits(it + 1))
+                            ++it;
+                            auto [index, last] = StringToUnsignedInt(it, end);
+                            if(it != last)
                             {
-                                it = end.Value();
-                                if(*(it + 1) != RightBrace)
+                                it = last;
+                                if(*it != RightBrace)
                                 {
                                     throw "Nested specifier can only have a number!";
                                 }
                             }
-                            else
+                            else if(*it != RightBrace)
                             {
                                 throw "Invalid arg for nested specifier";
                             }

@@ -91,6 +91,12 @@ namespace SSSTest
             Utf8 result(u8"-10");
             SSSTEST_EXPECT_EQ(string, result);
         }
+        {
+            i64 v = SSSEngine::IntTraits<i64>::Min;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-9223372036854775808");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
     }
 
     SSSTEST_TEST(FormatIntSignNegative)

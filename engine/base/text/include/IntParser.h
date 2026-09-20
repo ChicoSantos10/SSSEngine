@@ -24,16 +24,15 @@
 
 #pragma once
 
-#include "Byteswap.h"
+#include "Array.h"
 #include "Concepts.h"
 #include "Debug.h"
 #include "Encoding.h"
-#include "Endian.h"
 #include "HelperMacros.h"
 #include "Integer.h"
 #include "Iterator.h"
 #include "Math.h"
-#include "Simd.h"
+#include "MemoryUtility.h"
 #include "StringView.h"
 
 namespace SSSEngine::Text
@@ -155,7 +154,7 @@ namespace SSSEngine::Text
 
     struct AsciiInt
     {
-        Containers::Array<char, IntTraits<u64>::DecimalDigits> digits;
+        Containers::Array<char, IntTraits<u64>::DecimalDigits + 1> digits;
         u8 numberDigits;
     };
 
@@ -171,7 +170,10 @@ namespace SSSEngine::Text
 
         if constexpr(IsSigned<Int>)
         {
-            // TODO: Min of i64 since that cannot be represented by u64
+            if(value == IntTraits<i64>::Min)
+            {
+                return {.digits{"9223372036854775808"}, .numberDigits = IntTraits<i64>::DecimalDigits};
+            }
         }
 
         u64 unsignedValue = [value]

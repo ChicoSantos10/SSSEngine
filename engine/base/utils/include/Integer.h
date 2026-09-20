@@ -26,6 +26,8 @@
 
 #include "Bits.h"
 #include "Concepts.h"
+#include "ConversionTraits.h"
+#include "Debug.h"
 #include "SignTraits.h"
 
 namespace SSSEngine
@@ -56,7 +58,29 @@ namespace SSSEngine
         /**
          * @brief The amount of meaningful base 10 digits for type N
          */
-        static constexpr u32 DecimalDigits = BinaryDigits * 0.301029995663981;
+        static constexpr u32 DecimalDigits = []
+        {
+            if constexpr(IsSameType<Int, i8> || IsSameType<Int, u8>)
+            {
+                return 3;
+            }
+            else if constexpr(IsSameType<Int, i16> || IsSameType<Int, u16>)
+            {
+                return 5;
+            }
+            else if constexpr(IsSameType<Int, i32> || IsSameType<Int, u32>)
+            {
+                return 10;
+            }
+            else if constexpr(IsSameType<Int, i64> || IsSameType<Int, u64>)
+            {
+                return 19;
+            }
+            else
+            {
+                SSSENGINE_NOT_IMPLEMENTED;
+            }
+        }();
     };
 
 } // namespace SSSEngine

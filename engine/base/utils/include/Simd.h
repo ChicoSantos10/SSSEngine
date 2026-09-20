@@ -26,11 +26,9 @@
 
 #include "Architecture.h"
 
-#include "Array.h"
 #include "Attributes.h"
 #include "Bits.h"
 #include "Concepts.h"
-#include "ConversionTraits.h"
 #include "Debug.h"
 #include "HelperMacros.h"
 #include "Math.h"
@@ -51,40 +49,9 @@ namespace SSSEngine
 {
 #ifdef SSSENGINE_X64
 
-    template<u32 VectorSize>
-    SSSENGINE_GLOBAL
-    constexpr u32 MaxLanes = VectorSize / 8;
-
-    template<u32 Lanes, u32 VectorSize>
-    SSSENGINE_GLOBAL
-    constexpr bool ValidLanesNumber = Lanes <= MaxLanes<VectorSize> && Math::IsPowerOf2(Lanes);
-
-    template<SizeType>
-    struct IntBySize;
-
-    template<>
-    struct IntBySize<64>
-    {
-        using Type = u64;
-    };
-
-    template<>
-    struct IntBySize<32>
-    {
-        using Type = u32;
-    };
-
-    template<>
-    struct IntBySize<16>
-    {
-        using Type = u16;
-    };
-
-    template<>
-    struct IntBySize<8>
-    {
-        using Type = u8;
-    };
+    // TODO:
+    //  => Separate each into its own separate file
+    //  => Separate between namespaces for AVX2 & AVX512
 
     template<IntegralConcept Int>
         requires(sizeof(Int) < Bits<i64>)
@@ -384,7 +351,7 @@ namespace SSSEngine
         constexpr static NativeType NativeSetMultiple(ElementType v1, ElementType v2) noexcept
             requires(ElementSize == 64)
         {
-            return _mm_set_epi64x(v1, v2);
+            return _mm_set_epi64x(v2, v1);
         }
 
         SSSENGINE_SIMD_ATTRIBUTES
@@ -778,15 +745,15 @@ namespace SSSEngine
     using i8x16 = Int128<i8>;
     using u8x16 = Int128<u8>;
 
-    template<u32 Lanes>
-        requires(Lanes >= 4) && ValidLanesNumber<Lanes, 256>
+    template<IntegralConcept Int>
+        requires(sizeof(Int) < Bits<i64>)
     struct Int256
     {
-        static constexpr SizeType ElementSize = 256 / Lanes;
+        static constexpr SizeType ElementSize = Bits<Int>;
+        static constexpr SizeType Lanes = 256 / ElementSize;
 
         using NativeType = __m256i;
-        using ElementType = IntBySize<ElementSize>::Type;
-        static constexpr SizeType ElementCount = Lanes;
+        using ElementType = Int;
 
         Int256() = default;
 
@@ -800,15 +767,21 @@ namespace SSSEngine
 
         // NOLINTEND(google-explicit-constructor)
 
+        template<typename... Args>
+            requires(sizeof...(Args) == Lanes) && (ConvertibleToConcept<ElementType, Args> && ...)
+        SSSENGINE_FORCE_INLINE constexpr explicit Int256(Args... values) noexcept : value(NativeSetMultiple(values...))
+        {
+        }
+
         SSSENGINE_FORCE_INLINE
         constexpr explicit Int256(ElementType value) noexcept :
             value(NativeSet(value))
         {
         }
 
-        template<u32 L>
+        template<IntegralConcept I>
         SSSENGINE_FORCE_INLINE
-        constexpr explicit Int256(Int256<L> other) noexcept :
+        constexpr explicit Int256(Int256<I> other) noexcept :
             value{other.value}
         {
         }
@@ -865,9 +838,9 @@ namespace SSSEngine
             return NativeLeftShift(lhs.value, rhs.value);
         }
 
-        template<IntegralConcept Int>
+        template<IntegralConcept I>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr friend Int256 operator<<(Int256 lhs, Int128<Int> count) noexcept
+        constexpr friend Int256 operator<<(Int256 lhs, Int128<I> count) noexcept
         {
             return NativeLeftShift(lhs.value, count.value);
         }
@@ -884,9 +857,9 @@ namespace SSSEngine
             return NativeRightShift(lhs.value, rhs.value);
         }
 
-        template<IntegralConcept Int>
+        template<IntegralConcept I>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr friend Int256 operator>>(Int256 lhs, Int128<Int> count) noexcept
+        constexpr friend Int256 operator>>(Int256 lhs, Int128<I> count) noexcept
         {
             return NativeRightShift(lhs.value, count.value);
         }
@@ -997,9 +970,9 @@ namespace SSSEngine
             return *this;
         }
 
-        template<IntegralConcept Int>
+        template<IntegralConcept I>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr Int256 &operator<<=(Int128<Int> other) noexcept
+        constexpr Int256 &operator<<=(Int128<I> other) noexcept
         {
             value = NativeLeftShift(value, other.value);
 
@@ -1014,9 +987,9 @@ namespace SSSEngine
             return *this;
         }
 
-        template<IntegralConcept Int>
+        template<IntegralConcept I>
             SSSENGINE_SIMD_ATTRIBUTES
-        constexpr Int256 &operator>>=(Int128<Int> other) noexcept
+        constexpr Int256 &operator>>=(Int128<I> other) noexcept
         {
             value = NativeRightShift(value, other.value);
 
@@ -1049,19 +1022,18 @@ namespace SSSEngine
             return *this;
         }
 
-        template<u32 L>
-            requires ValidLanesNumber<L, 256>
+        template<IntegralConcept I>
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr explicit operator Int256<L>() noexcept
+        constexpr explicit operator Int256<I>() noexcept
         {
-            return Int256<L>{value};
+            return Int256<I>{value};
         }
 
         NativeType value;
 
       private:
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr static NativeType NativeSet(ElementType value)
+        constexpr static NativeType NativeSet(ElementType value) noexcept
         {
             if constexpr(ElementSize == 64)
             {
@@ -1079,6 +1051,114 @@ namespace SSSEngine
             {
                 return _mm256_set1_epi8(value);
             }
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1, ElementType v2, ElementType v3, ElementType v4) noexcept
+        {
+            return _mm256_set_epi64x(v4, v3, v2, v1);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1,
+                                                      ElementType v2,
+                                                      ElementType v3,
+                                                      ElementType v4,
+                                                      ElementType v5,
+                                                      ElementType v6,
+                                                      ElementType v7,
+                                                      ElementType v8) noexcept
+        {
+            return _mm256_set_epi32(v8, v7, v6, v5, v4, v3, v2, v1);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1,
+                                                      ElementType v2,
+                                                      ElementType v3,
+                                                      ElementType v4,
+                                                      ElementType v5,
+                                                      ElementType v6,
+                                                      ElementType v7,
+                                                      ElementType v8,
+                                                      ElementType v9,
+                                                      ElementType v10,
+                                                      ElementType v11,
+                                                      ElementType v12,
+                                                      ElementType v13,
+                                                      ElementType v14,
+                                                      ElementType v15,
+                                                      ElementType v16) noexcept
+        {
+            return _mm256_set_epi16(v16, v15, v14, v13, v12, v11, v10, v9, v8, v7, v6, v5, v4, v3, v2, v1);
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType NativeSetMultiple(ElementType v1,
+                                                      ElementType v2,
+                                                      ElementType v3,
+                                                      ElementType v4,
+                                                      ElementType v5,
+                                                      ElementType v6,
+                                                      ElementType v7,
+                                                      ElementType v8,
+                                                      ElementType v9,
+                                                      ElementType v10,
+                                                      ElementType v11,
+                                                      ElementType v12,
+                                                      ElementType v13,
+                                                      ElementType v14,
+                                                      ElementType v15,
+                                                      ElementType v16,
+                                                      ElementType v17,
+                                                      ElementType v18,
+                                                      ElementType v19,
+                                                      ElementType v20,
+                                                      ElementType v21,
+                                                      ElementType v22,
+                                                      ElementType v23,
+                                                      ElementType v24,
+                                                      ElementType v25,
+                                                      ElementType v26,
+                                                      ElementType v27,
+                                                      ElementType v28,
+                                                      ElementType v29,
+                                                      ElementType v30,
+                                                      ElementType v31,
+                                                      ElementType v32) noexcept
+        {
+            return _mm256_set_epi8(v32,
+                                   v31,
+                                   v30,
+                                   v29,
+                                   v28,
+                                   v27,
+                                   v26,
+                                   v25,
+                                   v24,
+                                   v23,
+                                   v22,
+                                   v21,
+                                   v20,
+                                   v19,
+                                   v18,
+                                   v17,
+                                   v16,
+                                   v15,
+                                   v14,
+                                   v13,
+                                   v12,
+                                   v11,
+                                   v10,
+                                   v9,
+                                   v8,
+                                   v7,
+                                   v6,
+                                   v5,
+                                   v4,
+                                   v3,
+                                   v2,
+                                   v1);
         }
 
         SSSENGINE_SIMD_ATTRIBUTES
@@ -1128,7 +1208,10 @@ namespace SSSEngine
         {
             if constexpr(ElementSize == 64)
             {
-                SSSENGINE_ASSERT(System::HasAvx512DQ() && System::HasAvx512VL());
+                if !consteval
+                {
+                    SSSENGINE_ASSERT(System::HasAvx512DQ() && System::HasAvx512VL());
+                }
                 return _mm256_mullo_epi64(lhs, rhs);
             }
             else if constexpr(ElementSize == 32)
@@ -1333,10 +1416,14 @@ namespace SSSEngine
         }
     };
 
-    using i64x4 = Int256<4>;
-    using i32x8 = Int256<8>;
-    using i16x16 = Int256<16>;
-    using i8x32 = Int256<32>;
+    using i64x4 = Int256<i64>;
+    using i32x8 = Int256<i32>;
+    using i16x16 = Int256<i16>;
+    using i8x32 = Int256<i8>;
+    using u64x4 = Int256<u64>;
+    using u32x8 = Int256<u32>;
+    using u16x16 = Int256<u16>;
+    using u8x32 = Int256<u8>;
 
     template<u32 Lanes>
     struct alignas(64) Int512
@@ -1756,6 +1843,81 @@ namespace SSSEngine
     constexpr int GetLow32Bit(Int128<Int> a) noexcept
     {
         return _mm_cvtsi128_si32(a.value);
+    }
+
+    template<IntegralConcept Int>
+        SSSENGINE_FORCE_INLINE
+    constexpr void Store(Int256<Int> a, Int *address)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr auto HalfLanes = Int256<Int>::Lanes / 4;
+
+        if consteval
+        {
+            for(SizeType i = 0; i < 4; ++i)
+            {
+                u64 value = a.value[i];
+
+                SizeType index = i * HalfLanes;
+                for(SizeType j = 0; j < HalfLanes; j++)
+                {
+                    address[index + j] = Int(value >> HalfLanes * j);
+                }
+            }
+        }
+        else
+        {
+            _mm256_storeu_si256(reinterpret_cast<__m256i *>(address), a.value);
+        }
+    }
+
+    struct ShufflerMask256
+    {
+        using Type = u8;
+
+        Type a;
+        Type b;
+        Type c;
+        Type d;
+        Type e;
+        Type f;
+        Type g;
+        Type h;
+    };
+
+    template<IntegralConcept Int, ShufflerMask Mask>
+        requires(Int256<Int>::ElementSize == 32)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int256<Int> Shuffle(Int256<Int> a)
+    {
+        return _mm_shuffle_epi32(a.value, _MM_SHUFFLE(Mask.d, Mask.c, Mask.b, Mask.a));
+    }
+
+    template<IntegralConcept Int>
+        requires(Int256<Int>::ElementSize == 32)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int256<Int> Reverse(Int256<Int> a)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr ShufflerMask256 Mask{
+            .a = 0, .b = 1, .c = 2, .d = 3, .e = 4, .f = 5, .g = 6, .h = 7};
+        return Shuffle<Int, Mask>(a);
+    }
+
+    template<IntegralConcept Int>
+        requires(Int256<Int>::ElementSize == 8)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int256<Int> Shuffle(Int256<Int> a, Int256<Int> b)
+    {
+        return _mm256_shuffle_epi8(a.value, b.value);
+    }
+
+    template<IntegralConcept Int>
+        requires(Int256<Int>::ElementSize == 8)
+    SSSENGINE_SIMD_ATTRIBUTES
+    constexpr Int256<Int> Reverse(Int256<Int> a)
+    {
+        SSSENGINE_FUNCTION_LOCAL constexpr Int256<Int> Mask(
+            31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+        return Shuffle(a, Mask);
     }
 
 #endif

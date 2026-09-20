@@ -93,6 +93,54 @@ namespace SSSTest
         }
     }
 
+    SSSTEST_TEST(FormatIntSignNegative)
+    {
+        {
+            i32 v = -200;
+            Utf8 string = Format<Utf8Encoding>(u8"{:-}", v);
+            Utf8 result(u8"-200");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            i32 v = 200;
+            Utf8 string = Format<Utf8Encoding>(u8"{:-}", v);
+            Utf8 result(u8"200");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatIntSignAlways)
+    {
+        {
+            i32 v = -200;
+            Utf8 string = Format<Utf8Encoding>(u8"{:+}", v);
+            Utf8 result(u8"-200");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            i32 v = 200;
+            Utf8 string = Format<Utf8Encoding>(u8"{:+}", v);
+            Utf8 result(u8"+200");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatIntSignSpace)
+    {
+        {
+            i32 v = -200;
+            Utf8 string = Format<Utf8Encoding>(u8"{: }", v);
+            Utf8 result(u8"-200");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            i32 v = 200;
+            Utf8 string = Format<Utf8Encoding>(u8"{: }", v);
+            Utf8 result(u8" 200");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
     // =================================================================================================================
     // Floating Point
     // =================================================================================================================

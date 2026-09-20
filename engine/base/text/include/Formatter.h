@@ -33,6 +33,7 @@
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
+#include "Empty.h"
 #include "Encoding.h"
 #include "EnumHelpers.h"
 #include "Float.h"
@@ -43,6 +44,7 @@
 #include "MemoryUtility.h"
 #include "QualifierTraits.h"
 #include "ReverseView.h"
+#include "SignTraits.h"
 #include "Sink.h"
 #include "String.h"
 #include "StringView.h"
@@ -75,6 +77,7 @@ namespace SSSEngine::Text
 
             auto it = string.Begin();
             auto end = string.End();
+            // TODO: Validate all indices match
             while(it != end)
             {
                 if(*it == LeftBrace)
@@ -162,6 +165,44 @@ namespace SSSEngine::Text
         ParseIterator out;
     };
 
+    struct SignSpecifier
+    {
+        enum class Sign : u8
+        {
+            Negative,
+            Always,
+            Space
+        };
+
+        Sign s = Sign::Negative;
+
+        template<typename It>
+        SSSENGINE_CONST
+        constexpr It Parse(It it) noexcept
+        {
+            using CharType = Ranges::IteratorValueType<It>;
+            using enum Sign;
+
+            if(*it == CharType('+'))
+            {
+                s = Always;
+                ++it;
+            }
+            else if(*it == CharType(' '))
+            {
+                s = Space;
+                ++it;
+            }
+            else if(*it == CharType('-'))
+            {
+                s = Negative;
+                ++it;
+            }
+
+            return it;
+        }
+    };
+
     template<typename T, EncodingConcept Encoding>
     struct Formatter
     {
@@ -218,14 +259,70 @@ namespace SSSEngine::Text
         template<typename ParseCtx>
         constexpr auto Parse(ParseCtx &ctx) noexcept
         {
+            auto it = ctx.out;
+            while(*it != CharType('}'))
+            {
+                if constexpr(IsSigned<Int>)
+                {
+                    it = Move(sign.Parse(ctx.out));
+                }
+
+                SSSENGINE_ASSERT(it != ctx.out);
+                ctx.out = it;
+            }
+
             return ctx.out;
         }
 
         template<typename FmtCtx>
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
-            return IntToString<Encoding>(value, ctx.out);
+            auto ascii = IntToAscii(value);
+
+            // TODO: What size should it be?
+            char tmp[32]{};
+            char *it = tmp;
+
+            if constexpr(IsSigned<Int>)
+            {
+                using enum SignSpecifier::Sign;
+
+                auto valueSign = Math::SignOf(value);
+
+                if(valueSign == -1)
+                {
+                    *it = '-';
+                    ++it;
+                }
+                else if(valueSign == 1)
+                {
+                    switch(sign.s)
+                    {
+                        case Always:
+                            *it = '+';
+                            ++it;
+                            break;
+                        case Space:
+                            *it = ' ';
+                            ++it;
+                            break;
+                        case Negative:
+                            break;
+                        default:
+                            SSSENGINE_UNREACHABLE;
+                    }
+                }
+            }
+
+            SizeType total = it - tmp + ascii.numberDigits;
+            RawMemoryCopy(ascii.digits.Data(), it, total);
+
+            *ctx.out++ = StringView<Encoding>{tmp, total};
+
+            return ctx.out;
         }
+
+        MaybeEmptyType<IsSigned<Int>, SignSpecifier> sign;
     };
 
     template<FloatingPointConcept Float, EncodingConcept Encoding>
@@ -802,10 +899,9 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<StringView<Encoding>> OutIterator>
     constexpr void FormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
     {
-        using namespace Ranges;
-
         using CharType = typename Encoding::CodeUnitType;
-        using It = StringView<Encoding>::Iterator;
+        using View = StringView<Encoding>;
+        using It = View::Iterator;
 
         static constexpr auto Left = CharType('{');
         static constexpr auto Right = CharType('}');
@@ -813,111 +909,80 @@ namespace SSSEngine::Text
         FormatContext<Encoding, OutIterator> fmtCtx{out};
         FormatContext<Encoding, It> parseCtx{fmt.Begin()};
 
-        const auto end = fmt.End();
-        const auto findArgBegin = [end](It begin) -> It
-        {
-            auto current = begin;
-            while(true)
-            {
-                auto it = Find(current, end, Left);
-                if(it == end)
-                {
-                    return end;
-                }
-
-                if(*(it + 1) == Left)
-                {
-                    current = it + 2;
-                    continue;
-                }
-
-                return it;
-            }
-        };
-
-        const auto findArgEnd = [end](It begin) -> It
-        {
-            auto current = begin;
-            while(true)
-            {
-                auto it = Find(current, end, Right);
-
-                // NOTE: A properly validated string always has an end to a started arg
-                SSSENGINE_ASSERT(it != end);
-
-                if(*(it + 1) == Right)
-                {
-                    current = it + 2;
-                    continue;
-                }
-
-                return it;
-            }
-        };
-
-        It argBegin;
-        SizeType argIndex = 0;
-
         auto left = fmt.Begin();
+        auto it = left;
+        auto end = fmt.End();
+        auto index = 0;
 
-        // TODO: Use parseCtx.out as the iterator
-        while(argBegin = findArgBegin(left), argBegin != end)
+        while(it != end)
         {
-            auto it = Move(fmtCtx.out);
-            StringView<Encoding> view(left.Underlying(), argBegin - left);
-            *it++ = view;
-            fmtCtx.out = Move(it);
-
-            if(IsDigit(*(argBegin + 1)))
+            if(*it == Left)
             {
-                SizeType digits = 1;
-                while(IsDigit(*(argBegin + digits + 1)))
+                ++it;
+
+                if(*it == Left)
                 {
-                    ++digits;
+                    View view{left, SizeType(it - left)};
+                    *fmtCtx.out++ = view;
+                    left = it + 1;
+                    continue;
                 }
-                argIndex = StringToUnsignedInt(StringView<Encoding>{(argBegin + 1).Underlying(), digits});
-            }
+                View view{left, SizeType(it - 1 - left)};
+                *fmtCtx.out++ = view;
 
-            const auto argEnd = findArgEnd(argBegin);
-            FormatArg<Encoding> type = args.Get(argIndex++);
-            type.Visit(
-                [&fmtCtx, &parseCtx](auto &arg)
+                auto [newIndex, newIt] = StringToUnsignedInt(it, end);
+                if(newIt != it)
                 {
-                    using Type = RemoveReferenceType<decltype(arg)>;
-                    using Formatter = Formatter<Type, Encoding>;
+                    it = newIt;
+                    index = newIndex;
+                }
 
-                    if constexpr(IsSameType<Type, CustomType>)
-                    {
-                        arg.format();
-                    }
-                    else if constexpr(IsDefaultConstructible<Formatter>)
-                    {
-                        Formatter fmt;
-                        parseCtx.out = Move(fmt.Parse(parseCtx));
-                        fmtCtx.out = Move(fmt.Format(arg, fmtCtx));
-                    }
-                    else
-                    {
-                        SSSENGINE_STATIC_ASSERT(false, "No way to format");
-                    }
-                });
-            // LINE 5094
+                if(*it == CharType(':'))
+                {
+                    ++it;
+                }
 
-            left = argEnd + 1;
+                parseCtx.out = Move(it);
+                FormatArg<Encoding> type = args.Get(index++);
+                type.Visit(
+                    [&fmtCtx, &parseCtx](auto &arg)
+                    {
+                        using Type = RemoveReferenceType<decltype(arg)>;
+                        using Formatter = Formatter<Type, Encoding>;
 
-            // TODO:
-            // - Parse Context: {id:opts}
-            //      - Get optional Arg index or increment
-            //      - Get other possible values
+                        if constexpr(IsSameType<Type, CustomType>)
+                        {
+                            arg.format();
+                        }
+                        else if constexpr(IsDefaultConstructible<Formatter>)
+                        {
+                            Formatter fmt;
+                            parseCtx.out = Move(fmt.Parse(parseCtx));
+                            fmtCtx.out = Move(fmt.Format(arg, fmtCtx));
+                        }
+                        else
+                        {
+                            SSSENGINE_STATIC_ASSERT(false, "No way to format");
+                        }
+                    });
+
+                it = Move(parseCtx.out);
+                left = it + 1;
+            }
+            else if(*it == Right)
+            {
+                SSSENGINE_ASSERT(*(it + 1) == Right);
+
+                ++it;
+                View view{left, SizeType(it - left)};
+                *fmtCtx.out++ = view;
+                left = it + 1;
+            }
+            ++it;
         }
 
-        if(left != end)
-        {
-            auto it = Move(fmtCtx.out);
-            StringView<Encoding> view(left.Underlying(), end - left);
-            *it++ = view;
-            fmtCtx.out = Move(it);
-        }
+        StringView<Encoding> view(left, end - left);
+        *fmtCtx.out++ = view;
     }
 
     template<EncodingConcept Encoding>

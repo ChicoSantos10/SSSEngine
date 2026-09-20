@@ -51,6 +51,7 @@ KeepEmptyLinesAtTheStartOfBlocks: 'false'
 Language: Cpp
 Macros: 
   - SSSENGINE_PURE=[[nodiscard]]
+  - SSSENGINE_CONST=[[nodiscard]]
   - SSSENGINE_FORCE_INLINE=[[nodiscard]]
   - SSSENGINE_GLOBAL=[[nodiscard]]
   - SSSENGINE_SIMD_ATTRIBUTES=[[nodiscard]]

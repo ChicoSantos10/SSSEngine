@@ -102,6 +102,8 @@ namespace SSSEngine::Text
 
         constexpr StringView(const CharType *data, const SizeType size) noexcept : m_data{data}, m_count{size} {}
 
+        constexpr StringView(Iterator it, const SizeType size) noexcept : m_data{it.Underlying()}, m_count{size} {}
+
         constexpr StringView(const CharType *data) noexcept : m_data(data), m_count(Length(data)) {}
 
         // TODO: Should this be possible? Should it be only explicit?

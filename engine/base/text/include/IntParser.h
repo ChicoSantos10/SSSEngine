@@ -24,11 +24,16 @@
 
 #pragma once
 
+#include "Byteswap.h"
 #include "Concepts.h"
 #include "Debug.h"
 #include "Encoding.h"
+#include "Endian.h"
+#include "HelperMacros.h"
 #include "Integer.h"
 #include "Iterator.h"
+#include "Math.h"
+#include "Simd.h"
 #include "StringView.h"
 
 namespace SSSEngine::Text
@@ -148,57 +153,32 @@ namespace SSSEngine::Text
         return StringToUnsignedInt(string) * sign;
     }
 
-    template<EncodingConcept Encoding, IntegralConcept T, Ranges::OutputIteratorConcept<StringView<Encoding>> Out>
-        requires(!IsSameType<T, char>)
-    constexpr Out IntToString(T value, Out out)
+    struct AsciiInt
     {
-        using CharType = Encoding::CodeUnitType;
+        Containers::Array<char, IntTraits<u64>::DecimalDigits> digits;
+        u8 numberDigits;
+    };
 
+    template<IntegralConcept Int>
+    constexpr AsciiInt IntToAscii(Int value)
+    {
         if(value == 0)
         {
-            *out++ = SSSENGINE_ENCODING_SELECTOR(CharType, "0");
-
-            return out;
+            return {.digits = {'0'}, .numberDigits = 1};
         }
 
-        if constexpr(IsSigned<T>)
+        static constexpr SizeType MaxDigits = IntTraits<u64>::DecimalDigits;
+
+        if constexpr(IsSigned<Int>)
         {
-            if(value == IntTraits<T>::Min)
-            {
-                StringView<Encoding> min = []()
-                {
-                    if constexpr(IsSameType<T, i8>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-128"));
-                    }
-                    else if constexpr(IsSameType<T, i16>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-32768"));
-                    }
-                    else if constexpr(IsSameType<T, i32>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-2147483648"));
-                    }
-                    else if constexpr(IsSameType<T, i64>)
-                    {
-                        return StringView<Encoding>(SSSENGINE_ENCODING_SELECTOR(CharType, "-9223372036854775808"));
-                    }
-                }();
-                *out++ = min;
-                return out;
-            }
+            // TODO: Min of i64 since that cannot be represented by u64
         }
 
-        static constexpr SizeType MaxDigits = IntTraits<T>::DecimalDigits + 1;
-        CharType tmp[MaxDigits + 1]; // NOTE: Extra 1 for the sign (-)
-
-        using Unsigned = UnsignedType<T>;
-        bool isNegative = value < 0;
-        auto unsignedValue = [value]
+        u64 unsignedValue = [value]
         {
-            if constexpr(IsSigned<T>)
+            if constexpr(IsSigned<Int>)
             {
-                return static_cast<Unsigned>(Math::Absolute(value));
+                return static_cast<u64>(Math::Absolute(value));
             }
             else
             {
@@ -206,23 +186,21 @@ namespace SSSEngine::Text
             }
         }();
 
+        AsciiInt result{};
+        auto &digits = result.digits;
+
         SizeType i = MaxDigits;
         for(; unsignedValue > 0; --i)
         {
-            tmp[i] = CharType('0') + (unsignedValue % 10);
+            digits[i] = char('0' + (unsignedValue % 10));
             unsignedValue /= 10;
         }
 
-        if(isNegative)
-        {
-            tmp[i--] = CharType('-');
-        }
-
         auto written = MaxDigits - i;
-        StringView<Encoding> view(tmp + i + 1, written);
+        RawMemoryMove(digits.Data() + i + 1, digits.Data(), written);
 
-        *out++ = view;
-        return out;
+        result.numberDigits = written;
+        return result;
     }
 
 } // namespace SSSEngine::Text

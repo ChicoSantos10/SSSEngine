@@ -162,6 +162,9 @@ namespace SSSEngine::Text
         StringView<Encoding> string;
     };
 
+    template<EncodingConcept Encoding>
+    class FormatArgs;
+
     template<EncodingConcept Encoding, typename OutIterator>
     struct FormatContext
     {
@@ -175,6 +178,7 @@ namespace SSSEngine::Text
         using CharType = Encoding::CodeUnitType;
         ParseIterator out;
         ParseIterator end;
+        FormatArgs<Encoding> args;
     };
 
     // =================================================================================================================
@@ -354,8 +358,23 @@ namespace SSSEngine::Text
                 auto [n, next] = StringToUnsignedInt(it, ctx.end);
                 if(it != next)
                 {
-                    SSSENGINE_TODO;
+                    auto arg = ctx.args.Get(n);
+                    arg.Visit(
+                        [this](auto &v)
+                        {
+                            using Type = RemoveReferenceType<decltype(v)>;
+                            if constexpr(IntegralConcept<Type>)
+                            {
+                                width = v;
+                            }
+                            else
+                            {
+                                SSSENGINE_UNREACHABLE;
+                            }
+                        });
                 }
+                SSSENGINE_ASSERT(*next == CharType('}'));
+                return next + 1;
             }
             auto [n, next] = StringToUnsignedInt(it, ctx.end);
             if(it != next)
@@ -393,10 +412,23 @@ namespace SSSEngine::Text
                 auto [n, next] = StringToUnsignedInt(it);
                 if(it != next)
                 {
-                    SSSENGINE_TODO;
+                    auto arg = ctx.args.Get(n);
+                    arg.Visit(
+                        [this](auto &v)
+                        {
+                            using Type = RemoveReferenceType<decltype(v)>;
+                            if constexpr(IntegralConcept<Type>)
+                            {
+                                precision = v;
+                            }
+                            else
+                            {
+                                SSSENGINE_UNREACHABLE;
+                            }
+                        });
                 }
-
-                SSSENGINE_ASSERT(*it == CharType('}'));
+                SSSENGINE_ASSERT(*next == CharType('}'));
+                return next + 1;
             }
             auto [n, next] = StringToUnsignedInt(it);
             if(it != next)
@@ -1232,7 +1264,7 @@ namespace SSSEngine::Text
         static constexpr auto Right = CharType('}');
 
         FormatContext<Encoding, OutIterator> fmtCtx{out};
-        ParseContext<Encoding, It> parseCtx{fmt.Begin(), fmt.End()};
+        ParseContext<Encoding, It> parseCtx{fmt.Begin(), fmt.End(), args};
 
         auto left = fmt.Begin();
         auto it = left;

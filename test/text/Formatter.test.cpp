@@ -183,9 +183,17 @@ namespace SSSTest
     SSSTEST_TEST(FormatIntWidth)
     {
         i32 v = 1024;
-        Utf8 string = Format<Utf8Encoding>(u8"{:8}", v);
-        Utf8 result(u8"    1024");
-        SSSTEST_EXPECT_EQ(string, result);
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:8}", v);
+            Utf8 result(u8"    1024");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            int w = 12;
+            Utf8 string = Format<Utf8Encoding>(u8"{:{1}}", v, w);
+            Utf8 result(u8"        1024");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
     }
 
     SSSTEST_TEST(FormatIntZeroPad)

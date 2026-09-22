@@ -42,7 +42,6 @@
 #include "MemoryUtility.h"
 #include "QualifierTraits.h"
 #include "ReverseView.h"
-#include "SignTraits.h"
 #include "Sink.h"
 #include "String.h"
 #include "StringView.h"
@@ -75,7 +74,8 @@ namespace SSSEngine::Text
 
             auto it = string.Begin();
             auto end = string.End();
-            // TODO: Validate all indices match
+            auto index = 0;
+
             while(it != end)
             {
                 if(*it == LeftBrace)
@@ -86,16 +86,20 @@ namespace SSSEngine::Text
                         ++it;
                         continue;
                     }
-                    auto [index, last] = StringToUnsignedInt(it, end);
+                    auto [nextIndex, last] = StringToUnsignedInt(it, end);
                     if(it != last)
                     {
-                        if(index >= SizeArgs)
-                        {
-                            throw "Invalid Index";
-                        }
+                        index = nextIndex;
 
                         it = last;
                     }
+
+                    if(index >= SizeArgs)
+                    {
+                        throw "Invalid Index";
+                    }
+
+                    ++index;
 
                     if(*it != CharType(':') && *it != RightBrace)
                     {
@@ -107,19 +111,26 @@ namespace SSSEngine::Text
                         if(*it == LeftBrace)
                         {
                             ++it;
-                            auto [index, last] = StringToUnsignedInt(it, end);
+                            auto [nestedIndex, last] = StringToUnsignedInt(it, end);
                             if(it != last)
                             {
                                 it = last;
                                 if(*it != RightBrace)
                                 {
-                                    throw "Nested specifier can only have a number!";
+                                    throw "Nested specifier can only have a number";
                                 }
                             }
                             else if(*it != RightBrace)
                             {
                                 throw "Invalid arg for nested specifier";
                             }
+
+                            index = nestedIndex;
+                            if(index >= SizeArgs)
+                            {
+                                throw "Invalid index for nested specifier";
+                            }
+                            ++index;
                         }
 
                         ++it;

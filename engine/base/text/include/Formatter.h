@@ -25,7 +25,6 @@
 #pragma once
 
 #include "Address.h"
-#include "Algorithm.h"
 #include "Array.h"
 #include "AsciiEncoding.h"
 #include "Attributes.h"
@@ -33,7 +32,6 @@
 #include "ConversionTraits.h"
 #include "CopyAndMoveTraits.h"
 #include "Debug.h"
-#include "Empty.h"
 #include "Encoding.h"
 #include "EnumHelpers.h"
 #include "Float.h"
@@ -156,13 +154,250 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, typename OutIterator>
     struct FormatContext
     {
+        using CharType = Encoding::CodeUnitType;
         OutIterator out;
     };
 
     template<EncodingConcept Encoding, typename ParseIterator>
     struct ParseContext
     {
+        using CharType = Encoding::CodeUnitType;
         ParseIterator out;
+        ParseIterator end;
+    };
+
+    // =================================================================================================================
+    // Specifiers
+    // =================================================================================================================
+
+    enum class Alignment : u8
+    {
+        None,
+        Left,
+        Right,
+        Center,
+    };
+
+    template<EncodingConcept Encoding>
+    struct FillAlignmentSpecifier
+    {
+        using CharType = Encoding::CodeUnitType;
+
+        template<typename ParseCtx>
+            requires SameAsConcept<typename ParseCtx::CharType, CharType>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using enum Alignment;
+
+            auto it = ctx.out;
+
+            SSSENGINE_FUNCTION_LOCAL constexpr CharType LeftAlign('<');
+            SSSENGINE_FUNCTION_LOCAL constexpr CharType RightAlign('>');
+            SSSENGINE_FUNCTION_LOCAL constexpr CharType CenterAlign('^');
+
+            if(*it == LeftAlign)
+            {
+                alignment = Left;
+                return it + 1;
+            }
+
+            if(*(it + 1) == LeftAlign)
+            {
+                alignment = Left;
+                fill = *it;
+                return it + 2;
+            }
+
+            if(*it == RightAlign)
+            {
+                alignment = Right;
+                return it + 1;
+            }
+
+            if(*(it + 1) == RightAlign)
+            {
+                alignment = Right;
+                fill = *it;
+                return it + 2;
+            }
+
+            if(*it == CenterAlign)
+            {
+                alignment = Center;
+                return it + 1;
+            }
+
+            if(*(it + 1) == CenterAlign)
+            {
+                alignment = Center;
+                fill = *it;
+                return it + 2;
+            }
+
+            return it;
+        }
+
+        Alignment alignment = Alignment::None;
+        CharType fill = CharType(' ');
+    };
+
+    struct AlternateFormSpecifier
+    {
+        template<typename ParseCtx>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using CharType = ParseCtx::CharType;
+
+            auto it = ctx.out;
+
+            if(*it != CharType('#'))
+            {
+                return it;
+            }
+
+            alternateForm = true;
+            return it + 1;
+        }
+
+        SSSENGINE_CONST SSSENGINE_FORCE_INLINE
+        constexpr explicit operator bool() const noexcept
+        {
+            return alternateForm;
+        }
+
+        bool alternateForm = false;
+    };
+
+    struct ZeroPadSpecifier
+    {
+        template<typename ParseCtx>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using CharType = ParseCtx::CharType;
+
+            auto it = ctx.out;
+
+            if(*it != CharType('0'))
+            {
+                return it;
+            }
+
+            zeroPad = true;
+            return it + 1;
+        }
+
+        bool zeroPad = false;
+    };
+
+    struct FormSpecifier
+    {
+        enum class Form : u8
+        {
+            Regular,
+            Binary,
+            Hex,
+        };
+
+        template<typename ParseCtx>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using CharType = ParseCtx::CharType;
+
+            auto it = ctx.out;
+
+            if(*it == CharType('x') || *it == CharType('X'))
+            {
+                form = Form::Hex;
+                return it + 1;
+            }
+
+            if(*it == CharType('b') || *it == CharType('B'))
+            {
+                form = Form::Binary;
+                return it + 1;
+            }
+
+            return it;
+        }
+
+        Form form = Form::Regular;
+    };
+
+    struct WidthSpecifier
+    {
+        template<typename ParseCtx>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using CharType = ParseCtx::CharType;
+
+            auto it = ctx.out;
+
+            if(*it == CharType('{'))
+            {
+                ++it;
+                auto [n, next] = StringToUnsignedInt(it, ctx.end);
+                if(it != next)
+                {
+                    SSSENGINE_TODO;
+                }
+            }
+            auto [n, next] = StringToUnsignedInt(it, ctx.end);
+            if(it != next)
+            {
+                it = next;
+                width = n;
+            }
+
+            return it;
+        }
+
+        SizeType width = 0;
+    };
+
+    struct PrecisionSpecifier
+    {
+        template<typename ParseCtx>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using CharType = ParseCtx::CharType;
+
+            auto it = ctx.out;
+
+            if(*it != CharType('.'))
+            {
+                return it;
+            }
+
+            ++it;
+
+            if(*it == CharType('{'))
+            {
+                ++it;
+                auto [n, next] = StringToUnsignedInt(it);
+                if(it != next)
+                {
+                    SSSENGINE_TODO;
+                }
+
+                SSSENGINE_ASSERT(*it == CharType('}'));
+            }
+            auto [n, next] = StringToUnsignedInt(it);
+            if(it != next)
+            {
+                it = next;
+                precision = n;
+            }
+
+            return it;
+        }
+
+        SizeType precision;
     };
 
     struct SignSpecifier
@@ -176,12 +411,14 @@ namespace SSSEngine::Text
 
         Sign s = Sign::Negative;
 
-        template<typename It>
+        template<typename ParseCtx>
         SSSENGINE_CONST
-        constexpr It Parse(It it) noexcept
+        constexpr auto Parse(ParseCtx &ctx) noexcept
         {
-            using CharType = Ranges::IteratorValueType<It>;
+            using CharType = ParseCtx::CharType;
             using enum Sign;
+
+            auto it = ctx.out;
 
             if(*it == CharType('+'))
             {
@@ -202,6 +439,10 @@ namespace SSSEngine::Text
             return it;
         }
     };
+
+    // =================================================================================================================
+    // Formatters
+    // =================================================================================================================
 
     template<typename T, EncodingConcept Encoding>
     struct Formatter
@@ -259,17 +500,14 @@ namespace SSSEngine::Text
         template<typename ParseCtx>
         constexpr auto Parse(ParseCtx &ctx) noexcept
         {
-            auto it = ctx.out;
-            while(*it != CharType('}'))
-            {
-                if constexpr(IsSigned<Int>)
-                {
-                    it = Move(sign.Parse(ctx.out));
-                }
+            ctx.out = Move(fillAlign.Parse(ctx));
+            ctx.out = Move(sign.Parse(ctx));
+            ctx.out = Move(alternateForm.Parse(ctx));
+            ctx.out = Move(zeroPad.Parse(ctx));
+            ctx.out = Move(width.Parse(ctx));
+            ctx.out = Move(form.Parse(ctx));
 
-                SSSENGINE_ASSERT(it != ctx.out);
-                ctx.out = it;
-            }
+            SSSENGINE_ASSERT(*ctx.out == CharType('}'));
 
             return ctx.out;
         }
@@ -277,52 +515,128 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
-            auto ascii = IntToAscii(value);
+            using enum FormSpecifier::Form;
+            AsciiInt ascii = [this, value]
+            {
+                switch(form.form)
+                {
+                    case Regular:
+                        return IntToAscii(value);
+                    case Binary:
+                        return IntToBinaryAscii(value);
+                    case Hex:
+                        return IntToHexAscii(value);
+                    default:
+                        SSSENGINE_UNREACHABLE;
+                }
+            }();
 
             // TODO: What size should it be?
             char tmp[32]{};
             char *it = tmp;
 
-            if constexpr(IsSigned<Int>)
+            const auto fill = [this](char *it, SizeType amount) { MemorySet(it, fillAlign.fill, amount); };
+
+            using enum SignSpecifier::Sign;
+
+            auto valueSign = Math::SignOf(value);
+
+            if(valueSign == -1)
             {
-                using enum SignSpecifier::Sign;
-
-                auto valueSign = Math::SignOf(value);
-
-                if(valueSign == -1)
+                *it++ = '-';
+            }
+            else if(valueSign == 1)
+            {
+                switch(sign.s)
                 {
-                    *it = '-';
-                    ++it;
-                }
-                else if(valueSign == 1)
-                {
-                    switch(sign.s)
-                    {
-                        case Always:
-                            *it = '+';
-                            ++it;
-                            break;
-                        case Space:
-                            *it = ' ';
-                            ++it;
-                            break;
-                        case Negative:
-                            break;
-                        default:
-                            SSSENGINE_UNREACHABLE;
-                    }
+                    case Always:
+                        *it++ = '+';
+                        break;
+                    case Space:
+                        *it++ = ' ';
+                        break;
+                    case Negative:
+                        break;
+                    default:
+                        SSSENGINE_UNREACHABLE;
                 }
             }
+            if(alternateForm)
+            {
+                switch(form.form)
+                {
+                    case Regular:
+                        break;
+                    case Binary:
+                        *it++ = '0';
+                        *it++ = 'b';
+                        break;
+                    case Hex:
+                        *it++ = '0';
+                        *it++ = 'x';
+                        break;
+                    default:
+                        SSSENGINE_UNREACHABLE;
+                }
+            }
+            auto endPrefix = it;
+            RawMemoryCopy(ascii.digits.Data(), it, ascii.numberDigits);
+            it += ascii.numberDigits;
 
-            SizeType total = it - tmp + ascii.numberDigits;
-            RawMemoryCopy(ascii.digits.Data(), it, total);
+            SizeType total = it - tmp;
+            i32 fillAmount = i32(width.width - total);
+            if(fillAmount > 0)
+            {
+                switch(fillAlign.alignment)
+                {
+                    case Alignment::None:
+                        if(zeroPad.zeroPad)
+                        {
+                            RawMemoryMove(endPrefix, endPrefix + fillAmount, total);
+                            MemorySet(endPrefix, '0', fillAmount);
+                            break;
+                        }
+                        else
+                            SSSENGINE_FALLTHROUGH;
+                    case Alignment::Right:
+                    {
+                        RawMemoryMove(tmp, tmp + fillAmount, total);
+                        fill(tmp, fillAmount);
+                        break;
+                    }
+                    case Alignment::Left:
+                    {
+                        fill(it, total);
+                        break;
+                    }
+                    case Alignment::Center:
+                    {
+                        auto half = fillAmount / 2;
+                        auto otherHalf = fillAmount - half;
+
+                        RawMemoryMove(tmp, tmp + half, total);
+                        fill(tmp, half);
+                        fill(it + half, otherHalf);
+                    }
+                    break;
+                    default:
+                        SSSENGINE_UNREACHABLE;
+                }
+
+                total = width.width;
+            }
 
             *ctx.out++ = StringView<Encoding>{tmp, total};
 
             return ctx.out;
         }
 
-        MaybeEmptyType<IsSigned<Int>, SignSpecifier> sign;
+        FillAlignmentSpecifier<Encoding> fillAlign;
+        SignSpecifier sign;
+        AlternateFormSpecifier alternateForm;
+        ZeroPadSpecifier zeroPad;
+        WidthSpecifier width;
+        FormSpecifier form;
     };
 
     template<FloatingPointConcept Float, EncodingConcept Encoding>
@@ -907,7 +1221,7 @@ namespace SSSEngine::Text
         static constexpr auto Right = CharType('}');
 
         FormatContext<Encoding, OutIterator> fmtCtx{out};
-        FormatContext<Encoding, It> parseCtx{fmt.Begin()};
+        ParseContext<Encoding, It> parseCtx{fmt.Begin(), fmt.End()};
 
         auto left = fmt.Begin();
         auto it = left;

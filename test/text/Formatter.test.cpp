@@ -1,3 +1,4 @@
+#include "Logger.h"
 #include "String.h"
 #include "StringView.h"
 #include "Test.h"
@@ -143,6 +144,127 @@ namespace SSSTest
             i32 v = 200;
             Utf8 string = Format<Utf8Encoding>(u8"{: }", v);
             Utf8 result(u8" 200");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatIntBinary)
+    {
+        i32 v = 0b1111000011110000;
+        Utf8 string = Format<Utf8Encoding>(u8"{:b}", v);
+        Utf8 result(u8"1111000011110000");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatIntBinaryAlternateForm)
+    {
+        i32 v = 0b1111000011110000;
+        Utf8 string = Format<Utf8Encoding>(u8"{:#b}", v);
+        Utf8 result(u8"0b1111000011110000");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatIntHexForm)
+    {
+        i32 v = 0x0FABFFA0;
+        Utf8 string = Format<Utf8Encoding>(u8"{:x}", v);
+        Utf8 result(u8"FABFFA0");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatIntHexAlternateForm)
+    {
+        i32 v = 0x0FABFFA0;
+        Utf8 string = Format<Utf8Encoding>(u8"{:#x}", v);
+        Utf8 result(u8"0xFABFFA0");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatIntWidth)
+    {
+        i32 v = 1024;
+        Utf8 string = Format<Utf8Encoding>(u8"{:8}", v);
+        Utf8 result(u8"    1024");
+        SSSTEST_EXPECT_EQ(string, result);
+    }
+
+    SSSTEST_TEST(FormatIntZeroPad)
+    {
+        {
+            i32 v = 1024;
+            Utf8 string = Format<Utf8Encoding>(u8"{:08}", v);
+            Utf8 result(u8"00001024");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            i32 v = 0x234AA;
+            Utf8 string = Format<Utf8Encoding>(u8"{:#08x}", v);
+            Utf8 result(u8"0x0234AA");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatIntFillAndAlignment)
+    {
+        i32 v = 1024;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:<8}", v);
+            Utf8 result(u8"1024    ");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:>8}", v);
+            Utf8 result(u8"    1024");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:^8}", v);
+            Utf8 result(u8"  1024  ");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:*<8}", v);
+            Utf8 result(u8"1024****");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:*<#8x}", v);
+            Utf8 result(u8"0x400***");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:*>#8x}", v);
+            Utf8 result(u8"***0x400");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatIntAll)
+    {
+        i32 v = 1024;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:<+8}", v);
+            Utf8 result(u8"+1024   ");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:>+8}", -v);
+            Utf8 result(u8"   -1024");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:*< 8}", v);
+            Utf8 result(u8" 1024***");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:*< #8x}", v);
+            Utf8 result(u8" 0x400**");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:*>+#8x}", v);
+            Utf8 result(u8"**+0x400");
             SSSTEST_EXPECT_EQ(string, result);
         }
     }

@@ -81,6 +81,11 @@ namespace SSSEngine
                 SSSENGINE_NOT_IMPLEMENTED;
             }
         }();
+
+        /**
+         * @brief The amount of meaningful base 2 digits for type N
+         */
+        static constexpr u32 HexadecimalDigits = BinaryDigits / 4;
     };
 
 } // namespace SSSEngine

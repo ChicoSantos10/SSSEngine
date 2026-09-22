@@ -127,7 +127,7 @@ namespace SSSEngine
     template<typename T>
         requires(IsBitwiseCopyable<T>)
     SSSENGINE_FORCE_INLINE
-    constexpr void MemorySet(T *to, i8 value, SizeType bytes) noexcept
+    constexpr void MemorySet(T *to, int value, SizeType bytes) noexcept
     {
         if consteval
         {
@@ -140,7 +140,7 @@ namespace SSSEngine
         else
         {
 #ifdef SSSENGINE_MSVC
-#elif SSSENGINE_CLANG || SSSENGINE_GCC
+#elif defined(SSSENGINE_CLANG) || defined(SSSENGINE_GCC)
             __builtin_memset(to, value, bytes);
 #endif // SSSENGINE_MSVC
         }

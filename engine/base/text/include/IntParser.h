@@ -25,6 +25,7 @@
 #pragma once
 
 #include "Array.h"
+#include "Bits.h"
 #include "Concepts.h"
 #include "Debug.h"
 #include "Encoding.h"
@@ -168,19 +169,11 @@ namespace SSSEngine::Text
 
         static constexpr SizeType MaxDigits = IntTraits<u64>::DecimalDigits;
 
-        if constexpr(IsSigned<Int>)
-        {
-            if(value == IntTraits<i64>::Min)
-            {
-                return {.digits{"9223372036854775808"}, .numberDigits = IntTraits<i64>::DecimalDigits};
-            }
-        }
-
         u64 unsignedValue = [value]
         {
             if constexpr(IsSigned<Int>)
             {
-                return static_cast<u64>(Math::Absolute(value));
+                return Math::UnsignedAbsolute(value);
             }
             else
             {
@@ -202,6 +195,100 @@ namespace SSSEngine::Text
         RawMemoryMove(digits.Data() + i + 1, digits.Data(), written);
 
         result.numberDigits = written;
+        return result;
+    }
+
+    template<IntegralConcept Int>
+    constexpr AsciiInt IntToHexAscii(Int value)
+    {
+        if(value == 0)
+        {
+            return {.digits = {'0'}, .numberDigits = 1};
+        }
+
+        static constexpr SizeType MaxDigits = IntTraits<u64>::HexadecimalDigits;
+
+        u64 unsignedValue = [value]
+        {
+            if constexpr(IsSigned<Int>)
+            {
+                return Math::UnsignedAbsolute(value);
+            }
+            else
+            {
+                return value;
+            }
+        }();
+
+        AsciiInt result{};
+        auto &digits = result.digits;
+
+        SSSENGINE_FUNCTION_LOCAL constexpr auto HexTable = []
+        {
+            Containers::Array<char, 16> table; // NOLINT(cppcoreguidelines-pro-type-member-init)
+            for(SizeType i = 0; i < 16; ++i)
+            {
+                if(i < 10)
+                {
+                    table[i] = char('0' + i);
+                }
+                else
+                {
+                    table[i] = char('A' + i - 10);
+                }
+            }
+            return table;
+        }();
+        SSSENGINE_FUNCTION_LOCAL constexpr u64 Mask = 0xF;
+
+        SizeType i = MaxDigits;
+        for(; unsignedValue > 0; --i)
+        {
+            auto v = Mask & unsignedValue;
+            digits[i] = HexTable[v];
+            unsignedValue >>= 4;
+        }
+
+        auto written = MaxDigits - i;
+        RawMemoryMove(digits.Data() + i + 1, digits.Data(), written);
+
+        result.numberDigits = written;
+        return result;
+    }
+
+    template<IntegralConcept Int>
+    constexpr AsciiInt IntToBinaryAscii(Int value)
+    {
+        if(value == 0)
+        {
+            return {.digits = {'0'}, .numberDigits = 1};
+        }
+
+        u64 unsignedValue = [value]
+        {
+            if constexpr(IsSigned<Int>)
+            {
+                return Math::UnsignedAbsolute(value);
+            }
+            else
+            {
+                return value;
+            }
+        }();
+
+        AsciiInt result{};
+
+        SizeType mostSignificantBit = Math::CountLeftZeros(unsignedValue);
+        result.numberDigits = IntTraits<u64>::BinaryDigits - mostSignificantBit;
+        auto mask = u64(1) << (result.numberDigits - 1);
+
+        for(SizeType i = 0; i < result.numberDigits; ++i)
+        {
+            auto v = HasBitSet(mask, unsignedValue);
+            result.digits[i] = char('0' + v);
+            unsignedValue <<= 1;
+        }
+
         return result;
     }
 

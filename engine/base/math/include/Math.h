@@ -32,6 +32,7 @@
 #include "Float.h"
 #include "HelperMacros.h"
 #include "Integer.h"
+#include "QualifierTraits.h"
 #include "SignTraits.h"
 #include "Traits.h"
 #include "Types.h"
@@ -59,6 +60,21 @@ namespace SSSEngine::Math
 
         auto y = num >> (Bits<T> - 1);
         return (num ^ y) - y;
+    }
+
+    /**
+     * @brief Get's the absolute representation of a signed integer converted into an unsigned version
+     *
+     * @param num The number to get it's absolute representation
+     * @return The absolute value of num
+     */
+    template<IntegralConcept T>
+        requires(IsSigned<T>)
+    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    constexpr UnsignedType<T> UnsignedAbsolute(T num) noexcept
+    {
+        auto y = num >> (Bits<T> - 1);
+        return UnsignedType<T>(num ^ y) - y;
     }
 
     /**
@@ -225,7 +241,7 @@ namespace SSSEngine::Math
     template<typename T>
         requires OrderableConcept<T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr auto Max(const T &first, const T &second) noexcept
+    constexpr auto Max(const T &first, const IdentityType<T> &second) noexcept
     {
         return first > second ? first : second;
     }

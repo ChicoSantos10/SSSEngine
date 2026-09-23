@@ -1372,27 +1372,37 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, typename... Args>
     constexpr String<Encoding> Format(FormatString<Encoding, IdentityType<Args>...> fmt, Args &&...args) noexcept
     {
-        // Find replacement fields: {} which can have an Id and/or a format spec
-        // {id:spec} Ignore escape sequence {{ and }} => replaced by {} in the output
-        // string Convert the type into string All args and replacement fields must be
-        // used
-
-        // INVESTIGATE: What to do if args are not there?
         if constexpr(sizeof...(args) == 0)
         {
             return String<Encoding>{fmt.string};
         }
-
-        // LINE: 5394
-        auto fmtArgs = MakeFormatArgs<Encoding>(args...);
-        FormatArgs<Encoding> fa = fmtArgs;
-        return VFormat(fmt.string, fa);
+        else
+        {
+            auto fmtArgs = FormatArgs<Encoding>(MakeFormatArgs<Encoding>(args...));
+            return VFormat(fmt.string, fmtArgs);
+        }
     }
 
-    // TODO: Simple, single argument format that simply formats the value into a
-    // string: Format("{}", x) -> Format(x) Or have a ToString(x) and Format("{}",
-    // x) just returns the ToString(x)
-    //
-    // INVESTIGATE: Is it possible to deduce encoding instead of having it explicit
+    /**
+     * @brief Converts a value to a string using it's default formatter
+     *
+     * @tparam Encoding The encoding to use
+     * @tparam T The type of the value to format
+     * @param value The value to convert
+     * @return A string converted from value
+     */
+    template<EncodingConcept Encoding, typename T>
+    constexpr String<Encoding> ToString(T &value) noexcept
+    {
+        using Type = NormalizedArgType<Encoding, T>;
+        using Formatter = Formatter<Type, Encoding>;
+
+        Containers::StringSink<Encoding> sink;
+        FormatContext<Encoding, decltype(sink.Out())> fmtCtx{sink.Out()};
+        Formatter fmt;
+        fmt.Format(value, fmtCtx);
+
+        return Move(sink).Get();
+    }
 
 } // namespace SSSEngine::Text

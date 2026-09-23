@@ -641,4 +641,24 @@ namespace SSSTest
             SSSTEST_EXPECT_EQ(result, expected);
         }
     }
+
+    // ==============================================================================================================
+    // ToString
+    // ==============================================================================================================
+
+    SSSTEST_TEST(FormatToString)
+    {
+        {
+            int v = 98123;
+            auto result = ToString<Utf8Encoding>(v);
+            Utf8View expected = u8"98123";
+            SSSTEST_EXPECT_EQ(result, expected);
+        }
+        {
+            f32 v = 8.23f;
+            auto result = ToString<Utf8Encoding>(v);
+            Utf8View expected = u8"8.23";
+            SSSTEST_EXPECT_EQ(result, expected);
+        }
+    }
 } // namespace SSSTest

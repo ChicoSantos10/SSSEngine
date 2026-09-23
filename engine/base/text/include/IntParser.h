@@ -38,36 +38,34 @@
 
 namespace SSSEngine::Text
 {
-    template<CharTypeConcept Char>
+    // TODO: This are ASCII digits only! Create ASCII and UNICODE versions
+
     SSSENGINE_CONST SSSENGINE_FORCE_INLINE
-    constexpr bool IsDigit(Char digit) noexcept
+    constexpr bool IsDigit(char digit) noexcept
     {
-        return digit >= Char('0') && digit <= Char('9');
+        return digit >= '0' && digit <= '9';
     }
 
-    template<CharTypeConcept Char>
     SSSENGINE_CONST SSSENGINE_FORCE_INLINE
-    constexpr bool IsSign(Char digit) noexcept
+    constexpr bool IsSign(char digit) noexcept
     {
-        return digit == Char('+') || digit == Char('-');
+        return digit == '+' || digit == '-';
     }
 
-    template<CharTypeConcept Char>
     SSSENGINE_CONST SSSENGINE_FORCE_INLINE
-    constexpr bool SignValue(Char digit) noexcept
+    constexpr bool SignValue(char digit) noexcept
     {
         SSSENGINE_ASSERT(IsSign(digit));
 
-        return (digit - 0x2C) * -1;
+        return 0x2C - digit;
     }
 
-    template<CharTypeConcept Char>
     SSSENGINE_CONST SSSENGINE_FORCE_INLINE
-    constexpr u64 CharToInt(Char digit) noexcept
+    constexpr u64 CharToInt(char digit) noexcept
     {
         SSSENGINE_ASSERT(IsDigit(digit));
 
-        return digit - Char('0');
+        return digit - '0';
     }
 
     template<Ranges::InputIteratorConcept It>

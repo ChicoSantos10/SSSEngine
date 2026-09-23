@@ -254,6 +254,7 @@ namespace SSSEngine::Text
         }
 
         Alignment alignment = Alignment::None;
+        // FIXME: This should be a grapheme cluster!
         CharType fill = CharType(' ');
     };
 
@@ -808,7 +809,7 @@ namespace SSSEngine::Text
         template<typename FmtCtx>
         constexpr auto Format(void *value, FmtCtx &ctx) const noexcept
         {
-            // TODO: Pointer formatting
+            FormatTo<Encoding>(ctx.out, SSSENGINE_ENCODING_SELECTOR(CharType, "{:#10x}"), reinterpret_cast<u64>(value));
             return ctx.out;
         }
     };
@@ -922,7 +923,7 @@ namespace SSSEngine::Text
         }
         else if constexpr(IsPointer<Type>)
         {
-            return Identity<const void *>{};
+            return Identity<void *>{};
         }
         else
         {
@@ -1254,7 +1255,7 @@ namespace SSSEngine::Text
     }
 
     template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<StringView<Encoding>> OutIterator>
-    constexpr void FormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
+    constexpr void VFormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
     {
         using CharType = typename Encoding::CodeUnitType;
         using View = StringView<Encoding>;
@@ -1342,11 +1343,17 @@ namespace SSSEngine::Text
         *fmtCtx.out++ = view;
     }
 
+    template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<StringView<Encoding>> OutIterator, typename... Args>
+    constexpr void FormatTo(OutIterator out, FormatString<Encoding, IdentityType<Args>...> fmt, Args &&...args) noexcept
+    {
+        return VFormatTo(out, fmt.string, FormatArgs<Encoding>(MakeFormatArgs<Encoding>(args...)));
+    }
+
     template<EncodingConcept Encoding>
-    constexpr String<Encoding> FormatEngine(StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
+    constexpr String<Encoding> VFormat(StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
     {
         Containers::StringSink<Encoding> sink;
-        FormatTo(sink.Out(), fmt, args);
+        VFormatTo(sink.Out(), fmt, args);
 
         return Move(sink).Get();
     }
@@ -1379,7 +1386,7 @@ namespace SSSEngine::Text
         // LINE: 5394
         auto fmtArgs = MakeFormatArgs<Encoding>(args...);
         FormatArgs<Encoding> fa = fmtArgs;
-        return FormatEngine(fmt.string, fa);
+        return VFormat(fmt.string, fa);
     }
 
     // TODO: Simple, single argument format that simply formats the value into a

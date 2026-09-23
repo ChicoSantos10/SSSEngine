@@ -621,4 +621,24 @@ namespace SSSTest
         }
     }
 
+    // =================================================================================================================
+    // Pointer
+    // =================================================================================================================
+
+    SSSTEST_TEST(FormatPointer)
+    {
+        int v = 1230;
+        {
+            void *add = &v;
+            auto result = Format<Utf8Encoding>(u8"{}", add);
+            auto expected = Format<Utf8Encoding>(u8"{:#x}", reinterpret_cast<u64>(&v));
+            SSSTEST_EXPECT_EQ(result, expected);
+        }
+        {
+            int *add = &v;
+            auto result = Format<Utf8Encoding>(u8"{}", add);
+            auto expected = Format<Utf8Encoding>(u8"{:#x}", reinterpret_cast<u64>(&v));
+            SSSTEST_EXPECT_EQ(result, expected);
+        }
+    }
 } // namespace SSSTest

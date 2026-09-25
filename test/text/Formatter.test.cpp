@@ -393,6 +393,28 @@ namespace SSSTest
         }
     }
 
+    SSSTEST_TEST(FormatFloat32Scientific)
+    {
+        {
+            f32 v = 0.0000001;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"1e-7");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f32 v = 1e23;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"1e23");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f32 v = -1.23e23;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-1.23e23");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
     SSSTEST_TEST(FormatFloat32Nan)
     {
         f32 v = SSSEngine::FloatTraits<f32>::NaN;
@@ -535,6 +557,28 @@ namespace SSSTest
         }
     }
 
+    SSSTEST_TEST(FormatFloat64Scientific)
+    {
+        {
+            f64 v = 0.0000001;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"1e-7");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 1e23;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"1e23");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = -1.23e23;
+            Utf8 string = Format<Utf8Encoding>(u8"{}", v);
+            Utf8 result(u8"-1.23e23");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
     SSSTEST_TEST(FormatFloat64Nan)
     {
         f64 v = SSSEngine::FloatTraits<f64>::NaN;
@@ -555,6 +599,108 @@ namespace SSSTest
             f64 v = SSSEngine::FloatTraits<f64>::NegativeInfinity;
             Utf8 string = Format<Utf8Encoding>(u8"{}", v);
             Utf8 result(u8"-Infinity");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatFloat64Precision)
+    {
+        f64 v = 6.89123;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.1}", v);
+            Utf8 result(u8"7");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.2}", v);
+            Utf8 result(u8"6.9");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.3}", v);
+            Utf8 result(u8"6.89");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.4}", v);
+            Utf8 result(u8"6.891");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.5}", v);
+            Utf8 result(u8"6.8912");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.6}", v);
+            Utf8 result(u8"6.89123");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        v = 999.999;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.1}", v);
+            Utf8 result(u8"1e3");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.3}", v);
+            Utf8 result(u8"1e3");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.4}", v);
+            Utf8 result(u8"1000");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatFloat64GeneralFormat)
+    {
+        f64 v = 123.123;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:g}", v);
+            Utf8 result(u8"123.123");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.1g}", v);
+            Utf8 result(u8"1e2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.2g}", v);
+            Utf8 result(u8"1.2e2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.5g}", v);
+            Utf8 result(u8"123.12");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.6g}", v);
+            Utf8 result(u8"123.123");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        v = 0.123;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:g}", v);
+            Utf8 result(u8"0.123");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.1g}", v);
+            Utf8 result(u8"0.1");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.2g}", v);
+            Utf8 result(u8"0.12");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.5g}", v);
+            Utf8 result(u8"0.123");
             SSSTEST_EXPECT_EQ(string, result);
         }
     }

@@ -37,6 +37,7 @@
 #include "Float.h"
 #include "FloatParser.h"
 #include "HelperMacros.h"
+#include "Integer.h"
 #include "Iterator.h"
 #include "Math.h"
 #include "MemoryUtility.h"
@@ -410,7 +411,7 @@ namespace SSSEngine::Text
             if(*it == CharType('{'))
             {
                 ++it;
-                auto [n, next] = StringToUnsignedInt(it);
+                auto [n, next] = StringToUnsignedInt(it, ctx.end);
                 if(it != next)
                 {
                     auto arg = ctx.args.Get(n);
@@ -431,7 +432,7 @@ namespace SSSEngine::Text
                 SSSENGINE_ASSERT(*next == CharType('}'));
                 return next + 1;
             }
-            auto [n, next] = StringToUnsignedInt(it);
+            auto [n, next] = StringToUnsignedInt(it, ctx.end);
             if(it != next)
             {
                 it = next;
@@ -441,7 +442,7 @@ namespace SSSEngine::Text
             return it;
         }
 
-        SizeType precision;
+        SizeType precision = IntTraits<SizeType>::Max;
     };
 
     struct SignSpecifier
@@ -453,7 +454,7 @@ namespace SSSEngine::Text
             Space
         };
 
-        Sign s = Sign::Negative;
+        Sign sign = Sign::Negative;
 
         template<typename ParseCtx>
         SSSENGINE_CONST
@@ -466,22 +467,63 @@ namespace SSSEngine::Text
 
             if(*it == CharType('+'))
             {
-                s = Always;
+                sign = Always;
                 ++it;
             }
             else if(*it == CharType(' '))
             {
-                s = Space;
+                sign = Space;
                 ++it;
             }
             else if(*it == CharType('-'))
             {
-                s = Negative;
+                sign = Negative;
                 ++it;
             }
 
             return it;
         }
+    };
+
+    struct FloatFormatSpecifier
+    {
+        enum class Format : u8
+        {
+            None,
+            General,
+            Fixed,
+            Scientific,
+        };
+
+        template<typename ParseCtx>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using CharType = ParseCtx::CharType;
+            using enum Format;
+
+            auto it = ctx.out;
+
+            if(*it == CharType('g') || *it == CharType('G'))
+            {
+                format = General;
+                ++it;
+            }
+            else if(*it == CharType('e') || *it == CharType('E'))
+            {
+                format = Scientific;
+                ++it;
+            }
+            else if(*it == CharType('f') || *it == CharType('F'))
+            {
+                format = Fixed;
+                ++it;
+            }
+
+            return it;
+        }
+
+        Format format = Format::None;
     };
 
     // =================================================================================================================
@@ -490,6 +532,7 @@ namespace SSSEngine::Text
 
     template<typename T, EncodingConcept Encoding>
     struct Formatter
+
     {
         Formatter() = delete;
         Formatter(const Formatter &) = delete;
@@ -591,7 +634,7 @@ namespace SSSEngine::Text
             }
             else if(valueSign == 1)
             {
-                switch(sign.s)
+                switch(sign.sign)
                 {
                     case Always:
                         *it++ = '+';
@@ -691,6 +734,14 @@ namespace SSSEngine::Text
         template<typename ParseCtx>
         constexpr auto Parse(ParseCtx &ctx) noexcept
         {
+            ctx.out = fillAlign.Parse(ctx);
+            ctx.out = sign.Parse(ctx);
+            ctx.out = alternateForm.Parse(ctx);
+            ctx.out = zeroPad.Parse(ctx);
+            ctx.out = width.Parse(ctx);
+            ctx.out = precision.Parse(ctx);
+            ctx.out = format.Parse(ctx);
+
             return ctx.out;
         }
 
@@ -715,10 +766,11 @@ namespace SSSEngine::Text
             }
             if(IsInfinity(value)) SSSENGINE_UNLIKELY
             {
-                auto showSign = SignBit(value);
+                auto signBit = SignBit(value);
+                auto showSign = signBit || sign.sign != SignSpecifier::Sign::Negative;
                 if(showSign)
                 {
-                    *ctx.out++ = SignedInf[showSign];
+                    *ctx.out++ = SignedInf[signBit];
                 }
                 else
                 {
@@ -728,48 +780,190 @@ namespace SSSEngine::Text
             }
 
             auto decimal = FloatToAscii(value);
-            ctx.out = Move(FormatShort(value, decimal, ctx));
+
+            SizeType count = 0;
+
+            using enum FloatFormatSpecifier::Format;
+            switch(format.format)
+            {
+                case None:
+                {
+                    if(precision.precision == IntTraits<SizeType>::Max)
+                    {
+                        if(decimal.exponent < MinExp || decimal.exponent >= MaxExp)
+                        {
+                            count = FormatScientific(decimal);
+                        }
+                        else
+                        {
+                            count = FormatFixed(decimal, DecimalPlaces(decimal.exponent, decimal.significantDigits));
+                        }
+                        break;
+                    }
+                    SSSENGINE_FALLTHROUGH;
+                }
+                case General:
+                {
+                    SizeType significantDigits = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
+                    if(significantDigits < decimal.significantDigits)
+                    {
+                        RoundDecimal(decimal, precision.precision);
+                    }
+
+                    auto exp = decimal.exponent;
+                    if(MinExp <= exp && exp < i64(significantDigits))
+                    {
+                        auto prec = Math::Min(precision.precision, decimal.significantDigits);
+                        auto decimalPlaces = DecimalPlaces(decimal.exponent, prec);
+
+                        count = FormatFixed(decimal, decimalPlaces);
+                    }
+                    else
+                    {
+                        count = FormatScientific(decimal);
+                    }
+                    break;
+                }
+                case Fixed:
+                case Scientific:
+                    break;
+            }
+
+            using enum SignSpecifier::Sign;
+
+            auto signBit = SignBit(value);
+            u32 showSign = signBit || sign.sign != Negative;
+            RawMemoryMove(&decimal.digits[0], &decimal.digits[1], count);
+            count += showSign;
+            decimal.digits[0] = Signs[signBit];
+
+            *ctx.out++ = StringView<Encoding>{&decimal.digits[!showSign], count};
+
             return ctx.out;
         }
+
+        static constexpr i32 MinExp = []
+        {
+            if constexpr(IsSameType<Float, f32>)
+            {
+                return -4;
+            }
+            else if constexpr(IsSameType<Float, f64>)
+            {
+                return -6;
+            }
+            else
+            {
+                SSSENGINE_NOT_IMPLEMENTED;
+            }
+        }();
+        static constexpr i32 MaxExp = []
+        {
+            if constexpr(IsSameType<Float, f32>)
+            {
+                return 6;
+            }
+            else if constexpr(IsSameType<Float, f64>)
+            {
+                return 12;
+            }
+            else
+            {
+                SSSENGINE_NOT_IMPLEMENTED;
+            }
+        }();
+
+        FillAlignmentSpecifier<Encoding> fillAlign;
+        SignSpecifier sign;
+        AlternateFormSpecifier alternateForm;
+        ZeroPadSpecifier zeroPad;
+        WidthSpecifier width;
+        PrecisionSpecifier precision;
+        FloatFormatSpecifier format;
 
       private:
         static constexpr char Signs[] = {'+', '-'};
 
-        template<typename FmtCtx>
-        constexpr auto FormatShort(f64 value, FloatToAsciiResult &decimal, FmtCtx &ctx) const noexcept
+        static constexpr SizeType DecimalPlaces(i32 exponent, SizeType significantDigits) noexcept
         {
-            auto sign = SignBit(value);
-            u32 showSign = sign;
-            u32 hideSign = !sign;
+            return exponent < 0 || significantDigits > exponent + 1 ? significantDigits - exponent - 1 : 0;
+        }
 
+        static constexpr auto RoundDecimal(FloatToAsciiResult &decimal, SizeType significantDigits) noexcept
+        {
+            StringView<Encoding> view{decimal.digits.Data(), significantDigits};
+
+            // TODO: Handle overflow (use unlikely)
+            //  -> Check if it fits digits first
+            //      -> If yes then it won't overflow
+            //      -> If digits == digits_max, strcmp the u64::max string with view
+            //          ->  If smaller then fits
+            //          -> Handle overflow
+            //      -> Handle overflow
+
+            u64 tmp = StringToUnsignedInt(view);
+            if(*(decimal.digits.Data() + significantDigits) >= '5')
+            {
+                ++tmp;
+            }
+
+            auto [num, count] = IntToAscii(tmp);
+
+            RawMemoryCopy(num.Data(), decimal.digits.Data(), count);
+
+            if(count > significantDigits)
+            {
+                ++decimal.exponent;
+                decimal.significantDigits = 1;
+            }
+            else
+            {
+                decimal.significantDigits = significantDigits;
+            }
+        }
+
+        constexpr auto FormatFixed(FloatToAsciiResult &decimal, SizeType decimalPlaces) const noexcept
+        {
             i32 positiveExponent = decimal.exponent >= 0;
-            u32 first = (positiveExponent ? 0 : 1 - decimal.exponent) + 1;
+            u32 first = (positiveExponent ? 0 : 1 - decimal.exponent);
             RawMemoryMove(decimal.digits.Data(), &decimal.digits[first], decimal.significantDigits);
 
             auto dot = first + decimal.exponent + positiveExponent;
             auto move = positiveExponent ? dot + 1 : dot;
-            RawMemoryMove(&decimal.digits[dot], &decimal.digits[move], 8);
+            i32 moveCount = Math::Max(i32(decimal.significantDigits) - i32(dot), 0);
+            RawMemoryMove(&decimal.digits[dot], &decimal.digits[move], moveCount);
 
-            for(SizeType i = showSign; i < first; ++i)
-            {
-                decimal.digits[i] = '0';
-            }
-
-            decimal.digits[0] = Signs[sign];
+            MemorySet(decimal.digits.Data(), '0', first);
             decimal.digits[dot] = '.';
 
-            auto countNegative = first - hideSign + decimal.significantDigits;
+            auto countNegative = decimalPlaces + 2;
+            auto countPositive = decimalPlaces + dot + (decimalPlaces > 0);
 
-            u32 absoluteExponent = Math::Absolute(decimal.exponent) + 1;
-            u32 digits = Math::Max(decimal.significantDigits, absoluteExponent);
-            bool hasDot = decimal.significantDigits > absoluteExponent;
+            auto count = positiveExponent ? countPositive : countNegative;
 
-            auto count = positiveExponent ? digits + hasDot + showSign : countNegative;
+            return count;
+        }
 
-            StringView<Encoding> view(&decimal.digits[hideSign], count);
-            *ctx.out++ = view;
+        constexpr auto FormatScientific(FloatToAsciiResult &decimal) const noexcept
+        {
+            RawMemoryMove(&decimal.digits[1], &decimal.digits[2], decimal.significantDigits - 1);
 
-            return ctx.out;
+            decimal.digits[1] = '.';
+
+            auto exp = IntToAscii(decimal.exponent);
+
+            bool singleDigit = decimal.significantDigits == 1;
+            auto *it = decimal.digits.Data() + 2 - singleDigit + decimal.significantDigits - 1;
+            *it++ = 'e';
+            if(decimal.exponent < 0)
+            {
+                *it++ = '-';
+            }
+            RawMemoryCopy(exp.digits.Data(), it, exp.numberDigits);
+
+            auto count = it - decimal.digits.Data() + exp.numberDigits;
+
+            return count;
         }
     };
 
@@ -876,12 +1070,6 @@ namespace SSSEngine::Text
         else if constexpr(IsConvertible<Type, StringView<Encoding>>)
         {
             return Identity<StringView<Encoding>>{};
-        }
-        else if constexpr(IsSameType<DecayType<Type>, CharType *> || IsSameType<DecayType<Type>, const CharType *>)
-        {
-            // TODO: StringView? Shouldn't the IsConvertible already make this never
-            // happen?
-            return Identity<const CharType *>{};
         }
         else if constexpr(SignedIntegralConcept<Type>)
         {

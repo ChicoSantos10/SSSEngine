@@ -199,7 +199,7 @@ namespace SSSEngine::Math
     template<typename T>
         requires OrderableConcept<T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr auto Min(const T &first, const T &second) noexcept
+    constexpr auto Min(const T &first, const IdentityType<T> &second) noexcept
     {
         return first < second ? first : second;
     }

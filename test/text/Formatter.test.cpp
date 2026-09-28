@@ -705,6 +705,90 @@ namespace SSSTest
         }
     }
 
+    SSSTEST_TEST(FormatFloat64FixedFormat)
+    {
+        f64 v = 123.193;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:f}", v);
+            Utf8 result(u8"123.193000");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.0f}", v);
+            Utf8 result(u8"123");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.1f}", v);
+            Utf8 result(u8"123.2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.3f}", v);
+            Utf8 result(u8"123.193");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        v = 0.123;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:f}", v);
+            Utf8 result(u8"0.123000");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.1f}", v);
+            Utf8 result(u8"0.1");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.2f}", v);
+            Utf8 result(u8"0.12");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatFloat64ScientificFormat)
+    {
+        f64 v = 123.193;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:e}", v);
+            Utf8 result(u8"1.231930e2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.1e}", v);
+            Utf8 result(u8"1.2e2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.3e}", v);
+            Utf8 result(u8"1.232e2");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+    }
+
+    SSSTEST_TEST(FormatFloat64AlternateForm)
+    {
+        {
+            f64 v = 123;
+            Utf8 string = Format<Utf8Encoding>(u8"{:#}", v);
+            Utf8 result(u8"123.");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 123.123;
+            Utf8 string = Format<Utf8Encoding>(u8"{:#.0f}", v);
+            Utf8 result(u8"123.");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 193.123;
+            Utf8 string = Format<Utf8Encoding>(u8"{:#.0e}", v);
+            Utf8 result(u8"2.e2");
+            SSSTEST_EXPECT_EQ(string, result);
+            SSSENGINE_LOG_INFO("{}\n", string);
+        }
+    }
+
     // =================================================================================================================
     // Characters & Strings
     // =================================================================================================================

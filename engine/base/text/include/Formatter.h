@@ -792,11 +792,12 @@ namespace SSSEngine::Text
                     {
                         if(decimal.exponent < MinExp || decimal.exponent >= MaxExp)
                         {
-                            count = FormatScientific(decimal);
+                            count = FormatScientific(decimal, decimal.significantDigits - 1, alternateForm.alternateForm);
                         }
                         else
                         {
-                            count = FormatFixed(decimal, DecimalPlaces(decimal.exponent, decimal.significantDigits));
+                            auto decimalPlaces = DecimalPlaces(decimal.exponent, decimal.significantDigits);
+                            count = FormatFixed(decimal, decimalPlaces, alternateForm.alternateForm);
                         }
                         break;
                     }
@@ -810,22 +811,42 @@ namespace SSSEngine::Text
                         RoundDecimal(decimal, precision.precision);
                     }
 
-                    auto exp = decimal.exponent;
-                    if(MinExp <= exp && exp < i64(significantDigits))
+                    i32 exp = decimal.exponent;
+                    if(MinExp <= exp && exp < i32(significantDigits))
                     {
                         auto prec = Math::Min(precision.precision, decimal.significantDigits);
                         auto decimalPlaces = DecimalPlaces(decimal.exponent, prec);
-
-                        count = FormatFixed(decimal, decimalPlaces);
+                        count = FormatFixed(decimal, decimalPlaces, alternateForm.alternateForm);
                     }
                     else
                     {
-                        count = FormatScientific(decimal);
+                        auto decimalPlaces = Math::Min(decimal.significantDigits - 1, significantDigits - 1);
+                        count = FormatScientific(decimal, decimalPlaces, alternateForm.alternateForm);
                     }
                     break;
                 }
                 case Fixed:
+                {
+                    auto decimalPlaces = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
+                    auto left = decimal.exponent >= 0 ? decimal.exponent + 1 : 0;
+                    auto total = decimalPlaces + left;
+                    if(total < decimal.significantDigits)
+                    {
+                        RoundDecimal(decimal, total);
+                    }
+
+                    count = FormatFixed(decimal, decimalPlaces, alternateForm.alternateForm);
+                    break;
+                }
                 case Scientific:
+                    auto decimalPlaces = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
+                    auto minDecimalPlaces = decimal.significantDigits - 1;
+                    auto total = decimalPlaces + 1;
+                    if(total < decimal.significantDigits)
+                    {
+                        RoundDecimal(decimal, total);
+                    }
+                    count = FormatScientific(decimal, decimalPlaces, alternateForm.alternateForm);
                     break;
             }
 
@@ -884,7 +905,7 @@ namespace SSSEngine::Text
       private:
         static constexpr char Signs[] = {'+', '-'};
 
-        static constexpr SizeType DecimalPlaces(i32 exponent, SizeType significantDigits) noexcept
+        static constexpr SizeType DecimalPlaces(i32 exponent, i32 significantDigits) noexcept
         {
             return exponent < 0 || significantDigits > exponent + 1 ? significantDigits - exponent - 1 : 0;
         }
@@ -922,7 +943,7 @@ namespace SSSEngine::Text
             }
         }
 
-        constexpr auto FormatFixed(FloatToAsciiResult &decimal, SizeType decimalPlaces) const noexcept
+        constexpr auto FormatFixed(FloatToAsciiResult &decimal, SizeType decimalPlaces, bool includeDot) const noexcept
         {
             i32 positiveExponent = decimal.exponent >= 0;
             u32 first = (positiveExponent ? 0 : 1 - decimal.exponent);
@@ -930,21 +951,21 @@ namespace SSSEngine::Text
 
             auto dot = first + decimal.exponent + positiveExponent;
             auto move = positiveExponent ? dot + 1 : dot;
-            i32 moveCount = Math::Max(i32(decimal.significantDigits) - i32(dot), 0);
-            RawMemoryMove(&decimal.digits[dot], &decimal.digits[move], moveCount);
+            i32 significantDecimalPlaces = Math::Max(i32(decimal.significantDigits) - i32(dot), 0);
+            RawMemoryMove(&decimal.digits[dot], &decimal.digits[move], significantDecimalPlaces);
 
             MemorySet(decimal.digits.Data(), '0', first);
             decimal.digits[dot] = '.';
 
             auto countNegative = decimalPlaces + 2;
-            auto countPositive = decimalPlaces + dot + (decimalPlaces > 0);
+            auto countPositive = decimalPlaces + dot + (decimalPlaces > 0 || includeDot);
 
             auto count = positiveExponent ? countPositive : countNegative;
 
             return count;
         }
 
-        constexpr auto FormatScientific(FloatToAsciiResult &decimal) const noexcept
+        constexpr auto FormatScientific(FloatToAsciiResult &decimal, SizeType decimalPlaces, bool includeDot) const noexcept
         {
             RawMemoryMove(&decimal.digits[1], &decimal.digits[2], decimal.significantDigits - 1);
 
@@ -952,8 +973,8 @@ namespace SSSEngine::Text
 
             auto exp = IntToAscii(decimal.exponent);
 
-            bool singleDigit = decimal.significantDigits == 1;
-            auto *it = decimal.digits.Data() + 2 - singleDigit + decimal.significantDigits - 1;
+            bool singleDigit = decimalPlaces == 0 && !includeDot;
+            auto *it = decimal.digits.Data() + 2 - singleDigit + decimalPlaces;
             *it++ = 'e';
             if(decimal.exponent < 0)
             {

@@ -54,6 +54,9 @@
 namespace SSSEngine::Text
 {
 
+    // FIXME: Formatting currently ignores code unit != visible character. This will result in wrong formatting for when
+    // a visible character is composed by more than 1 code unit! We need to implement proper unicode handling
+
     /**
      * @class FormatString
      * @brief A string ready for format functions
@@ -526,6 +529,126 @@ namespace SSSEngine::Text
         Format format = Format::None;
     };
 
+    template<EncodingConcept Encoding>
+    constexpr SizeType FillAlign(FillAlignmentSpecifier<Encoding> fillAlign,
+                                 WidthSpecifier width,
+                                 Containers::Span<typename Encoding::CodeUnitType> digits)
+    {
+        using enum Alignment;
+
+        if(width.width <= digits.Count())
+        {
+            return digits.Count();
+        }
+
+        auto fillAmount = width.width - digits.Count();
+
+        using CharType = Encoding::CodeUnitType;
+        CharType *first{};
+
+        switch(fillAlign.alignment)
+        {
+            case None:
+                SSSENGINE_FALLTHROUGH;
+            case Right:
+            {
+                RawMemoryMove(digits.Data(), digits.Data() + fillAmount, digits.Count());
+                first = digits.Data();
+                break;
+            }
+            case Left:
+            {
+                first = digits.Data() + digits.Count();
+                break;
+            }
+            case Center:
+            {
+                auto half = fillAmount / 2;
+                auto remaining = fillAmount - half;
+
+                RawMemoryMove(digits.Data(), digits.Data() + half, digits.Count());
+
+                first = digits.Data();
+                auto last = first + half;
+                while(first != last)
+                {
+                    *first++ = fillAlign.fill;
+                }
+
+                first = digits.Data() + digits.Count() + half;
+                fillAmount = remaining;
+
+                break;
+            }
+            default:
+                SSSENGINE_UNREACHABLE;
+        }
+
+        // TODO: We should have a Ranges::Set instead!
+        auto last = first + fillAmount;
+        while(first != last)
+        {
+            *first++ = fillAlign.fill;
+        }
+
+        return width.width;
+    }
+
+    template<EncodingConcept Encoding>
+    constexpr SizeType ZeroPad(WidthSpecifier width,
+                               typename Encoding::CodeUnitType *firstDigit,
+                               Containers::Span<typename Encoding::CodeUnitType> digits)
+    {
+        using CharType = Encoding::CodeUnitType;
+
+        if(width.width <= digits.Count())
+        {
+            return digits.Count();
+        }
+
+        auto fillAmount = width.width - digits.Count();
+        auto last = firstDigit + fillAmount;
+        // FIXME: The size in bytes only works for 8bit chars!
+        RawMemoryMove(firstDigit, last, digits.Count() - (firstDigit - digits.Data()));
+
+        SSSENGINE_FUNCTION_LOCAL constexpr CharType Zero('0');
+        while(firstDigit != last)
+        {
+            *firstDigit++ = Zero;
+        }
+
+        return width.width;
+    }
+
+    template<EncodingConcept Encoding>
+    constexpr SizeType FillAlignOrZeroPad(FillAlignmentSpecifier<Encoding> fillAlign,
+                                          ZeroPadSpecifier zeroPad,
+                                          WidthSpecifier width,
+                                          typename Encoding::CodeUnitType *firstDigit,
+                                          Containers::Span<typename Encoding::CodeUnitType> digits)
+    {
+        using enum Alignment;
+        switch(fillAlign.alignment)
+        {
+            case None:
+                if(zeroPad.zeroPad)
+                {
+                    return ZeroPad<Encoding>(width, firstDigit, digits);
+                    break;
+                }
+                SSSENGINE_FALLTHROUGH;
+            case Left:
+                SSSENGINE_FALLTHROUGH;
+            case Right:
+                SSSENGINE_FALLTHROUGH;
+            case Center:
+                return FillAlign(fillAlign, width, digits);
+                break;
+            default:
+                SSSENGINE_UNREACHABLE;
+        }
+    }
+
     // =================================================================================================================
     // Formatters
     // =================================================================================================================
@@ -603,7 +726,8 @@ namespace SSSEngine::Text
         constexpr auto Format(Int value, FmtCtx &ctx) const noexcept
         {
             using enum FormSpecifier::Form;
-            AsciiInt ascii = [this, value]
+            AsciiInt ascii =
+                [this, value]
             {
                 switch(form.form)
                 {
@@ -616,13 +740,13 @@ namespace SSSEngine::Text
                     default:
                         SSSENGINE_UNREACHABLE;
                 }
-            }();
+            }
+
+            ();
 
             // TODO: What size should it be?
-            char tmp[32]{};
-            char *it = tmp;
-
-            const auto fill = [this](char *it, SizeType amount) { MemorySet(it, fillAlign.fill, amount); };
+            CharType tmp[32]{};
+            CharType *it = tmp;
 
             using enum SignSpecifier::Sign;
 
@@ -667,56 +791,22 @@ namespace SSSEngine::Text
                 }
             }
             auto endPrefix = it;
-            RawMemoryCopy(ascii.digits.Data(), it, ascii.numberDigits);
-            it += ascii.numberDigits;
+            // RawMemoryCopy(ascii.digits.Data(), it, ascii.numberDigits);
+            auto last = it + ascii.numberDigits;
+            auto digit = ascii.digits.Data();
+            // TODO: Should be a copy from ranges
+            while(it != last)
+            {
+                *it++ = *digit++;
+            }
 
             SizeType total = it - tmp;
-            i32 fillAmount = i32(width.width - total);
-            if(fillAmount > 0)
-            {
-                switch(fillAlign.alignment)
-                {
-                    case Alignment::None:
-                        if(zeroPad.zeroPad)
-                        {
-                            RawMemoryMove(endPrefix, endPrefix + fillAmount, total);
-                            MemorySet(endPrefix, '0', fillAmount);
-                            break;
-                        }
-                        else
-                            SSSENGINE_FALLTHROUGH;
-                    case Alignment::Right:
-                    {
-                        RawMemoryMove(tmp, tmp + fillAmount, total);
-                        fill(tmp, fillAmount);
-                        break;
-                    }
-                    case Alignment::Left:
-                    {
-                        fill(it, total);
-                        break;
-                    }
-                    case Alignment::Center:
-                    {
-                        auto half = fillAmount / 2;
-                        auto otherHalf = fillAmount - half;
-
-                        RawMemoryMove(tmp, tmp + half, total);
-                        fill(tmp, half);
-                        fill(it + half, otherHalf);
-                    }
-                    break;
-                    default:
-                        SSSENGINE_UNREACHABLE;
-                }
-
-                total = width.width;
-            }
+            total = FillAlignOrZeroPad(fillAlign, zeroPad, width, endPrefix, {tmp, total});
 
             *ctx.out++ = StringView<Encoding>{tmp, total};
 
             return ctx.out;
-        }
+        } // namespace SSSEngine::Text
 
         FillAlignmentSpecifier<Encoding> fillAlign;
         SignSpecifier sign;
@@ -840,7 +930,6 @@ namespace SSSEngine::Text
                 }
                 case Scientific:
                     auto decimalPlaces = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
-                    auto minDecimalPlaces = decimal.significantDigits - 1;
                     auto total = decimalPlaces + 1;
                     if(total < decimal.significantDigits)
                     {
@@ -854,11 +943,22 @@ namespace SSSEngine::Text
 
             auto signBit = SignBit(value);
             u32 showSign = signBit || sign.sign != Negative;
-            RawMemoryMove(&decimal.digits[0], &decimal.digits[1], count);
-            count += showSign;
-            decimal.digits[0] = Signs[signBit];
+            if(showSign)
+            {
+                RawMemoryMove(&decimal.digits[0], &decimal.digits[1], count);
+                ++count;
+                decimal.digits[0] = Signs[signBit];
+            }
 
-            *ctx.out++ = StringView<Encoding>{&decimal.digits[!showSign], count};
+            // TODO: What size for array
+            Containers::Array<CharType, 512> d;
+            for(SizeType i = 0; i < count; ++i)
+            {
+                d[i] = CharType(decimal.digits[i]);
+            }
+            count = FillAlignOrZeroPad(fillAlign, zeroPad, width, d.Data() + showSign, {d.Data(), count});
+
+            *ctx.out++ = StringView<Encoding>{d.Data(), count};
 
             return ctx.out;
         }

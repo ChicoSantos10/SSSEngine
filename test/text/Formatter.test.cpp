@@ -785,7 +785,34 @@ namespace SSSTest
             Utf8 string = Format<Utf8Encoding>(u8"{:#.0e}", v);
             Utf8 result(u8"2.e2");
             SSSTEST_EXPECT_EQ(string, result);
-            SSSENGINE_LOG_INFO("{}\n", string);
+        }
+    }
+
+    SSSTEST_TEST(FormatFloat64FillAlign)
+    {
+        {
+            f64 v = 123;
+            Utf8 string = Format<Utf8Encoding>(u8"{:<5}", v);
+            Utf8 result(u8"123  ");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 123.123;
+            Utf8 string = Format<Utf8Encoding>(u8"{:>8}", v);
+            Utf8 result(u8" 123.123");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 1.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{:^5}", v);
+            Utf8 result(u8" 1.5 ");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            f64 v = 1.5;
+            Utf8 string = Format<Utf8Encoding>(u8"{:04}", v);
+            Utf8 result(u8"01.5");
+            SSSTEST_EXPECT_EQ(string, result);
         }
     }
 

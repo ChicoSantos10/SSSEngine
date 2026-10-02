@@ -26,7 +26,6 @@
 
 #include "Address.h"
 #include "Array.h"
-#include "AsciiEncoding.h"
 #include "Attributes.h"
 #include "Concepts.h"
 #include "ConversionTraits.h"
@@ -48,7 +47,6 @@
 #include "StringView.h"
 #include "Traits.h"
 #include "Types.h"
-#include "Utf8Encoding.h"
 #include "IntParser.h"
 
 namespace SSSEngine::Text
@@ -158,7 +156,7 @@ namespace SSSEngine::Text
             }
         }
 
-        consteval operator StringView<Encoding>() // NOLINT(*-explicit-constructor)
+        constexpr operator StringView<Encoding>() // NOLINT(*-explicit-constructor)
         {
             return string;
         }
@@ -166,7 +164,7 @@ namespace SSSEngine::Text
         StringView<Encoding> string;
     };
 
-    template<EncodingConcept Encoding>
+    template<EncodingConcept Encoding, typename FmtCtx>
     class FormatArgs;
 
     template<EncodingConcept Encoding, typename OutIterator>
@@ -174,6 +172,7 @@ namespace SSSEngine::Text
     {
         using CharType = Encoding::CodeUnitType;
         OutIterator out;
+        FormatArgs<Encoding, FormatContext<Encoding, OutIterator>> args;
     };
 
     template<EncodingConcept Encoding, typename ParseIterator>
@@ -182,8 +181,11 @@ namespace SSSEngine::Text
         using CharType = Encoding::CodeUnitType;
         ParseIterator out;
         ParseIterator end;
-        FormatArgs<Encoding> args;
+        SizeType nextArg;
     };
+
+    template<EncodingConcept Encoding>
+    using BasicParseContext = ParseContext<Encoding, typename StringView<Encoding>::Iterator>;
 
     // =================================================================================================================
     // Specifiers
@@ -363,20 +365,8 @@ namespace SSSEngine::Text
                 auto [n, next] = StringToUnsignedInt(it, ctx.end);
                 if(it != next)
                 {
-                    auto arg = ctx.args.Get(n);
-                    arg.Visit(
-                        [this](auto &v)
-                        {
-                            using Type = RemoveReferenceType<decltype(v)>;
-                            if constexpr(IntegralConcept<Type>)
-                            {
-                                width = v;
-                            }
-                            else
-                            {
-                                SSSENGINE_UNREACHABLE;
-                            }
-                        });
+                    width = n;
+                    isIndex = true;
                 }
                 SSSENGINE_ASSERT(*next == CharType('}'));
                 return next + 1;
@@ -391,7 +381,35 @@ namespace SSSEngine::Text
             return it;
         }
 
+        template<typename FmtCtx>
+        constexpr SizeType Width(FmtCtx &ctx) const noexcept
+        {
+            if(isIndex)
+            {
+                auto arg = ctx.args.Get(width);
+                SizeType index = 0;
+                arg.Visit(
+                    [&index](auto &v)
+                    {
+                        using Type = RemoveReferenceType<decltype(v)>;
+                        if constexpr(IntegralConcept<Type>)
+                        {
+                            index = v;
+                        }
+                        else
+                        {
+                            SSSENGINE_UNREACHABLE;
+                        }
+                    });
+
+                return index;
+            }
+
+            return width;
+        }
+
         SizeType width = 0;
+        bool isIndex = false;
     };
 
     struct PrecisionSpecifier
@@ -417,20 +435,20 @@ namespace SSSEngine::Text
                 auto [n, next] = StringToUnsignedInt(it, ctx.end);
                 if(it != next)
                 {
-                    auto arg = ctx.args.Get(n);
-                    arg.Visit(
-                        [this](auto &v)
-                        {
-                            using Type = RemoveReferenceType<decltype(v)>;
-                            if constexpr(IntegralConcept<Type>)
-                            {
-                                precision = v;
-                            }
-                            else
-                            {
-                                SSSENGINE_UNREACHABLE;
-                            }
-                        });
+                    // auto arg = ctx.args.Get(n);
+                    // arg.Visit(
+                    //     [this](auto &v)
+                    //     {
+                    //         using Type = RemoveReferenceType<decltype(v)>;
+                    //         if constexpr(IntegralConcept<Type>)
+                    //         {
+                    //             precision = v;
+                    //         }
+                    //         else
+                    //         {
+                    //             SSSENGINE_UNREACHABLE;
+                    //         }
+                    //     });
                 }
                 SSSENGINE_ASSERT(*next == CharType('}'));
                 return next + 1;
@@ -531,17 +549,17 @@ namespace SSSEngine::Text
 
     template<EncodingConcept Encoding>
     constexpr SizeType FillAlign(FillAlignmentSpecifier<Encoding> fillAlign,
-                                 WidthSpecifier width,
+                                 SizeType width,
                                  Containers::Span<typename Encoding::CodeUnitType> digits)
     {
         using enum Alignment;
 
-        if(width.width <= digits.Count())
+        if(width <= digits.Count())
         {
             return digits.Count();
         }
 
-        auto fillAmount = width.width - digits.Count();
+        auto fillAmount = width - digits.Count();
 
         using CharType = Encoding::CodeUnitType;
         CharType *first{};
@@ -591,22 +609,21 @@ namespace SSSEngine::Text
             *first++ = fillAlign.fill;
         }
 
-        return width.width;
+        return width;
     }
 
     template<EncodingConcept Encoding>
-    constexpr SizeType ZeroPad(WidthSpecifier width,
-                               typename Encoding::CodeUnitType *firstDigit,
-                               Containers::Span<typename Encoding::CodeUnitType> digits)
+    constexpr SizeType
+    ZeroPad(SizeType width, typename Encoding::CodeUnitType *firstDigit, Containers::Span<typename Encoding::CodeUnitType> digits)
     {
         using CharType = Encoding::CodeUnitType;
 
-        if(width.width <= digits.Count())
+        if(width <= digits.Count())
         {
             return digits.Count();
         }
 
-        auto fillAmount = width.width - digits.Count();
+        auto fillAmount = width - digits.Count();
         auto last = firstDigit + fillAmount;
         // FIXME: The size in bytes only works for 8bit chars!
         RawMemoryMove(firstDigit, last, digits.Count() - (firstDigit - digits.Data()));
@@ -617,13 +634,13 @@ namespace SSSEngine::Text
             *firstDigit++ = Zero;
         }
 
-        return width.width;
+        return width;
     }
 
     template<EncodingConcept Encoding>
     constexpr SizeType FillAlignOrZeroPad(FillAlignmentSpecifier<Encoding> fillAlign,
                                           ZeroPadSpecifier zeroPad,
-                                          WidthSpecifier width,
+                                          SizeType width,
                                           typename Encoding::CodeUnitType *firstDigit,
                                           Containers::Span<typename Encoding::CodeUnitType> digits)
     {
@@ -801,7 +818,7 @@ namespace SSSEngine::Text
             }
 
             SizeType total = it - tmp;
-            total = FillAlignOrZeroPad(fillAlign, zeroPad, width, endPrefix, {tmp, total});
+            total = FillAlignOrZeroPad(fillAlign, zeroPad, width.Width(ctx), endPrefix, {tmp, total});
 
             *ctx.out++ = StringView<Encoding>{tmp, total};
 
@@ -896,9 +913,10 @@ namespace SSSEngine::Text
                 case General:
                 {
                     SizeType significantDigits = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
+                    // TODO: Test this General + Rounding
                     if(significantDigits < decimal.significantDigits)
                     {
-                        RoundDecimal(decimal, precision.precision);
+                        RoundDecimal(decimal, significantDigits);
                     }
 
                     i32 exp = decimal.exponent;
@@ -956,7 +974,7 @@ namespace SSSEngine::Text
             {
                 d[i] = CharType(decimal.digits[i]);
             }
-            count = FillAlignOrZeroPad(fillAlign, zeroPad, width, d.Data() + showSign, {d.Data(), count});
+            count = FillAlignOrZeroPad(fillAlign, zeroPad, width.Width(ctx), d.Data() + showSign, {d.Data(), count});
 
             *ctx.out++ = StringView<Encoding>{d.Data(), count};
 
@@ -1147,13 +1165,37 @@ namespace SSSEngine::Text
         Count,
     };
 
-    struct CustomType
+    template<EncodingConcept Encoding, typename FmtCtx>
+    class CustomType
     {
-        void *data;
-        void (*format)();
+      public:
+        using Func = void (*)(BasicParseContext<Encoding> &, FmtCtx &, const void *);
+
+        template<typename T>
+        constexpr explicit CustomType(T &dataAddress) :
+            m_data(AddressOf(dataAddress)), m_format{&ParseAndFormat<RemoveCVType<T>>}
+        {
+        }
+
+        template<typename T>
+        static void ParseAndFormat(auto &parseCtx, auto &fmtCtx, const void *data)
+        {
+            Formatter<T, Encoding> fmt;
+            parseCtx.out = Move(fmt.Parse(parseCtx));
+            fmtCtx.out = Move(fmt.Format(*static_cast<const T *>(data), fmtCtx));
+        }
+
+        constexpr void Format(auto &parseCtx, auto &fmtCtx)
+        {
+            m_format(parseCtx, fmtCtx, m_data);
+        }
+
+      private:
+        const void *m_data;
+        Func m_format;
     };
 
-    template<EncodingConcept Encoding>
+    template<EncodingConcept Encoding, typename FmtCtx>
     struct FormatArgValue
     {
         using CharType = Encoding::CodeUnitType;
@@ -1170,12 +1212,12 @@ namespace SSSEngine::Text
             f32 f32;
             f64 f64;
             void *pointer;
-            CustomType custom;
+            CustomType<Encoding, FmtCtx> custom;
         };
     };
 
-    template<EncodingConcept Encoding, typename T>
-    consteval auto NormalizeArgType() noexcept
+    template<EncodingConcept Encoding, typename FmtCtx, typename T>
+    constexpr auto NormalizeArgType() noexcept
     {
         using Type = RemoveConstType<T>;
         using CharType = Encoding::CodeUnitType;
@@ -1236,20 +1278,20 @@ namespace SSSEngine::Text
         }
         else
         {
-            return Identity<CustomType>{};
+            return Identity<CustomType<Encoding, FmtCtx>>{};
         }
     }
 
-    template<EncodingConcept Encoding, typename T>
-    using NormalizedArgType = decltype(NormalizeArgType<Encoding, T>())::Type;
+    template<EncodingConcept Encoding, typename FmtCtx, typename T>
+    using NormalizedArgType = decltype(NormalizeArgType<Encoding, FmtCtx, T>())::Type;
 
-    template<EncodingConcept Encoding, typename T>
+    template<EncodingConcept Encoding, typename FmtCtx, typename T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
     constexpr ArgType AsArgType() noexcept
     {
         using enum ArgType;
         using CharType = Encoding::CodeUnitType;
-        using Type = NormalizedArgType<Encoding, T>;
+        using Type = NormalizedArgType<Encoding, FmtCtx, T>;
 
         if constexpr(IsSameType<Type, bool>)
         {
@@ -1291,7 +1333,7 @@ namespace SSSEngine::Text
         {
             return Pointer;
         }
-        else if constexpr(IsSameType<Type, CustomType>)
+        else if constexpr(IsSameType<Type, CustomType<Encoding, FmtCtx>>)
         {
             return Custom;
         }
@@ -1301,11 +1343,11 @@ namespace SSSEngine::Text
         }
     }
 
-    template<EncodingConcept Encoding, typename T>
+    template<EncodingConcept Encoding, typename FmtCtx, typename T>
     SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-    constexpr FormatArgValue<Encoding> AsArgValue(T &value)
+    constexpr FormatArgValue<Encoding, FmtCtx> AsArgValue(T &value)
     {
-        using Type = NormalizedArgType<Encoding, T>;
+        using Type = NormalizedArgType<Encoding, FmtCtx, T>;
         using CharType = Encoding::CodeUnitType;
 
         if constexpr(IsSameType<Type, bool>)
@@ -1348,9 +1390,9 @@ namespace SSSEngine::Text
         {
             return {.pointer = value};
         }
-        else if constexpr(IsSameType<Type, CustomType>)
+        else if constexpr(IsSameType<Type, CustomType<Encoding, FmtCtx>>)
         {
-            CustomType c{.data = AddressOf(value), .format = &Formatter<T, Encoding>::Format};
+            CustomType<Encoding, FmtCtx> c(value);
             return {.custom = c};
         }
         else
@@ -1359,25 +1401,25 @@ namespace SSSEngine::Text
         }
     }
 
-    template<EncodingConcept Encoding>
+    template<EncodingConcept Encoding, typename FmtCtx>
     class FormatArg
     {
       public:
         template<typename T>
         SSSENGINE_FORCE_INLINE
         constexpr explicit FormatArg(T value) :
-            m_value{AsArgValue<Encoding>(value)}, m_type(AsArgType<Encoding, T>())
+            m_value{AsArgValue<Encoding, FmtCtx>(value)}, m_type(AsArgType<Encoding, FmtCtx, T>())
         {
         }
 
         SSSENGINE_FORCE_INLINE
-        constexpr FormatArg(FormatArgValue<Encoding> value, ArgType type) :
+        constexpr FormatArg(FormatArgValue<Encoding, FmtCtx> value, ArgType type) :
             m_value{value}, m_type(type)
         {
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr FormatArgValue<Encoding> Value() const noexcept
+        constexpr FormatArgValue<Encoding, FmtCtx> Value() const noexcept
         {
             return m_value;
         }
@@ -1424,14 +1466,14 @@ namespace SSSEngine::Text
         }
 
       private:
-        FormatArgValue<Encoding> m_value;
+        FormatArgValue<Encoding, FmtCtx> m_value;
         ArgType m_type;
     };
 
-    template<EncodingConcept Encoding, typename... Args>
+    template<EncodingConcept Encoding, typename FmtCtx, typename... Args>
     struct FormatArgStorage;
 
-    template<EncodingConcept Encoding>
+    template<EncodingConcept Encoding, typename FmtCtx>
     class FormatArgs
     {
       public:
@@ -1444,7 +1486,7 @@ namespace SSSEngine::Text
         static constexpr SizeType MaxPackedArgs = PackedTypesBits / PackedTypeBits;
 
         template<typename... Args>
-        constexpr FormatArgs(const FormatArgStorage<Encoding, Args...> &storage) noexcept // NOLINT(*-explicit-constructor)
+        constexpr FormatArgs(const FormatArgStorage<Encoding, FmtCtx, Args...> &storage) noexcept // NOLINT(*-explicit-constructor)
         {
             constexpr auto Size = sizeof...(Args);
             if constexpr(Size == 0)
@@ -1458,7 +1500,7 @@ namespace SSSEngine::Text
                 m_packedSize = Size;
 
                 u64 types = 0;
-                static constexpr Containers::Array<ArgType, sizeof...(Args)> Types{AsArgType<Encoding, Args>()...};
+                static constexpr Containers::Array<ArgType, sizeof...(Args)> Types{AsArgType<Encoding, FmtCtx, Args>()...};
                 for(ArgType current: Ranges::Reverse(Types))
                 {
                     types = (types << PackedTypeBits) | AsNumber(current);
@@ -1489,7 +1531,7 @@ namespace SSSEngine::Text
         }
 
         SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-        constexpr FormatArg<Encoding> Get(SizeType index) const noexcept
+        constexpr FormatArg<Encoding, FmtCtx> Get(SizeType index) const noexcept
         {
             if(index < m_packedSize)
             {
@@ -1513,33 +1555,27 @@ namespace SSSEngine::Text
             // NOLINTBEGIN(readability-identifier-naming) These are still private of the
             // class even if they are public for the union
 
-            const FormatArgValue<Encoding> *m_values;
-            const FormatArg<Encoding> *m_args;
+            const FormatArgValue<Encoding, FmtCtx> *m_values;
+            const FormatArg<Encoding, FmtCtx> *m_args;
 
             // NOLINTEND(readability-identifier-naming)
         };
     };
 
-    using Utf8Args = FormatArgs<Utf8Encoding>;
-    using AsciiArgs = FormatArgs<AsciiEncoding>;
-
-    template<EncodingConcept Encoding, typename... Args>
+    template<EncodingConcept Encoding, typename FmtCtx, typename... Args>
     struct FormatArgStorage
     {
         static constexpr SizeType ArgCount = sizeof...(Args);
-        static constexpr bool PackTypes = ArgCount <= FormatArgs<Encoding>::MaxPackedArgs;
+        static constexpr bool PackTypes = ArgCount <= FormatArgs<Encoding, FmtCtx>::MaxPackedArgs;
 
-        using ElementType = ConditionalType<PackTypes, FormatArgValue<Encoding>, FormatArg<Encoding>>;
+        using ElementType = ConditionalType<PackTypes, FormatArgValue<Encoding, FmtCtx>, FormatArg<Encoding, FmtCtx>>;
 
         template<typename T>
         constexpr static ElementType MakeElement(T &value) noexcept
         {
-            using Type = NormalizedArgType<Encoding, RemoveConstType<T>>;
-            SSSENGINE_STATIC_ASSERT(IsDefaultConstructible<Formatter<Type, Encoding>>, "Formatter must be specialized");
-
             if constexpr(PackTypes)
             {
-                return AsArgValue<Encoding>(value);
+                return AsArgValue<Encoding, FmtCtx>(value);
             }
             else
             {
@@ -1550,36 +1586,35 @@ namespace SSSEngine::Text
         ElementType elements[ArgCount];
     };
 
-    template<EncodingConcept Encoding>
-    struct FormatArgStorage<Encoding>
+    template<EncodingConcept Encoding, typename FmtCtx>
+    struct FormatArgStorage<Encoding, FmtCtx>
     {
     };
 
-    template<EncodingConcept Encoding, typename... Args>
-    SSSENGINE_PURE SSSENGINE_FORCE_INLINE
+    template<EncodingConcept Encoding, typename FmtCtx, typename... Args>
     constexpr auto MakeFormatArgs(Args &...args) noexcept
     {
-        using Storage = FormatArgStorage<Encoding, NormalizedArgType<Encoding, Args>...>;
+        using Storage = FormatArgStorage<Encoding, FmtCtx, NormalizedArgType<Encoding, FmtCtx, Args>...>;
         return Storage{Storage::MakeElement(args)...};
     }
 
     template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<StringView<Encoding>> OutIterator>
-    constexpr void VFormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
+    constexpr void
+    VFormatTo(OutIterator out, StringView<Encoding> fmt, FormatArgs<Encoding, FormatContext<Encoding, OutIterator>> args) noexcept
     {
         using CharType = typename Encoding::CodeUnitType;
         using View = StringView<Encoding>;
-        using It = View::Iterator;
+        using FmtCtx = FormatContext<Encoding, OutIterator>;
 
         static constexpr auto Left = CharType('{');
         static constexpr auto Right = CharType('}');
 
-        FormatContext<Encoding, OutIterator> fmtCtx{out};
-        ParseContext<Encoding, It> parseCtx{fmt.Begin(), fmt.End(), args};
+        FmtCtx fmtCtx{out, args};
+        BasicParseContext<Encoding> parseCtx{fmt.Begin(), fmt.End(), 0};
 
         auto left = fmt.Begin();
         auto it = left;
         auto end = fmt.End();
-        auto index = 0;
 
         while(it != end)
         {
@@ -1601,7 +1636,7 @@ namespace SSSEngine::Text
                 if(newIt != it)
                 {
                     it = newIt;
-                    index = newIndex;
+                    parseCtx.nextArg = newIndex;
                 }
 
                 if(*it == CharType(':'))
@@ -1610,16 +1645,16 @@ namespace SSSEngine::Text
                 }
 
                 parseCtx.out = Move(it);
-                FormatArg<Encoding> type = args.Get(index++);
+                FormatArg<Encoding, FmtCtx> type = args.Get(parseCtx.nextArg++);
                 type.Visit(
                     [&fmtCtx, &parseCtx](auto &arg)
                     {
                         using Type = RemoveReferenceType<decltype(arg)>;
                         using Formatter = Formatter<Type, Encoding>;
 
-                        if constexpr(IsSameType<Type, CustomType>)
+                        if constexpr(IsSameType<Type, CustomType<Encoding, FmtCtx>>)
                         {
-                            arg.format();
+                            arg.Format(parseCtx, fmtCtx);
                         }
                         else if constexpr(IsDefaultConstructible<Formatter>)
                         {
@@ -1655,11 +1690,14 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, Ranges::OutputIteratorConcept<StringView<Encoding>> OutIterator, typename... Args>
     constexpr void FormatTo(OutIterator out, FormatString<Encoding, IdentityType<Args>...> fmt, Args &&...args) noexcept
     {
-        return VFormatTo(out, fmt.string, FormatArgs<Encoding>(MakeFormatArgs<Encoding>(args...)));
+        using FmtCtx = FormatContext<Encoding, OutIterator>;
+        return VFormatTo(out, fmt.string, FormatArgs<Encoding, FmtCtx>(MakeFormatArgs<Encoding, FmtCtx>(args...)));
     }
 
     template<EncodingConcept Encoding>
-    constexpr String<Encoding> VFormat(StringView<Encoding> fmt, FormatArgs<Encoding> args) noexcept
+    constexpr String<Encoding>
+    VFormat(StringView<Encoding> fmt,
+            FormatArgs<Encoding, FormatContext<Encoding, typename Containers::StringSink<Encoding>::Iterator>> args) noexcept
     {
         Containers::StringSink<Encoding> sink;
         VFormatTo(sink.Out(), fmt, args);
@@ -1687,7 +1725,10 @@ namespace SSSEngine::Text
         }
         else
         {
-            auto fmtArgs = FormatArgs<Encoding>(MakeFormatArgs<Encoding>(args...));
+            using It = typename Containers::StringSink<Encoding>::Iterator;
+            using FmtCtx = FormatContext<Encoding, It>;
+            auto a = MakeFormatArgs<Encoding, FmtCtx>(args...);
+            auto fmtArgs = FormatArgs<Encoding, FmtCtx>(a);
             return VFormat(fmt.string, fmtArgs);
         }
     }
@@ -1703,11 +1744,15 @@ namespace SSSEngine::Text
     template<EncodingConcept Encoding, typename T>
     constexpr String<Encoding> ToString(T &value) noexcept
     {
-        using Type = NormalizedArgType<Encoding, T>;
+        using It = typename Containers::StringSink<Encoding>::Iterator;
+        using FmtCtx = FormatContext<Encoding, It>;
+        using Type = NormalizedArgType<Encoding, FmtCtx, T>;
         using Formatter = Formatter<Type, Encoding>;
 
+        // INVESTIGATE: What is the best way to do this?
         Containers::StringSink<Encoding> sink;
-        FormatContext<Encoding, decltype(sink.Out())> fmtCtx{sink.Out()};
+        FormatArgs<Encoding, FmtCtx> args = MakeFormatArgs<Encoding, FmtCtx>(value);
+        FormatContext<Encoding, decltype(sink.Out())> fmtCtx{sink.Out(), args};
         Formatter fmt;
         fmt.Format(value, fmtCtx);
 

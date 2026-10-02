@@ -165,6 +165,7 @@ namespace SSSEngine::Containers
         using View = Text::StringView<E>;
 
       public:
+        using Iterator = SinkIterator<StringSink>;
         using Encoding = E;
 
         constexpr void Write(View string) noexcept
@@ -177,9 +178,9 @@ namespace SSSEngine::Containers
             return Move(m_string);
         }
 
-        constexpr SinkIterator<StringSink> Out() noexcept
+        constexpr Iterator Out() noexcept
         {
-            return SinkIterator<StringSink>(*this);
+            return Iterator(*this);
         }
 
       private:

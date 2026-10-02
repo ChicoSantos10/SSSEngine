@@ -25,6 +25,8 @@
 #pragma once
 
 #include "ConversionTraits.h"
+#include "Encoding.h"
+#include "Formatter.h"
 #include "HelperMacros.h"
 #include "Types.h"
 #include "Concepts.h"
@@ -90,7 +92,7 @@ namespace SSSEngine::Math
 
         using Type = T;
 
-        T data[NumberElements]{0};
+        T data[NumberElements];
 
         template<class Self>
         constexpr auto &&operator[](this Self &&self, MatrixSize row, MatrixSize col)
@@ -207,4 +209,33 @@ namespace SSSEngine::Math
     SSSENGINE_STATIC_ASSERT(!MatrixTypeConcept<int>, "int is not a matrix");
     SSSENGINE_STATIC_ASSERT((SquareMatrixConcept<Matrix<float, 4, 4>>), "A 4x4 matrix is a square matrix");
     SSSENGINE_STATIC_ASSERT((!SquareMatrixConcept<Matrix<float, 3, 4>>), "A 3x4 matrix is not a square matrix");
+
 } // namespace SSSEngine::Math
+
+namespace SSSEngine::Text
+{
+    template<NumberConcept NumberType, Math::MatrixSize Columns, Math::MatrixSize Rows, EncodingConcept Encoding>
+    struct Formatter<Math::Matrix<NumberType, Columns, Rows>, Encoding> : Formatter<NumberType, Encoding>
+    {
+        using NumberFormatter = Formatter<NumberType, Encoding>;
+        using Matrix = Math::Matrix<NumberType, Columns, Rows>;
+        using CharType = Encoding::CodeUnitType;
+
+        template<typename FmtCtx>
+        constexpr auto Format(const Matrix &matrix, FmtCtx &ctx) const noexcept
+        {
+            for(SizeType row = 0; row < Columns; ++row)
+            {
+                FormatTo<Encoding>(ctx.out, SSSENGINE_ENCODING_SELECTOR(CharType, "[ "));
+                for(SizeType column = 0; column < Rows; ++column)
+                {
+                    ctx.out = Move(NumberFormatter::Format(matrix[row, column], ctx));
+                    FormatTo<Encoding>(ctx.out, SSSENGINE_ENCODING_SELECTOR(CharType, " "));
+                }
+                FormatTo<Encoding>(ctx.out, SSSENGINE_ENCODING_SELECTOR(CharType, "]\n"));
+            }
+
+            return ctx.out;
+        }
+    };
+} // namespace SSSEngine::Text

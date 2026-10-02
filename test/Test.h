@@ -111,7 +111,7 @@ namespace SSSTest
     {                                                                                                                  \
         SSSENGINE_LOG_ERROR("Failed at {}:{}\n", SSSENGINE_UTF8_FILE, SSSENGINE_LINE);                                 \
         SSSENGINE_LOG_ERROR("\tExpected {}\n", #value);                                                                \
-        /*SSSENGINE_LOG_ERROR("\tGot {}\n", value);*/                                                                  \
+        SSSENGINE_LOG_ERROR("\tGot {}\n", value);                                                                      \
         Succeeded = false;                                                                                             \
     }
 
@@ -123,7 +123,7 @@ namespace SSSTest
     {                                                                                                                  \
         SSSENGINE_LOG_ERROR("Assertion failed at {}:{}\n", SSSENGINE_UTF8_FILE, __LINE__);                             \
         SSSENGINE_LOG_ERROR("\tExpected {} {} {}\n", #first, #comparison, #second);                                    \
-        /*SSSENGINE_LOG_ERROR("\tGot {} {} {}\n", first, #comparison, second);*/                                       \
+        SSSENGINE_LOG_ERROR("\tGot {} {} {}\n", first, #comparison, second);                                           \
         Succeeded = false;                                                                                             \
         throw;                                                                                                         \
     }

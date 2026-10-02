@@ -193,6 +193,7 @@ namespace SSSTest
             Utf8 string = Format<Utf8Encoding>(u8"{:{1}}", v, w);
             Utf8 result(u8"        1024");
             SSSTEST_EXPECT_EQ(string, result);
+            SSSENGINE_LOG_INFO("{}", string);
         }
     }
 

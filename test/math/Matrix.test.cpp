@@ -17,7 +17,10 @@
     USA
 */
 
+#include "Formatter.h"
+#include "Logger.h"
 #include "Test.h"
+#include "Utf8Encoding.h"
 #include "Matrix.h"
 
 using namespace SSSEngine::Math;

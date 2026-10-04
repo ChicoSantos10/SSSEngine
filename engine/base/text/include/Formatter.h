@@ -349,6 +349,50 @@ namespace SSSEngine::Text
         Form form = Form::Regular;
     };
 
+    struct NestedSpecifier
+    {
+        template<typename ParseCtx>
+        SSSENGINE_CONST
+        constexpr auto Parse(ParseCtx &ctx) noexcept
+        {
+            using CharType = ParseCtx::CharType;
+
+            auto it = ctx.out;
+
+            auto [n, next] = StringToUnsignedInt(it, ctx.end);
+
+            SSSENGINE_ASSERT(it != next);
+            SSSENGINE_ASSERT(*next == CharType('}'));
+
+            index = n;
+            return next + 1;
+        }
+
+        template<typename FmtCtx>
+        constexpr SizeType GetValue(FmtCtx &ctx) const noexcept
+        {
+            auto arg = ctx.args.Get(index);
+            SizeType w = 0;
+            arg.Visit(
+                [&w](auto &v)
+                {
+                    using Type = RemoveReferenceType<decltype(v)>;
+                    if constexpr(IntegralConcept<Type>)
+                    {
+                        w = v;
+                    }
+                    else
+                    {
+                        SSSENGINE_UNREACHABLE;
+                    }
+                });
+
+            return w;
+        }
+
+        SizeType index;
+    };
+
     struct WidthSpecifier
     {
         template<typename ParseCtx>
@@ -362,20 +406,18 @@ namespace SSSEngine::Text
             if(*it == CharType('{'))
             {
                 ++it;
-                auto [n, next] = StringToUnsignedInt(it, ctx.end);
-                if(it != next)
-                {
-                    width = n;
-                    isIndex = true;
-                }
-                SSSENGINE_ASSERT(*next == CharType('}'));
-                return next + 1;
+                index = {};
+                ctx.out = Move(it);
+                isIndex = true;
+                return index.Parse(ctx);
             }
+
             auto [n, next] = StringToUnsignedInt(it, ctx.end);
             if(it != next)
             {
                 it = next;
                 width = n;
+                isIndex = false;
             }
 
             return it;
@@ -386,29 +428,18 @@ namespace SSSEngine::Text
         {
             if(isIndex)
             {
-                auto arg = ctx.args.Get(width);
-                SizeType index = 0;
-                arg.Visit(
-                    [&index](auto &v)
-                    {
-                        using Type = RemoveReferenceType<decltype(v)>;
-                        if constexpr(IntegralConcept<Type>)
-                        {
-                            index = v;
-                        }
-                        else
-                        {
-                            SSSENGINE_UNREACHABLE;
-                        }
-                    });
-
-                return index;
+                return index.GetValue(ctx);
             }
 
             return width;
         }
 
-        SizeType width = 0;
+        union
+        {
+            SizeType width = 0;
+            NestedSpecifier index;
+        };
+
         bool isIndex = false;
     };
 
@@ -435,20 +466,9 @@ namespace SSSEngine::Text
                 auto [n, next] = StringToUnsignedInt(it, ctx.end);
                 if(it != next)
                 {
-                    // auto arg = ctx.args.Get(n);
-                    // arg.Visit(
-                    //     [this](auto &v)
-                    //     {
-                    //         using Type = RemoveReferenceType<decltype(v)>;
-                    //         if constexpr(IntegralConcept<Type>)
-                    //         {
-                    //             precision = v;
-                    //         }
-                    //         else
-                    //         {
-                    //             SSSENGINE_UNREACHABLE;
-                    //         }
-                    //     });
+                    isIndex = true;
+                    ctx.out = Move(it);
+                    it = index.Parse(ctx);
                 }
                 SSSENGINE_ASSERT(*next == CharType('}'));
                 return next + 1;
@@ -463,7 +483,24 @@ namespace SSSEngine::Text
             return it;
         }
 
-        SizeType precision = IntTraits<SizeType>::Max;
+        template<typename FmtCtx>
+        constexpr SizeType Precision(FmtCtx &ctx) const noexcept
+        {
+            if(isIndex)
+            {
+                return index.GetValue(ctx);
+            }
+
+            return precision;
+        }
+
+        union
+        {
+            SizeType precision = IntTraits<SizeType>::Max;
+            NestedSpecifier index;
+        };
+
+        bool isIndex = false;
     };
 
     struct SignSpecifier
@@ -891,11 +928,13 @@ namespace SSSEngine::Text
             SizeType count = 0;
 
             using enum FloatFormatSpecifier::Format;
+
+            auto precisionValue = precision.Precision(ctx);
             switch(format.format)
             {
                 case None:
                 {
-                    if(precision.precision == IntTraits<SizeType>::Max)
+                    if(precisionValue == IntTraits<SizeType>::Max)
                     {
                         if(decimal.exponent < MinExp || decimal.exponent >= MaxExp)
                         {
@@ -912,7 +951,7 @@ namespace SSSEngine::Text
                 }
                 case General:
                 {
-                    SizeType significantDigits = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
+                    SizeType significantDigits = precisionValue == IntTraits<SizeType>::Max ? 6 : precisionValue;
                     // TODO: Test this General + Rounding
                     if(significantDigits < decimal.significantDigits)
                     {
@@ -922,7 +961,7 @@ namespace SSSEngine::Text
                     i32 exp = decimal.exponent;
                     if(MinExp <= exp && exp < i32(significantDigits))
                     {
-                        auto prec = Math::Min(precision.precision, decimal.significantDigits);
+                        auto prec = Math::Min(precisionValue, decimal.significantDigits);
                         auto decimalPlaces = DecimalPlaces(decimal.exponent, prec);
                         count = FormatFixed(decimal, decimalPlaces, alternateForm.alternateForm);
                     }
@@ -935,7 +974,7 @@ namespace SSSEngine::Text
                 }
                 case Fixed:
                 {
-                    auto decimalPlaces = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
+                    auto decimalPlaces = precisionValue == IntTraits<SizeType>::Max ? 6 : precisionValue;
                     auto left = decimal.exponent >= 0 ? decimal.exponent + 1 : 0;
                     auto total = decimalPlaces + left;
                     if(total < decimal.significantDigits)
@@ -947,7 +986,7 @@ namespace SSSEngine::Text
                     break;
                 }
                 case Scientific:
-                    auto decimalPlaces = precision.precision == IntTraits<SizeType>::Max ? 6 : precision.precision;
+                    auto decimalPlaces = precisionValue == IntTraits<SizeType>::Max ? 6 : precisionValue;
                     auto total = decimalPlaces + 1;
                     if(total < decimal.significantDigits)
                     {

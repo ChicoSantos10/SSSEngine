@@ -1,4 +1,3 @@
-#include "Logger.h"
 #include "String.h"
 #include "StringView.h"
 #include "Test.h"
@@ -193,7 +192,6 @@ namespace SSSTest
             Utf8 string = Format<Utf8Encoding>(u8"{:{1}}", v, w);
             Utf8 result(u8"        1024");
             SSSTEST_EXPECT_EQ(string, result);
-            SSSENGINE_LOG_INFO("{}", string);
         }
     }
 
@@ -609,6 +607,12 @@ namespace SSSTest
         f64 v = 6.89123;
         {
             Utf8 string = Format<Utf8Encoding>(u8"{:.1}", v);
+            Utf8 result(u8"7");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
+        {
+            SizeType prec = 1;
+            Utf8 string = Format<Utf8Encoding>(u8"{1:.{0}}", prec, v);
             Utf8 result(u8"7");
             SSSTEST_EXPECT_EQ(string, result);
         }

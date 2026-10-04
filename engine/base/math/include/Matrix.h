@@ -145,19 +145,20 @@ namespace SSSEngine::Math
         using Type = typename T::Type;
         static constexpr MatrixSize RowsLhs = T::Rows;
         static constexpr MatrixSize RowsRhs = V::Rows;
+        static constexpr MatrixSize ColumnsLhs = T::Columns;
         static constexpr MatrixSize ColumnsRhs = V::Columns;
 
-        Matrix<Type, ColumnsRhs, RowsRhs> result;
+        Matrix<Type, RowsLhs, ColumnsRhs> result{};
 
         // PERF: Optimize this! Although for most scenarios we should do a simd multiplication. Here we either dont do
         // it or need to do it unaligned. The other question is column-order vs row-order
         for(MatrixSize i = 0; i < RowsLhs; ++i)
         {
-            for(MatrixSize k = 0; k < RowsLhs; ++k)
+            for(MatrixSize k = 0; k < ColumnsRhs; ++k)
             {
-                for(MatrixSize j = 0; j < RowsLhs; ++j)
+                for(MatrixSize j = 0; j < ColumnsLhs; ++j)
                 {
-                    result[i, j] += lhs[i, k] * rhs[k, j];
+                    result[i, k] += lhs[i, j] * rhs[j, k];
                 }
             }
         }

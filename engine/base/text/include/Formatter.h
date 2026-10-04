@@ -952,7 +952,6 @@ namespace SSSEngine::Text
                 case General:
                 {
                     SizeType significantDigits = precisionValue == IntTraits<SizeType>::Max ? 6 : precisionValue;
-                    // TODO: Test this General + Rounding
                     if(significantDigits < decimal.significantDigits)
                     {
                         RoundDecimal(decimal, significantDigits);

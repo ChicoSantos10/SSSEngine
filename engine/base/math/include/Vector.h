@@ -27,6 +27,7 @@
 #include "Attributes.h"
 #include "Concepts.h"
 #include "Types.h"
+#include "Formatter.h"
 
 // INVESTIGATE: Are Intrinsics worth it here? Would need to make sure of alignment
 // TODO: Vector Math like cross product
@@ -212,3 +213,57 @@ namespace SSSEngine::Math
     using Float4 = Vector4<f32>;
 
 } // namespace SSSEngine::Math
+
+namespace SSSEngine::Text
+{
+
+    template<NumberConcept NumberType, EncodingConcept Encoding>
+    struct Formatter<Math::Vector2<NumberType>, Encoding> : Formatter<NumberType, Encoding>
+    {
+        using NumberFormatter = Formatter<NumberType, Encoding>;
+        using Vector = Math::Vector2<NumberType>;
+        using CharType = Encoding::CodeUnitType;
+
+        template<typename FmtCtx>
+        constexpr auto Format(const Vector &vector, FmtCtx &ctx) const noexcept
+        {
+            FormatTo<Encoding>(ctx.out, SSSENGINE_ENCODING_SELECTOR(CharType, "[ {} {} ]"), vector.x, vector.y);
+
+            return ctx.out;
+        }
+    };
+
+    template<NumberConcept NumberType, EncodingConcept Encoding>
+    struct Formatter<Math::Vector3<NumberType>, Encoding> : Formatter<NumberType, Encoding>
+    {
+        using NumberFormatter = Formatter<NumberType, Encoding>;
+        using Vector = Math::Vector3<NumberType>;
+        using CharType = Encoding::CodeUnitType;
+
+        template<typename FmtCtx>
+        constexpr auto Format(const Vector &vector, FmtCtx &ctx) const noexcept
+        {
+            FormatTo<Encoding>(
+                ctx.out, SSSENGINE_ENCODING_SELECTOR(CharType, "[ {} {} {} ]"), vector.x, vector.y, vector.z);
+
+            return ctx.out;
+        }
+    };
+
+    template<NumberConcept NumberType, EncodingConcept Encoding>
+    struct Formatter<Math::Vector4<NumberType>, Encoding> : Formatter<NumberType, Encoding>
+    {
+        using NumberFormatter = Formatter<NumberType, Encoding>;
+        using Vector = Math::Vector4<NumberType>;
+        using CharType = Encoding::CodeUnitType;
+
+        template<typename FmtCtx>
+        constexpr auto Format(const Vector &vector, FmtCtx &ctx) const noexcept
+        {
+            FormatTo<Encoding>(
+                ctx.out, SSSENGINE_ENCODING_SELECTOR(CharType, "[ {} {} {} {} ]"), vector.x, vector.y, vector.z, vector.w);
+
+            return ctx.out;
+        }
+    };
+} // namespace SSSEngine::Text

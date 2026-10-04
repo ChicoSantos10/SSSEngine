@@ -44,6 +44,8 @@ namespace SSSTest
         Float4x4 result = m1 * m2;
         Float4x4 expected = m2;
 
+        SSSENGINE_LOG_INFO("{}", expected);
+        SSSENGINE_LOG_INFO("{}", result);
         SSSTEST_EXPECT_EQ(result, expected);
     }
 

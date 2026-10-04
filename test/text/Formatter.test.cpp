@@ -708,6 +708,12 @@ namespace SSSTest
             Utf8 result(u8"0.123");
             SSSTEST_EXPECT_EQ(string, result);
         }
+        v = 0.129;
+        {
+            Utf8 string = Format<Utf8Encoding>(u8"{:.2g}", v);
+            Utf8 result(u8"0.13");
+            SSSTEST_EXPECT_EQ(string, result);
+        }
     }
 
     SSSTEST_TEST(FormatFloat64FixedFormat)

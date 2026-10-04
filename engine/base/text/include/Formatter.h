@@ -1185,6 +1185,19 @@ namespace SSSEngine::Text
         }
     };
 
+    template<Math::QuantityConcept Quantity, Text::EncodingConcept Encoding>
+    struct Formatter<Quantity, Encoding> : Formatter<typename Quantity::ValueType, Encoding>
+    {
+        using Fmt = Formatter<typename Quantity::ValueType, Encoding>;
+        using CharType = Encoding::CodeUnitType;
+
+        template<typename FmtCtx>
+        constexpr auto Format(const Quantity &quantity, FmtCtx &ctx) const noexcept
+        {
+            return Fmt::Format(quantity.value, ctx);
+        }
+    };
+
     enum class ArgType : u8
     {
         Bool,

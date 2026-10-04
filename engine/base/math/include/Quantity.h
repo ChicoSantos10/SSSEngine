@@ -26,6 +26,7 @@
 
 #include "Concepts.h"
 #include "ConversionTraits.h"
+#include "Encoding.h"
 #include "HelperMacros.h"
 #include "Limits.h"
 #include "Ratio.h"

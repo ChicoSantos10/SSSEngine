@@ -17,7 +17,9 @@
     USA
 */
 
+#include "AsciiEncoding.h"
 #include "Ratio.h"
+#include "StringView.h"
 #include "Test.h"
 #include "Quantity.h"
 
@@ -193,5 +195,14 @@ namespace SSSTest
         DummyQuantityType b{a};
 
         SSSTEST_EXPECT_EQ(b, DummyQuantityType{10000});
+    }
+
+    SSSTEST_TEST(Format)
+    {
+        DummyQuantityType2 a{10};
+        auto result = SSSEngine::Text::Format<SSSEngine::Text::AsciiEncoding>("{}", a);
+        SSSEngine::Text::AsciiView expected = "10";
+
+        SSSTEST_EXPECT_EQ(result, expected);
     }
 } // namespace SSSTest

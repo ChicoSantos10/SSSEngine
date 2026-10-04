@@ -144,7 +144,6 @@ namespace SSSEngine::Math
     {
         using Type = typename T::Type;
         static constexpr MatrixSize RowsLhs = T::Rows;
-        static constexpr MatrixSize RowsRhs = V::Rows;
         static constexpr MatrixSize ColumnsLhs = T::Columns;
         static constexpr MatrixSize ColumnsRhs = V::Columns;
 

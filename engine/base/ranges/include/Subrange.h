@@ -53,6 +53,18 @@ namespace SSSEngine::Ranges
         Sized
     };
 
+    template<bool StoreValue, typename CountType>
+    struct CountStorage
+    {
+        explicit CountStorage(CountType) noexcept {}
+    };
+
+    template<typename CountType>
+    struct CountStorage<true, CountType>
+    {
+        CountType count{0};
+    };
+
     template<IteratorConcept Iterator,
              SentinelForConcept<Iterator> Sentinel = Iterator,
              SubrangeKind Kind = SizedSentinelForConcept<Sentinel, Iterator> ? SubrangeKind::Sized : SubrangeKind::Unsized>
@@ -63,18 +75,6 @@ namespace SSSEngine::Ranges
         static constexpr bool StoreCount = Kind == SubrangeKind::Sized && SizedSentinelForConcept<Sentinel, Iterator>;
         using IteratorDifference = IteratorDifferenceType<Iterator>;
         using CountType = MakeUnsigned<IteratorDifference>;
-
-        template<bool StoreValue>
-        struct CountStorage
-        {
-            explicit CountStorage(CountType) noexcept {}
-        };
-
-        template<>
-        struct CountStorage<true>
-        {
-            CountType count{0};
-        };
 
         static consteval bool IsAdvanceNoExcept(IteratorDifference offset) noexcept
         {
@@ -139,7 +139,7 @@ namespace SSSEngine::Ranges
         // Iterator Operations
 
         SSSENGINE_PURE
-        constexpr Subrange &Advance(IteratorDifference offset) noexcept(IsAdvanceNoExcept(offset))
+        constexpr Subrange &Advance(IteratorDifference offset) noexcept(IsAdvanceNoExcept(DeclVal<IteratorDifference>()))
         {
             if constexpr(BidirectionalIteratorConcept<Iterator>)
             {
@@ -168,7 +168,7 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE
-        constexpr Subrange Previous(IteratorDifference offset = 1) const noexcept(Advance(-offset))
+        constexpr Subrange Previous(IteratorDifference offset = 1) const noexcept(Advance(-DeclVal<IteratorDifference>()))
         {
             auto tmp = *this;
             tmp.Advance(-offset);
@@ -176,14 +176,14 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE
-        constexpr Subrange Previous(IteratorDifference offset = 1) && noexcept(Advance(-offset))
+        constexpr Subrange Previous(IteratorDifference offset = 1) && noexcept(Advance(-DeclVal<IteratorDifference>()))
         {
             Advance(-offset);
             return Move(*this);
         }
 
         SSSENGINE_PURE
-        constexpr Subrange Next(IteratorDifference offset = 1) const noexcept(Advance(offset))
+        constexpr Subrange Next(IteratorDifference offset = 1) const noexcept(Advance(DeclVal<IteratorDifference>()))
         {
             auto tmp = *this;
             tmp.Advance(offset);
@@ -191,7 +191,7 @@ namespace SSSEngine::Ranges
         }
 
         SSSENGINE_PURE
-        constexpr Subrange Next(IteratorDifference offset = 1) && noexcept(Advance(offset))
+        constexpr Subrange Next(IteratorDifference offset = 1) && noexcept(Advance(DeclVal<IteratorDifference>()))
         {
             Advance(offset);
             return Move(*this);
@@ -241,7 +241,7 @@ namespace SSSEngine::Ranges
       private:
         Iterator m_iterator;
         SSSENGINE_OVERLAP Sentinel m_sentinel;
-        SSSENGINE_OVERLAP CountStorage<StoreCount> m_count;
+        SSSENGINE_OVERLAP CountStorage<StoreCount, CountType> m_count;
     };
 
     // ----------------

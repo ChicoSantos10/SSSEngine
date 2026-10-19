@@ -102,7 +102,7 @@ namespace SSSEngine
      * @param bytes The amount of bytes to copy
      */
     template<typename From, typename To>
-        requires(IsBitwiseCopyable<From> && IsBitwiseCopyable<To>)
+        requires(IsTriviallyCopyable<From> && IsTriviallyCopyable<To>)
     SSSENGINE_FORCE_INLINE
     constexpr void ReverseMemoryCopy(const From *SSSENGINE_RESTRICT from, To *SSSENGINE_RESTRICT to, SizeType bytes) noexcept
     {
@@ -125,7 +125,7 @@ namespace SSSEngine
      * @param bytes The amount of bytes to set
      */
     template<typename T>
-        requires(IsBitwiseCopyable<T>)
+        requires(IsTriviallyCopyable<T>)
     SSSENGINE_FORCE_INLINE
     constexpr void MemorySet(T *to, int value, SizeType bytes) noexcept
     {
@@ -154,7 +154,7 @@ namespace SSSEngine
      * @param bytes The amount of bytes to zero
      */
     template<typename T>
-        requires(IsBitwiseCopyable<T>)
+        requires(IsTriviallyCopyable<T>)
     SSSENGINE_FORCE_INLINE
     constexpr void ZeroMemory(T *to, SizeType bytes) noexcept
     {

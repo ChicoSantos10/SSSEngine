@@ -1256,12 +1256,12 @@ namespace SSSEngine::Text
             bool boolean;
             CharType character;
             StringView<Encoding> string;
-            i32 i32;
-            i64 i64;
-            u32 u32;
-            u64 u64;
-            f32 f32;
-            f64 f64;
+            i32 int32;
+            i64 int64;
+            u32 unsigned32;
+            u64 unsigned64;
+            f32 float32;
+            f64 float64;
             void *pointer;
             CustomType<Encoding, FmtCtx> custom;
         };
@@ -1415,27 +1415,27 @@ namespace SSSEngine::Text
         }
         else if constexpr(IsSameType<Type, i32>)
         {
-            return {.i32 = i32(value)};
+            return {.int32 = i32(value)};
         }
         else if constexpr(IsSameType<Type, i64>)
         {
-            return {.i64 = i64(value)};
+            return {.int64 = i64(value)};
         }
         else if constexpr(IsSameType<Type, u32>)
         {
-            return {.u32 = u32(value)};
+            return {.unsigned32 = u32(value)};
         }
         else if constexpr(IsSameType<Type, u64>)
         {
-            return {.u64 = u64(value)};
+            return {.unsigned64 = u64(value)};
         }
         else if constexpr(IsSameType<Type, f32>)
         {
-            return {.f32 = value};
+            return {.float32 = value};
         }
         else if constexpr(IsSameType<Type, f64>)
         {
-            return {.f64 = value};
+            return {.float64 = value};
         }
         else if constexpr(IsPointer<Type>)
         {
@@ -1493,17 +1493,17 @@ namespace SSSEngine::Text
                 case ArgType::String:
                     return Forward<Visitor>(visitor)(m_value.string);
                 case ArgType::Int32:
-                    return Forward<Visitor>(visitor)(m_value.i32);
+                    return Forward<Visitor>(visitor)(m_value.int32);
                 case ArgType::Int64:
-                    return Forward<Visitor>(visitor)(m_value.i64);
+                    return Forward<Visitor>(visitor)(m_value.int64);
                 case ArgType::UInt32:
-                    return Forward<Visitor>(visitor)(m_value.u32);
+                    return Forward<Visitor>(visitor)(m_value.unsigned32);
                 case ArgType::UInt64:
-                    return Forward<Visitor>(visitor)(m_value.u64);
+                    return Forward<Visitor>(visitor)(m_value.unsigned64);
                 case ArgType::Float32:
-                    return Forward<Visitor>(visitor)(m_value.f32);
+                    return Forward<Visitor>(visitor)(m_value.float32);
                 case ArgType::Float64:
-                    return Forward<Visitor>(visitor)(m_value.f64);
+                    return Forward<Visitor>(visitor)(m_value.float64);
                 case ArgType::Pointer:
                     return Forward<Visitor>(visitor)(m_value.pointer);
                 case ArgType::Custom:

@@ -68,7 +68,7 @@ namespace SSSEngine
                 {
                     return _BoundArgStorage<_IndexedBoundArg<Indices, BoundArgs>...>{{BoundArgs(Forward<Args>(args))}...};
                 };
-                return impl(index_sequence_for<BoundArgs...>());
+                return impl(IndexSequenceFor<BoundArgs...>());
             }
         }
 

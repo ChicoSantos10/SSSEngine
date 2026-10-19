@@ -50,29 +50,12 @@ namespace SSSEngine::Text
     SSSENGINE_PURE SSSENGINE_GLOBAL
     constexpr SizeType Length(const CharType *const string) noexcept
     {
-        if consteval
+        SizeType index = 0;
+        for(; string[index] != CharType('\0'); ++index)
         {
-            SizeType index = 0;
-            for(; string[index] != CharType('\0'); ++index)
-            {
-            };
+        };
 
-            return index;
-        }
-        else
-        {
-            if constexpr(sizeof(CharType) == sizeof(char))
-            {
-                const auto *data = reinterpret_cast<const char *>(string);
-                return __builtin_strlen(data);
-            }
-
-            if constexpr(IsSameType<CharType, wchar_t>)
-            {
-                const auto *data = reinterpret_cast<const wchar_t *>(string);
-                return __builtin_wcslen(data);
-            }
-        }
+        return index;
     }
 
     /**

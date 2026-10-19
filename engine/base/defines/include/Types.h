@@ -26,13 +26,8 @@
 
 #include "Debug.h"
 
-#ifdef SSSENGINE_WIN32
 using i64 = signed long long;
 using u64 = unsigned long long;
-#else
-using i64 = signed long;
-using u64 = unsigned long;
-#endif
 
 using i8 = signed char;
 using i16 = signed short;

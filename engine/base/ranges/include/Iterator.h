@@ -390,7 +390,8 @@ namespace SSSEngine::Ranges
 
             template<IteratorConcept It>
                 SSSENGINE_FORCE_INLINE
-            constexpr void operator()(It &it, IteratorDifferenceType<It> offset) const noexcept(IsNoExcept(it, offset))
+            constexpr void operator()(It &it, IteratorDifferenceType<It> offset) const
+                noexcept(IsNoExcept(DeclVal<It &>(), DeclVal<IteratorDifferenceType<It>>()))
             {
                 if constexpr(RandomAccessIteratorConcept<It>)
                 {
@@ -425,7 +426,8 @@ namespace SSSEngine::Ranges
 
             template<IteratorConcept It, SentinelForConcept<It> Sentinel>
                 SSSENGINE_FORCE_INLINE
-            constexpr void operator()(It &it, Sentinel bound) const noexcept(IsNoExcept(it, bound))
+            constexpr void operator()(It &it, Sentinel bound) const
+                noexcept(IsNoExcept(DeclVal<It &>(), DeclVal<Sentinel>()))
             {
                 if constexpr(AssignableFromConcept<It &, Sentinel>)
                 {
@@ -447,7 +449,7 @@ namespace SSSEngine::Ranges
             template<IteratorConcept It, SentinelForConcept<It> Sentinel>
                 SSSENGINE_FORCE_INLINE
             constexpr IteratorDifferenceType<It> operator()(It &it, IteratorDifferenceType<It> offset, Sentinel bound) const
-                noexcept(IsNoExcept(it, offset, bound))
+                noexcept(IsNoExcept(DeclVal<It &>(), DeclVal<IteratorDifferenceType<It>>(), DeclVal<Sentinel>()))
             {
                 if constexpr(SizedSentinelForConcept<Sentinel, It>)
                 {
@@ -527,7 +529,7 @@ namespace SSSEngine::Ranges
         {
             template<BidirectionalIteratorConcept It>
                 SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-            constexpr It operator()(It it) const noexcept(noexcept(--it))
+            constexpr It operator()(It it) const noexcept(noexcept(--DeclVal<It>()))
             {
                 ++it;
                 return it;
@@ -536,7 +538,7 @@ namespace SSSEngine::Ranges
             template<BidirectionalIteratorConcept It>
                 SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             constexpr It operator()(It it, IteratorDifferenceType<It> offset) const
-                noexcept(noexcept(__AdvanceFn{}(it, offset)))
+                noexcept(noexcept(__AdvanceFn{}(DeclVal<It>(), DeclVal<IteratorDifferenceType<It>>())))
             {
                 __AdvanceFn{}(it, offset);
                 return it;
@@ -545,7 +547,7 @@ namespace SSSEngine::Ranges
             template<BidirectionalIteratorConcept It>
                 SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             constexpr It operator()(It it, IteratorDifferenceType<It> offset, It bound) const
-                noexcept(noexcept(__AdvanceFn{}(it, offset, bound)))
+                noexcept(noexcept(__AdvanceFn{}(DeclVal<It>(), DeclVal<IteratorDifferenceType<It>>(), DeclVal<It>())))
             {
                 __AdvanceFn{}(it, offset, bound);
                 return it;
@@ -558,7 +560,7 @@ namespace SSSEngine::Ranges
         {
             template<BidirectionalIteratorConcept It>
                 SSSENGINE_PURE SSSENGINE_FORCE_INLINE
-            constexpr It operator()(It it) const noexcept(noexcept(--it))
+            constexpr It operator()(It it) const noexcept(noexcept(--DeclVal<It>()))
             {
                 --it;
                 return it;
@@ -567,7 +569,7 @@ namespace SSSEngine::Ranges
             template<BidirectionalIteratorConcept It>
                 SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             constexpr It operator()(It it, IteratorDifferenceType<It> offset) const
-                noexcept(noexcept(__AdvanceFn{}(it, -offset)))
+                noexcept(noexcept(__AdvanceFn{}(DeclVal<It>(), -DeclVal<IteratorDifferenceType<It>>())))
             {
                 __AdvanceFn{}(it, -offset);
                 return it;
@@ -576,7 +578,7 @@ namespace SSSEngine::Ranges
             template<BidirectionalIteratorConcept It>
                 SSSENGINE_PURE SSSENGINE_FORCE_INLINE
             constexpr It operator()(It it, IteratorDifferenceType<It> offset, It bound) const
-                noexcept(noexcept(__AdvanceFn{}(it, -offset, bound)))
+                noexcept(noexcept(__AdvanceFn{}(DeclVal<It>(), -DeclVal<IteratorDifferenceType<It>>(), DeclVal<It>())))
             {
                 __AdvanceFn{}(it, -offset, bound);
                 return it;

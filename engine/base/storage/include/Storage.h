@@ -155,10 +155,9 @@ namespace SSSEngine
         constexpr const T &&Get() const && = delete; // NOLINT(modernize-use-nodiscard, Its deleted no use marking
                                                      // nodiscard)
 
-        template<typename Self>
-        constexpr operator T(this Self &&self) noexcept
+        constexpr operator T() const noexcept
         {
-            return Forward<Self>(self).Get();
+            return Get();
         }
 
       private:

@@ -31,7 +31,6 @@
 #include "Concepts.h"
 #include "Debug.h"
 #include "HelperMacros.h"
-#include "Math.h"
 #include "SignTraits.h"
 #include "System.h"
 #include "Traits.h"
@@ -61,6 +60,9 @@ namespace SSSEngine
         static constexpr SizeType Lanes = 128 / ElementSize;
 
         using NativeType = __m128i;
+        // NOTE: GCC does not correctly set it as a vector type if using "using" instead of typedef
+        // NOLINTNEXTLINE(modernize-use-using)
+        typedef Int VectorType __attribute__((__vector_size__(16)));
         using ElementType = Int;
 
         Int128() = default;
@@ -77,13 +79,13 @@ namespace SSSEngine
 
         SSSENGINE_FORCE_INLINE
         constexpr explicit Int128(ElementType value) noexcept :
-            value(NativeSet(value))
+            value(Set1(value))
         {
         }
 
         template<typename... Args>
             requires(sizeof...(Args) == Lanes) && (ConvertibleToConcept<ElementType, Args> && ...)
-        SSSENGINE_FORCE_INLINE constexpr explicit Int128(Args... values) noexcept : value(NativeSetMultiple(values...))
+        SSSENGINE_FORCE_INLINE constexpr explicit Int128(Args... values) noexcept : value(Set(values...))
         {
         }
 
@@ -301,7 +303,7 @@ namespace SSSEngine
         SSSENGINE_SIMD_ATTRIBUTES
         constexpr Int128 &operator~() noexcept
         {
-            SSSENGINE_FUNCTION_LOCAL constexpr NativeType Neg1 = NativeSet(-1);
+            SSSENGINE_FUNCTION_LOCAL constexpr NativeType Neg1 = Set1(-1);
             value = NativeXor(value, Neg1);
 
             return *this;
@@ -325,76 +327,124 @@ namespace SSSEngine
 
         NativeType value;
 
-      private:
+        // =============================================================================================================
+        // Static Helpers
+        // =============================================================================================================
+
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr static NativeType NativeSet(ElementType value)
+        constexpr static NativeType Set(ElementType v1, ElementType v2) noexcept
+            requires(ElementSize == 64)
         {
-            if constexpr(ElementSize == 64)
+            if consteval
             {
-                return _mm_set1_epi64x(value);
-            }
-            else if constexpr(ElementSize == 32)
-            {
-                return _mm_set1_epi32(value);
-            }
-            else if constexpr(ElementSize == 16)
-            {
-                return _mm_set1_epi16(value);
+                return (NativeType)VectorType{v2, v1};
             }
             else
             {
-                return _mm_set1_epi8(value);
+                return _mm_set_epi64x(v2, v1);
             }
         }
 
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr static NativeType NativeSetMultiple(ElementType v1, ElementType v2) noexcept
-            requires(ElementSize == 64)
-        {
-            return _mm_set_epi64x(v2, v1);
-        }
-
-        SSSENGINE_SIMD_ATTRIBUTES
-        constexpr static NativeType NativeSetMultiple(ElementType v1, ElementType v2, ElementType v3, ElementType v4) noexcept
+        constexpr static NativeType Set(ElementType v1, ElementType v2, ElementType v3, ElementType v4) noexcept
             requires(ElementSize == 32)
         {
-            return _mm_set_epi32(v4, v3, v2, v1);
+            if consteval
+            {
+                return (NativeType)VectorType{v4, v3, v2, v1};
+            }
+            else
+            {
+                return _mm_set_epi32(v4, v3, v2, v1);
+            }
         }
 
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr static NativeType NativeSetMultiple(ElementType v1,
-                                                      ElementType v2,
-                                                      ElementType v3,
-                                                      ElementType v4,
-                                                      ElementType v5,
-                                                      ElementType v6,
-                                                      ElementType v7,
-                                                      ElementType v8) noexcept
+        constexpr static NativeType
+        Set(ElementType v1, ElementType v2, ElementType v3, ElementType v4, ElementType v5, ElementType v6, ElementType v7, ElementType v8) noexcept
             requires(ElementSize == 16)
         {
-            return _mm_set_epi16(v8, v7, v6, v5, v4, v3, v2, v1);
+            if consteval
+            {
+                return (NativeType)VectorType{v8, v7, v6, v5, v4, v3, v2, v1};
+            }
+            else
+            {
+                return _mm_set_epi16(v8, v7, v6, v5, v4, v3, v2, v1);
+            }
         }
 
         SSSENGINE_SIMD_ATTRIBUTES
-        constexpr static NativeType NativeSetMultiple(ElementType v1,
-                                                      ElementType v2,
-                                                      ElementType v3,
-                                                      ElementType v4,
-                                                      ElementType v5,
-                                                      ElementType v6,
-                                                      ElementType v7,
-                                                      ElementType v8,
-                                                      ElementType v9,
-                                                      ElementType v10,
-                                                      ElementType v11,
-                                                      ElementType v12,
-                                                      ElementType v13,
-                                                      ElementType v14,
-                                                      ElementType v15,
-                                                      ElementType v16) noexcept
+        constexpr static NativeType Set(ElementType v1,
+                                        ElementType v2,
+                                        ElementType v3,
+                                        ElementType v4,
+                                        ElementType v5,
+                                        ElementType v6,
+                                        ElementType v7,
+                                        ElementType v8,
+                                        ElementType v9,
+                                        ElementType v10,
+                                        ElementType v11,
+                                        ElementType v12,
+                                        ElementType v13,
+                                        ElementType v14,
+                                        ElementType v15,
+                                        ElementType v16) noexcept
             requires(ElementSize == 8)
         {
-            return _mm_set_epi8(v16, v15, v14, v13, v12, v11, v10, v9, v8, v7, v6, v5, v4, v3, v2, v1);
+            if consteval
+            {
+                return (NativeType)VectorType{v16, v15, v14, v13, v12, v11, v10, v9, v8, v7, v6, v5, v4, v3, v2, v1};
+            }
+            else
+            {
+                return _mm_set_epi8(v16, v15, v14, v13, v12, v11, v10, v9, v8, v7, v6, v5, v4, v3, v2, v1);
+            }
+        }
+
+        SSSENGINE_SIMD_ATTRIBUTES
+        constexpr static NativeType Set1(ElementType value)
+        {
+            if consteval
+            {
+                if constexpr(ElementSize == 64)
+                {
+                    return Set(value, value);
+                }
+                else if constexpr(ElementSize == 32)
+                {
+                    return Set(value, value, value, value);
+                }
+                else if constexpr(ElementSize == 16)
+                {
+                    return Set(value, value, value, value, value, value, value, value);
+                }
+                else
+                {
+                    return Set(
+                        value, value, value, value, value, value, value, value, value, value, value, value, value, value, value, value);
+                }
+            }
+            else
+            {
+                if constexpr(ElementSize == 64)
+                {
+                    return _mm_set1_epi64x(value);
+                }
+                else if constexpr(ElementSize == 32)
+                {
+                    return _mm_set1_epi32(value);
+                }
+                else if constexpr(ElementSize == 16)
+                {
+                    return _mm_set1_epi16(value);
+                }
+                else
+                {
+                    return _mm_set1_epi8(value);
+                }
+            }
         }
 
         SSSENGINE_SIMD_ATTRIBUTES
@@ -1605,7 +1655,10 @@ namespace SSSEngine
         SSSENGINE_SIMD_ATTRIBUTES
         constexpr Float256 &operator~() noexcept
         {
-            SSSENGINE_FUNCTION_LOCAL constexpr NativeType Neg1 = _mm256_castsi256_ps(_mm256_set1_epi64x(-1.0f));
+    #ifndef SSSENGINE_GCC
+            SSSENGINE_FUNCTION_LOCAL constexpr
+    #endif // SSSENGINE_GCC
+                NativeType Neg1 = _mm256_castsi256_ps(_mm256_set1_epi64x(-1.0f));
 
             value = _mm256_xor_ps(value, Neg1);
 
@@ -1615,7 +1668,10 @@ namespace SSSEngine
         SSSENGINE_SIMD_ATTRIBUTES
         constexpr Float256 &operator-() noexcept
         {
-            SSSENGINE_FUNCTION_LOCAL constexpr NativeType Neg0 = _mm256_set1_ps(-0.0f);
+    #ifndef SSSENGINE_GCC
+            SSSENGINE_FUNCTION_LOCAL constexpr
+    #endif // SSSENGINE_GCC
+                NativeType Neg0 = _mm256_set1_ps(-0.0f);
 
             value = _mm256_xor_ps(value, Neg0);
 

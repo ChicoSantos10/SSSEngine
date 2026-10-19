@@ -70,12 +70,22 @@ namespace SSSEngine
     };
 
     template<>
-    struct IsIntegerImpl<i64> : public TrueType
+    struct IsIntegerImpl<long> : public TrueType
     {
     };
 
     template<>
-    struct IsIntegerImpl<u64> : public TrueType
+    struct IsIntegerImpl<unsigned long> : public TrueType
+    {
+    };
+
+    template<>
+    struct IsIntegerImpl<long long> : public TrueType
+    {
+    };
+
+    template<>
+    struct IsIntegerImpl<unsigned long long> : public TrueType
     {
     };
 

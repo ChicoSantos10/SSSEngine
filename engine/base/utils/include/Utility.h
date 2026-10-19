@@ -118,6 +118,8 @@ namespace SSSEngine
     template<IntegralConcept T, T Indices>
 #if __has_builtin(__make_integer_seq)
     using MakeIntegerSequence = __make_integer_seq<IntegerSequence, T, Indices>;
+#else
+    using MakeIntegerSequence = IntegerSequence<T, __integer_pack(Indices)...>;
 #endif
 
     template<SizeType... Indices>
@@ -125,6 +127,9 @@ namespace SSSEngine
 
     template<SizeType Indices>
     using MakeIndexSequence = MakeIntegerSequence<SizeType, Indices>;
+
+    template<typename... Types>
+    using IndexSequenceFor = MakeIndexSequence<sizeof...(Types)>;
 
     // TODO: Add other variants for construction
     //  Array -> foreach element ConstructAt() | Should be in iterators namespace since it will iterate over the array

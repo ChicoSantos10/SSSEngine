@@ -64,14 +64,10 @@ namespace SSSEngine
 
     template<typename T>
     SSSENGINE_GLOBAL
-    constexpr bool IsBitwiseCopyable = __is_bitwise_cloneable(T);
-
-    template<typename T>
-    SSSENGINE_GLOBAL
     constexpr bool IsTriviallyRelocatable = IsTriviallyCopyable<T>;
 
-    template<typename T, typename... Args>
-    struct NoThrowAssignableChecker : BoolConstant<__is_nothrow_assignable(T, Args...)>
+    template<typename T, typename V>
+    struct NoThrowAssignableChecker : BoolConstant<__is_nothrow_assignable(T, V)>
     {
     };
 
